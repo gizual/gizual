@@ -1,0 +1,5 @@
+{
+  "extends": "@giz/tsconfig/tsconfig.web.json",
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
