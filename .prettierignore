@@ -1,0 +1,8 @@
+generated/
+node_modules/
+dist/
+build/
+.cache/
+cmake-build*
+.yarn/
+.eslintrc.js

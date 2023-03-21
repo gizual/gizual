@@ -1,0 +1,11 @@
+node_modules/
+dist/
+lib/
+build/
+.cache/
+generated/
+.yarn/
+cmake-build*
+.coverage
+.eslintrc.js
+
