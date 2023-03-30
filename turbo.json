@@ -18,6 +18,10 @@
       "cache": false,
       "outputs": []
     },
+    "format": {
+      "cache": false,
+      "outputs": []
+    },
     "type-check": {
       "dependsOn": ["^build"],
       "cache": false,

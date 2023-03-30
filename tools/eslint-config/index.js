@@ -92,5 +92,6 @@ module.exports = {
     "no-empty-pattern": OFF,
 
     "unicorn/prevent-abbreviations": OFF,
+    "unicorn/prefer-module": OFF,
   },
 };

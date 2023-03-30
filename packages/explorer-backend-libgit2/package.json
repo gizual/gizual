@@ -4,9 +4,13 @@
   "types": "dist/explorer_backend_libgit2.d.ts",
   "scripts": {
     "build": "wasm-pack build --out-dir dist",
-    "dev": "cargo watch -s 'wasm-pack build --out-dir dist'",
+    "dev": "turbowatch",
     "clean": "rimraf dist",
     "lint": "cargo clippy",
-    "test": "cargo test && wasm-pack test --headless --chrome"
+    "format": "cargo fmt"
+  },
+  "devDependencies": {
+    "turbowatch": "2.20.0",
+    "wasm-pack": "0.10.3"
   }
 }
