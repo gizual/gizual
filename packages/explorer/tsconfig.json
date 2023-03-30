@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "dom"]
+  },
+  "extends": "@giz/tsconfig/tsconfig.web.json",
+  "include": ["src"],
+  "exclude": ["dist", "build", "node_modules"]
+}

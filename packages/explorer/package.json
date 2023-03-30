@@ -1,0 +1,21 @@
+{
+  "name": "@giz/explorer",
+  "module": "dist/index.mjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "dev": "turbowatch",
+    "clean": "rimraf dist",
+    "lint": "eslint .",
+    "type-check": "tsc"
+  },
+  "devDependencies": {
+    "rimraf": "4.4.1",
+    "tsup": "6.7.0",
+    "turbowatch": "2.20.0"
+  },
+  "dependencies": {
+    "@giz/explorer-backend-libgit2": "workspace:*"
+  }
+}
