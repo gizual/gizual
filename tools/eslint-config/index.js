@@ -4,74 +4,70 @@ const OFF = 0;
 
 module.exports = {
   root: true,
-  "env": {
-    "browser": true,
-    "es2021": true
+  ignorePatterns: ["**/.eslintrc.js", "**/dist/*", "**/build/*"],
+  env: {
+    browser: true,
+    es2021: true,
   },
   settings: {
     react: {
       version: "detect",
     },
   },
-  "plugins": [
-    "react",
-    "@typescript-eslint",
-    "simple-import-sort",
-    "unused-imports",
-    "unicorn"
-  ],
-  "extends": [
+  plugins: ["react", "@typescript-eslint", "simple-import-sort", "unused-imports", "unicorn"],
+  extends: [
+    "turbo",
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:unicorn/recommended",
   ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
     },
-    "ecmaVersion": "latest",
-    "sourceType": "module"
+    ecmaVersion: "latest",
+    sourceType: "module",
   },
   overrides: [
     {
-      "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
-      "rules": {
+      files: ["*.js", "*.jsx", "*.ts", "*.tsx"],
+      rules: {
         "simple-import-sort/imports": [
           "error",
           {
-            "groups": [
+            groups: [
               // Node.js builtins prefixed with `node:`.
               // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
               ["^node:", "^@?\\w"],
               // Internal packages or imports from parent directories
-              ["^@giz","^\\.\\.\\/"],
+              ["^@giz", "^\\.\\.\\/"],
               // Anything not matched in another group.
               // Relative imports.
               // Anything that starts with a dot.
               ["^", "^\\.\\/"],
               // Side effect imports.
               ["^\\u0000"],
-            ]
-          }
-        ]
-      }
-    }
+            ],
+          },
+        ],
+      },
+    },
   ],
-  "rules": {
-    "indent": OFF,
+  rules: {
+    indent: OFF,
     "linebreak-style": OFF,
-    "quotes": OFF,
-    "semi": OFF,
+    quotes: OFF,
+    semi: OFF,
 
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "warn",
-      { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
+      { vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_" },
     ],
 
-    "simple-import-sort/imports":  WARN,
+    "simple-import-sort/imports": WARN,
     "simple-import-sort/exports": WARN,
 
     "react/react-in-jsx-scope": OFF,
@@ -96,6 +92,5 @@ module.exports = {
     "no-empty-pattern": OFF,
 
     "unicorn/prevent-abbreviations": OFF,
-  }
-
+  },
 };

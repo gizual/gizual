@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { createMsg } from "@giz/explorer";
+
 import viteLogo from "/vite.svg";
 import reactLogo from "./assets/react.svg";
 
@@ -7,6 +9,12 @@ import "./app.css";
 
 function App() {
   const [count, setCount] = useState(0);
+
+  const onClick = () => {
+    setCount((count) => count + 1);
+    const msg = createMsg("World!");
+    console.log("Message:", msg);
+  };
 
   return (
     <div className="App">
@@ -20,7 +28,7 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
+        <button onClick={onClick}>count is {count}</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>

@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "packages/explorer-backend-libgit2"
+]

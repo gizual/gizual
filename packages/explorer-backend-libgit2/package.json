@@ -1,0 +1,12 @@
+{
+  "name": "@giz/explorer-backend-libgit2",
+  "module": "dist/explorer_backend_libgit2.js",
+  "types": "dist/explorer_backend_libgit2.d.ts",
+  "scripts": {
+    "build": "wasm-pack build --out-dir dist",
+    "dev": "cargo watch -s 'wasm-pack build --out-dir dist'",
+    "clean": "rimraf dist",
+    "lint": "cargo clippy",
+    "test": "cargo test && wasm-pack test --headless --chrome"
+  }
+}
