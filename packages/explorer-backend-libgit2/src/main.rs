@@ -38,7 +38,7 @@ struct Args {
 }
 
 fn run(args: &Args) -> Result<(), git2::Error> {
-    let repo = Repository::open(".")?;
+    let repo = Repository::open("/repo")?;
     let path = Path::new(&args.arg_path[..]);
 
     // Prepare our blame options

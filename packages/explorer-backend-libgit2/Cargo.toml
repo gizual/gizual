@@ -14,9 +14,11 @@ crate-type = ["staticlib"]
 #wee_alloc = { version = "0.4.5", optional = true }
 #console_error_panic_hook = { version = "0.1.7", optional = true }
 structopt = "0.3"
-git2 = { git = "https://github.com/gizual/git2-rs", default-features = false, branch = "wasm32-wasi-support" }
+git2 = { git = "https://github.com/gizual/git2-rs", default-features = false, branch = "wasm32-wasi-support", features = [
+  "vendored-zlib"
+] }
 
-#git2 = {path = "../../../git2-rs", default-features = false, features = []} # zlib-ng-compat
+#git2 = {path = "../../../git2-rs", default-features = false, features = ["vendored-zlib"]}
 #[dependencies.web-sys]
 #version = "0.3.61"
 #features = ["console"]
