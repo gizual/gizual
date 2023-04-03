@@ -1,0 +1,136 @@
+@use "mixins" as *;
+
+:root {
+  /* Main colors */
+  --color-lightgray: #e4e4e7;
+  --color-darkgray: #13161a;
+  --color-white: #fff;
+  --color-black: #000;
+  --color-zinc: #cecece;
+  --color-gunmetal: #2b303a;
+  --color-gray: #b4b4b4;
+  --color-darkslate: #35404e;
+
+  /* Accent colors */
+  --color-gizblue: #007acc;
+  --color-tomato: #e94f37;
+  --color-lavender: #d4cdf4;
+  --color-plum: #5c29af;
+
+  /* Color definitions */
+  @media (prefers-color-scheme: light) {
+    --background-primary: var(--color-lightgray);
+    --background-secondary: var(--color-white);
+    --background-tertiary: var(--color-zinc);
+    --foreground-primary: var(--color-darkgray);
+    --foreground-secondary: var(--color-black);
+
+    --accent-main: var(--color-gizblue);
+    --accent-main-fg: var(--color-white);
+    --accent-secondary: var(--color-lavender);
+    --accent-secondary-fg: var(--color-black);
+    --accent-tertiary: var(--color-tomato);
+    --accent-tertiary-fg: var(--color-white);
+
+    --border-primary: var(--color-gray);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    --background-primary: var(--color-darkgray);
+    --background-secondary: var(--color-black);
+    --background-tertiary: var(--color-gunmetal);
+    --foreground-primary: var(--color-lightgray);
+    --foreground-secondary: var(--color-white);
+
+    --accent-main: var(--color-gizblue);
+    --accent-main-fg: var(--color-white);
+    --accent-secondary: var(--color-plum);
+    --accent-secondary-fg: var(--color-white);
+    --accent-tertiary: var(--color-tomato);
+    --accent-tertiary-fg: var(--color-white);
+
+    --border-primary: var(--color-darkslate);
+  }
+}
+
+html {
+  font-family: system-ui, sans-serif;
+  background-color: var(--color-giz-white);
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+}
+
+#root {
+  height: 100%;
+}
+
+/* Sane CSS defaults inspired by `preflight` */
+blockquote,
+dl,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+figure,
+p,
+pre {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+ol,
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+}
+/* End of preflight block */
+
+body > * {
+  @include text-base;
+  color: var(--foreground-primary);
+}
+
+h1 {
+  @include text-2xl;
+  font-weight: bold;
+}
+
+h2 {
+  @include text-xl;
+  font-weight: medium;
+}
+
+h3 {
+  @include text-lg;
+  font-weight: medium;
+}

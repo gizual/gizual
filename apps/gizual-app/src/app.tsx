@@ -2,38 +2,40 @@ import { useState } from "react";
 
 import { createMsg } from "@giz/explorer";
 
-import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
-
-import "./app.css";
+import style from "./app.module.scss";
+import Button from "./primitives/button/button";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [messages, setMessage] = useState<string[]>([]);
 
   const onClick = () => {
-    setCount((count) => count + 1);
     const msg = createMsg("World!");
-    console.log("Message:", msg);
+    setMessage([...messages, msg]);
   };
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className={style.App}>
+      <div className={style.container}>
+        <img className={style.img} src="./giz.png" alt="Gizual Logo" />
+        <h1 className={style.h1}>Gizual</h1>
+        <p className={style.p}>Welcome to Gizual!</p>
+        <div className={style.card}>
+          <Button variant="filled" onClick={onClick} className={style.button}>
+            Test WASM
+          </Button>
+          {messages.map((m) => {
+            return <p className="text-center">{m}</p>;
+          })}
+        </div>
+        <Button
+          variant="filled"
+          color="gizgunmetal"
+          onClick={() => console.log("Not implemented")}
+          className={style.button}
+        >
+          {"Skip to main"}
+        </Button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={onClick}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
     </div>
   );
 }
