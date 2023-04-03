@@ -268,7 +268,6 @@ __metadata:
     rimraf: 4.4.1
     tsup: 6.7.0
     turbowatch: 2.20.0
-    zx: 7.2.1
   languageName: unknown
   linkType: soft
 
