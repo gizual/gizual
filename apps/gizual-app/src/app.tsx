@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-import { createMsg } from "@giz/explorer";
-
 import viteLogo from "/vite.svg";
 import reactLogo from "./assets/react.svg";
 
@@ -12,8 +10,6 @@ function App() {
 
   const onClick = () => {
     setCount((count) => count + 1);
-    const msg = createMsg("World!");
-    console.log("Message:", msg);
   };
 
   return (

@@ -14,6 +14,10 @@
 
 #![deny(warnings)]
 
+// ignore unused functions
+
+use std::fs;
+
 use git2::{BlameOptions, Repository};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
@@ -37,8 +41,31 @@ struct Args {
     flag_F: bool,
 }
 
+#[allow(dead_code)]
+fn print_directory(dir_path: &str) {
+    println!("print_directory");
+    let paths = fs::read_dir(dir_path);
+
+    match paths {
+        Ok(paths) => {
+            for path in paths {
+                println!("{:?}", path.unwrap().path());
+            }
+        }
+        Err(e) => {
+            println!("failed {:?}", e);
+        }
+    }
+}
+
+#[allow(dead_code)]
 fn run(args: &Args) -> Result<(), git2::Error> {
-    let repo = Repository::open("/repo")?;
+    let dir_path = "/repo";
+
+    // This function cannot actually fail, but the function has an error return
+    // for other options that can.
+
+    let repo = Repository::open(dir_path)?;
     let path = Path::new(&args.arg_path[..]);
 
     // Prepare our blame options

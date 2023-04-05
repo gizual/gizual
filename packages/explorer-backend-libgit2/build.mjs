@@ -27,7 +27,15 @@ $.env = {
   AR,
   NM,
   TARGET,
+  // RUSTFLAGS: `-Z wasi-exec-model=reactor`
 };
 
-await $`rustup target add ${TARGET}`;
-await $`cargo build -r --target=${TARGET}`;
+await $`rustup target add ${TARGET} --toolchain nightly`;
+await $`cargo +nightly build --release --target=${TARGET}`;
+let { stdout: rootPath } = await $`git rev-parse --show-toplevel`;
+rootPath = rootPath.trim();
+const wasmFileSrc = `${rootPath}/target/${TARGET}/release/explorer-backend-libgit2.wasm`;
+const wasmFilDest = `dist/explorer-backend-libgit2.wasm`;
+await $`mkdir -p dist`;
+//await fs.copyFile(wasmFileSrc, wasmFilDest);
+await $`wasm-opt -O2 ${wasmFileSrc} -o ${wasmFilDest} --enable-bulk-memory --debuginfo`;

@@ -1,0 +1,32 @@
+{
+  "name": "@giz/wasi-playground-app",
+  "version": "0.0.0",
+  "dependencies": {
+    "@giz/explorer-backend-libgit2": "workspace:*",
+    "@wasmer/wasi": "1.2.2",
+    "@wasmer/wasm-transformer": "0.12.0",
+    "@wasmer/wasmfs": "0.12.0",
+    "normalize.css": "8.0.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.0.28",
+    "@types/react-dom": "18.0.11",
+    "@vitejs/plugin-react-swc": "3.1.0",
+    "rimraf": "4.4.1",
+    "turbowatch": "2.20.0",
+    "typescript": "5.0.2",
+    "vite": "4.2.0",
+    "vite-plugin-top-level-await": "1.3.0",
+    "vite-plugin-wasm": "3.2.2"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "clean": "rimraf dist",
+    "type-check": "tsc"
+  }
+}
