@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 structopt = "0.3"
-git2 = { git = "https://github.com/gizual/git2-rs", default-features = false, branch = "wasm32-wasi-support", features = [
-  "vendored-zlib"
-] }
-
-#git2 = { path = "../../../git2-rs", default-features = false,  features = [
+#git2 = { git = "https://github.com/gizual/git2-rs", default-features = false, branch = "wasm32-wasi-support", features = [
 #  "vendored-zlib"
 #] }
+
+git2 = { path = "../../../git2-rs", default-features = false,  features = [
+  "vendored-zlib"
+] }
 [dev-dependencies]

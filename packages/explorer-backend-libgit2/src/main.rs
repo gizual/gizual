@@ -123,6 +123,9 @@ fn run(args: &Args) -> Result<(), git2::Error> {
 }
 
 fn main() {
+    print_directory("/repo/.git");
+    print_directory("/repo/.git/objects");
+
     let args = Args::from_args();
     match run(&args) {
         Ok(()) => {}

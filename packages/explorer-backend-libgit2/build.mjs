@@ -37,5 +37,6 @@ rootPath = rootPath.trim();
 const wasmFileSrc = `${rootPath}/target/${TARGET}/release/explorer-backend-libgit2.wasm`;
 const wasmFilDest = `dist/explorer-backend-libgit2.wasm`;
 await $`mkdir -p dist`;
-//await fs.copyFile(wasmFileSrc, wasmFilDest);
-await $`wasm-opt -O2 ${wasmFileSrc} -o ${wasmFilDest} --enable-bulk-memory --debuginfo`;
+await fs.copyFile(wasmFileSrc, wasmFilDest);
+await $`wasm-opt -O3 ${wasmFileSrc} --asyncify -o ${wasmFilDest}  --debuginfo`;
+// --pass-arg=asyncify-imports@wasi_snapshot_preview1.path_open
