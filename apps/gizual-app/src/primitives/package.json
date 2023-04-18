@@ -1,0 +1,4 @@
+{
+  "name": "@giz/gizual-app/primitives",
+  "main": "./index.ts"
+}

@@ -2,11 +2,12 @@ import clsx from "clsx";
 
 import style from "./button.module.scss";
 
-type ButtonVariant = "filled" | "outline";
+type ButtonVariant = "filled" | "outline" | "gray";
 
 const buttonVariantCSSMapping: Record<ButtonVariant, string> = {
   filled: style.buttonFilled,
   outline: style.buttonOutline,
+  gray: style.buttonGray,
 };
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -14,7 +15,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant: ButtonVariant;
 };
 
-function Button({ className, children, variant, ...props }: ButtonProps) {
+export function Button({ className, children, variant, ...props }: ButtonProps) {
   return (
     <button
       className={clsx(className, style.button, `${buttonVariantCSSMapping[variant]}`)}
@@ -25,5 +26,3 @@ function Button({ className, children, variant, ...props }: ButtonProps) {
     </button>
   );
 }
-
-export default Button;

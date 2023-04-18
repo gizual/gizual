@@ -3,6 +3,22 @@
   border-radius: 0.25rem;
 }
 
+@mixin rounded-left {
+  border-radius: 0;
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  border: 1px solid var(--border-primary);
+  border-right: none;
+}
+
+@mixin rounded-right {
+  border-radius: 0;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border: 1px solid var(--border-primary);
+  border-left: none;
+}
+
 @mixin transition-all {
   transition-property: all;
   transition-delay: 0s;

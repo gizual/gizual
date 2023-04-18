@@ -1,0 +1,12 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page {
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
