@@ -1,6 +1,7 @@
 import clsx from "clsx";
 
 import { Button } from "../button";
+import { Select } from "../select";
 
 import style from "./repo-panel.module.scss";
 
@@ -14,7 +15,7 @@ export function RepoPanel() {
         <div className={style.sectionBody}>
           <div className={style.block}>
             <h3>Branch</h3>
-            <select />
+            <Select />
           </div>
           <div className={style.block}>
             <h3>Selection range</h3>
