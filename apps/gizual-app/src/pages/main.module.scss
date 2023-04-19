@@ -1,6 +1,6 @@
 .body {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
 }
 
@@ -9,4 +9,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
+}
+
+.canvas {
+  flex-grow: 1;
 }

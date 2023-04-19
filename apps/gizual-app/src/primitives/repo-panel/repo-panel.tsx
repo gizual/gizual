@@ -1,11 +1,18 @@
 import clsx from "clsx";
 
-import { Button } from "../button";
 import { Select } from "../select";
+import { ToggleButton } from "../toggle-button/toggle-button";
 
 import style from "./repo-panel.module.scss";
+import { RepoPanelViewModel } from "./repo-panel.vm";
 
-export function RepoPanel() {
+export type RepoPanelProps = {
+  vm?: RepoPanelViewModel;
+};
+
+export function RepoPanel({ vm }: RepoPanelProps) {
+  if (!vm) vm = new RepoPanelViewModel();
+
   return (
     <div className={style.repoPanel}>
       <div className={style.section}>
@@ -15,18 +22,30 @@ export function RepoPanel() {
         <div className={style.sectionBody}>
           <div className={style.block}>
             <h3>Branch</h3>
-            <Select />
+            <Select
+              data={vm.selectBranchData}
+              placeholder="Select branch ..."
+              groupTitle="Select branch"
+              onValueChange={vm.onBranchChange}
+            />
           </div>
           <div className={style.block}>
             <h3>Selection range</h3>
-            <div className={style.selector}>
-              <Button variant="filled">Commit</Button>
-              <Button variant="gray">Timerange</Button>
-            </div>
+            <ToggleButton
+              ariaLabel="Selection range"
+              values={vm.toggleRangeValues}
+              defaultChecked={0}
+              toggleName="selectionRange"
+            />
           </div>
           <div className={clsx(style.block)}>
             <h3>Commit</h3>
-            <select />
+            <Select
+              data={vm.selectCommitData}
+              placeholder="Select commit ..."
+              groupTitle="Select commit"
+              onValueChange={vm.onCommitChange}
+            />
           </div>
         </div>
       </div>

@@ -1,14 +1,27 @@
 import * as RSelect from "@radix-ui/react-select";
 
 import { ReactComponent as ChevronDownIcon } from "../../assets/icons/chevron-down.svg";
+import { ReactComponent as ChevronUpIcon } from "../../assets/icons/chevron-up.svg";
 
 import "./select.css";
-export type SelectProps = {};
-export function Select(props: SelectProps) {
+
+export type SelectEntry = {
+  value: string;
+  label: string;
+};
+export type SelectProps = {
+  data: SelectEntry[];
+
+  onValueChange?: (value: string) => void;
+  groupTitle?: string;
+  placeholder?: string;
+};
+
+export function Select({ groupTitle, placeholder, data, onValueChange }: SelectProps) {
   return (
-    <RSelect.Root>
+    <RSelect.Root onValueChange={onValueChange}>
       <RSelect.Trigger className="SelectTrigger" aria-label="Select Component">
-        <RSelect.Value placeholder="Select a fruit…" />
+        <RSelect.Value placeholder={placeholder} />
         <RSelect.Icon className="SelectIcon">
           <ChevronDownIcon />
         </RSelect.Icon>
@@ -17,24 +30,20 @@ export function Select(props: SelectProps) {
       <RSelect.Portal>
         <RSelect.Content className="SelectContent">
           <RSelect.ScrollUpButton className="SelectScrollButton">
-            <ChevronDownIcon />
+            <ChevronUpIcon />
           </RSelect.ScrollUpButton>
           <RSelect.Viewport className="SelectViewport">
             <RSelect.Group>
-              <RSelect.Label className="SelectLabel">Fruits</RSelect.Label>
-              <RSelect.Item className="SelectItem" value="apple">
-                <RSelect.ItemText>Apple</RSelect.ItemText>
-              </RSelect.Item>
-              <RSelect.Item className="SelectItem" value="banana">
-                <RSelect.ItemText>Banana</RSelect.ItemText>
-              </RSelect.Item>
-              <RSelect.Item className="SelectItem" value="croissant">
-                <RSelect.ItemText>Croissant</RSelect.ItemText>
-              </RSelect.Item>
+              <RSelect.Label className="SelectLabel">{groupTitle}</RSelect.Label>
+              {data.map((entry, index) => (
+                <RSelect.Item className="SelectItem" value={entry.value} key={index}>
+                  <RSelect.ItemText>{entry.label}</RSelect.ItemText>
+                </RSelect.Item>
+              ))}
             </RSelect.Group>
+
             <RSelect.Separator />
           </RSelect.Viewport>
-          <RSelect.ScrollDownButton />
           <RSelect.Arrow />
         </RSelect.Content>
       </RSelect.Portal>

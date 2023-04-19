@@ -1,5 +1,5 @@
 declare const classNames: {
-  readonly repoPanel: "repoPanel";
+  readonly settingsPanel: "settingsPanel";
   readonly section: "section";
   readonly sectionHead: "sectionHead";
   readonly sectionBody: "sectionBody";

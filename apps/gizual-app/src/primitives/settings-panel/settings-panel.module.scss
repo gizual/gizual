@@ -1,11 +1,11 @@
 @use "@/mixins" as *;
 
-.repoPanel {
+.settingsPanel {
   width: 300px;
   height: 100%;
   position: relative;
   display: flex;
-  border-right: 1px solid var(--border-primary);
+  border-left: 1px solid var(--border-primary);
   padding: 0.5rem 0.5rem;
   flex-direction: column;
   gap: 1rem;
