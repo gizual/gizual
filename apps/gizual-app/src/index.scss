@@ -89,6 +89,7 @@ html {
   background-color: var(--color-giz-white);
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -164,4 +165,14 @@ h2 {
 h3 {
   @include text-lg;
   font-weight: medium;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
 }

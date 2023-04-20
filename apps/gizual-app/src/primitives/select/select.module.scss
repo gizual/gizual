@@ -1,8 +1,11 @@
+@use "@/mixins" as *;
+
 button {
   all: unset;
 }
 
 .SelectTrigger {
+  @include transition-bg;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;

@@ -1,24 +1,36 @@
+import { observer } from "mobx-react-lite";
+import React from "react";
+
 import { TitleBar } from "../primitives";
 import { RepoPanel } from "../primitives/repo-panel";
-import { SearchBar } from "../primitives/search-bar/search-bar";
+import SearchBar from "../primitives/search-bar/search-bar";
 import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
+import { MainPageViewModel } from "./main.vm";
 
-function MainPage() {
+export type MainPageProps = {
+  vm?: MainPageViewModel;
+};
+
+function MainPage({ vm: externalVm }: MainPageProps) {
+  const vm: MainPageViewModel = React.useMemo(() => {
+    return externalVm || new MainPageViewModel();
+  }, [externalVm]);
+
   return (
     <div className={style.page}>
       <div>
         <TitleBar />
-        <SearchBar />
+        <SearchBar vm={vm.searchBarVM} />
       </div>
       <div className={style.body}>
-        <RepoPanel />
+        {vm.isRepoPanelVisible && <RepoPanel />}
         <div className={style.canvas} />
-        <SettingsPanel />
+        {vm.isSettingsPanelVisible && <SettingsPanel />}
       </div>
     </div>
   );
 }
 
-export default MainPage;
+export default observer(MainPage);

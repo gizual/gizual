@@ -1,0 +1,61 @@
+@use "@/mixins" as *;
+
+@mixin panel {
+  width: 300px;
+  height: 100%;
+  position: relative;
+  display: flex;
+  padding: 0.5rem 0.5rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.panel {
+  @include panel;
+}
+
+@mixin section {
+  @include rounded;
+  width: 100%;
+}
+.section {
+  @include section;
+}
+
+@mixin section-head {
+  background-color: var(--background-tertiary);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-primary);
+
+  h1 {
+    @include text-xl;
+  }
+}
+
+.sectionHead {
+  @include section-head;
+}
+
+@mixin section-body {
+  padding: 0.5rem 1rem;
+}
+
+.sectionBody > * {
+  @include section-body;
+}
+
+@mixin block {
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.block {
+  @include block;
+}
+
+.sectionBody .block:last-of-type {
+  border-bottom: none;
+}

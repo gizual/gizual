@@ -3,7 +3,7 @@ import * as RSelect from "@radix-ui/react-select";
 import { ReactComponent as ChevronDownIcon } from "../../assets/icons/chevron-down.svg";
 import { ReactComponent as ChevronUpIcon } from "../../assets/icons/chevron-up.svg";
 
-import "./select.css";
+import style from "./select.module.scss";
 
 export type SelectEntry = {
   value: string;
@@ -20,23 +20,23 @@ export type SelectProps = {
 export function Select({ groupTitle, placeholder, data, onValueChange }: SelectProps) {
   return (
     <RSelect.Root onValueChange={onValueChange}>
-      <RSelect.Trigger className="SelectTrigger" aria-label="Select Component">
+      <RSelect.Trigger className={style.SelectTrigger} aria-label="Select Component">
         <RSelect.Value placeholder={placeholder} />
-        <RSelect.Icon className="SelectIcon">
+        <RSelect.Icon className={style.SelectIcon}>
           <ChevronDownIcon />
         </RSelect.Icon>
       </RSelect.Trigger>
 
       <RSelect.Portal>
-        <RSelect.Content className="SelectContent">
-          <RSelect.ScrollUpButton className="SelectScrollButton">
+        <RSelect.Content className={style.SelectContent}>
+          <RSelect.ScrollUpButton className={style.SelectScrollButton}>
             <ChevronUpIcon />
           </RSelect.ScrollUpButton>
-          <RSelect.Viewport className="SelectViewport">
+          <RSelect.Viewport className={style.SelectViewport}>
             <RSelect.Group>
-              <RSelect.Label className="SelectLabel">{groupTitle}</RSelect.Label>
+              <RSelect.Label className={style.SelectLabel}>{groupTitle}</RSelect.Label>
               {data.map((entry, index) => (
-                <RSelect.Item className="SelectItem" value={entry.value} key={index}>
+                <RSelect.Item className={style.SelectItem} value={entry.value} key={index}>
                   <RSelect.ItemText>{entry.label}</RSelect.ItemText>
                 </RSelect.Item>
               ))}

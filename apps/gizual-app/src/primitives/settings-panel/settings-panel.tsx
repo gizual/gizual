@@ -1,3 +1,4 @@
+import sharedStyle from "../css/shared-styles.module.scss";
 import { ToggleButton } from "../toggle-button";
 
 import style from "./settings-panel.module.scss";
@@ -12,12 +13,12 @@ export function SettingsPanel({ vm }: SettingsPanelProps) {
 
   return (
     <div className={style.settingsPanel}>
-      <div className={style.section}>
-        <div className={style.sectionHead}>
+      <div className={sharedStyle.section}>
+        <div className={sharedStyle.sectionHead}>
           <h1>Settings</h1>
         </div>
-        <div className={style.sectionBody}>
-          <div className={style.block}>
+        <div className={sharedStyle.sectionBody}>
+          <div className={sharedStyle.block}>
             <h3>Coloring mode</h3>
             <ToggleButton
               ariaLabel="Coloring mode"
@@ -26,7 +27,7 @@ export function SettingsPanel({ vm }: SettingsPanelProps) {
               toggleName="coloringMode"
             />
           </div>
-          <div className={style.block}>
+          <div className={sharedStyle.block}>
             <h3>Line length scaling</h3>
             <ToggleButton
               ariaLabel="Line length scaling"

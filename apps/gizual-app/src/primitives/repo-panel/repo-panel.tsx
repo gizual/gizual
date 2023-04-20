@@ -4,6 +4,7 @@ import { Select } from "../select";
 import { ToggleButton } from "../toggle-button/toggle-button";
 
 import style from "./repo-panel.module.scss";
+import sharedStyle from "../css/shared-styles.module.scss";
 import { RepoPanelViewModel } from "./repo-panel.vm";
 
 export type RepoPanelProps = {
@@ -15,12 +16,12 @@ export function RepoPanel({ vm }: RepoPanelProps) {
 
   return (
     <div className={style.repoPanel}>
-      <div className={style.section}>
-        <div className={style.sectionHead}>
+      <div className={sharedStyle.section}>
+        <div className={sharedStyle.sectionHead}>
           <h1>Repository</h1>
         </div>
-        <div className={style.sectionBody}>
-          <div className={style.block}>
+        <div className={sharedStyle.sectionBody}>
+          <div className={sharedStyle.block}>
             <h3>Branch</h3>
             <Select
               data={vm.selectBranchData}
@@ -29,7 +30,7 @@ export function RepoPanel({ vm }: RepoPanelProps) {
               onValueChange={vm.onBranchChange}
             />
           </div>
-          <div className={style.block}>
+          <div className={sharedStyle.block}>
             <h3>Selection range</h3>
             <ToggleButton
               ariaLabel="Selection range"
@@ -38,7 +39,7 @@ export function RepoPanel({ vm }: RepoPanelProps) {
               toggleName="selectionRange"
             />
           </div>
-          <div className={clsx(style.block)}>
+          <div className={clsx(sharedStyle.block)}>
             <h3>Commit</h3>
             <Select
               data={vm.selectCommitData}
@@ -49,17 +50,17 @@ export function RepoPanel({ vm }: RepoPanelProps) {
           </div>
         </div>
       </div>
-      <div className={style.section}>
-        <div className={style.sectionHead}>
+      <div className={sharedStyle.section}>
+        <div className={sharedStyle.sectionHead}>
           <h1>Favourites</h1>
         </div>
-        <div className={style.sectionBody}></div>
+        <div className={sharedStyle.sectionBody}></div>
       </div>
-      <div className={style.section}>
-        <div className={style.sectionHead}>
+      <div className={sharedStyle.section}>
+        <div className={sharedStyle.sectionHead}>
           <h1>Files</h1>
         </div>
-        <div className={style.sectionBody}></div>
+        <div className={sharedStyle.sectionBody}></div>
       </div>
     </div>
   );

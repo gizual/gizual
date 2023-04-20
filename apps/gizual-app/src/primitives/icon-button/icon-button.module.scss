@@ -2,6 +2,7 @@
 
 .iconButton {
   @include rounded;
+  @include transition-bg;
   padding: 0.25rem;
   cursor: pointer;
   background-color: var(--background-secondary);

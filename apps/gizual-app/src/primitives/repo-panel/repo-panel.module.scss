@@ -1,39 +1,6 @@
-@use "@/mixins" as *;
+@use "@/shared" as *;
 
 .repoPanel {
-  width: 300px;
-  height: 100%;
-  position: relative;
-  display: flex;
+  @include panel;
   border-right: 1px solid var(--border-primary);
-  padding: 0.5rem 0.5rem;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.section {
-  @include rounded;
-  width: 100%;
-}
-
-.sectionHead {
-  background-color: var(--background-tertiary);
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.sectionBody > * {
-  padding: 0.5rem 1rem;
-}
-
-.block {
-  border-bottom: 1px solid var(--border-primary);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-bottom: 1rem;
-}
-
-.repositorySelectionBody .block:last-of-type {
-  border-bottom: none;
 }

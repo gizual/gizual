@@ -9,7 +9,10 @@ import wasm from "vite-plugin-wasm";
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
-    alias: { "@/mixins": path.join(__dirname, "/src/mixins.scss") },
+    alias: {
+      "@/mixins": path.join(__dirname, "/src/mixins.scss"),
+      "@/shared": path.join(__dirname, "/src/primitives/css/shared-styles.module.scss"),
+    },
   },
   plugins: [
     svgr(),
