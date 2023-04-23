@@ -6,6 +6,7 @@ import React from "react";
 import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
 
 import { copyFileRefsToWasmFS, getFileRefs } from "./file-io";
+import { AsyncFS } from "./fs-access-api";
 
 const wasmFilePath = "/explorer-backend-libgit2.wasm";
 
@@ -14,7 +15,11 @@ const wasmFS = new MemFS();
 
 wasmFS.createDir("/repo/");
 
+const USE_CUSTOM_FS = true;
+
 async function runWasiCommand(args: string[]): Promise<string> {
+  const handle = await window.showDirectoryPicker();
+
   const start = performance.now();
 
   const wasi = new WASI({
@@ -30,68 +35,66 @@ async function runWasiCommand(args: string[]): Promise<string> {
   const loweredWasmBytes = await lowerI64Imports(new Uint8Array(wasmBytes));
 
   const wasmModule = await WebAssembly.compile(loweredWasmBytes);
-  const imports = wasi.getImports(wasmModule);
 
+  const wasiImports = wasi.getImports(wasmModule);
+
+  const customFS = new AsyncFS({
+    "/repo": handle,
+  });
+
+  customFS.setOriginalImports(wasiImports as any);
+
+  const debugWrap = (imports: Record<string, any>) => {
+    const debugImports: Record<string, Record<string, unknown>> = {};
+    for (const moduleName of Object.keys(imports)) {
+      debugImports[moduleName] = {};
+      for (const functionName of Object.keys(imports[moduleName])) {
+        debugImports[moduleName][functionName] = (...args: any[]) => {
+          console.log("call", moduleName, functionName, args);
+
+          const result = (imports[moduleName][functionName] as any)(...args);
+          if (result && result.then) {
+            return result.then((res: any) => {
+              console.log("->", res);
+              return res;
+            });
+          } else {
+            console.log("->", result);
+            return result;
+          }
+        };
+      }
+    }
+    return debugImports;
+  };
+
+  // eslint-disable-next-line no-async-promise-executor
   const runCommandPromise = new Promise<void>(async (resolve, reject) => {
-    const instance = await Asyncify.instantiate(wasmModule, {
-      ...imports,
-      wasi_snapshot_preview1: {
-        ...imports.wasi_snapshot_preview1,
-        fd_advise: async (fd, offset, len, advice) => {
-            console.log("fd_advise", fd, offset, len, advice);
-            return imports.wasi_snapshot_preview1.fd_advise(fd, offset, len, advice);
-        },
-        path_open: async (
-          dirfd,
-          dirflags,
-          pathPtr,
-          pathLen,
-          oflags,
-          fsRightsBase,
-          fsRightsInheriting,
-          fdflags,
-          fdPtr
-        ) => {
-          const p = window.Buffer.from(instance.exports.memory.buffer, pathPtr, pathLen).toString();
+    const importsToInject = USE_CUSTOM_FS ? customFS.getImports() : wasiImports;
 
-          return new Promise((resolve, reject) => {
-            console.log("path_open", p);
-            const delay = Math.random() * 1000;
-            console.log("add random async delay of", delay, "ms");
-            setTimeout(() => {
-              const res = imports.wasi_snapshot_preview1.path_open(
-                dirfd,
-                dirflags,
-                pathPtr,
-                pathLen,
-                oflags,
-                fsRightsBase,
-                fsRightsInheriting,
-                fdflags,
-                fdPtr
-              );
-              resolve(res);
-            }, delay);
-          });
-        },
-      },
+    const imports = {
+      ...importsToInject,
       feedback: {
         finished: () => {
           console.log("finished");
           resolve();
         },
       },
-    });
+    };
 
+    const instance = await Asyncify.instantiate(wasmModule, debugWrap(imports) as any);
+
+    customFS.setMemory(instance.exports.memory as any);
     try {
       console.log("starting WASI...", wasmFileUrl);
+
       wasi.start(instance);
     } catch (error) {
       reject(error);
       /*
-console.log("failed to run WASI command", error);
+      console.log("failed to run WASI command", error);
       output += `\n# Error: ${error}`;
- */
+      */
     }
   });
   let output = "";
@@ -102,7 +105,7 @@ console.log("failed to run WASI command", error);
   const durationSeconds = (end - start) / 1000;
   output += `\n# Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`;
 
-  const stdout = wasi.getStdoutString();
+  const stdout = USE_CUSTOM_FS ? customFS.getStdout() : wasi.getStdoutString();
   console.log("finally", stdout);
 
   // wasmFS.fs.writeFileSync("/dev/stdout", "");
@@ -155,7 +158,7 @@ const App = () => {
   return (
     <div>
       <button onClick={runCommand}>Run command</button>
-      <button onClick={loadRepo}>Load Repo</button>
+      <button disabled={USE_CUSTOM_FS} onClick={loadRepo}>Load Repo</button>
       <code>
         <pre>{output}</pre>
       </code>

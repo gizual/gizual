@@ -122,13 +122,22 @@ fn run(args: &Args) -> Result<(), git2::Error> {
     Ok(())
 }
 
-fn main() {
-    print_directory("/repo/.git");
-    print_directory("/repo/.git/objects");
+#[link(wasm_import_module = "feedback")]
+extern { fn finished(); }
 
+fn main() {
     let args = Args::from_args();
     match run(&args) {
-        Ok(()) => {}
-        Err(e) => println!("error: {}", e),
+        Ok(()) => {
+            unsafe {
+                finished();
+            }
+        }
+        Err(e) => {
+            println!("error: {}", e);
+            unsafe {
+                finished();
+            }
+        },
     }
 }
