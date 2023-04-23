@@ -8,6 +8,7 @@ import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
 import { MainPageViewModel } from "./main.vm";
+import Canvas from "../primitives/canvas/canvas";
 
 export type MainPageProps = {
   vm?: MainPageViewModel;
@@ -26,7 +27,7 @@ function MainPage({ vm: externalVm }: MainPageProps) {
       </div>
       <div className={style.body}>
         {vm.isRepoPanelVisible && <RepoPanel />}
-        <div className={style.canvas} />
+        <Canvas />
         {vm.isSettingsPanelVisible && <SettingsPanel />}
       </div>
     </div>

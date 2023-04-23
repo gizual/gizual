@@ -31,6 +31,8 @@
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   margin-right: 1rem;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .queryParam {
@@ -58,6 +60,7 @@ input {
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
   z-index: 100;
+  width: calc(100vh - 10rem);
 }
 .PopoverContent:focus {
   box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px,
@@ -137,13 +140,14 @@ input {
   justify-content: center;
   flex: 1;
   border-radius: 4px;
-  padding: 0 10px;
+  padding: 0 0.5rem;
   font-size: 13px;
   line-height: 1;
   color: var(--foreground-primary);
   background-color: var(--background-secondary);
   box-shadow: 0 0 0 1px var(--accent-main);
   height: 25px;
+  width: calc(100% - 1rem);
 }
 .Input:focus {
   box-shadow: 0 0 0 2px var(--accent-main);
