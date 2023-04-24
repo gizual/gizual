@@ -1,0 +1,27 @@
+.Node {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--background-tertiary);
+  }
+  span:first-child {
+    margin-right: 4px;
+  }
+}
+
+.Children {
+  margin-left: 16px;
+}
+
+.FileList {
+  ul {
+    list-style: none;
+  }
+  cursor: pointer;
+}
+
+.Tree {
+  padding: 0.5rem;
+  border-radius: 4px;
+}

@@ -1,10 +1,11 @@
 import clsx from "clsx";
 
+import sharedStyle from "../css/shared-styles.module.scss";
+import FileTree from "../file-tree/file-tree";
 import { Select } from "../select";
 import { ToggleButton } from "../toggle-button/toggle-button";
 
 import style from "./repo-panel.module.scss";
-import sharedStyle from "../css/shared-styles.module.scss";
 import { RepoPanelViewModel } from "./repo-panel.vm";
 
 export type RepoPanelProps = {
@@ -60,7 +61,9 @@ export function RepoPanel({ vm }: RepoPanelProps) {
         <div className={sharedStyle.sectionHead}>
           <h1>Files</h1>
         </div>
-        <div className={sharedStyle.sectionBody}></div>
+        <div className={sharedStyle.sectionBody}>
+          <FileTree />
+        </div>
       </div>
     </div>
   );
