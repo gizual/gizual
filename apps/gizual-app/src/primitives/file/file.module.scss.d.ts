@@ -6,7 +6,9 @@ declare const classNames: {
   readonly FavouriteIconUnfilled: "FavouriteIconUnfilled";
   readonly FileActions: "FileActions";
   readonly FileActionIcon: "FileActionIcon";
+  readonly EmptyCanvas: "EmptyCanvas";
   readonly File: "File";
+  readonly LoadFileIcon: "LoadFileIcon";
   readonly FileBody: "FileBody";
   readonly FileCanvas: "FileCanvas";
 };

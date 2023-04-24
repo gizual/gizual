@@ -13,15 +13,17 @@ export class FileViewModel {
   _fileContent: string[];
   _lineLengthMax: number;
   _isFavourite: boolean;
+  _isLoadIndicator: boolean;
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
 
-  constructor(info: FileInfo, isFavourite: boolean) {
+  constructor(info: FileInfo, isFavourite?: boolean, isLoadIndicator?: boolean) {
     this._fileName = info.fileName;
     this._fileExtension = info.fileExtension;
     this._fileContent = info.fileContent;
     this._lineLengthMax = info.lineLengthMax;
-    this._isFavourite = isFavourite;
+    this._isFavourite = isFavourite ?? false;
+    this._isLoadIndicator = isLoadIndicator ?? false;
 
     makeObservable(this, {
       _fileName: observable,
@@ -29,10 +31,20 @@ export class FileViewModel {
       _fileContent: observable,
       _lineLengthMax: observable,
       _isFavourite: observable,
+      _isLoadIndicator: observable,
       _canvasRef: observable,
       setFavourite: action,
       unsetFavourite: action,
+      load: action,
     });
+  }
+
+  load(info: FileInfo) {
+    this._fileName = info.fileName;
+    this._fileExtension = info.fileExtension;
+    this._fileContent = info.fileContent;
+    this._lineLengthMax = info.lineLengthMax;
+    this._isLoadIndicator = false;
   }
 
   get fileName() {
@@ -65,6 +77,10 @@ export class FileViewModel {
 
   assignCanvasRef(ref: React.RefObject<HTMLCanvasElement>) {
     this._canvasRef = ref;
+  }
+
+  get isLoadIndicator() {
+    return this._isLoadIndicator;
   }
 
   draw() {

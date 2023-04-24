@@ -10,6 +10,7 @@ function Canvas() {
       <File />
       <File />
       <File />
+      <File isLoadIndicator />
     </div>
   );
 }
