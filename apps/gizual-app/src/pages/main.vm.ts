@@ -16,7 +16,6 @@ export class MainPageViewModel {
 
   toggleRepoPanel = () => {
     runInAction(() => {
-      console.log("toggleRepoPanel");
       this._state.repoPanelVisible = !this._state.repoPanelVisible;
     });
   };

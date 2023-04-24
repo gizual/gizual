@@ -30,13 +30,13 @@
 
 :root {
   /* Main colors */
-  --color-lightgray: #e4e4e7;
+  --color-lightgray: #ececef;
   --color-darkgray: #13161a;
   --color-white: #fff;
   --color-black: #000;
-  --color-zinc: #cecece;
+  --color-zinc: #dedede;
   --color-gunmetal: #2b303a;
-  --color-gray: #b4b4b4;
+  --color-gray: #cecece;
   --color-darkslate: #35404e;
   --color-disabled: #8d8d8d;
 
@@ -49,8 +49,8 @@
 
   /* Color definitions */
   @media (prefers-color-scheme: light) {
-    --background-primary: var(--color-lightgray);
-    --background-secondary: var(--color-white);
+    --background-primary: var(--color-white);
+    --background-secondary: var(--color-lightgray);
     --background-tertiary: var(--color-zinc);
     --foreground-primary: var(--color-darkgray);
     --foreground-secondary: var(--color-black);

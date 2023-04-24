@@ -5,6 +5,7 @@ button {
 }
 
 .SelectTrigger {
+  @include rounded;
   @include transition-bg;
   display: inline-flex;
   align-items: center;
@@ -92,8 +93,8 @@ button {
   font-size: 15px;
   font-weight: 600;
   line-height: 30px;
-  color: var(--accent-secondary-fg);
-  background-color: var(--accent-secondary);
+  color: var(--foreground-primary);
+  background-color: var(--background-tertiary);
   border-bottom: 1px solid var(--border-primary);
 }
 

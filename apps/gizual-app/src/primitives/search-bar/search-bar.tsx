@@ -2,6 +2,7 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import { ReactComponent as CloseIcon } from "../../assets/icons/close.svg";
 import { ReactComponent as TreeIcon } from "../../assets/icons/file-tree.svg";
@@ -11,7 +12,6 @@ import { IconButton } from "../icon-button";
 
 import style from "./search-bar.module.scss";
 import { SearchBarViewModel } from "./search-bar.vm";
-import React from "react";
 
 export type SearchBarProps = {
   vm: SearchBarViewModel;
@@ -40,7 +40,7 @@ function SearchBar({ vm }: SearchBarProps) {
             colored
             wide
             border="right"
-            onClick={() => console.log("SEARCH")}
+            onClick={() => console.log("Search clicked")}
           >
             <SearchIcon />
           </IconButton>

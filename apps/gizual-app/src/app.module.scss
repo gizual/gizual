@@ -10,10 +10,11 @@
 .container {
   @include shadow-2xl;
   @include rounded;
-  background-color: var(--background-tertiary);
+  background-color: var(--background-secondary);
   width: 70%;
   position: relative;
   margin: auto auto;
+  max-width: 800px;
 }
 
 .img {

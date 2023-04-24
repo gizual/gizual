@@ -2,13 +2,13 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { TitleBar } from "../primitives";
+import { Canvas } from "../primitives/canvas";
 import { RepoPanel } from "../primitives/repo-panel";
 import SearchBar from "../primitives/search-bar/search-bar";
 import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
 import { MainPageViewModel } from "./main.vm";
-import Canvas from "../primitives/canvas/canvas";
 
 export type MainPageProps = {
   vm?: MainPageViewModel;

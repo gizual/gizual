@@ -1,11 +1,11 @@
 import { useState } from "react";
 
 import style from "./app.module.scss";
-import WelcomePage from "./pages/welcome";
 import MainPage from "./pages/main";
+import WelcomePage from "./pages/welcome";
 
 function App() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const isWelcomePage = page === 0;
   const isMainPage = page === 1;
 
@@ -14,7 +14,6 @@ function App() {
       {isWelcomePage && (
         <WelcomePage
           cb={() => {
-            console.log("HELLO");
             setPage(1);
           }}
         />
