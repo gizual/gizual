@@ -3,7 +3,9 @@
   flex-grow: 1;
   flex-shrink: 1;
   gap: 1rem;
+  height: calc(100vh - 9rem);
   padding: 1rem;
   flex-flow: row wrap;
   align-content: flex-start;
+  overflow-y: auto;
 }

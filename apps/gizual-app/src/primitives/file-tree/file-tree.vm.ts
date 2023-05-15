@@ -1,4 +1,6 @@
-import { action, computed, makeObservable, observable } from "mobx";
+import { makeAutoObservable } from "mobx";
+
+import { MainController } from "../../controllers";
 
 export type FileTreeNode = {
   name: string;
@@ -8,27 +10,28 @@ export type FileTreeNode = {
 
 export class FileTreeViewModel {
   _root: FileTreeNode;
-  _selectedFiles: Set<string>;
+  _mainController: MainController;
 
-  constructor(root: FileTreeNode) {
+  constructor(root: FileTreeNode, mainController: MainController) {
     this._root = root;
-    this._selectedFiles = new Set<string>();
+    this._mainController = mainController;
 
-    makeObservable(this, {
-      _root: observable,
-      _selectedFiles: observable,
-      toggleFile: action,
-      selectedFiles: computed,
-    });
+    makeAutoObservable(this);
   }
 
   toggleFile(name: string) {
-    if (this._selectedFiles.has(name)) {
-      this._selectedFiles.delete(name);
-    } else this._selectedFiles.add(name);
+    this._mainController.toggleFile(name);
   }
 
   get selectedFiles(): string[] {
-    return [...this._selectedFiles.values()];
+    return this._mainController.selectedFiles;
+  }
+
+  toggleFavourite(name: string) {
+    this._mainController.toggleFavourite(name);
+  }
+
+  get favouriteFiles(): string[] {
+    return this._mainController.favouriteFiles;
   }
 }

@@ -55,7 +55,9 @@ export function RepoPanel({ vm }: RepoPanelProps) {
         <div className={sharedStyle.sectionHead}>
           <h1>Favourites</h1>
         </div>
-        <div className={sharedStyle.sectionBody}></div>
+        <div className={sharedStyle.sectionBody}>
+          <FileTree mode={"favourite"} />
+        </div>
       </div>
       <div className={sharedStyle.section}>
         <div className={sharedStyle.sectionHead}>

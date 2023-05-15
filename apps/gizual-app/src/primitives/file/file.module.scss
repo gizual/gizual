@@ -54,12 +54,17 @@
   width: 32px;
   height: 32px;
   fill: var(--foreground-primary);
+  &:hover > path {
+    @include transition-all;
+    fill: var(--accent-main);
+    cursor: pointer;
+  }
 }
 
 .EmptyCanvas {
   width: 100%;
   height: 100%;
-  position: flex;
+  position: relative;
   align-items: center;
   &:hover {
     background-color: var(--background-tertiary);

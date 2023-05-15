@@ -3,6 +3,8 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import React from "react";
 
+import { useMainController } from "../../controllers";
+
 import styles from "./file-tree.module.scss";
 import { FileTreeViewModel } from "./file-tree.vm";
 import { FileTreeMock } from "./mock";
@@ -15,13 +17,15 @@ type FileTreeNode = {
 
 type FileTreeProps = {
   root?: FileTreeNode;
+  mode?: "favourite" | "tree";
 };
 
-function FileTree({ root }: FileTreeProps) {
+function FileTree({ root, mode = "full" }: FileTreeProps) {
+  const mainController = useMainController();
   if (!root) root = FileTreeMock;
 
   const vm: FileTreeViewModel = React.useMemo(() => {
-    return new FileTreeViewModel(root!);
+    return new FileTreeViewModel(root!, mainController);
   }, []);
 
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set<string>());
@@ -60,16 +64,30 @@ function FileTree({ root }: FileTreeProps) {
 
   return (
     <div>
-      <div className={styles.FileList}>
-        <ul>
-          {vm.selectedFiles.map((file) => (
-            <li key={file} onClick={() => handleNodeToggle(file, false)}>
-              {file}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className={styles.Tree}>{renderNode(root, "")}</div>
+      {mode === "favourite" ? (
+        <div className={styles.FileList}>
+          <ul>
+            {vm.favouriteFiles.map((file) => (
+              <li key={file} onClick={() => handleNodeToggle(file, false)}>
+                {file}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div>
+          <div className={styles.FileList}>
+            <ul>
+              {vm.selectedFiles.map((file) => (
+                <li key={file} onClick={() => handleNodeToggle(file, false)}>
+                  {file}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className={styles.Tree}>{renderNode(root, "")}</div>
+        </div>
+      )}
     </div>
   );
 }
