@@ -442,7 +442,7 @@ export class AsyncFS {
           if (bufLen < totalBufSize) {
             console.log("too small", { bufLen, totalBufSize });
             this.view.setUint32(bufUsedPtr, totalBufSize, true);
-            return 0;
+            return -75 /* EOVERFLOW */;
           }
 
           let bufOffset = 0;
