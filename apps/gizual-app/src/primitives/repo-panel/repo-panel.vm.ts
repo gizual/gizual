@@ -1,11 +1,14 @@
 import { SelectEntry } from "../select";
+import { MainController } from "../../controllers";
 
 export class RepoPanelViewModel {
   private _selectBranchData: SelectEntry[];
   private _selectCommitData: SelectEntry[];
   private _toggleRangeValues: string[];
+  private _mainController: MainController;
 
-  constructor() {
+  constructor(mainController: MainController) {
+    this._mainController = mainController;
     this._selectBranchData = [
       { value: "master", label: "master" },
       { value: "develop", label: "develop" },
@@ -39,6 +42,7 @@ export class RepoPanelViewModel {
   }
 
   onBranchChange(value: string) {
+    this._mainController.setBranchByName(value);
     console.log("onBranchChange", value);
   }
 

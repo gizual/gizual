@@ -23,6 +23,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
       {vm.selectedFiles.map((file) => (
         <File vm={file} key={file.fileName} />
       ))}
+      <File isLoadIndicator={true} />
     </div>
   );
 }

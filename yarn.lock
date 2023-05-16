@@ -637,6 +637,7 @@ __metadata:
     "@codemirror/theme-one-dark": ^6.1.2
     "@codemirror/view": ^6.11.2
     "@giz/explorer": "workspace:*"
+    "@radix-ui/react-dialog": ^1.0.3
     "@radix-ui/react-popover": ^1.0.5
     "@radix-ui/react-select": ^1.2.1
     "@types/d3-interpolate": ^3.0.1
@@ -896,6 +897,32 @@ __metadata:
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
   checksum: 43c6b6f2183398161fe6b109e83fff240a6b7babbb27092b815932342a89d5ca42aa9806bfae5927970eed5ff90feed04c67aa29c6721f84ae826f17fcf34ce0
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-dialog@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@radix-ui/react-dialog@npm:1.0.3"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/primitive": 1.0.0
+    "@radix-ui/react-compose-refs": 1.0.0
+    "@radix-ui/react-context": 1.0.0
+    "@radix-ui/react-dismissable-layer": 1.0.3
+    "@radix-ui/react-focus-guards": 1.0.0
+    "@radix-ui/react-focus-scope": 1.0.2
+    "@radix-ui/react-id": 1.0.0
+    "@radix-ui/react-portal": 1.0.2
+    "@radix-ui/react-presence": 1.0.0
+    "@radix-ui/react-primitive": 1.0.2
+    "@radix-ui/react-slot": 1.0.1
+    "@radix-ui/react-use-controllable-state": 1.0.0
+    aria-hidden: ^1.1.1
+    react-remove-scroll: 2.5.5
+  peerDependencies:
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  checksum: 15fcc294c0432b3a91db1d17d8b16bc07278b7a585c2b8fc634f849e5008f1b77e9d19f99aa1e22050b9ea147eff517992edebdc0dc85763566e99194ffa80a9
   languageName: node
   linkType: hard
 

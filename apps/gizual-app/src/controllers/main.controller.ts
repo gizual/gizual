@@ -1,8 +1,13 @@
 import { makeAutoObservable } from "mobx";
 
+import { FileTreeNode } from "../primitives/file-tree/file-tree.vm";
+
 export class MainController {
   _selectedFiles: Set<string> = new Set<string>();
   _favouriteFiles: Set<string> = new Set<string>();
+  _selectedBranch = "main";
+  _fileTreeRoot?: FileTreeNode;
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -17,6 +22,14 @@ export class MainController {
     return [...this._selectedFiles.values()];
   }
 
+  get fileTreeRoot(): FileTreeNode | undefined {
+    return this._fileTreeRoot;
+  }
+
+  setFileTreeRoot(root: FileTreeNode) {
+    this._fileTreeRoot = root;
+  }
+
   toggleFavourite(name: string) {
     if (this._favouriteFiles.has(name)) {
       this._favouriteFiles.delete(name);
@@ -25,5 +38,13 @@ export class MainController {
 
   get favouriteFiles(): string[] {
     return [...this._favouriteFiles.values()];
+  }
+
+  setBranchByName(name: string) {
+    this._selectedBranch = name;
+  }
+
+  get selectedBranch() {
+    return this._selectedBranch;
   }
 }

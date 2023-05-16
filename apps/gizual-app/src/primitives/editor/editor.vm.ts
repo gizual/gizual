@@ -37,7 +37,14 @@ export class EditorViewModel {
     }
 
     const fixedHeightEditor = EditorView.theme({
-      "&": { height: "100%", width: "100%" },
+      "&": {
+        height: "100%",
+        width: "100%",
+        maxHeight: "80vh",
+        maxWidth: "90vw",
+        minWidth: "10vw",
+        minHeight: "10vh",
+      },
       ".cm-scroller": { overflow: "auto" },
     });
 

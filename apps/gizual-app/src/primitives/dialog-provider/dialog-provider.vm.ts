@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 
-export class EditorPopoverViewModel {
+export class DialogProviderViewModel {
   _isVisible = false;
   constructor() {
     makeAutoObservable(this);
@@ -11,18 +11,10 @@ export class EditorPopoverViewModel {
   }
 
   open() {
-    const body = document.querySelector("#overlay");
-    if (body) {
-      body.classList.add("overlay");
-    }
     this._isVisible = true;
   }
 
   closePopover() {
-    const body = document.querySelector("#overlay");
-    if (body) {
-      body.classList.remove("overlay");
-    }
     this._isVisible = false;
   }
 }

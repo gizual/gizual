@@ -140,7 +140,6 @@ export class FileViewModel {
   }
 
   assignFileRef(ref: React.RefObject<HTMLDivElement>) {
-    console.log("Assigning ref");
     this._fileRef = ref;
   }
 
@@ -183,7 +182,7 @@ export class FileViewModel {
     let currentY = 0;
 
     let nColumns = 1;
-    const columnSpacing = 10;
+    const columnSpacing = 0;
 
     if (this._fileContent.length > this._settings.maxLineCount) {
       nColumns = Math.floor(this._fileContent.length / this._settings.maxLineCount) + 1;
@@ -196,10 +195,14 @@ export class FileViewModel {
     for (const line of this._fileContent) {
       const columnWidth = canvas.width / nColumns - (nColumns - 1) * columnSpacing;
       const lineLength = line.content.length;
-      const rectWidth = (lineLength / this._lineLengthMax) * columnWidth;
+      const lineOffset =
+        ((line.content.length - line.content.trimStart().length) / this._lineLengthMax) *
+        columnWidth;
+
+      const rectWidth = ((lineLength - lineOffset) / this._lineLengthMax) * columnWidth;
       const rectHeight = lineHeight;
       ctx.fillStyle = this.interpolateColor(line.commit.timestamp);
-      ctx.fillRect(currentX, currentY, rectWidth, rectHeight);
+      ctx.fillRect(currentX + lineOffset, currentY, rectWidth, rectHeight);
       currentY += lineHeight + this._settings.lineSpacing;
       lineIndex++;
       if (lineIndex > this._settings.maxLineCount) {
@@ -211,6 +214,7 @@ export class FileViewModel {
       }
     }
 
-    fileContainer.style.width = `${nColumns * 300}px`;
+    const nc = nColumns > 2 ? 2 : nColumns;
+    fileContainer.style.width = `${nc * 300}px`;
   }
 }

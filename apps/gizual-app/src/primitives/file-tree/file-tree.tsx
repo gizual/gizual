@@ -20,9 +20,9 @@ type FileTreeProps = {
   mode?: "favourite" | "tree";
 };
 
-function FileTree({ root, mode = "full" }: FileTreeProps) {
+function FileTree({ root, mode = "tree" }: FileTreeProps) {
   const mainController = useMainController();
-  if (!root) root = FileTreeMock;
+  root = mainController.fileTreeRoot ?? FileTreeMock;
 
   const vm: FileTreeViewModel = React.useMemo(() => {
     return new FileTreeViewModel(root!, mainController);
@@ -76,6 +76,9 @@ function FileTree({ root, mode = "full" }: FileTreeProps) {
         </div>
       ) : (
         <div>
+          {vm.selectedFiles.length > 0 && (
+            <span className={styles.FileListHeader}>Selected Files:</span>
+          )}
           <div className={styles.FileList}>
             <ul>
               {vm.selectedFiles.map((file) => (
@@ -85,6 +88,7 @@ function FileTree({ root, mode = "full" }: FileTreeProps) {
               ))}
             </ul>
           </div>
+          {vm.selectedFiles.length > 0 && <hr className={styles.hr} />}
           <div className={styles.Tree}>{renderNode(root, "")}</div>
         </div>
       )}

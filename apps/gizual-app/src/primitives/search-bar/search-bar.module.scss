@@ -60,7 +60,7 @@ input {
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
   z-index: 100;
-  width: calc(100vh - 10rem);
+  min-width: 70vw;
 }
 .PopoverContent:focus {
   box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px,

@@ -1,3 +1,5 @@
+@use "@/mixins" as *;
+
 .Node {
   display: flex;
   align-items: center;
@@ -21,7 +23,18 @@
   cursor: pointer;
 }
 
+.FileListHeader {
+  @include text-base;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
 .Tree {
   padding: 0.5rem;
   border-radius: 4px;
+}
+
+.hr {
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--border-primary);
 }

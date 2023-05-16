@@ -1,19 +1,13 @@
-import { useState } from "react";
-
-import { createMsg } from "@giz/explorer";
 import baseStyle from "../app.module.scss";
-import { Button } from "../primitives/button";
+import { Button } from "../primitives";
 
 interface WelcomePageProps {
   cb: () => void;
 }
 
 function WelcomePage(props: WelcomePageProps) {
-  const [messages, setMessage] = useState<string[]>([]);
-
   const onClick = () => {
-    const msg = createMsg("World!");
-    setMessage([...messages, msg]);
+    window.showDirectoryPicker();
   };
 
   return (
@@ -24,19 +18,11 @@ function WelcomePage(props: WelcomePageProps) {
         <p className={baseStyle.p}>Welcome to Gizual!</p>
         <div className={baseStyle.card}>
           <Button variant="filled" onClick={onClick} className={baseStyle.button}>
-            Test WASM
+            Load Repository
           </Button>
-          {messages.map((m) => {
-            return <p className="text-center">{m}</p>;
-          })}
         </div>
-        <Button
-          variant="filled"
-          color="gizgunmetal"
-          onClick={props.cb}
-          className={baseStyle.button}
-        >
-          {"Skip to main"}
+        <Button variant="filled" color="gunmetal" onClick={props.cb} className={baseStyle.button}>
+          {"MOCK --> Skip to main"}
         </Button>
       </div>
     </div>
