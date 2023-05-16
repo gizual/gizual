@@ -44,21 +44,38 @@ const App = () => {
 
   const [loading, setLoading] = React.useState(false);
 
+  const [command, setCommand] = React.useState("blame");
+  const [branch, setBranch] = React.useState("main");
+  const [file, setFile] = React.useState("package.json");
+
   const runCommand = React.useCallback(async () => {
     setLoading(true);
     try {
-      const stdout = await runWasiCommand(["package.json"]);
+      const stdout = await runWasiCommand([command, branch, file]);
       setOutput(stdout);
     } finally {
       setLoading(false);
     }
     setLoading(false);
-  }, []);
+  }, [command, branch, file]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setCommand(event.target.value);
+  };
 
   return (
     <div>
       <button onClick={runCommand}>Run command</button>
 
+      <select value={command} onChange={handleChange}>
+        <option value="blame">blame</option>
+        <option value="filetree">filetree</option>
+        <option value="file_content">file_content</option>
+        <option value="list_branches">list_branches</option>
+      </select>
+
+      <input type="text" value={branch} onChange={(e) => setBranch(e.target.value)} />
+      <input type="text" value={file} onChange={(e) => setFile(e.target.value)} />
       <code>
         <pre>{output}</pre>
       </code>
@@ -70,38 +87,4 @@ const App = () => {
 
 export default App;
 
-/*
 
-const loadRepo = async () => {
-  try {
-    wasmFS.removeDir("/repo");
-  } catch (error) {
-    console.log("error removing dir", error);
-  }
-  const dirHandle = await window.showDirectoryPicker();
-
-  const refs = await getFileRefs(dirHandle, {
-    match: (path) => path.startsWith(".git"),
-    modifyWebkitRelativePath: (path) => {
-      if (path.startsWith(".git/")) {
-        return path;
-      }
-      return path.slice(Math.max(0, path.indexOf("/") + 1));
-    },
-  });
-
-  const hasGitFolder = refs.some(
-    (ref) => ref.fullPath.startsWith(".git/objects") || ref.fullPath.startsWith(".git/index")
-  );
-
-  if (!hasGitFolder) {
-    throw new Error("opened directory does not seem like a valid git repository");
-  }
-
-  console.time("wasmfs#open");
-  await copyFileRefsToWasmFS(refs, wasmFS, "/repo");
-  console.timeEnd("wasmfs#open");
-  console.log("finished loading repo");
-};
-
- */

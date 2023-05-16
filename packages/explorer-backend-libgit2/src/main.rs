@@ -14,130 +14,55 @@
 
 #![deny(warnings)]
 
-// ignore unused functions
+mod cmd_blame;
+mod cmd_get_file_content;
+mod cmd_get_filetree;
+mod cmd_list_branches;
 
-use std::fs;
-
-use git2::{BlameOptions, Repository};
-use std::io::{BufRead, BufReader};
-use std::path::Path;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
-#[allow(non_snake_case)]
 struct Args {
+    #[structopt(name = "command")]
+    cmd: String,
+
+    #[structopt(name = "branch")]
+    branch_name: String,
+
     #[structopt(name = "path")]
-    arg_path: String,
-    #[structopt(name = "spec")]
-    arg_spec: Option<String>,
-    #[structopt(short = "M")]
-    /// find line moves within and across files
-    flag_M: bool,
-    #[structopt(short = "C")]
-    /// find line copies within and across files
-    flag_C: bool,
-    #[structopt(short = "F")]
-    /// follow only the first parent commits
-    flag_F: bool,
-}
-
-#[allow(dead_code)]
-fn print_directory(dir_path: &str) {
-    println!("print_directory");
-    let paths = fs::read_dir(dir_path);
-
-    match paths {
-        Ok(paths) => {
-            for path in paths {
-                println!("{:?}", path.unwrap().path());
-            }
-        }
-        Err(e) => {
-            println!("failed {:?}", e);
-        }
-    }
-}
-
-#[allow(dead_code)]
-fn run(args: &Args) -> Result<(), git2::Error> {
-    let dir_path = "/repo";
-
-    // This function cannot actually fail, but the function has an error return
-    // for other options that can.
-
-    let repo = Repository::open(dir_path)?;
-    let path = Path::new(&args.arg_path[..]);
-
-    // Prepare our blame options
-    let mut opts = BlameOptions::new();
-    opts.track_copies_same_commit_moves(args.flag_M)
-        .track_copies_same_commit_copies(args.flag_C)
-        .first_parent(args.flag_F);
-
-    let mut commit_id = "HEAD".to_string();
-
-    // Parse spec
-    if let Some(spec) = args.arg_spec.as_ref() {
-        let revspec = repo.revparse(spec)?;
-
-        let (oldest, newest) = if revspec.mode().contains(git2::RevparseMode::SINGLE) {
-            (None, revspec.from())
-        } else if revspec.mode().contains(git2::RevparseMode::RANGE) {
-            (revspec.from(), revspec.to())
-        } else {
-            (None, None)
-        };
-
-        if let Some(commit) = oldest {
-            opts.oldest_commit(commit.id());
-        }
-
-        if let Some(commit) = newest {
-            opts.newest_commit(commit.id());
-            if !commit.id().is_zero() {
-                commit_id = format!("{}", commit.id())
-            }
-        }
-    }
-
-    let spec = format!("{}:{}", commit_id, path.display());
-    let blame = repo.blame_file(path, Some(&mut opts))?;
-    let object = repo.revparse_single(&spec[..])?;
-    let blob = repo.find_blob(object.id())?;
-    let reader = BufReader::new(blob.content());
-
-    for (i, line) in reader.lines().enumerate() {
-        if let (Ok(line), Some(hunk)) = (line, blame.get_line(i + 1)) {
-            let sig = hunk.final_signature();
-            println!(
-                "{} {} <{}> {}",
-                hunk.final_commit_id(),
-                String::from_utf8_lossy(sig.name_bytes()),
-                String::from_utf8_lossy(sig.email_bytes()),
-                line
-            );
-        }
-    }
-
-    Ok(())
+    file_path: Option<String>,
 }
 
 #[link(wasm_import_module = "feedback")]
-extern { fn finished(); }
+extern "C" {
+    fn finished();
+}
 
 fn main() {
     let args = Args::from_args();
-    match run(&args) {
-        Ok(()) => {
-            unsafe {
-                finished();
-            }
-        }
-        Err(e) => {
-            println!("error: {}", e);
-            unsafe {
-                finished();
-            }
-        },
+
+    let file_path = args.file_path.clone().unwrap_or_default();
+    let branch_name = args.branch_name.clone();
+    let command = args.cmd.clone();
+
+    let result;
+    if command == "filetree" {
+        result = cmd_get_filetree::command_get_filetree(args.branch_name.as_str());
+    } else if command == "blame" {
+        result = cmd_blame::blame(branch_name.as_str(), file_path.as_str());
+    } else if command == "file_content" {
+        result =
+            cmd_get_file_content::cmd_get_file_content(branch_name.as_str(), file_path.as_str());
+    } else if command == "list_branches" {
+        result = cmd_list_branches::cmd_list_branches();
+    } else {
+        result = Ok(());
+    }
+
+    if let Err(e) = result {
+        println!("error: {}", e);
+    }
+    unsafe {
+        finished();
     }
 }
