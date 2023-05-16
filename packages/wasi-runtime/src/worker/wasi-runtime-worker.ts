@@ -5,6 +5,7 @@ import * as Asyncify from "asyncify-wasm";
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
 import { AsyncFS } from "./fs";
+import { debugWrapImports } from "./debug";
 
 let hasBeenInitialized = false;
 
@@ -74,12 +75,15 @@ export class WasiRuntimeWorker {
     const runCommandPromise = new Promise<void>(async (resolve, reject) => {
       const imports = this.asyncFS.getImports();
 
-      const instance = await Asyncify.instantiate(this.module, {
-        ...imports,
-        feedback: {
-          finished: () => resolve(),
-        },
-      });
+      const instance = await Asyncify.instantiate(
+        this.module,
+        debugWrapImports({
+          ...imports,
+          feedback: {
+            finished: () => resolve(),
+          },
+        }) as any
+      );
 
       this.asyncFS.setMemory(instance.exports.memory as any);
 

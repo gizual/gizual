@@ -431,7 +431,7 @@ export class AsyncFS {
         ): Promise<number> => {
           this.refreshMemory();
           const handle = await this.getDirectoryHandleFromFd(fd);
-          if (!handle) {
+          if (!handle || !handle.handle) {
             return this.originalImports.wasi_snapshot_preview1.fd_readdir(
               fd,
               bufPtr,
@@ -440,23 +440,12 @@ export class AsyncFS {
               bufUsedPtr
             );
           }
+          const startPtr = bufPtr;
 
-          let totalBufSize = 0;
-
-          // Calculate the total size of the directory entries
-          for await (const [name] of handle.handle!.entries()) {
-            const nameLen = name.length;
-            totalBufSize += 8 + 8 + 4 + 1 + nameLen + 6;
+          function isBufferFull() {
+            return bufPtr - startPtr >= bufLen;
           }
 
-          // If the buffer is too small, return the required size
-          if (bufLen < totalBufSize) {
-            console.log("too small", { bufLen, totalBufSize });
-            this.view.setUint32(bufUsedPtr, totalBufSize, true);
-            return -75 /* EOVERFLOW */;
-          }
-
-          let bufOffset = 0;
           let i = 0;
           for await (const [name, entry] of handle.handle!.entries()) {
             if (i < cookie) {
@@ -464,34 +453,46 @@ export class AsyncFS {
               i++;
               continue;
             }
-            const nameLen = name.length;
-            let direntSize = 8 + 8 + 4 + 1 + 3 + nameLen;
 
-            direntSize += 8 - (direntSize % 8);
-            if (i >= Number(cookie) + bufLen / direntSize) {
-              break;
-            }
+            if (isBufferFull()) break;
+            const nameBytes = new TextEncoder().encode(name);
+
+            const nameLen = nameBytes.byteLength;
+
             console.log("write dirent for file", name);
             const type = entry.kind === "directory" ? 3 : 4;
-            // Fill in the directory entry
-            this.view.setBigUint64(bufPtr + bufOffset, BigInt(i + 1), true); // d_next
-            this.view.setBigUint64(bufPtr + bufOffset + 8, BigInt(1), true); // d_ino
-            this.view.setUint32(bufPtr + bufOffset + 16, nameLen, true); // d_namlen
-            this.view.setUint8(bufPtr + bufOffset + 20, type); // d_type
 
-            const nameBytes = new TextEncoder().encode(name);
-            const buf = new Uint8Array(this.memory.buffer, bufPtr + bufOffset + 21 + 3, nameLen);
+            this.view.setBigUint64(bufPtr, BigInt(i + 1), true); // d_next
+            bufPtr += 8;
+            if (isBufferFull()) break;
+
+            this.view.setBigUint64(bufPtr, BigInt(1), true); // d_ino
+            bufPtr += 8;
+            if (isBufferFull()) break;
+
+            this.view.setUint32(bufPtr, nameLen, true); // d_namlen
+            bufPtr += 4;
+            if (isBufferFull()) break;
+
+            this.view.setUint8(bufPtr, type); // d_type
+            bufPtr += 1;
+            bufPtr += 3; // padding
+            if (isBufferFull()) break;
+
+            if (bufPtr + nameLen >= startPtr + bufLen) {
+              break;
+            }
+
+            const buf = new Uint8Array(this.memory.buffer, bufPtr, nameLen);
             buf.set(nameBytes);
-
-            bufOffset += direntSize;
-            i++;
+            bufPtr += nameLen;
           }
 
-          // Report total bytes written
-          this.view.setUint32(bufUsedPtr, bufOffset, true);
-          console.log("finished", bufOffset, bufPtr);
+          const usedBytes = Math.min(bufPtr - startPtr, bufLen);
+          this.view.setUint32(bufUsedPtr, usedBytes, true);
+          console.log("finished", usedBytes, bufPtr);
 
-          return 0;
+          return WASI_ESUCCESS;
         },
         path_filestat_get: async (
           fd: number,
