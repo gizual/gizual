@@ -4,8 +4,7 @@ import { MainController } from "../../controllers";
 
 export type FileTreeNode = {
   name: string;
-  isDirectory: boolean;
-  children: FileTreeNode[];
+  children?: FileTreeNode[];
 };
 
 export class FileTreeViewModel {

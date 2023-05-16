@@ -6,14 +6,8 @@ import React from "react";
 import { useMainController } from "../../controllers";
 
 import styles from "./file-tree.module.scss";
-import { FileTreeViewModel } from "./file-tree.vm";
+import {FileTreeNode, FileTreeViewModel} from "./file-tree.vm";
 import { FileTreeMock } from "./mock";
-
-type FileTreeNode = {
-  name: string;
-  isDirectory: boolean;
-  children: FileTreeNode[];
-};
 
 type FileTreeProps = {
   root?: FileTreeNode;
@@ -47,15 +41,16 @@ function FileTree({ root, mode = "tree" }: FileTreeProps) {
   const renderNode = (node: FileTreeNode, path: string) => {
     const fullPath = `${path}/${node.name}`;
     const isExpanded = expandedNodes.has(fullPath);
+    const isDirectory = node.children ? node.children.length > 0 : false;
     return (
       <div key={fullPath}>
-        <div className={styles.Node} onClick={() => handleNodeToggle(fullPath, node.isDirectory)}>
+        <div className={styles.Node} onClick={() => handleNodeToggle(fullPath, isDirectory)}>
           <span>{node.name}</span>
-          {node.isDirectory && <span>{isExpanded ? "-" : "+"}</span>}
+          {isDirectory && <span>{isExpanded ? "-" : "+"}</span>}
         </div>
         {isExpanded && (
           <div className={styles.Children}>
-            {node.children.map((child) => renderNode(child, fullPath))}
+            {node.children?.map((child) => renderNode(child, fullPath))}
           </div>
         )}
       </div>

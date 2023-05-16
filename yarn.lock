@@ -650,6 +650,7 @@ __metadata:
     "@codemirror/theme-one-dark": ^6.1.2
     "@codemirror/view": ^6.11.2
     "@giz/explorer": "workspace:*"
+    "@giz/explorer-libgit2": "workspace:*"
     "@radix-ui/react-dialog": ^1.0.3
     "@radix-ui/react-popover": ^1.0.5
     "@radix-ui/react-select": ^1.2.1

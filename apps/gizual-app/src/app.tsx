@@ -8,20 +8,17 @@ import { observer } from "mobx-react-lite";
 
 function App() {
   const mainController = useMainController();
-  const [page, setPage] = useState(0);
-  const isWelcomePage = page === 0;
-  const isMainPage = page === 1;
 
   return (
     <div className={style.App}>
-      {isWelcomePage && (
+      {mainController.page === "welcome" && (
         <WelcomePage
           cb={() => {
-            setPage(1);
+            mainController.setPage("main");
           }}
         />
       )}
-      {isMainPage && <MainPage />}
+      {mainController.page === "main" && <MainPage />}
     </div>
   );
 }

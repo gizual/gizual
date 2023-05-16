@@ -33,30 +33,38 @@ function File({ vm: externalVm, isLoadIndicator }: FileProps) {
   React.useEffect(() => {
     vm.assignCanvasRef(canvasRef);
     vm.draw();
-  }, [canvasRef, vm.isLoadIndicator]);
+  }, [canvasRef, vm._loading]);
 
   React.useEffect(() => {
     vm.assignFileRef(fileRef);
   }, [fileRef]);
+
+  let body =
+      (<DialogProvider
+          trigger={
+              <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
+                  <Plus className={style.LoadFileIcon} />
+              </div>
+          }
+      >
+          <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
+      </DialogProvider>);
+
+  if (!vm._isLoadIndicator) {
+      if (vm._loading) {
+          body = (<div>Loading</div>);
+      }
+      else {
+          body = (<canvas className={style.FileCanvas} ref={canvasRef} />);
+      }
+  }
 
   return (
     <>
       <div className={style.File} ref={fileRef}>
         <FileHeader vm={vm} />
         <div className={style.FileBody}>
-          {vm.isLoadIndicator ? (
-            <DialogProvider
-              trigger={
-                <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
-                  <Plus className={style.LoadFileIcon} />
-                </div>
-              }
-            >
-              <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
-            </DialogProvider>
-          ) : (
-            <canvas className={style.FileCanvas} ref={canvasRef} />
-          )}
+            {body}
         </div>
       </div>
     </>

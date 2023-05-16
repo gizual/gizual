@@ -3,7 +3,7 @@ import { WasiRuntime } from "@giz/wasi-runtime";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
-import { isBlame, isFileContent, isFileTree } from "./types";
+import {Blame, FileContent, FileTree, isBlame, isFileContent, isFileTree} from "./types";
 const wasmFilePath = "/wasi-playground-module.wasm";
 
 const SKIP_VALIDATION = true;
@@ -23,11 +23,18 @@ export class ExplorerLibgit2 {
       },
     });
 
+    console.log("Running", command, arg1, arg2)
     const result = await runtime.run({
       args: [command, arg1, arg2],
       env: {},
     });
-    return JSON.parse(result.trim());
+    try {
+      return JSON.parse(result.trim());
+    }
+    catch (e: any) {
+      console.error(result);
+      throw e;
+    }
   }
 
   async getBranches(): Promise<string[]> {
@@ -42,7 +49,7 @@ export class ExplorerLibgit2 {
     throw new TypeError("Unexpected output");
   }
 
-  async getBlame(branch: string, path: string) {
+  async getBlame(branch: string, path: string): Promise<Blame> {
     const output = await this.run("blame", branch, path);
 
     if (SKIP_VALIDATION || isBlame(output)) {
@@ -51,7 +58,7 @@ export class ExplorerLibgit2 {
     throw new TypeError("Unexpected output");
   }
 
-  async getFileContent(branch: string, path: string) {
+  async getFileContent(branch: string, path: string): Promise<FileContent> {
     const output = await this.run("file_content", branch, path);
 
     if (SKIP_VALIDATION || isFileContent(output)) {
@@ -60,7 +67,7 @@ export class ExplorerLibgit2 {
     throw new TypeError("Unexpected output");
   }
 
-  async getFileTree(branch: string) {
+  async getFileTree(branch: string): Promise<FileTree> {
     const output = await this.run("filetree", branch);
 
     if (SKIP_VALIDATION || isFileTree(output)) {

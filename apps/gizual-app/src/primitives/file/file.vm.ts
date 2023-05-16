@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from "mobx";
+import {action, autorun, makeAutoObservable, makeObservable, observable, runInAction} from "mobx";
 import React from "react";
 
 import { MainController } from "../../controllers";
@@ -44,18 +44,19 @@ export class FileViewModel {
   _settings: Required<Settings>;
   _mainController: MainController;
   _isEditorOpen = false;
+  _loading = true;
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
   _fileRef: React.RefObject<HTMLDivElement> | undefined;
 
   constructor(
     mainController: MainController,
-    info: FileInfo,
+    path: string,
     settings: Settings,
     isFavourite?: boolean,
     isLoadIndicator?: boolean
   ) {
-    this.load(info);
+    this._fileName = path;
     this._isFavourite = isFavourite ?? false;
     this._mainController = mainController;
     this._isLoadIndicator = isLoadIndicator ?? false;
@@ -67,31 +68,67 @@ export class FileViewModel {
       maxLineCount: 60,
       ...settings,
     };
+    makeAutoObservable(this);
 
-    makeObservable(this, {
-      _fileName: observable,
-      _fileExtension: observable,
-      _fileContent: observable,
-      _lineLengthMax: observable,
-      _isFavourite: observable,
-      _isLoadIndicator: observable,
-      _canvasRef: observable,
-      _isEditorOpen: observable,
-      setFavourite: action,
-      toggleEditor: action,
-      unsetFavourite: action,
-      load: action,
-    });
+    //makeObservable(this, {
+    //  _fileName: observable,
+    //  _fileExtension: observable,
+    //  _fileContent: observable,
+    //  _lineLengthMax: observable,
+    //  _isFavourite: observable,
+    //  _isLoadIndicator: observable,
+    //  _canvasRef: observable,
+    //  _isEditorOpen: observable,
+    //  setFavourite: action,
+    //  toggleEditor: action,
+    //  unsetFavourite: action,
+    //  load: action,
+    //});
+
+    autorun(() => {this.load()})
   }
 
-  load(info: FileInfo) {
-    this._fileName = info.fileName;
-    this._fileExtension = info.fileExtension;
-    this._fileContent = info.fileContent;
-    this._lineLengthMax = info.lineLengthMax;
-    this._latestTimestamp = info.latestTimestamp;
-    this._earliestTimestamp = info.earliestTimestamp;
-    this._isLoadIndicator = false;
+  load(info?: FileInfo) {
+    console.log("LOADING", this._fileName);
+    this._mainController._libgit2.getBlame(this._mainController.selectedBranch, this._fileName).then((blame) => {
+      runInAction(() => {
+        this._fileContent = [];
+
+        let earliestTimestamp = Number.MAX_SAFE_INTEGER;
+        let latestTimestamp = Number.MIN_SAFE_INTEGER;
+        for (const commit of Object.values(blame.commits)) {
+          earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
+          latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
+        }
+
+        this._fileContent = blame.lines.map((l) => {
+          const commit = blame.commits[l.commitId];
+
+          return {
+            content: l.content,
+            commit: {
+              hash: commit.commitId,
+              timestamp: +commit.timestamp,
+            },
+          };
+        })
+
+        this._latestTimestamp = latestTimestamp;
+        this._earliestTimestamp = earliestTimestamp;
+        this._lineLengthMax = 100;
+
+        console.log(this._fileContent);
+        this._loading = false;
+      });
+
+      //this._fileName = info.fileName;
+      //this._fileExtension = info.fileExtension;
+      //this._fileContent = info.fileContent;
+      //this._lineLengthMax = info.lineLengthMax;
+      //this._latestTimestamp = info.latestTimestamp;
+      //this._earliestTimestamp = info.earliestTimestamp;
+      //this._isLoadIndicator = false;
+    });
   }
 
   close() {

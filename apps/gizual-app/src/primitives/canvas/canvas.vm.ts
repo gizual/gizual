@@ -1,24 +1,39 @@
-import _ from "lodash";
-import { makeAutoObservable } from "mobx";
+import {autorun, makeAutoObservable} from "mobx";
 
 import { MainController } from "../../controllers";
 import { FileViewModel } from "../file/file.vm";
-import { MockFile } from "../file/mock";
+
+import _ from "lodash";
 
 export class CanvasViewModel {
   _mainController: MainController;
+  _selectedFileVms: Record<string,FileViewModel> = {};
+
   constructor(mainController: MainController) {
     this._mainController = mainController;
     makeAutoObservable(this);
+
+    autorun(() => {this.loadSelectedFiles()})
+  }
+
+  loadSelectedFiles() {
+    const selectedFiles = this._mainController.selectedFiles;
+    const existingFiles = Object.keys(this._selectedFileVms);
+
+    const filesToLoad = _.difference(selectedFiles, existingFiles);
+    const filesToUnload = _.difference(existingFiles, selectedFiles);
+
+    for (const file of filesToLoad) {
+        this._selectedFileVms[file] = new FileViewModel(this._mainController, file, {}, false, false);
+    }
+
+    for (const file of filesToUnload) {
+        delete this._selectedFileVms[file];
+    }
+
   }
 
   get selectedFiles(): FileViewModel[] {
-    const vms: FileViewModel[] = [];
-    for (const fileName of this._mainController._selectedFiles) {
-      const mockFile = _.cloneDeep(MockFile);
-      mockFile.fileName = fileName;
-      vms.push(new FileViewModel(this._mainController, mockFile, {}, false, false));
-    }
-    return vms;
+    return Object.values(this._selectedFileVms);
   }
 }

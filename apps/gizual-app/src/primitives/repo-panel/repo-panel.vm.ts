@@ -2,19 +2,12 @@ import { SelectEntry } from "../select";
 import { MainController } from "../../controllers";
 
 export class RepoPanelViewModel {
-  private _selectBranchData: SelectEntry[];
   private _selectCommitData: SelectEntry[];
   private _toggleRangeValues: string[];
   private _mainController: MainController;
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
-    this._selectBranchData = [
-      { value: "master", label: "master" },
-      { value: "develop", label: "develop" },
-      { value: "feature/1", label: "feature/1" },
-      { value: "feature/2", label: "feature/2" },
-    ];
 
     this._selectCommitData = [
       {
@@ -30,7 +23,7 @@ export class RepoPanelViewModel {
   }
 
   get selectBranchData() {
-    return this._selectBranchData;
+    return this._mainController._branches.map((b) => ({value: b, label: b}));
   }
 
   get selectCommitData() {
@@ -43,7 +36,6 @@ export class RepoPanelViewModel {
 
   onBranchChange(value: string) {
     this._mainController.setBranchByName(value);
-    console.log("onBranchChange", value);
   }
 
   onCommitChange(value: string) {
