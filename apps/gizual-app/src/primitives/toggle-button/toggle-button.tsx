@@ -7,9 +7,10 @@ export type ToggleButtonProps = {
   values: string[];
   toggleName: string;
   defaultChecked?: number;
+  onChange?: (value: number) => void;
 };
 
-export function ToggleButton({ values, defaultChecked, toggleName }: ToggleButtonProps) {
+export function ToggleButton({ values, defaultChecked, toggleName, onChange }: ToggleButtonProps) {
   const [selected, setSelected] = React.useState(defaultChecked ?? 0);
 
   return (
@@ -24,7 +25,10 @@ export function ToggleButton({ values, defaultChecked, toggleName }: ToggleButto
               type="radio"
               name={`toggle-button-radio-${toggleName}`}
               defaultChecked={isSelected}
-              onChange={() => setSelected(index)}
+              onChange={() => {
+                setSelected(index);
+                if (onChange) onChange(index);
+              }}
             />
             <label className="labels" htmlFor={radioName}>
               {value}

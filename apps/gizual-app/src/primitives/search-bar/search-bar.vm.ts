@@ -1,19 +1,28 @@
 import { observable, runInAction } from "mobx";
+import React from "react";
+
+import { MainController } from "../../controllers";
 
 export class SearchBarViewModel {
   _toggleRepoPanel: () => void;
   _toggleSettingsPanel: () => void;
   _inputFilesRef: React.RefObject<HTMLInputElement> | undefined;
+  _mainController: MainController;
 
   _state = observable({
     popoverOpen: false,
     filesQuery: [] as string[],
   });
 
-  constructor(toggleRepoPanel: () => void, toggleSettingsPanel: () => void) {
+  constructor(
+    toggleRepoPanel: () => void,
+    toggleSettingsPanel: () => void,
+    mainController: MainController
+  ) {
     this._toggleRepoPanel = toggleRepoPanel;
     this._toggleSettingsPanel = toggleSettingsPanel;
     this._inputFilesRef = undefined;
+    this._mainController = mainController;
   }
 
   onToggleRepoPanel = () => {

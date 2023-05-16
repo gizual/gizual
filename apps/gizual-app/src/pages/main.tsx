@@ -9,14 +9,17 @@ import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
 import { MainPageViewModel } from "./main.vm";
+import { useMainController } from "../controllers";
 
 export type MainPageProps = {
   vm?: MainPageViewModel;
 };
 
 function MainPage({ vm: externalVm }: MainPageProps) {
+  const mainController = useMainController();
+
   const vm: MainPageViewModel = React.useMemo(() => {
-    return externalVm || new MainPageViewModel();
+    return externalVm || new MainPageViewModel(mainController);
   }, [externalVm]);
 
   return (

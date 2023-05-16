@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  gap: 0.5rem;
+  gap: 0;
   flex: 0 0;
   margin-bottom: 0.5rem;
 }
@@ -14,21 +14,27 @@
   width: 32px;
   height: 32px;
   flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .FileTitle {
-  @include text-lg;
+  @include text-base;
   text-align: left;
   font-family: monospace;
   font-weight: bold;
-  margin: auto 0;
+  margin: 0.75rem 0 0 0;
   flex-grow: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: default;
 }
 
 @mixin favourite {
   width: 32px;
   height: 32px;
   flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .FavouriteIcon {

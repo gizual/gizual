@@ -1,6 +1,7 @@
 import { observable, runInAction } from "mobx";
 
 import { SearchBarViewModel } from "../primitives/search-bar/search-bar.vm";
+import { MainController } from "../controllers";
 
 export class MainPageViewModel {
   _state = observable({
@@ -9,9 +10,15 @@ export class MainPageViewModel {
   });
 
   private _searchBarVM: SearchBarViewModel;
+  private _mainController: MainController;
 
-  constructor() {
-    this._searchBarVM = new SearchBarViewModel(this.toggleRepoPanel, this.toggleSettingsPanel);
+  constructor(mainController: MainController) {
+    this._mainController = mainController;
+    this._searchBarVM = new SearchBarViewModel(
+      this.toggleRepoPanel,
+      this.toggleSettingsPanel,
+      mainController
+    );
   }
 
   toggleRepoPanel = () => {

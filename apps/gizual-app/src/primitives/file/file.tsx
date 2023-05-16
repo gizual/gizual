@@ -10,12 +10,11 @@ import { ReactComponent as StarFilled } from "../../assets/icons/star-filled.svg
 import { ReactComponent as StarOutline } from "../../assets/icons/star-outline.svg";
 import { useMainController } from "../../controllers";
 import { DialogProvider } from "../dialog-provider";
-import EditorPopover from "../editor/editor-popover";
+import { Editor } from "../editor";
 
 import style from "./file.module.scss";
 import { FileViewModel } from "./file.vm";
 import { MockFile } from "./mock";
-import { Editor } from "../editor";
 
 export type FileProps = {
   vm?: FileViewModel;
@@ -25,7 +24,7 @@ export type FileProps = {
 function File({ vm: externalVm, isLoadIndicator }: FileProps) {
   const mainController = useMainController();
   const vm: FileViewModel = React.useMemo(() => {
-    return externalVm || new FileViewModel(MockFile, mainController, {}, false, isLoadIndicator);
+    return externalVm || new FileViewModel(mainController, MockFile, {}, false, isLoadIndicator);
   }, [externalVm]);
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -74,7 +73,9 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
   ) : (
     <div className={style.FileHead}>
       <UnknownFile className={style.FileIcon} />
-      <p className={style.FileTitle}>{vm.fileName}</p>
+      <p className={style.FileTitle} title={vm.fileName}>
+        {vm.fileName}
+      </p>
       {vm.isFavourite ? (
         <StarFilled
           className={style.FavouriteIcon}

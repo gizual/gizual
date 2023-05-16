@@ -3,13 +3,19 @@ import { ToggleButton } from "../toggle-button";
 
 import style from "./settings-panel.module.scss";
 import { SettingsPanelViewModel } from "./settings-panel.vm";
+import React from "react";
+
+import { useMainController } from "../../controllers";
 
 export type SettingsPanelProps = {
   vm?: SettingsPanelViewModel;
 };
 
-export function SettingsPanel({ vm }: SettingsPanelProps) {
-  if (!vm) vm = new SettingsPanelViewModel();
+export function SettingsPanel({ vm: externalVm }: SettingsPanelProps) {
+  const mainController = useMainController();
+  const vm: SettingsPanelViewModel = React.useMemo(() => {
+    return externalVm || new SettingsPanelViewModel(mainController);
+  }, [externalVm]);
 
   return (
     <div className={style.settingsPanel}>
@@ -25,6 +31,7 @@ export function SettingsPanel({ vm }: SettingsPanelProps) {
               values={vm.toggleColoringValues}
               defaultChecked={0}
               toggleName="coloringMode"
+              onChange={(n) => vm.onColoringModeChange(n)}
             />
           </div>
           <div className={sharedStyle.block}>
@@ -34,6 +41,7 @@ export function SettingsPanel({ vm }: SettingsPanelProps) {
               values={vm.toggleLineLengthScalingValues}
               defaultChecked={0}
               toggleName="lineLengthScaling"
+              onChange={(n) => vm.onLineLengthScalingChange(n)}
             />
           </div>
         </div>

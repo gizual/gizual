@@ -6,6 +6,9 @@ export class MainController {
   _selectedFiles: Set<string> = new Set<string>();
   _favouriteFiles: Set<string> = new Set<string>();
   _selectedBranch = "main";
+  _coloringMode: "By Age" | "By Author" = "By Age";
+  _lineLengthScaling: "Local" | "Global" = "Local";
+
   _fileTreeRoot?: FileTreeNode;
 
   constructor() {
@@ -46,5 +49,21 @@ export class MainController {
 
   get selectedBranch() {
     return this._selectedBranch;
+  }
+
+  setColoringMode(mode: "By Age" | "By Author") {
+    this._coloringMode = mode;
+  }
+
+  get coloringMode() {
+    return this._coloringMode;
+  }
+
+  setLineLengthScaling(mode: "Local" | "Global") {
+    this._lineLengthScaling = mode;
+  }
+
+  get lineLengthScaling() {
+    return this._lineLengthScaling;
   }
 }

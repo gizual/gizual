@@ -5,7 +5,7 @@ export const FileTreeMock: FileTreeNode = {
   isDirectory: true,
   children: [
     {
-      name: "file1",
+      name: "file1withalongname",
       isDirectory: false,
       children: [],
     },

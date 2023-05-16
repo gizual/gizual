@@ -17,7 +17,7 @@ export class CanvasViewModel {
     for (const fileName of this._mainController._selectedFiles) {
       const mockFile = _.cloneDeep(MockFile);
       mockFile.fileName = fileName;
-      vms.push(new FileViewModel(mockFile, this._mainController, {}, false, false));
+      vms.push(new FileViewModel(this._mainController, mockFile, {}, false, false));
     }
     return vms;
   }

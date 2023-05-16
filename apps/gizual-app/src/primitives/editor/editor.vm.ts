@@ -1,7 +1,7 @@
 import { javascript } from "@codemirror/lang-javascript";
 import { EditorState } from "@codemirror/state";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { EditorView } from "@codemirror/view";
+import { EditorView, gutter, GutterMarker } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { makeAutoObservable } from "mobx";
 import React from "react";
@@ -46,9 +46,24 @@ export class EditorViewModel {
         minHeight: "10vh",
       },
       ".cm-scroller": { overflow: "auto" },
+      //".cm-blame-gutter": { color: "gray" },
     });
 
     const content = this._content.map((c) => c.content).join("\n");
+
+    const gitMarker = new (class extends GutterMarker {
+      toDOM() {
+        return document.createTextNode("|");
+      }
+    })();
+
+    const gitGutter = gutter({
+      class: "cm-blame-gutter",
+      lineMarker(view, line) {
+        return gitMarker;
+      },
+      initialSpacer: () => gitMarker,
+    });
 
     this._editor = new EditorView({
       parent: this._editorRef.current,

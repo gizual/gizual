@@ -1,12 +1,15 @@
 import baseStyle from "../app.module.scss";
 import { Button } from "../primitives";
 
+import { useMainController } from "../controllers";
+
 interface WelcomePageProps {
   cb: () => void;
 }
 
 function WelcomePage(props: WelcomePageProps) {
-  const onClick = () => {
+  const mainController = useMainController();
+  const openPicker = () => {
     window.showDirectoryPicker();
   };
 
@@ -17,7 +20,7 @@ function WelcomePage(props: WelcomePageProps) {
         <h1 className={baseStyle.h1}>Gizual</h1>
         <p className={baseStyle.p}>Welcome to Gizual!</p>
         <div className={baseStyle.card}>
-          <Button variant="filled" onClick={onClick} className={baseStyle.button}>
+          <Button variant="filled" onClick={openPicker} className={baseStyle.button}>
             Load Repository
           </Button>
         </div>

@@ -21,7 +21,7 @@ export type Commit = {
 
 export type Line = {
   content: string;
-  commit: Commit;
+  commit?: Commit;
 };
 
 export type Settings = Partial<{
@@ -49,8 +49,8 @@ export class FileViewModel {
   _fileRef: React.RefObject<HTMLDivElement> | undefined;
 
   constructor(
-    info: FileInfo,
     mainController: MainController,
+    info: FileInfo,
     settings: Settings,
     isFavourite?: boolean,
     isLoadIndicator?: boolean
@@ -201,7 +201,7 @@ export class FileViewModel {
 
       const rectWidth = ((lineLength - lineOffset) / this._lineLengthMax) * columnWidth;
       const rectHeight = lineHeight;
-      ctx.fillStyle = this.interpolateColor(line.commit.timestamp);
+      ctx.fillStyle = line.commit ? this.interpolateColor(line.commit.timestamp) : "#232323";
       ctx.fillRect(currentX + lineOffset, currentY, rectWidth, rectHeight);
       currentY += lineHeight + this._settings.lineSpacing;
       lineIndex++;

@@ -27,7 +27,7 @@ function DialogProvider({ vm: externalVm, trigger, children }: PopoverProviderPr
         <Dialog.Content className={style.DialogContent}>
           {children}
           <Dialog.Close
-            asChild
+            asChild={false}
             className={style.DialogClose}
             aria-label="Close"
             onClick={() => vm.closePopover()}
