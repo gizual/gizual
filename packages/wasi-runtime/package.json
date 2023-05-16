@@ -9,8 +9,7 @@
     "@wasmer/wasm-transformer": "0.12.0",
     "@wasmer/wasmfs": "0.12.0",
     "asyncify-wasm": "^1.2.1",
-    "comlink": "4.4.1",
-    "mobx": "6.9.0"
+    "comlink": "4.4.1"
   },
   "devDependencies": {
     "turbowatch": "2.20.0",

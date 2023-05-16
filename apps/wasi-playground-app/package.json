@@ -2,7 +2,7 @@
   "name": "@giz/wasi-playground-app",
   "version": "0.0.0",
   "dependencies": {
-    "@giz/explorer-backend-libgit2": "workspace:*",
+    "@giz/explorer": "workspace:*",
     "@wasmer/wasi": "1.2.2",
     "@wasmer/wasm-transformer": "0.12.0",
     "@wasmer/wasmfs": "0.12.0",

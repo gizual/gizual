@@ -99,18 +99,9 @@ export class WasiRuntimeWorker {
 
     await runCommandPromise;
 
-    let output = "";
-
     const end = performance.now();
     const durationSeconds = (end - start) / 1000;
-    output += `\n# Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`;
-
-    const stdout = this.asyncFS.getStdout();
-
-    output += `\n` + stdout;
-
-    console.log("finally", stdout);
-
-    return output;
+    console.log(`Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`);
+    return this.asyncFS.getStdout();
   }
 }

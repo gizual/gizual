@@ -260,11 +260,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@giz/explorer-libgit2@workspace:*, @giz/explorer-libgit2@workspace:packages/explorer-libgit2":
+  version: 0.0.0-use.local
+  resolution: "@giz/explorer-libgit2@workspace:packages/explorer-libgit2"
+  dependencies:
+    "@giz/explorer-backend-libgit2": "workspace:*"
+    "@giz/wasi-runtime": "workspace:*"
+    rimraf: 4.4.1
+    tsup: 6.7.0
+    turbowatch: 2.20.0
+  languageName: unknown
+  linkType: soft
+
 "@giz/explorer@workspace:*, @giz/explorer@workspace:packages/explorer":
   version: 0.0.0-use.local
   resolution: "@giz/explorer@workspace:packages/explorer"
   dependencies:
-    "@giz/explorer-backend-libgit2": "workspace:*"
+    "@giz/explorer-libgit2": "workspace:*"
     rimraf: 4.4.1
     tsup: 6.7.0
     turbowatch: 2.20.0
@@ -303,7 +315,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@giz/wasi-playground-app@workspace:apps/wasi-playground-app"
   dependencies:
-    "@giz/explorer-backend-libgit2": "workspace:*"
+    "@giz/explorer": "workspace:*"
     "@types/react": 18.0.28
     "@types/react-dom": 18.0.11
     "@vitejs/plugin-react-swc": 3.1.0
@@ -323,7 +335,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@giz/wasi-runtime@workspace:packages/wasi-runtime":
+"@giz/wasi-runtime@workspace:*, @giz/wasi-runtime@workspace:packages/wasi-runtime":
   version: 0.0.0-use.local
   resolution: "@giz/wasi-runtime@workspace:packages/wasi-runtime"
   dependencies:
@@ -332,7 +344,6 @@ __metadata:
     "@wasmer/wasmfs": 0.12.0
     asyncify-wasm: ^1.2.1
     comlink: 4.4.1
-    mobx: 6.9.0
     turbowatch: 2.20.0
     typescript: 5.0.2
   languageName: unknown
@@ -3429,13 +3440,6 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
-  languageName: node
-  linkType: hard
-
-"mobx@npm:6.9.0":
-  version: 6.9.0
-  resolution: "mobx@npm:6.9.0"
-  checksum: ae03e95334887305c49d3e63e54f5e5e571b21f6a649fc0b7f6f1afd83470db63d8ab3e7c4b9e6ace2aaf6eded5255878c5f69d293efa9fd35af3d640b4a4756
   languageName: node
   linkType: hard
 

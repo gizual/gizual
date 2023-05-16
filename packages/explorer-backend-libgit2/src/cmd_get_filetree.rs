@@ -1,6 +1,6 @@
+use crate::utils;
 use git2::{ObjectType, Repository, Tree};
 use serde::{Deserialize, Serialize};
-use serde_json;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileTree {
@@ -56,10 +56,7 @@ pub(crate) fn command_get_filetree(branch: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(dir_path)?;
     let file_tree = get_filetree(&repo, branch)?;
 
-    println!(
-        "{}",
-        serde_json::to_string_pretty(&file_tree.children).unwrap()
-    );
+    utils::print_json(&file_tree.children);
 
     Ok(())
 }

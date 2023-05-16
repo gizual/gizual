@@ -1,7 +1,6 @@
 import React from "react";
 
 import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
-
 import { WasiRuntime } from "@giz/wasi-runtime";
 
 const wasmFilePath = "/wasi-playground-module.wasm";
@@ -17,12 +16,12 @@ async function runWasiCommand(args: string[]): Promise<string> {
     },
   });
 
-  const output = await runtime.run({
+  return await runtime.run({
     args,
-    env: {},
+    env: {
+      PRETTY_JSON: "true",
+    },
   });
-
-  return output;
 }
 
 const AnimatedLoadingIndicator = () => {
@@ -86,5 +85,3 @@ const App = () => {
 };
 
 export default App;
-
-

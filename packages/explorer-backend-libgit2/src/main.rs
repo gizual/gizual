@@ -18,6 +18,7 @@ mod cmd_blame;
 mod cmd_get_file_content;
 mod cmd_get_filetree;
 mod cmd_list_branches;
+mod utils;
 
 use structopt::StructOpt;
 
@@ -49,7 +50,7 @@ fn main() {
     if command == "filetree" {
         result = cmd_get_filetree::command_get_filetree(args.branch_name.as_str());
     } else if command == "blame" {
-        result = cmd_blame::blame(branch_name.as_str(), file_path.as_str());
+        result = cmd_blame::cmd_blame(branch_name.as_str(), file_path.as_str());
     } else if command == "file_content" {
         result =
             cmd_get_file_content::cmd_get_file_content(branch_name.as_str(), file_path.as_str());

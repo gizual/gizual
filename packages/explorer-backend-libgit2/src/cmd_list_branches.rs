@@ -1,5 +1,5 @@
+use crate::utils;
 use git2::{BranchType, Repository};
-use serde_json;
 
 pub fn cmd_list_branches() -> Result<(), git2::Error> {
     let dir_path = "/repo";
@@ -8,7 +8,6 @@ pub fn cmd_list_branches() -> Result<(), git2::Error> {
 
     let repo = Repository::open(dir_path)?;
 
-    // get all branches in the repo with no filter
     let branches = repo.branches(Some(BranchType::Local))?;
 
     branches.for_each(|branch| {
@@ -17,6 +16,6 @@ pub fn cmd_list_branches() -> Result<(), git2::Error> {
         result.push(name.to_string());
     });
 
-    println!("{}", serde_json::to_string_pretty(&result).unwrap());
+    utils::print_json(&result);
     Ok(())
 }

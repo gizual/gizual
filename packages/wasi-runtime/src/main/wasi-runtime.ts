@@ -1,4 +1,3 @@
-import { makeAutoObservable } from "mobx";
 import * as Comlink from "comlink";
 import { createWorker } from "./create-worker";
 import type { WasiRuntimeWorker } from "../worker/wasi-runtime-worker";
@@ -12,9 +11,7 @@ export class WasiRuntime {
   private constructor(
     private opts: ExtendedWasiRuntimeOpts,
     private worker: Comlink.Remote<WasiRuntimeWorker>
-  ) {
-    makeAutoObservable(this);
-  }
+  ) {}
 
   async init() {
     for (const [key, value] of Object.entries(this.opts.folderMappings)) {

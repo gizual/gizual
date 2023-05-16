@@ -1,8 +1,15 @@
+use crate::utils;
 use git2::{ObjectType, Repository};
-
+use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-pub fn cmd_get_file_content(branch: &str, file_path: &str) -> Result<(), git2::Error> {
+#[derive(Debug, Serialize, Deserialize)]
+struct FileContent {
+    content: String,
+    path: String,
+}
+
+pub fn get_file_content(branch: &str, file_path: &str) -> Result<String, git2::Error> {
     let dir_path = "/repo";
 
     let repo = Repository::open(dir_path)?;
@@ -15,9 +22,18 @@ pub fn cmd_get_file_content(branch: &str, file_path: &str) -> Result<(), git2::E
     if entry.kind() == Some(ObjectType::Blob) {
         let blob = repo.find_blob(entry.id())?;
         let content = blob.content();
-        println!("{}", String::from_utf8_lossy(content));
-        return Ok(());
+        return Ok(String::from_utf8_lossy(content).to_string());
     }
-    println!("not a blob");
+    Ok("not a blob".to_string())
+}
+
+pub fn cmd_get_file_content(branch: &str, file_path: &str) -> Result<(), git2::Error> {
+    let content = get_file_content(branch, file_path)?;
+    let file_content = FileContent {
+        content,
+        path: file_path.to_string(),
+    };
+
+    utils::print_json(&file_content);
     Ok(())
 }
