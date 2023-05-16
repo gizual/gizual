@@ -22,7 +22,7 @@ export class MainController {
   toggleFile(name: string) {
     if (this._selectedFiles.has(name)) {
       this._selectedFiles.delete(name);
-    } else this._selectedFiles.add(name.substring(6));
+    } else this._selectedFiles.add(name);
   }
 
   get selectedFiles(): string[] {

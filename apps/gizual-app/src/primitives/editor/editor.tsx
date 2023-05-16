@@ -2,21 +2,21 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useMainController } from "../../controllers";
-import { Line } from "../file/file.vm";
+import {FileViewModel} from "../file/file.vm";
 
 import style from "./editor.module.scss";
 import { EditorViewModel } from "./editor.vm";
 
 type EditorProps = {
   vm?: EditorViewModel;
-  content: Line[];
+  file: FileViewModel;
 };
 
-function Editor({ vm: externalVm, content }: EditorProps) {
+function Editor({ vm: externalVm, file }: EditorProps) {
   const mainController = useMainController();
 
   const vm: EditorViewModel = React.useMemo(() => {
-    return externalVm || new EditorViewModel(content, mainController);
+    return externalVm || new EditorViewModel(file, mainController);
   }, [externalVm]);
 
   const editorRef = React.useRef<HTMLDivElement>(null);

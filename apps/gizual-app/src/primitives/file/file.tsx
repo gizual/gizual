@@ -107,7 +107,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
             </div>
           }
         >
-          <Editor content={vm.fileContent} />
+          <Editor file={vm} />
         </DialogProvider>
         <CloseBox
           className={style.FileActionIcon}

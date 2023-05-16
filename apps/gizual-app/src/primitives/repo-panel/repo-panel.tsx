@@ -64,7 +64,7 @@ export function RepoPanel({ vm: externalVm }: RepoPanelProps) {
           <FileTree mode={"favourite"} />
         </div>
       </div>
-      <div className={sharedStyle.section}>
+      <div className={clsx(sharedStyle.section, style.fileTree)}>
         <div className={sharedStyle.sectionHead}>
           <h1>Files</h1>
         </div>

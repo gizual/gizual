@@ -22,6 +22,7 @@ export type Commit = {
 export type Line = {
   content: string;
   commit?: Commit;
+  color?: string;
 };
 
 export type Settings = Partial<{
@@ -101,9 +102,11 @@ export class FileViewModel {
           latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
         }
 
+        let lenMax = 0;
         this._fileContent = blame.lines.map((l) => {
           const commit = blame.commits[l.commitId];
 
+          lenMax = Math.max(l.content.length, lenMax);
           return {
             content: l.content,
             commit: {
@@ -115,7 +118,7 @@ export class FileViewModel {
 
         this._latestTimestamp = latestTimestamp;
         this._earliestTimestamp = earliestTimestamp;
-        this._lineLengthMax = 100;
+        this._lineLengthMax = lenMax < 100 ? 100 : lenMax;
 
         console.log(this._fileContent);
         this._loading = false;
@@ -238,7 +241,9 @@ export class FileViewModel {
 
       const rectWidth = ((lineLength - lineOffset) / this._lineLengthMax) * columnWidth;
       const rectHeight = lineHeight;
-      ctx.fillStyle = line.commit ? this.interpolateColor(line.commit.timestamp) : "#232323";
+      const color = line.commit ? this.interpolateColor(line.commit.timestamp) : "#232323";
+      ctx.fillStyle = color;
+      line.color = color;
       ctx.fillRect(currentX + lineOffset, currentY, rectWidth, rectHeight);
       currentY += lineHeight + this._settings.lineSpacing;
       lineIndex++;
