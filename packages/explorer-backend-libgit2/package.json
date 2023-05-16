@@ -3,7 +3,7 @@
   "module": "dist/explorer_backend_libgit2.js",
   "types": "dist/explorer_backend_libgit2.d.ts",
   "scripts": {
-    "build": "wasm-pack build --out-dir dist",
+    "build": "zx build.mjs",
     "dev": "turbowatch",
     "clean": "rimraf dist",
     "lint": "cargo clippy",
@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "turbowatch": "2.20.0",
-    "wasm-pack": "0.10.3"
+    "wasm-pack": "0.10.3",
+    "zx": "7.2.1"
   }
 }

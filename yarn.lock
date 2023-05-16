@@ -614,6 +614,19 @@ __metadata:
   dependencies:
     turbowatch: 2.20.0
     wasm-pack: 0.10.3
+    zx: 7.2.1
+  languageName: unknown
+  linkType: soft
+
+"@giz/explorer-libgit2@workspace:*, @giz/explorer-libgit2@workspace:packages/explorer-libgit2":
+  version: 0.0.0-use.local
+  resolution: "@giz/explorer-libgit2@workspace:packages/explorer-libgit2"
+  dependencies:
+    "@giz/explorer-backend-libgit2": "workspace:*"
+    "@giz/wasi-runtime": "workspace:*"
+    rimraf: 4.4.1
+    tsup: 6.7.0
+    turbowatch: 2.20.0
   languageName: unknown
   linkType: soft
 
@@ -621,7 +634,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@giz/explorer@workspace:packages/explorer"
   dependencies:
-    "@giz/explorer-backend-libgit2": "workspace:*"
+    "@giz/explorer-libgit2": "workspace:*"
     rimraf: 4.4.1
     tsup: 6.7.0
     turbowatch: 2.20.0
@@ -672,6 +685,46 @@ __metadata:
 "@giz/tsconfig@workspace:tools/tsconfig":
   version: 0.0.0-use.local
   resolution: "@giz/tsconfig@workspace:tools/tsconfig"
+  dependencies:
+    "@types/wicg-file-system-access": 2020.9.5
+  languageName: unknown
+  linkType: soft
+
+"@giz/wasi-playground-app@workspace:apps/wasi-playground-app":
+  version: 0.0.0-use.local
+  resolution: "@giz/wasi-playground-app@workspace:apps/wasi-playground-app"
+  dependencies:
+    "@giz/explorer": "workspace:*"
+    "@types/react": 18.0.28
+    "@types/react-dom": 18.0.11
+    "@vitejs/plugin-react-swc": 3.1.0
+    "@wasmer/wasi": 1.2.2
+    "@wasmer/wasm-transformer": 0.12.0
+    "@wasmer/wasmfs": 0.12.0
+    asyncify-wasm: ^1.2.1
+    normalize.css: 8.0.1
+    react: 18.2.0
+    react-dom: 18.2.0
+    rimraf: 4.4.1
+    turbowatch: 2.20.0
+    typescript: 5.0.2
+    vite: 4.2.0
+    vite-plugin-top-level-await: 1.3.0
+    vite-plugin-wasm: 3.2.2
+  languageName: unknown
+  linkType: soft
+
+"@giz/wasi-runtime@workspace:*, @giz/wasi-runtime@workspace:packages/wasi-runtime":
+  version: 0.0.0-use.local
+  resolution: "@giz/wasi-runtime@workspace:packages/wasi-runtime"
+  dependencies:
+    "@wasmer/wasi": 1.2.2
+    "@wasmer/wasm-transformer": 0.12.0
+    "@wasmer/wasmfs": 0.12.0
+    asyncify-wasm: ^1.2.1
+    comlink: 4.4.1
+    turbowatch: 2.20.0
+    typescript: 5.0.2
   languageName: unknown
   linkType: soft
 
@@ -1681,6 +1734,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/wicg-file-system-access@npm:2020.9.5":
+  version: 2020.9.5
+  resolution: "@types/wicg-file-system-access@npm:2020.9.5"
+  checksum: 56243705df43fd3b18049adcf5cb639dfbec5a033a33991f4050d0f6e09ebc94a70f426fde1926b7b0fb493d75ea7064eba95e06852eccd8d9cff4b1fde47e35
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/eslint-plugin@npm:5.56.0":
   version: 5.56.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.56.0"
@@ -1810,6 +1870,33 @@ __metadata:
   peerDependencies:
     vite: ^4
   checksum: 903fef0b133f122a76f048bdb398db45b35e11e33fb8a03f00beb0ceba9c6bacfbee32397910f0e985e23b7785d70aafb4a3a21d00c2991aacd57262c24b55bd
+  languageName: node
+  linkType: hard
+
+"@wasmer/wasi@npm:1.2.2":
+  version: 1.2.2
+  resolution: "@wasmer/wasi@npm:1.2.2"
+  checksum: ab774a8ace0637e07e50146da5c67d4b1250314bc27d959bf98b3baba71f85e1df84da72407c160f9db2a4a77a0bc32f427c13bcc111aecb93b8ab0700cd3c14
+  languageName: node
+  linkType: hard
+
+"@wasmer/wasm-transformer@npm:0.12.0":
+  version: 0.12.0
+  resolution: "@wasmer/wasm-transformer@npm:0.12.0"
+  dependencies:
+    wasm-feature-detect: ^1.2.2
+  checksum: b1f83078b80157cdb074f85e8341b7fe1832a64878d9eac5c72658c3eecb94d5ab0da7265838f220b8fbbb5c9f30d9f61ca81b2f703ddac57c4242ca75ba187f
+  languageName: node
+  linkType: hard
+
+"@wasmer/wasmfs@npm:0.12.0":
+  version: 0.12.0
+  resolution: "@wasmer/wasmfs@npm:0.12.0"
+  dependencies:
+    memfs: 3.0.4
+    pako: ^1.0.11
+    tar-stream: ^2.1.0
+  checksum: c726a8653ba4ed05e033e2779d987933e39459be57054668d27dedbb555d2d12e62f50148340861d358bb7218060caa4acf5f46182ddb5c541679232c6beb502
   languageName: node
   linkType: hard
 
@@ -2040,6 +2127,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"asyncify-wasm@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "asyncify-wasm@npm:1.2.1"
+  checksum: 4d77627e662d84fcb3af177f801ddae670e7bfd15761ba38fe558400b84cbb57aa65bb4818a407d63f2c607226ac4c23a5b21483dbfaea22c24f1c61c74f3cb3
+  languageName: node
+  linkType: hard
+
 "autoprefixer@npm:^10.4.14":
   version: 10.4.14
   resolution: "autoprefixer@npm:10.4.14"
@@ -2081,6 +2175,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base64-js@npm:^1.3.1":
+  version: 1.5.1
+  resolution: "base64-js@npm:1.5.1"
+  checksum: 669632eb3745404c2f822a18fc3a0122d2f9a7a13f7fb8b5823ee19d1d2ff9ee5b52c53367176ea4ad093c332fd5ab4bd0ebae5a8e27917a4105a4cfc86b1005
+  languageName: node
+  linkType: hard
+
 "binary-extensions@npm:^2.0.0":
   version: 2.2.0
   resolution: "binary-extensions@npm:2.2.0"
@@ -2096,6 +2197,17 @@ __metadata:
     rimraf: ^3.0.2
     tar: ^6.1.0
   checksum: a3df9c07a3ab81533cff610527263181c4c34a44efb115555be910b6011ac047bf875ad57469cc2259dfaba58e971c7ba2958038e9d222c546eef7b58b826ecc
+  languageName: node
+  linkType: hard
+
+"bl@npm:^4.0.3":
+  version: 4.1.0
+  resolution: "bl@npm:4.1.0"
+  dependencies:
+    buffer: ^5.5.0
+    inherits: ^2.0.4
+    readable-stream: ^3.4.0
+  checksum: 9e8521fa7e83aa9427c6f8ccdcba6e8167ef30cc9a22df26effcc5ab682ef91d2cbc23a239f945d099289e4bbcfae7a192e9c28c84c6202e710a0dfec3722662
   languageName: node
   linkType: hard
 
@@ -2145,6 +2257,16 @@ __metadata:
   bin:
     browserslist: cli.js
   checksum: 9755986b22e73a6a1497fd8797aedd88e04270be33ce66ed5d85a1c8a798292a65e222b0f251bafa1c2522261e237d73b08b58689d4920a607e5a53d56dc4706
+  languageName: node
+  linkType: hard
+
+"buffer@npm:^5.5.0":
+  version: 5.7.1
+  resolution: "buffer@npm:5.7.1"
+  dependencies:
+    base64-js: ^1.3.1
+    ieee754: ^1.1.13
+  checksum: e2cf8429e1c4c7b8cbd30834ac09bd61da46ce35f5c22a78e6c2f04497d6d25541b16881e30a019c6fd3154150650ccee27a308eff3e26229d788bbdeb08ab84
   languageName: node
   linkType: hard
 
@@ -2433,6 +2555,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"comlink@npm:4.4.1":
+  version: 4.4.1
+  resolution: "comlink@npm:4.4.1"
+  checksum: 16d58a8f590087fc45432e31d6c138308dfd4b75b89aec0b7f7bb97ad33d810381bd2b1e608a1fb2cf05979af9cbfcdcaf1715996d5fcf77aeb013b6da3260af
+  languageName: node
+  linkType: hard
+
 "commander@npm:^10.0.0":
   version: 10.0.0
   resolution: "commander@npm:10.0.0"
@@ -2701,6 +2830,15 @@ __metadata:
   dependencies:
     iconv-lite: ^0.6.2
   checksum: bb98632f8ffa823996e508ce6a58ffcf5856330fde839ae42c9e1f436cc3b5cc651d4aeae72222916545428e54fd0f6aa8862fd8d25bdbcc4589f1e3f3715e7f
+  languageName: node
+  linkType: hard
+
+"end-of-stream@npm:^1.4.1":
+  version: 1.4.4
+  resolution: "end-of-stream@npm:1.4.4"
+  dependencies:
+    once: ^1.4.0
+  checksum: 530a5a5a1e517e962854a31693dbb5c0b2fc40b46dad2a56a2deec656ca040631124f4795823acc68238147805f8b021abbe221f4afed5ef3c8e8efc2024908b
   languageName: node
   linkType: hard
 
@@ -3197,6 +3335,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-extend@npm:1.0.2":
+  version: 1.0.2
+  resolution: "fast-extend@npm:1.0.2"
+  checksum: aec1e3773e674f23edf0f2d6932416bb98fb962c1e06fe8e08eafe4d118faa5a4155506b71549ed980cddc4a8a731e70598e3d802fea6a91fdf0bc55c820fb93
+  languageName: node
+  linkType: hard
+
 "fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.9":
   version: 3.2.12
   resolution: "fast-glob@npm:3.2.12"
@@ -3361,6 +3506,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-constants@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "fs-constants@npm:1.0.0"
+  checksum: 18f5b718371816155849475ac36c7d0b24d39a11d91348cfcb308b4494824413e03572c403c86d3a260e049465518c4f0d5bd00f0371cdfcad6d4f30a85b350d
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^11.1.0":
   version: 11.1.1
   resolution: "fs-extra@npm:11.1.1"
@@ -3378,6 +3530,13 @@ __metadata:
   dependencies:
     minipass: ^3.0.0
   checksum: 1b8d128dae2ac6cc94230cc5ead341ba3e0efaef82dab46a33d171c044caaa6ca001364178d42069b2809c35a1c3c35079a32107c770e9ffab3901b59af8c8b1
+  languageName: node
+  linkType: hard
+
+"fs-monkey@npm:0.3.3":
+  version: 0.3.3
+  resolution: "fs-monkey@npm:0.3.3"
+  checksum: 0d2c3b78ff6b3effc400583c4b84c8b8fbf9f686468f019ed0422308ceb20fc262c1e1aa79b1bab48c6572b35d646e3827601279f9bd027f343e13f0c9200785
   languageName: node
   linkType: hard
 
@@ -3802,6 +3961,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ieee754@npm:^1.1.13":
+  version: 1.2.1
+  resolution: "ieee754@npm:1.2.1"
+  checksum: 5144c0c9815e54ada181d80a0b810221a253562422e7c6c3a60b1901154184f49326ec239d618c416c1c5945a2e197107aee8d986a3dd836b53dffefd99b5e7e
+  languageName: node
+  linkType: hard
+
 "ignore@npm:^5.2.0":
   version: 5.2.4
   resolution: "ignore@npm:5.2.4"
@@ -3857,7 +4023,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inherits@npm:2, inherits@npm:^2.0.3":
+"inherits@npm:2, inherits@npm:^2.0.3, inherits@npm:^2.0.4":
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 4a48a733847879d6cf6691860a6b1e3f0f4754176e4d71494c41f3475553768b10f84b5ce1d40fbd0e34e6bfbb864ee35858ad4dd2cf31e02fc4a154b724d7f1
@@ -4439,6 +4605,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"memfs@npm:3.0.4":
+  version: 3.0.4
+  resolution: "memfs@npm:3.0.4"
+  dependencies:
+    fast-extend: 1.0.2
+    fs-monkey: 0.3.3
+  checksum: 2bb9b9e4b04f3079df8f8fdb5bf3fbd961b4a255eb9ccc46d2ea978b397d3cf0605d20ddee4eda10d5549066e0b9ed903d1bc2c67ace59d8eb89add84ff8de6e
+  languageName: node
+  linkType: hard
+
 "merge-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "merge-stream@npm:2.0.0"
@@ -4763,6 +4939,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"normalize.css@npm:8.0.1":
+  version: 8.0.1
+  resolution: "normalize.css@npm:8.0.1"
+  checksum: 4698cae88ec35e3f3e82f9f9402e6ffb906c27ccd6373cad88e6b3f5634fc7a043cb38702472299e5edb73825cf8b18d5fd9283f58829eddda79ea97453049a2
+  languageName: node
+  linkType: hard
+
 "npm-run-path@npm:^4.0.1":
   version: 4.0.1
   resolution: "npm-run-path@npm:4.0.1"
@@ -4869,7 +5052,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"once@npm:^1.3.0":
+"once@npm:^1.3.0, once@npm:^1.4.0":
   version: 1.4.0
   resolution: "once@npm:1.4.0"
   dependencies:
@@ -4969,6 +5152,13 @@ __metadata:
   version: 2.2.0
   resolution: "p-try@npm:2.2.0"
   checksum: f8a8e9a7693659383f06aec604ad5ead237c7a261c18048a6e1b5b85a5f8a067e469aa24f5bc009b991ea3b058a87f5065ef4176793a200d4917349881216cae
+  languageName: node
+  linkType: hard
+
+"pako@npm:^1.0.11":
+  version: 1.0.11
+  resolution: "pako@npm:1.0.11"
+  checksum: 1be2bfa1f807608c7538afa15d6f25baa523c30ec870a3228a89579e474a4d992f4293859524e46d5d87fd30fa17c5edf34dbef0671251d9749820b488660b16
   languageName: node
   linkType: hard
 
@@ -5336,7 +5526,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^3.6.0":
+"readable-stream@npm:^3.1.1, readable-stream@npm:^3.4.0, readable-stream@npm:^3.6.0":
   version: 3.6.2
   resolution: "readable-stream@npm:3.6.2"
   dependencies:
@@ -6078,6 +6268,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tar-stream@npm:^2.1.0":
+  version: 2.2.0
+  resolution: "tar-stream@npm:2.2.0"
+  dependencies:
+    bl: ^4.0.3
+    end-of-stream: ^1.4.1
+    fs-constants: ^1.0.0
+    inherits: ^2.0.3
+    readable-stream: ^3.1.1
+  checksum: 699831a8b97666ef50021c767f84924cfee21c142c2eb0e79c63254e140e6408d6d55a065a2992548e72b06de39237ef2b802b99e3ece93ca3904a37622a66f3
+  languageName: node
+  linkType: hard
+
 "tar@npm:^6.1.0, tar@npm:^6.1.11, tar@npm:^6.1.2":
   version: 6.1.13
   resolution: "tar@npm:6.1.13"
@@ -6621,6 +6824,13 @@ __metadata:
   version: 2.2.6
   resolution: "w3c-keyname@npm:2.2.6"
   checksum: 59a31d23ca9953c01c99ed6695fee5b6ea36eb2412d76a21fe4302ab33a3f5cd96c006a763940b6115c3d042c16d3564eeee1156832217d028af0518098b3a42
+  languageName: node
+  linkType: hard
+
+"wasm-feature-detect@npm:^1.2.2":
+  version: 1.5.1
+  resolution: "wasm-feature-detect@npm:1.5.1"
+  checksum: a99be305a83530271e47212ef138644c75bc65bcf2b2c094b22fe4e13b9ca1a2c00fdd8a01d663b338e189459a5e1f27d9cbd71c8adca3c71957beea51606193
   languageName: node
   linkType: hard
 

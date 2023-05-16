@@ -1,5 +1,6 @@
 {
-  "name": "@giz/explorer",
+  "name": "@giz/explorer-libgit2",
+  "version": "0.0.1",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,6 +17,7 @@
     "turbowatch": "2.20.0"
   },
   "dependencies": {
-    "@giz/explorer-libgit2": "workspace:*"
+    "@giz/explorer-backend-libgit2": "workspace:*",
+    "@giz/wasi-runtime": "workspace:*"
   }
 }
