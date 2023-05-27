@@ -14,7 +14,7 @@ export function isBlame(obj: any): obj is Blame {
     Object.values(obj.commits).every((element) => isCommitInfo(element)) &&
     "lines" in obj &&
     Array.isArray(obj.lines) &&
-    obj.lines.every((element) => isBlameLine(element))
+    obj.lines.every((element: any) => isBlameLine(element))
   );
 }
 
