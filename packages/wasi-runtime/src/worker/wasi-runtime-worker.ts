@@ -4,8 +4,8 @@ import * as Asyncify from "@xtuc/asyncify-wasm";
 
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
-import { AsyncFS } from "./fs";
 import { debugWrapImports } from "./debug";
+import { AsyncFS } from "./fs";
 
 let hasBeenInitialized = false;
 

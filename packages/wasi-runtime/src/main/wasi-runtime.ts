@@ -1,7 +1,9 @@
 import * as Comlink from "comlink";
-import { createWorker } from "./create-worker";
-import type { WasiRuntimeWorker } from "../worker/wasi-runtime-worker";
+
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
+import type { WasiRuntimeWorker } from "../worker/wasi-runtime-worker";
+
+import { createWorker } from "./create-worker";
 
 export type ExtendedWasiRuntimeOpts = {
   folderMappings: Record<string, FileSystemDirectoryHandle>;

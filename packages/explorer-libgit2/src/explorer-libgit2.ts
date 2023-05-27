@@ -1,8 +1,8 @@
-import { WasiRuntime } from "@giz/wasi-runtime";
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
+import { WasiRuntime } from "@giz/wasi-runtime";
+
 import {Blame, FileContent, FileTree, isBlame, isFileContent, isFileTree} from "./types";
 const wasmFilePath = "/wasi-playground-module.wasm";
 
@@ -30,9 +30,9 @@ export class ExplorerLibgit2 {
     try {
       return JSON.parse(result.trim());
     }
-    catch (e: any) {
+    catch (error: any) {
       console.error(result);
-      throw e;
+      throw error;
     }
   }
 
