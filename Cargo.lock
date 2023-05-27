@@ -21,6 +21,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "asyncify_exports"
+version = "0.0.0"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -143,6 +147,7 @@ dependencies = [
 name = "explorer-backend-libgit2"
 version = "0.0.0"
 dependencies = [
+ "asyncify_exports",
  "git2",
  "serde",
  "serde_json",

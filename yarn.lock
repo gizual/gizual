@@ -342,7 +342,7 @@ __metadata:
     "@wasmer/wasi": 1.2.2
     "@wasmer/wasm-transformer": 0.12.0
     "@wasmer/wasmfs": 0.12.0
-    asyncify-wasm: ^1.2.1
+    "@xtuc/asyncify-wasm": 2.0.0
     comlink: 4.4.1
     turbowatch: 2.20.0
     typescript: 5.0.2
@@ -840,6 +840,13 @@ __metadata:
     pako: ^1.0.11
     tar-stream: ^2.1.0
   checksum: c726a8653ba4ed05e033e2779d987933e39459be57054668d27dedbb555d2d12e62f50148340861d358bb7218060caa4acf5f46182ddb5c541679232c6beb502
+  languageName: node
+  linkType: hard
+
+"@xtuc/asyncify-wasm@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@xtuc/asyncify-wasm@npm:2.0.0"
+  checksum: 2a039d9813d714d7354ce4e2c23073030eef5d051919ed22a53e83f5a17dfd4812a234611360f5fb8dd28b2aa25c6f0e6a460793e45363d8340b4840623672d3
   languageName: node
   linkType: hard
 

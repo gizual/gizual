@@ -20,6 +20,9 @@ mod cmd_get_filetree;
 mod cmd_list_branches;
 mod utils;
 
+#[allow(unused_imports)]
+use asyncify_exports;
+
 use structopt::StructOpt;
 
 #[derive(StructOpt)]

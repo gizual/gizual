@@ -1,6 +1,6 @@
 import * as wasmer from "@wasmer/wasi";
 import { lowerI64Imports } from "@wasmer/wasm-transformer";
-import * as Asyncify from "asyncify-wasm";
+import * as Asyncify from "@xtuc/asyncify-wasm";
 
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
