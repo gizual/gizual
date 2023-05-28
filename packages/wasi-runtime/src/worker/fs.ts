@@ -11,6 +11,7 @@ type ModuleImports = Record<string, ImportValue>;
 const WASI_ESUCCESS = 0;
 const WASI_EBADF = 8;
 const WASI_EINVAL = 28;
+const WASI_ENOENT = 44;
 const WASI_ENOSYS = 52;
 
 type DirHandle = {
@@ -387,7 +388,7 @@ export class AsyncFS {
               size = f.size;
             }
           } else {
-            return WASI_EBADF;
+            return WASI_ENOENT;
           }
 
           // Fill in the filestat struct with fake values
@@ -550,7 +551,7 @@ export class AsyncFS {
               size = f.size;
             }
           } else {
-            return WASI_EBADF;
+            return WASI_ENOENT;
           }
 
           console.log("path_filestat_get", fd, path, kind, size);
@@ -594,7 +595,7 @@ export class AsyncFS {
             const fdHandle = await this.open(path, mappedHandle);
 
             if (!fdHandle) {
-              return WASI_EBADF;
+              return WASI_ENOENT;
             }
             this.view.setBigUint64(fdPtr, BigInt(fdHandle.fd), true);
             return 0;
