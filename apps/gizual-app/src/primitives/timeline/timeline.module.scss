@@ -1,0 +1,98 @@
+@use "@/shared" as *;
+@use "@/mixins" as mixins;
+
+.Timeline {
+  border-bottom: 1px solid var(--border-primary);
+  overflow: auto;
+  max-height: 50vh;
+}
+
+.TimelineContainer {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.Header {
+  @include mixins.text-xl;
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
+
+.TimelineHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding-bottom: 1rem;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-primary);
+  margin-top: 0.5rem;
+}
+
+.RectContainer {
+  stroke: var(--border-primary);
+  background-color: var(--background-secondary);
+  fill: var(--background-tertiary);
+}
+
+.Tooltip {
+  background: var(--background-secondary);
+  color: var(--foreground-primary);
+  border: 1px solid var(--border-primary);
+  padding: 5px;
+  z-index: 1000;
+  white-space: nowrap;
+}
+
+.SelectionBox {
+  background: #30308050;
+  border: 1px solid var(--border-secondary);
+  pointer-events: none;
+}
+
+.SelectionBoxLine {
+  background-color: var(--foreground-primary);
+}
+
+@mixin ruler-annotation {
+  @include mixins.text-xs;
+  pointer-events: none;
+  fill: var(--foreground-primary);
+}
+
+.RulerAnnotationLeft {
+  @include ruler-annotation;
+  text-anchor: start;
+}
+
+.RulerAnnotationRight {
+  @include ruler-annotation;
+  text-anchor: end;
+}
+
+.BranchName {
+  @include mixins.text-sm;
+  font-weight: bold;
+  fill: var(--foreground-primary);
+  alignment-baseline: middle;
+  text-anchor: start;
+}
+
+.CommitCircle {
+  fill: var(--background-tertiary);
+  stroke: var(--foreground-primary);
+  stroke-width: 1px;
+}
+
+.CommitCircleHover {
+  fill: var(--background-primary);
+}
+
+.Svg {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

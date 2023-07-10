@@ -6,6 +6,7 @@ import { File } from "../file/";
 
 import style from "./canvas.module.scss";
 import { CanvasViewModel } from "./canvas.vm";
+import { Timeline } from "../timeline";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;
@@ -19,11 +20,14 @@ function Canvas({ vm: externalVm }: CanvasProps) {
   }, [externalVm]);
 
   return (
-    <div className={style.Canvas}>
-      {vm.selectedFiles.map((file) => (
-        <File vm={file} key={file.fileName} />
-      ))}
-      <File isLoadIndicator={true} />
+    <div className={style.Stage}>
+      <Timeline />
+      <div className={style.Canvas}>
+        {vm.selectedFiles.map((file) => (
+          <File vm={file} key={file.fileName} />
+        ))}
+        <File isLoadIndicator={true} />
+      </div>
     </div>
   );
 }

@@ -2,15 +2,20 @@ import React from "react";
 
 import style from "./toggle-button.module.scss";
 
-export type ToggleButtonProps = {
+export type ToggleButtonProps<T> = {
   ariaLabel: string;
-  values: string[];
+  values: readonly T[];
   toggleName: string;
   defaultChecked?: number;
-  onChange?: (value: number) => void;
+  onChange?: (value: T) => void;
 };
 
-export function ToggleButton({ values, defaultChecked, toggleName, onChange }: ToggleButtonProps) {
+export function ToggleButton<T>({
+  values,
+  defaultChecked,
+  toggleName,
+  onChange,
+}: ToggleButtonProps<T>) {
   const [selected, setSelected] = React.useState(defaultChecked ?? 0);
 
   return (
@@ -27,11 +32,11 @@ export function ToggleButton({ values, defaultChecked, toggleName, onChange }: T
               defaultChecked={isSelected}
               onChange={() => {
                 setSelected(index);
-                if (onChange) onChange(index);
+                if (onChange) onChange(values[index]);
               }}
             />
             <label className="labels" htmlFor={radioName}>
-              {value}
+              {`${value}`}
             </label>
           </div>
         );

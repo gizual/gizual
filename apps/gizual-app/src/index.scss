@@ -64,6 +64,7 @@
     --accent-tertiary-fg: var(--color-white);
 
     --border-primary: var(--color-gray);
+    --border-secondary: var(--color-darkslate);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -82,6 +83,7 @@
     --accent-tertiary-fg: var(--color-white);
 
     --border-primary: var(--color-darkslate);
+    --border-secondary: var(--color-gray);
   }
 }
 

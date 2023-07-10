@@ -38,6 +38,10 @@ export const BAND_COLOR_RANGE: string[] = [
   "#001E6C",
 ];
 
+export const SPECIAL_COLORS = {
+  NOT_LOADED: "#232323",
+};
+
 export const getColorScale = (
   domain: [number, number],
   colorRange: [string, string] = [LINEAR_COLOR_RANGE[0], LINEAR_COLOR_RANGE[1]]

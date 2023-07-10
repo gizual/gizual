@@ -1,11 +1,11 @@
+import React from "react";
+
+import { useMainController } from "../../controllers";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { ToggleButton } from "../toggle-button";
 
 import style from "./settings-panel.module.scss";
-import { SettingsPanelViewModel } from "./settings-panel.vm";
-import React from "react";
-
-import { useMainController } from "../../controllers";
+import { ColoringMode, LineLengthScaling, SettingsPanelViewModel } from "./settings-panel.vm";
 
 export type SettingsPanelProps = {
   vm?: SettingsPanelViewModel;
@@ -26,7 +26,7 @@ export function SettingsPanel({ vm: externalVm }: SettingsPanelProps) {
         <div className={sharedStyle.sectionBody}>
           <div className={sharedStyle.block}>
             <h3>Coloring mode</h3>
-            <ToggleButton
+            <ToggleButton<ColoringMode>
               ariaLabel="Coloring mode"
               values={vm.toggleColoringValues}
               defaultChecked={0}
@@ -36,7 +36,7 @@ export function SettingsPanel({ vm: externalVm }: SettingsPanelProps) {
           </div>
           <div className={sharedStyle.block}>
             <h3>Line length scaling</h3>
-            <ToggleButton
+            <ToggleButton<LineLengthScaling>
               ariaLabel="Line length scaling"
               values={vm.toggleLineLengthScalingValues}
               defaultChecked={0}

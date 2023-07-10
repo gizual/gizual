@@ -1,8 +1,9 @@
-import {action, autorun, makeAutoObservable, makeObservable, observable, runInAction} from "mobx";
+import { autorun, makeAutoObservable, runInAction, toJS } from "mobx";
 import React from "react";
 
 import { MainController } from "../../controllers";
-import { getColorScale } from "../../utils";
+import { wrap, transfer } from "comlink";
+import { CanvasWorker } from "./worker/worker";
 
 export type FileInfo = {
   fileName: string;
@@ -71,67 +72,48 @@ export class FileViewModel {
     };
     makeAutoObservable(this);
 
-    //makeObservable(this, {
-    //  _fileName: observable,
-    //  _fileExtension: observable,
-    //  _fileContent: observable,
-    //  _lineLengthMax: observable,
-    //  _isFavourite: observable,
-    //  _isLoadIndicator: observable,
-    //  _canvasRef: observable,
-    //  _isEditorOpen: observable,
-    //  setFavourite: action,
-    //  toggleEditor: action,
-    //  unsetFavourite: action,
-    //  load: action,
-    //});
-
-    autorun(() => {this.load()})
+    autorun(() => {
+      this.load();
+    });
   }
 
   load(info?: FileInfo) {
     console.log("LOADING", this._fileName);
-    this._mainController._libgit2.getBlame(this._mainController.selectedBranch, this._fileName).then((blame) => {
-      runInAction(() => {
-        this._fileContent = [];
+    this._mainController._libgit2
+      .getBlame(this._mainController.selectedBranch, this._fileName)
+      .then((blame) => {
+        runInAction(() => {
+          this._fileContent = [];
 
-        let earliestTimestamp = Number.MAX_SAFE_INTEGER;
-        let latestTimestamp = Number.MIN_SAFE_INTEGER;
-        for (const commit of Object.values(blame.commits)) {
-          earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
-          latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
-        }
+          let earliestTimestamp = Number.MAX_SAFE_INTEGER;
+          let latestTimestamp = Number.MIN_SAFE_INTEGER;
+          for (const commit of Object.values(blame.commits)) {
+            earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
+            latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
+          }
 
-        let lenMax = 0;
-        this._fileContent = blame.lines.map((l) => {
-          const commit = blame.commits[l.commitId];
+          let lenMax = 0;
+          this._fileContent = blame.lines.map((l) => {
+            const commit = blame.commits[l.commitId];
 
-          lenMax = Math.max(l.content.length, lenMax);
-          return {
-            content: l.content,
-            commit: {
-              hash: commit.commitId,
-              timestamp: +commit.timestamp,
-            },
-          };
-        })
+            lenMax = Math.max(l.content.length, lenMax);
+            return {
+              content: l.content,
+              commit: {
+                hash: commit.commitId,
+                timestamp: +commit.timestamp,
+              },
+            };
+          });
 
-        this._latestTimestamp = latestTimestamp;
-        this._earliestTimestamp = earliestTimestamp;
-        this._lineLengthMax = lenMax < 100 ? 100 : lenMax;
+          this._latestTimestamp = latestTimestamp;
+          this._earliestTimestamp = earliestTimestamp;
+          this._lineLengthMax = lenMax < 100 ? 100 : lenMax;
 
-        console.log(this._fileContent);
-        this._loading = false;
+          console.log(this._fileContent);
+          this._loading = false;
+        });
       });
-
-      //this._fileName = info.fileName;
-      //this._fileExtension = info.fileExtension;
-      //this._fileContent = info.fileContent;
-      //this._lineLengthMax = info.lineLengthMax;
-      //this._latestTimestamp = info.latestTimestamp;
-      //this._earliestTimestamp = info.earliestTimestamp;
-      //this._isLoadIndicator = false;
-    });
   }
 
   close() {
@@ -187,24 +169,8 @@ export class FileViewModel {
     return this._isLoadIndicator;
   }
 
-  interpolateColor(updatedAt: number) {
-    const timeRange: [number, number] = [this._earliestTimestamp, this._latestTimestamp];
-    const colorRange: [string, string] = [this._settings.colorOld, this._settings.colorNew];
-
-    return getColorScale(timeRange, colorRange)(updatedAt);
-  }
-
   draw() {
-    if (!this._canvasRef) {
-      return;
-    }
-
-    const canvas = this._canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-
-    if (!this._fileRef) {
+    if (!this._canvasRef || !this._canvasRef.current || !this._fileRef) {
       return;
     }
 
@@ -213,50 +179,27 @@ export class FileViewModel {
       return;
     }
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
+    const offscreen = toJS(this._canvasRef).current?.transferControlToOffscreen();
+    if (!offscreen) {
       return;
     }
+    const worker = new Worker(new URL("worker/worker.ts", import.meta.url), { type: "module" });
 
-    const lineHeight = 10;
-    let currentY = 0;
+    const CanvasWorkerProxy = wrap<CanvasWorker>(worker);
 
-    let nColumns = 1;
-    const columnSpacing = 0;
+    console.log("[gizual-app] UI thread: starting worker draw");
+    const drawResult = CanvasWorkerProxy.draw(transfer(offscreen, [offscreen]), {
+      fileContent: toJS(this._fileContent),
+      earliestTimestamp: toJS(this._earliestTimestamp),
+      latestTimestamp: toJS(this._latestTimestamp),
+      settings: toJS(this._settings),
+      lineLengthMax: toJS(this._lineLengthMax),
+    });
 
-    if (this._fileContent.length > this._settings.maxLineCount) {
-      nColumns = Math.floor(this._fileContent.length / this._settings.maxLineCount) + 1;
-    }
-
-    canvas.height = (lineHeight + this._settings.lineSpacing) * this._settings.maxLineCount;
-
-    let currentX = 0;
-    let lineIndex = 0;
-    for (const line of this._fileContent) {
-      const columnWidth = canvas.width / nColumns - (nColumns - 1) * columnSpacing;
-      const lineLength = line.content.length;
-      const lineOffset =
-        ((line.content.length - line.content.trimStart().length) / this._lineLengthMax) *
-        columnWidth;
-
-      const rectWidth = ((lineLength - lineOffset) / this._lineLengthMax) * columnWidth;
-      const rectHeight = lineHeight;
-      const color = line.commit ? this.interpolateColor(line.commit.timestamp) : "#232323";
-      ctx.fillStyle = color;
-      line.color = color;
-      ctx.fillRect(currentX + lineOffset, currentY, rectWidth, rectHeight);
-      currentY += lineHeight + this._settings.lineSpacing;
-      lineIndex++;
-      if (lineIndex > this._settings.maxLineCount) {
-        ctx.fillStyle = "#232323";
-        currentY = 0;
-        currentX += columnWidth;
-        ctx.fillRect(currentX - 1, currentY, 1, canvas.height);
-        lineIndex = 0;
-      }
-    }
-
-    const nc = nColumns > 2 ? 2 : nColumns;
-    fileContainer.style.width = `${nc * 300}px`;
+    drawResult.then((result) => {
+      if (!result) return;
+      fileContainer.style.width = result.width;
+      console.log("[gizual-app] UI thread: draw result", result);
+    });
   }
 }

@@ -19,9 +19,6 @@ function WelcomePage(props: WelcomePageProps) {
             Load Repository
           </Button>
         </div>
-        <Button variant="filled" color="gunmetal" onClick={props.cb} className={baseStyle.button}>
-          {"MOCK --> Skip to main"}
-        </Button>
       </div>
     </div>
   );
