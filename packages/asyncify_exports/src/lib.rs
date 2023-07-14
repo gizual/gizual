@@ -1,4 +1,3 @@
-
 /// Arbitrary stack size of 50kib.
 const ASYNCIFY_STACK_SIZE: usize = 10 * 1024;
 /// Scratch space used by Asyncify to save/restore stacks.

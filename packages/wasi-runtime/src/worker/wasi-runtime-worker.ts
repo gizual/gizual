@@ -102,6 +102,14 @@ export class WasiRuntimeWorker {
     const end = performance.now();
     const durationSeconds = (end - start) / 1000;
     console.log(`Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`);
-    return this.asyncFS.getStdout();
+    return;
+  }
+
+  async readLine() {
+    return this.asyncFS.stdout.readLine();
+  }
+
+  async writeStdin(input: string) {
+    return this.asyncFS.stdin.write(input);
   }
 }

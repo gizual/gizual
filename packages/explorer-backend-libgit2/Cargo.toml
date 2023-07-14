@@ -9,6 +9,9 @@ structopt = "0.3"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_with = "3.0.0"
+jsonrpc-core = "15.0"
+jsonrpc-derive = "15.0"
+
 #git2 = { git = "https://github.com/gizual/git2-rs", default-features = false, branch = "wasm32-wasi-support", features = [
 #  "vendored-zlib"
 #] }
@@ -16,4 +19,8 @@ serde_with = "3.0.0"
 git2 = { path = "../../../git2-rs", default-features = false,  features = [
   "vendored-zlib"
 ] }
+
+[target.'cfg(not(target_os = "wasm"))'.dependencies]
+petgraph = "0.6.3"
+
 [dev-dependencies]

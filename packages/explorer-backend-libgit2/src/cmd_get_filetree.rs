@@ -3,10 +3,25 @@ use git2::{ObjectType, Repository, Tree};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct FileTree {
+pub struct GetFileTreeParams {
+    pub branch: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FileTree {
     name: String,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     children: Vec<FileTree>,
+}
+
+pub fn get_filetree(params: GetFileTreeParams, repo: &Repository) -> Result<FileTree, git2::Error> {
+    let branch = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
+    let commit = branch.get().peel_to_commit()?;
+    let tree = commit.tree()?;
+
+    let file_tree = build_file_tree(repo, &tree, "");
+
+    Ok(file_tree)
 }
 
 fn build_file_tree(repo: &Repository, tree: &Tree, name: &str) -> FileTree {
@@ -38,25 +53,4 @@ fn build_file_tree(repo: &Repository, tree: &Tree, name: &str) -> FileTree {
     }
 
     filetree
-}
-
-fn get_filetree(repo: &Repository, branch: &str) -> Result<FileTree, git2::Error> {
-    let branch = repo.find_branch(branch, git2::BranchType::Local)?;
-    let commit = branch.get().peel_to_commit()?;
-    let tree = commit.tree()?;
-
-    let file_tree = build_file_tree(repo, &tree, "");
-
-    Ok(file_tree)
-}
-
-pub(crate) fn command_get_filetree(branch: &str) -> Result<(), git2::Error> {
-    let dir_path = "/repo";
-
-    let repo = Repository::open(dir_path)?;
-    let file_tree = get_filetree(&repo, branch)?;
-
-    utils::print_json(&file_tree.children);
-
-    Ok(())
 }

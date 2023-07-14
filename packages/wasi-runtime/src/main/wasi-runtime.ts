@@ -26,10 +26,19 @@ export class WasiRuntime {
       moduleUrl: this.opts.moduleUrl,
       moduleName: this.opts.moduleName,
     });
+    (<any>window).W = this.worker;
   }
 
   async run(opts: WasiRunOpts) {
     return await this.worker.run(opts);
+  }
+
+  readStdout() {
+    return this.worker.readLine();
+  }
+
+  writeStdin(input: string) {
+    return this.worker.writeStdin(input);
   }
 
   static async create(opts: ExtendedWasiRuntimeOpts) {

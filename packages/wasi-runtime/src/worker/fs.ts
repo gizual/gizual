@@ -1,3 +1,5 @@
+import { EOF, StdInPipe, StdoutPipe } from "./stdio";
+
 interface Memory {
   readonly buffer: ArrayBuffer;
   grow(delta: number): number;
@@ -61,7 +63,8 @@ export class AsyncFS {
   memory!: WebAssembly.Memory;
   view!: DataView;
 
-  stdoutBuffer = "";
+  stdin: StdoutPipe = new StdoutPipe("in");
+  stdout: StdoutPipe = new StdoutPipe("out");
 
   mappings: Map<string, FileSystemDirectoryHandle> = new Map();
 
@@ -150,17 +153,29 @@ export class AsyncFS {
     return directoryHandle;
   }
 
+  async handleStdin(iovecPtr: number, len: number): Promise<number> {
+    console.log("handleStdin", iovecPtr, len);
+    const iovecs = this.parseIovecArray(iovecPtr, len);
+    let written = 0;
+    for (const iov of iovecs) {
+      const buf = new Uint8Array(this.memory.buffer, iov.iov_base, iov.iov_len);
+      const input = await this.stdin.readBytes(iov.iov_len);
+      if (!input) {
+        console.log("got EOF");
+        return 0;
+      }
+      console.log("got input", input);
+      buf.set(new TextEncoder().encode(input));
+      written += input.length;
+    }
+    return written;
+  }
+
   async handleStdout(iovecPtr: number, len: number) {
     const iovecs = this.parseIovecArray(iovecPtr, len);
     const output = this.iovecsToString(iovecs);
     console.log("stdout:", output);
-    this.stdoutBuffer += output;
-  }
-
-  getStdout() {
-    const output = this.stdoutBuffer;
-    this.stdoutBuffer = "";
-    return output;
+    this.stdout.write(output);
   }
 
   async getFSHandle(
@@ -282,6 +297,13 @@ export class AsyncFS {
         },
         fd_read: async (fdNum: number, iovecPtr: number, len: number, nreadPtr: number) => {
           this.refreshMemory();
+
+          if (fdNum === STDIN_FD) {
+            const numBytes = await this.handleStdin(iovecPtr, len);
+            this.view.setInt32(nreadPtr, numBytes, true);
+            return WASI_ESUCCESS;
+          }
+
           const fd = await this.getFileHandleFromFd(fdNum);
           if (!fd) {
             return this.originalImports.wasi_snapshot_preview1.fd_read(

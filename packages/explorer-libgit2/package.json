@@ -1,12 +1,8 @@
 {
   "name": "@giz/explorer-libgit2",
   "version": "0.0.1",
-  "module": "dist/index.mjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts",
-    "dev": "turbowatch",
     "clean": "rimraf dist",
     "lint": "eslint .",
     "type-check": "tsc"

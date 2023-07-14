@@ -1,27 +1,11 @@
 import React from "react";
 
-import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
-import { WasiRuntime } from "@giz/wasi-runtime";
+import { ExplorerLibgit2 } from "@giz/explorer-libgit2";
 
-const wasmFilePath = "/wasi-playground-module.wasm";
-
-async function runWasiCommand(args: string[]): Promise<string> {
+async function prepareRuntime(): Promise<ExplorerLibgit2> {
   const handle = await window.showDirectoryPicker();
 
-  const runtime = await WasiRuntime.create({
-    moduleUrl: wasmFileUrl,
-    moduleName: wasmFilePath,
-    folderMappings: {
-      "/repo": handle,
-    },
-  });
-
-  return await runtime.run({
-    args,
-    env: {
-      PRETTY_JSON: "true",
-    },
-  });
+  return await ExplorerLibgit2.create(handle);
 }
 
 const AnimatedLoadingIndicator = () => {
@@ -39,6 +23,16 @@ const AnimatedLoadingIndicator = () => {
 };
 
 const App = () => {
+  React.useEffect(() => {});
+
+  const [runtime, setRuntime] = React.useState<ExplorerLibgit2 | undefined>();
+
+  const setupRuntime = React.useCallback(() => {
+    prepareRuntime().then((runtime) => {
+      setRuntime(runtime);
+    });
+  }, []);
+
   const [output, setOutput] = React.useState("");
 
   const [loading, setLoading] = React.useState(false);
@@ -48,15 +42,50 @@ const App = () => {
   const [file, setFile] = React.useState("package.json");
 
   const runCommand = React.useCallback(async () => {
+    if (!runtime) {
+      console.error("No runtime");
+      return;
+    }
+    setOutput("");
     setLoading(true);
     try {
-      const stdout = await runWasiCommand([command, branch, file]);
-      setOutput(stdout);
+      const stdout = await (() => {
+        switch (command) {
+          case "blame": {
+            return runtime.getBlame(branch, file);
+          }
+          case "file_tree": {
+            return runtime.getFileTree(branch);
+          }
+          case "file_content": {
+            return runtime.getFileContent(branch, file);
+          }
+          case "list_branches": {
+            return runtime.getBranches();
+          }
+          case "commit_tree": {
+            return runtime.getCommitTree();
+          }
+        }
+
+        return Promise.resolve("Unknown command");
+      })();
+
+      if (typeof stdout === "string") {
+        setOutput(stdout);
+      } else {
+        setOutput(JSON.stringify(stdout, undefined, 2));
+      }
+    } catch (error) {
+      console.error(error);
+      if (typeof error === "string") setOutput(error);
+      if (typeof error === "object") setOutput(JSON.stringify(error, undefined, 2));
+      if (error instanceof Error) setOutput(error.message);
     } finally {
       setLoading(false);
     }
     setLoading(false);
-  }, [command, branch, file]);
+  }, [command, branch, file, runtime]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCommand(event.target.value);
@@ -64,17 +93,23 @@ const App = () => {
 
   return (
     <div>
-      <button onClick={runCommand}>Run command</button>
+      {!runtime && <button onClick={setupRuntime}>Setup runtime</button>}
+      {runtime && (
+        <>
+          <button onClick={runCommand}>Run command</button>
 
-      <select value={command} onChange={handleChange}>
-        <option value="blame">blame</option>
-        <option value="filetree">filetree</option>
-        <option value="file_content">file_content</option>
-        <option value="list_branches">list_branches</option>
-      </select>
+          <select value={command} onChange={handleChange}>
+            <option value="blame">blame</option>
+            <option value="file_tree">file_tree</option>
+            <option value="file_content">file_content</option>
+            <option value="list_branches">list_branches</option>
+            <option value="commit_tree">commit_tree</option>
+          </select>
 
-      <input type="text" value={branch} onChange={(e) => setBranch(e.target.value)} />
-      <input type="text" value={file} onChange={(e) => setFile(e.target.value)} />
+          <input type="text" value={branch} onChange={(e) => setBranch(e.target.value)} />
+          <input type="text" value={file} onChange={(e) => setFile(e.target.value)} />
+        </>
+      )}
       <code>
         <pre>{output}</pre>
       </code>

@@ -1,12 +1,8 @@
-use crate::utils;
-use git2::{BranchType, Repository};
+use git2::{BranchType, Error, Repository};
+use std::sync::Mutex;
 
-pub fn cmd_list_branches() -> Result<(), git2::Error> {
-    let dir_path = "/repo";
-
+pub fn list_branches(repo: &Repository) -> Result<Vec<String>, Error> {
     let mut result: Vec<String> = Vec::new();
-
-    let repo = Repository::open(dir_path)?;
 
     let branches = repo.branches(Some(BranchType::Local))?;
 
@@ -16,6 +12,5 @@ pub fn cmd_list_branches() -> Result<(), git2::Error> {
         result.push(name.to_string());
     });
 
-    utils::print_json(&result);
-    Ok(())
+    Ok(result)
 }
