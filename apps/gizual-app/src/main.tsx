@@ -4,6 +4,8 @@ import ReactDOM from "react-dom/client";
 import App from "./app";
 import { MainContext, MainController } from "./controllers";
 
+import { ConfigProvider } from "antd";
+
 import "./index.scss";
 
 const mainController = new MainController();
@@ -12,6 +14,16 @@ const mainController = new MainController();
 
 ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
   <MainContext.Provider value={mainController}>
-    <App />
+    <ConfigProvider
+      theme={{
+        components: {
+          Skeleton: {
+            color: "var(--background-tertiary)",
+          },
+        },
+      }}
+    >
+      <App />
+    </ConfigProvider>
   </MainContext.Provider>
 );

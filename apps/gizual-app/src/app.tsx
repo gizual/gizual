@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import style from "./app.module.scss";
 import MainPage from "./pages/main";
 import WelcomePage from "./pages/welcome";

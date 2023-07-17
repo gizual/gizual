@@ -123,25 +123,15 @@ export class MainController {
     return this._lineLengthScaling;
   }
 
+  get isLoading() {
+    return this._repo.state === "loading";
+  }
+
   async openRepository() {
     const handle = await window.showDirectoryPicker();
     await this._repo.setup(handle);
 
     this.setPage("main");
-
-    //const libgit2 = await ExplorerLibgit2.create(handle);
-    //this._libgit2 = libgit2;
-    //const branches = await libgit2.getBranches();
-
-    //runInAction(() => {
-    //  this._branches = branches;
-    //  this._selectedBranch = branches[0];
-    //});
-
-    //autorun(() => {
-    //  this.refreshFileTree();
-    //});
-    //this.setPage("main");
   }
 
   async refreshFileTree() {

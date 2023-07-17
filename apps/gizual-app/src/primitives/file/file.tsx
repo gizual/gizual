@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { Skeleton } from "antd";
 
 import { ReactComponent as CloseBox } from "../../assets/icons/close-box.svg";
 import { ReactComponent as UnknownFile } from "../../assets/icons/file-extensions/unknown.svg";
@@ -50,7 +51,11 @@ function File({ vm, isLoadIndicator }: FileProps) {
 
   if (!vm._isLoadIndicator) {
     if (vm.loading) {
-      body = <div>Loading</div>;
+      body = (
+        <div>
+          <Skeleton active />
+        </div>
+      );
     } else {
       body = <canvas className={style.FileCanvas} ref={canvasRef} />;
     }

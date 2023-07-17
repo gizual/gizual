@@ -8,9 +8,9 @@ export class FileTreeViewModel {
   _root: FileTreeNode;
   _mainController: MainController;
 
-  constructor(root: FileTreeNode, mainController: MainController) {
-    this._root = root;
+  constructor(root: FileTreeNode | undefined, mainController: MainController) {
     this._mainController = mainController;
+    this._root = root ?? { name: "", children: [] };
 
     makeAutoObservable(this);
   }

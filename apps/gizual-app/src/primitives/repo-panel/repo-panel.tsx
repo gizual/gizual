@@ -47,6 +47,7 @@ export const RepoPanel = observer(({ vm: externalVm }: RepoPanelProps) => {
               toggleName="selectionRange"
             />
           </div>
+          {/*
           <div className={clsx(sharedStyle.block)}>
             <h3>Commit</h3>
             <Select
@@ -56,6 +57,7 @@ export const RepoPanel = observer(({ vm: externalVm }: RepoPanelProps) => {
               onValueChange={vm.onCommitChange}
             />
           </div>
+          */}
         </div>
       </div>
       <div className={sharedStyle.section}>

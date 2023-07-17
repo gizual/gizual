@@ -2,12 +2,12 @@ import { action } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import React from "react";
+import { Skeleton } from "antd";
 
 import { useMainController } from "../../controllers";
 
 import styles from "./file-tree.module.scss";
 import { FileTreeViewModel } from "./file-tree.vm";
-import { FileTreeMock } from "./mock";
 import { FileTreeNode } from "@app/types";
 
 type FileTreeProps = {
@@ -17,7 +17,7 @@ type FileTreeProps = {
 
 function FileTree({ root, mode = "tree" }: FileTreeProps) {
   const mainController = useMainController();
-  root = mainController.fileTreeRoot ?? FileTreeMock;
+  root = mainController.fileTreeRoot;
 
   const vm: FileTreeViewModel = React.useMemo(() => {
     return new FileTreeViewModel(root!, mainController);
@@ -58,6 +58,9 @@ function FileTree({ root, mode = "tree" }: FileTreeProps) {
     );
   };
 
+  if (!root) {
+    return <Skeleton active />;
+  }
   return (
     <div>
       {mode === "favourite" ? (

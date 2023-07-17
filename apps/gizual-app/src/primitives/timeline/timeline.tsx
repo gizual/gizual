@@ -4,6 +4,7 @@ import { InputNumber } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React, { MouseEventHandler } from "react";
+import { Spin } from "antd";
 
 import { useMainController } from "../../controllers";
 import { Button } from "../button";
@@ -222,7 +223,15 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     vm.branches,
   ]);
 
-  if (!vm.branches || vm.branches.length === 0) return <div>No branches?</div>;
+  if (!vm.branches || vm.branches.length === 0)
+    return (
+      <div
+        className={style.TimelineContainer}
+        style={{ height: "100px", display: "flex", justifyContent: "center" }}
+      >
+        <Spin size={"large"} />
+      </div>
+    );
 
   return (
     <div className={style.TimelineContainer} id={"TimelineContainer"}>
