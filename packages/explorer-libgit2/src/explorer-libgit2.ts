@@ -2,11 +2,17 @@ import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-lib
 import { WasiRuntime } from "@giz/wasi-runtime";
 
 import { Blame, FileContent, FileTree, isBlame, isFileContent, isFileTree } from "./types";
+import { LOG, Logger } from "@giz/logger";
 const wasmFilePath = "/wasi-playground-module.wasm";
 
 const SKIP_VALIDATION = false;
 export class ExplorerLibgit2 {
-  private constructor(private handle: FileSystemDirectoryHandle, private runtime: WasiRuntime) {}
+  logger: Logger;
+  counter = 0;
+  private constructor(private handle: FileSystemDirectoryHandle, private runtime: WasiRuntime) {
+    this.logger = LOG.getSubLogger({ name: "ExplorerLibgit2" });
+    this.logger.trace("backend is ready");
+  }
 
   static async create(handle: FileSystemDirectoryHandle) {
     const runtime = await WasiRuntime.create({
@@ -27,26 +33,25 @@ export class ExplorerLibgit2 {
       throw new Error(data.error);
     }
 
-    console.log("backend booted");
-
     return new ExplorerLibgit2(handle, runtime);
   }
 
   async runRpcCommand(method: string, params?: any[]): Promise<any> {
     const payload = {
       jsonrpc: "2.0",
-      id: 1,
+      id: this.counter++,
       method,
       params,
     };
 
+    this.logger.trace("running cmd", payload);
     const payloadString = JSON.stringify(payload) + "\n";
-    console.log("payload", payloadString);
     this.runtime.writeStdin(payloadString);
 
     const stdout = await this.runtime.readStdout();
-    console.log("stdout", stdout);
     const data = JSON.parse(stdout);
+    this.logger.trace("result", data);
+
     if (data.error) {
       throw new Error(data.error.message);
     }
@@ -89,8 +94,8 @@ export class ExplorerLibgit2 {
     throw new TypeError("Unexpected output");
   }
 
-  async getCommitTree() {
-    const output = await this.runRpcCommand("commit_tree", []);
+  async getGitGraph() {
+    const output = await this.runRpcCommand("git_graph", []);
     return output;
   }
 }

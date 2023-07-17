@@ -8,6 +8,7 @@
     "type-check": "tsc"
   },
   "devDependencies": {
+    "@giz/logger": "workspace:*",
     "rimraf": "4.4.1",
     "tsup": "6.7.0",
     "turbowatch": "2.20.0"
