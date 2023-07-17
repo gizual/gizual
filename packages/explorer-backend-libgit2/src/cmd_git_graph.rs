@@ -138,9 +138,11 @@ pub fn cmd_get_git_graph(mut repo: &mut Repository) -> Result<CommitTree, git2::
 
         let mut message = commit.message().unwrap().to_string();
 
+        let char_indices = message.char_indices();
         // ensure message is max 120 chars and only one line
-        if message.len() > 120 {
-            message = message[0..120].to_string();
+        if char_indices.count() > 120 {
+            let slice_position = message.char_indices().nth(120).unwrap().0;
+            message = message[0..slice_position].to_string();
         }
         if message.contains("\n") {
             message = message[0..message.find("\n").unwrap()].to_string();
