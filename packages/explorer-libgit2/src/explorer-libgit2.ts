@@ -5,38 +5,60 @@ import { Blame, FileTree, isBlame, isFileTree } from "./types";
 import { LOG, Logger } from "@giz/logger";
 const wasmFilePath = "/wasi-playground-module.wasm";
 
-const SKIP_VALIDATION = false;
+const SKIP_VALIDATION = true;
+const MAX_WORKERS = 3;
 export class ExplorerLibgit2 {
   logger: Logger;
   counter = 0;
-  private constructor(private handle: FileSystemDirectoryHandle, private runtime: WasiRuntime) {
+
+  private workers: { worker: WasiRuntime; busy: boolean }[];
+
+  private constructor(worker: WasiRuntime[]) {
     this.logger = LOG.getSubLogger({ name: "ExplorerLibgit2" });
     this.logger.trace("backend is ready");
+    this.workers = worker.map((w) => ({ worker: w, busy: false }));
   }
 
   static async create(handle: FileSystemDirectoryHandle) {
-    const runtime = await WasiRuntime.create({
-      moduleUrl: wasmFileUrl,
-      moduleName: wasmFilePath,
-      folderMappings: {
-        "/repo": handle,
-      },
-    });
+    const workers: WasiRuntime[] = [];
 
-    runtime.run({
-      env: {},
-      args: [],
-    });
-    const stdout = await runtime.readStdout();
-    const data = JSON.parse(stdout);
-    if (!data?.ready) {
-      throw new Error(data.error);
+    for (let i = 0; i < MAX_WORKERS; i++) {
+      const runtime = await WasiRuntime.create({
+        moduleUrl: wasmFileUrl,
+        moduleName: wasmFilePath,
+        folderMappings: {
+          "/repo": handle,
+        },
+      });
+
+      runtime.run({
+        env: {},
+        args: [],
+      });
+      const stdout = await runtime.readStdout();
+      const data = JSON.parse(stdout);
+      if (!data?.ready) {
+        throw new Error(data.error);
+      }
+      workers.push(runtime);
     }
 
-    return new ExplorerLibgit2(handle, runtime);
+    return new ExplorerLibgit2(workers);
   }
 
-  private queueWorkLock: boolean;
+  async runOnFreeWorker<T>(cb: (worker: WasiRuntime) => Promise<T>) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const worker = this.workers.find((w) => !w.busy);
+      if (worker) {
+        worker.busy = true;
+        const result = await cb(worker.worker);
+        worker.busy = false;
+        return result;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+  }
 
   private queue: {
     method: string;
@@ -49,25 +71,22 @@ export class ExplorerLibgit2 {
       return;
     }
 
-    if (this.queueWorkLock) {
-      return;
-    }
-    this.queueWorkLock = true;
-
     const { method, params, resolve, reject } = this.queue.shift()!;
-    this.execute(method, params)
-      .then(resolve)
-      .catch((error) => {
+
+    this.runOnFreeWorker(async (worker) => {
+      try {
+        const result = await this.execute(worker, method, params);
+        resolve(result);
+      } catch (error) {
         this.logger.error(error);
         reject(error);
-      })
-      .finally(() => {
-        this.queueWorkLock = false;
+      } finally {
         setTimeout(() => this.workOnQueue(), 10);
-      });
+      }
+    });
   }
 
-  private async execute(method: string, params?: any[]): Promise<any> {
+  private async execute(worker: WasiRuntime, method: string, params?: any[]): Promise<any> {
     const payload = {
       jsonrpc: "2.0",
       id: this.counter++,
@@ -77,9 +96,9 @@ export class ExplorerLibgit2 {
 
     this.logger.trace("running cmd", payload);
     const payloadString = JSON.stringify(payload) + "\n";
-    this.runtime.writeStdin(payloadString);
+    worker.writeStdin(payloadString);
 
-    const stdout = await this.runtime.readStdout();
+    const stdout = await worker.readStdout();
     const data = JSON.parse(stdout);
     //this.logger.trace("result", data);
 
