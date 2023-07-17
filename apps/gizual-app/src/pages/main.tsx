@@ -70,10 +70,9 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
   const [layout, setLayout] = React.useState<ReactGridLayout.Layout[]>([
     { i: "a", x: 0, y: 0, w: 2, h: 2 },
     { i: "b", x: 2, y: 0, w: 2, h: 2 },
-    { i: "c", x: 4, y: 0, w: 2, h: 2 },
   ]);
 
-  const [languageChartType, setLanguageChartType] = React.useState<"pie" | "bar">("pie");
+  const [languageChartType, setLanguageChartType] = React.useState<"pie" | "bar">("bar");
 
   if (!vm.mainController.fileTreeRoot) return <div />;
   const languageData = parseLanguages(vm.mainController.fileTreeRoot);
@@ -88,12 +87,6 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
         </div>
 
         <div key={"b"}>
-          <Container title={"Contributions"}>
-            <AllContributions />
-          </Container>
-        </div>
-
-        <div key={"c"}>
           <Container
             title={"Language Distribution"}
             titleBar={

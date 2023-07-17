@@ -1,4 +1,4 @@
-import { VictoryBar, VictoryPie } from "victory";
+import { VictoryBar, VictoryPie, VictoryAxis } from "victory";
 import { FileTreeNode } from "@app/types";
 import { VictoryChart } from "victory-chart";
 import { victoryTheme } from "../theme";
@@ -74,7 +74,6 @@ export function Languages({ languages, chartType = "bar" }: LanguagesProps) {
     return (
       <VictoryChart theme={victoryTheme} domainPadding={10}>
         <VictoryBar
-          theme={victoryTheme}
           data={data}
           style={{
             data: {
@@ -82,6 +81,10 @@ export function Languages({ languages, chartType = "bar" }: LanguagesProps) {
             },
           }}
         ></VictoryBar>
+        <VictoryAxis
+          tickValues={[1, 2, 3, 4, 5]}
+          style={{ tickLabels: { angle: -45, textAnchor: "end", fontSize: 6 } }}
+        />
       </VictoryChart>
     );
 
