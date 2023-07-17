@@ -1,8 +1,9 @@
-import { autorun, makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 import { ExplorerLibgit2 } from "@giz/explorer-libgit2";
 import { FileTreeNode } from "@app/types";
 import { LocalStorage } from "@app/utils";
+import { Repository } from "@giz/explorer";
 
 type Panel = "explore" | "analyze";
 
@@ -10,7 +11,6 @@ export class MainController {
   _selectedFiles: Set<string> = new Set<string>();
   _favouriteFiles: Set<string> = new Set<string>();
   _selectedBranch = "main";
-  _branches: string[] = [];
 
   _coloringMode: "By Age" | "By Author" = "By Age";
   _lineLengthScaling: "Local" | "Global" = "Local";
@@ -20,10 +20,12 @@ export class MainController {
   _selectedPanel: Panel = "explore";
   _isRepoPanelVisible = true;
   _isSettingsPanelVisible = true;
+  _repo: Repository;
 
   constructor() {
     this._isRepoPanelVisible = LocalStorage.getBoolean("isRepoPanelVisible") ?? true;
     this._isSettingsPanelVisible = LocalStorage.getBoolean("isSettingsPanelVisible") ?? true;
+    this._repo = new Repository();
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
@@ -38,7 +40,10 @@ export class MainController {
   }
 
   get fileTreeRoot(): FileTreeNode | undefined {
-    return this._fileTreeRoot;
+    if (this._repo.state !== "ready" || this._repo.fileTree.loading) return undefined;
+
+    return this._repo.fileTree.value;
+    //return this._fileTreeRoot;
   }
 
   setFileTreeRoot(root: FileTreeNode) {
@@ -82,11 +87,24 @@ export class MainController {
   }
 
   setBranchByName(name: string) {
-    this._selectedBranch = name;
+    this._repo.setBranch(name);
+    //this._selectedBranch = name;
   }
 
   get selectedBranch() {
-    return this._selectedBranch;
+    return this._repo.selectedBranch;
+    //return this._selectedBranch;
+  }
+
+  get branches() {
+    if (this._repo.state !== "ready" || this._repo.gitGraph.loading) return [];
+    const branches = this._repo.gitGraph.value?.branches;
+    if (!branches) return [];
+    return branches;
+  }
+
+  get branchNames() {
+    return this.branches.map((b) => b.name);
   }
 
   setColoringMode(mode: "By Age" | "By Author") {
@@ -107,24 +125,28 @@ export class MainController {
 
   async openRepository() {
     const handle = await window.showDirectoryPicker();
-    const libgit2 = await ExplorerLibgit2.create(handle);
-    this._libgit2 = libgit2;
-    const branches = await libgit2.getBranches();
+    await this._repo.setup(handle);
 
-    runInAction(() => {
-      this._branches = branches;
-      this._selectedBranch = branches[0];
-    });
-
-    autorun(() => {
-      this.refreshFileTree();
-    });
     this.setPage("main");
+
+    //const libgit2 = await ExplorerLibgit2.create(handle);
+    //this._libgit2 = libgit2;
+    //const branches = await libgit2.getBranches();
+
+    //runInAction(() => {
+    //  this._branches = branches;
+    //  this._selectedBranch = branches[0];
+    //});
+
+    //autorun(() => {
+    //  this.refreshFileTree();
+    //});
+    //this.setPage("main");
   }
 
   async refreshFileTree() {
     this._libgit2.getFileTree(this.selectedBranch).then((tree) => {
-      this.setFileTreeRoot({ name: "root", children: tree });
+      this.setFileTreeRoot(tree);
     });
   }
 

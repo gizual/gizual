@@ -1,7 +1,9 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, toJS } from "mobx";
 
 import { MainController } from "../../controllers";
 import { BranchInfo, CInfo } from "@app/types";
+
+export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
 
 export class TimelineViewModel {
   private _mainController: MainController;
@@ -108,6 +110,77 @@ export class TimelineViewModel {
   }
 
   setActiveBranch(branch: BranchInfo) {
-    //this.mainController.setActiveBranch(branch);
+    this.mainController.setBranchByName(branch.name);
+  }
+
+  get commitIndices() {
+    if (this.mainController._repo.gitGraph.loading) return;
+    return new Map<string, number>(
+      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {})
+    );
+  }
+
+  get commits() {
+    if (this.mainController._repo.gitGraph.loading) return [];
+    return this.mainController._repo.gitGraph.value?.commits ?? [];
+  }
+
+  getCommitsForBranch(branch: BranchInfo) {
+    const parsedCommits: CInfo[] = [];
+    const origin = branch.last_commit_id;
+
+    if (!this.commitIndices) return;
+
+    const originIndex = this.commitIndices.get(origin);
+
+    if (originIndex === undefined) {
+      console.log(
+        "Aborting, cannot find origin in indices, origin:",
+        origin,
+        "indices:",
+        this.commitIndices
+      );
+      return parsedCommits;
+    } //throw new Error(`Could not find commit index for commit ${origin}`);
+
+    const commit = this.commits[originIndex];
+    parsedCommits.push(commit);
+
+    let currentCommit = commit;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      if (!currentCommit.parents) break;
+
+      const parentId = currentCommit.parents[0];
+      if (parentId === null) break;
+
+      const commitIndex = this.commitIndices.get(parentId!);
+      if (!commitIndex) break;
+
+      currentCommit = this.commits[commitIndex];
+      if (!currentCommit) break;
+
+      parsedCommits.push(currentCommit as any);
+    }
+
+    console.log("getCommitsForBranch", parsedCommits);
+    return parsedCommits;
+  }
+
+  get branches(): ParsedBranch[] | undefined {
+    if (this._mainController._repo.gitGraph.loading) return;
+
+    return this._mainController.branches.map((branch) => {
+      return {
+        ...branch,
+        commits: this.getCommitsForBranch(branch),
+      };
+    });
+  }
+
+  get selectedBranch(): ParsedBranch | undefined {
+    if (this._mainController._repo.gitGraph.loading) return;
+
+    return this.branches?.find((b) => b.name === this._mainController.selectedBranch);
   }
 }

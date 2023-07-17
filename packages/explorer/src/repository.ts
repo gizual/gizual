@@ -113,7 +113,10 @@ export class Repository {
     this._gitGraph = new PromiseObserver<GitGraph>({
       name: `GitGraph`,
       initialPromise: {
-        create: () => backend.runRpcCommand("git_graph"),
+        create: async () => {
+          const data = await backend.runRpcCommand("git_graph");
+          return data.graph;
+        },
         args: [],
       },
     });
@@ -184,13 +187,14 @@ export class Repository {
     return this._fileTree;
   }
 
-  async getBlame(path: string) {
+  getBlame(path: string) {
     if (!this.backend) {
       throw new Error("Backend not initialized");
     }
 
     const blame = new BlameView(this, path);
     this._blames.push(blame);
+    return blame;
   }
 
   _removeBlame(blame: BlameView) {

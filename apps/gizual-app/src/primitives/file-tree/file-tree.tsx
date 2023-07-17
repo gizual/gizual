@@ -6,8 +6,9 @@ import React from "react";
 import { useMainController } from "../../controllers";
 
 import styles from "./file-tree.module.scss";
-import {FileTreeNode, FileTreeViewModel} from "./file-tree.vm";
+import { FileTreeViewModel } from "./file-tree.vm";
 import { FileTreeMock } from "./mock";
+import { FileTreeNode } from "@app/types";
 
 type FileTreeProps = {
   root?: FileTreeNode;

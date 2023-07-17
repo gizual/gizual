@@ -23,11 +23,11 @@ export class RepoPanelViewModel {
   }
 
   get selectBranchData() {
-    return this._mainController._branches.map((b) => ({ value: b, label: b }));
+    return this._mainController.branchNames.map((b) => ({ value: b, label: b }));
   }
 
   get selectedBranch() {
-    return this._mainController._selectedBranch;
+    return this._mainController.selectedBranch;
   }
 
   get selectedCommit() {

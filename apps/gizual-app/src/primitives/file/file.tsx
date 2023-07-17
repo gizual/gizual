@@ -14,18 +14,15 @@ import { Editor } from "../editor";
 
 import style from "./file.module.scss";
 import { FileViewModel } from "./file.vm";
-import { MockFile } from "./mock";
 
 export type FileProps = {
   vm?: FileViewModel;
   isLoadIndicator?: boolean;
 };
 
-function File({ vm: externalVm, isLoadIndicator }: FileProps) {
+function File({ vm, isLoadIndicator }: FileProps) {
   const mainController = useMainController();
-  const vm: FileViewModel = React.useMemo(() => {
-    return externalVm || new FileViewModel(mainController, MockFile, {}, false, isLoadIndicator);
-  }, [externalVm]);
+  if (!vm) return;
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const fileRef = React.useRef<HTMLDivElement>(null);
@@ -33,39 +30,37 @@ function File({ vm: externalVm, isLoadIndicator }: FileProps) {
   React.useEffect(() => {
     vm.assignCanvasRef(canvasRef);
     vm.draw();
-  }, [canvasRef, vm._loading]);
+  }, [canvasRef, vm.loading]);
 
   React.useEffect(() => {
     vm.assignFileRef(fileRef);
   }, [fileRef]);
 
-  let body =
-      (<DialogProvider
-          trigger={
-              <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
-                  <Plus className={style.LoadFileIcon} />
-              </div>
-          }
-      >
-          <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
-      </DialogProvider>);
+  let body = (
+    <DialogProvider
+      trigger={
+        <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
+          <Plus className={style.LoadFileIcon} />
+        </div>
+      }
+    >
+      <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
+    </DialogProvider>
+  );
 
   if (!vm._isLoadIndicator) {
-      if (vm._loading) {
-          body = (<div>Loading</div>);
-      }
-      else {
-          body = (<canvas className={style.FileCanvas} ref={canvasRef} />);
-      }
+    if (vm.loading) {
+      body = <div>Loading</div>;
+    } else {
+      body = <canvas className={style.FileCanvas} ref={canvasRef} />;
+    }
   }
 
   return (
     <>
       <div className={style.File} ref={fileRef}>
         <FileHeader vm={vm} />
-        <div className={style.FileBody}>
-            {body}
-        </div>
+        <div className={style.FileBody}>{body}</div>
       </div>
     </>
   );

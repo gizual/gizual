@@ -4,6 +4,7 @@ import React from "react";
 import { MainController } from "../../controllers";
 import { wrap, transfer } from "comlink";
 import { CanvasWorker } from "./worker/worker";
+import { BlameView } from "@giz/explorer";
 
 export type FileInfo = {
   fileName: string;
@@ -37,16 +38,12 @@ export type Settings = Partial<{
 export class FileViewModel {
   _fileName!: string;
   _fileExtension!: string;
-  _fileContent!: Line[];
-  _lineLengthMax!: number;
   _isFavourite!: boolean;
   _isLoadIndicator!: boolean;
-  _earliestTimestamp!: number;
-  _latestTimestamp!: number;
   _settings: Required<Settings>;
   _mainController: MainController;
   _isEditorOpen = false;
-  _loading = true;
+  _blameView: BlameView;
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
   _fileRef: React.RefObject<HTMLDivElement> | undefined;
@@ -70,50 +67,9 @@ export class FileViewModel {
       maxLineCount: 60,
       ...settings,
     };
+    this._blameView = this._mainController._repo.getBlame(path);
+
     makeAutoObservable(this);
-
-    autorun(() => {
-      this.load();
-    });
-  }
-
-  load(info?: FileInfo) {
-    console.log("LOADING", this._fileName);
-    this._mainController._libgit2
-      .getBlame(this._mainController.selectedBranch, this._fileName)
-      .then((blame) => {
-        runInAction(() => {
-          this._fileContent = [];
-
-          let earliestTimestamp = Number.MAX_SAFE_INTEGER;
-          let latestTimestamp = Number.MIN_SAFE_INTEGER;
-          for (const commit of Object.values(blame.commits)) {
-            earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
-            latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
-          }
-
-          let lenMax = 0;
-          this._fileContent = blame.lines.map((l) => {
-            const commit = blame.commits[l.commitId];
-
-            lenMax = Math.max(l.content.length, lenMax);
-            return {
-              content: l.content,
-              commit: {
-                hash: commit.commitId,
-                timestamp: +commit.timestamp,
-              },
-            };
-          });
-
-          this._latestTimestamp = latestTimestamp;
-          this._earliestTimestamp = earliestTimestamp;
-          this._lineLengthMax = lenMax < 100 ? 100 : lenMax;
-
-          console.log(this._fileContent);
-          this._loading = false;
-        });
-      });
   }
 
   close() {
@@ -128,16 +84,59 @@ export class FileViewModel {
     return this._fileExtension;
   }
 
+  get loading() {
+    return this._blameView.loading;
+  }
+
+  get blameInfo() {
+    console.log("getBlameInfo");
+    const blame = this._blameView.blame;
+
+    let lenMax = 0;
+
+    const fileContent: Line[] = blame.lines.map((l) => {
+      const commit = blame.commits[l.commitId];
+
+      lenMax = Math.max(l.content.length, lenMax);
+      return {
+        content: l.content,
+        commit: {
+          hash: commit.commitId,
+          timestamp: +commit.timestamp,
+        },
+      };
+    });
+
+    const lineLengthMax = lenMax < 100 ? 100 : lenMax;
+
+    let earliestTimestamp = Number.MAX_SAFE_INTEGER;
+    let latestTimestamp = Number.MIN_SAFE_INTEGER;
+    for (const commit of Object.values(blame.commits)) {
+      earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
+      latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
+    }
+
+    return { fileContent, lineLengthMax, earliestTimestamp, latestTimestamp };
+  }
+
   get fileContent() {
-    return this._fileContent;
+    return this.blameInfo.fileContent;
+  }
+
+  get latestTimestamp() {
+    return this.blameInfo.latestTimestamp;
+  }
+
+  get earliestTimestamp() {
+    return this.blameInfo.earliestTimestamp;
+  }
+
+  get lineLengthMax() {
+    return this.blameInfo.lineLengthMax;
   }
 
   get isFavourite() {
     return this._mainController._favouriteFiles.has(this.fileName);
-  }
-
-  get lineLengthMax() {
-    return this._lineLengthMax;
   }
 
   setFavourite() {
@@ -189,11 +188,11 @@ export class FileViewModel {
 
     console.log("[gizual-app] UI thread: starting worker draw");
     const drawResult = CanvasWorkerProxy.draw(transfer(offscreen, [offscreen]), {
-      fileContent: toJS(this._fileContent),
-      earliestTimestamp: toJS(this._earliestTimestamp),
-      latestTimestamp: toJS(this._latestTimestamp),
+      fileContent: toJS(this.fileContent),
+      earliestTimestamp: toJS(this.earliestTimestamp),
+      latestTimestamp: toJS(this.latestTimestamp),
       settings: toJS(this._settings),
-      lineLengthMax: toJS(this._lineLengthMax),
+      lineLengthMax: toJS(this.lineLengthMax),
     });
 
     drawResult.then((result) => {

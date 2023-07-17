@@ -92,6 +92,8 @@ __metadata:
 "@app/controllers@workspace:*, @app/controllers@workspace:apps/gizual-app/src/controllers":
   version: 0.0.0-use.local
   resolution: "@app/controllers@workspace:apps/gizual-app/src/controllers"
+  dependencies:
+    "@giz/explorer": "workspace:*"
   languageName: unknown
   linkType: soft
 

@@ -8,9 +8,8 @@ import React, { MouseEventHandler } from "react";
 import { useMainController } from "../../controllers";
 import { Button } from "../button";
 
-import data from "./mock.json";
 import style from "./timeline.module.scss";
-import { TimelineViewModel } from "./timeline.vm";
+import { ParsedBranch, TimelineViewModel } from "./timeline.vm";
 
 export type TimelineProps = {
   vm?: TimelineViewModel;
@@ -18,50 +17,6 @@ export type TimelineProps = {
 
 function toDate(timestamp: string) {
   return new Date(Number(timestamp) * 1000);
-}
-
-const commitIndices = new Map<string, number>(Object.entries(data.commit_indices));
-
-function getCommitsForBranch(branch: BranchInfo) {
-  const parsedCommits: CInfo[] = [];
-  const origin = branch.last_commit_id;
-  const originIndex = commitIndices.get(origin);
-
-  if (!originIndex) throw new Error(`Could not find commit index for commit ${origin}`);
-
-  const commit = data.commits[originIndex];
-  //console.log("getCommitsForBranch", commit);
-  parsedCommits.push(commit as any);
-
-  let currentCommit = commit;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    if (!currentCommit.parents) break;
-
-    const parents = Object.entries(currentCommit.parents);
-
-    const parentId = parents[0][1];
-    //console.log("getCommitsForBranch", parentId);
-
-    if (parents.length === 0) break;
-    currentCommit = data.commits[commitIndices.get(parentId!) as any];
-    if (!currentCommit) break;
-
-    parsedCommits.push(currentCommit as any);
-  }
-
-  return parsedCommits;
-}
-
-type ParsedBranch = BranchInfo & { commits: CInfo[] };
-
-function prepareBranches() {
-  return data.branches.map((branch) => {
-    return {
-      ...branch,
-      commits: getCommitsForBranch(branch),
-    };
-  });
 }
 
 export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
@@ -78,9 +33,6 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   });
 
   const [mousePos, setMousePos] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  const branches = React.useMemo(() => prepareBranches(), []);
-
   const [startDate, setStartDate] = React.useState(new Date("2023-04-15"));
   const [endDate, setEndDate] = React.useState(new Date("2023-07-15"));
 
@@ -118,7 +70,12 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     />
   ));
 
-  const commits = (branch: ParsedBranch, yOffset = vm.rowHeight / 2, radius = vm.commitSizeTop) => {
+  const commits = (
+    branch?: ParsedBranch,
+    yOffset = vm.rowHeight / 2,
+    radius = vm.commitSizeTop
+  ) => {
+    if (!branch) return undefined;
     return (
       <Commits
         startDate={startDate}
@@ -256,13 +213,16 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
 
   React.useLayoutEffect(() => {
     handleOnClick(_);
-    vm.setViewBoxWidth(svgContainerRef.current?.clientWidth || 0);
+    vm.setViewBoxWidth(svgContainerRef.current?.clientWidth || 1000);
   }, [
     svgContainerRef,
     width,
     vm.mainController.isRepoPanelVisible,
     vm.mainController.isSettingsPanelVisible,
+    vm.branches,
   ]);
+
+  if (!vm.branches || vm.branches.length === 0) return <div>No branches?</div>;
 
   return (
     <div className={style.TimelineContainer} id={"TimelineContainer"}>
@@ -323,7 +283,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
               onMouseMove={handleMouseMove as any}
               style={{ gap: `${vm.laneSpacing}rem` }}
             >
-              {branches.map((branch, i) => (
+              {vm.branches.map((branch, i) => (
                 <TimelineGraphSvg
                   key={i}
                   vm={vm}
@@ -370,7 +330,12 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
             {getDateString(endDate)}
           </text>
           <Translate {...vm.ruler.pos}>{ticks}</Translate>
-          <TimelineGraph commits={commits(branches[0])} vm={vm} branch={branches[0]} isBelowRuler />
+          <TimelineGraph
+            commits={commits(vm.selectedBranch)}
+            vm={vm}
+            branch={vm.selectedBranch}
+            isBelowRuler
+          />
         </svg>
 
         {hasSelection && (
@@ -426,14 +391,15 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
 
 type TimelineGraphProps = {
   vm: TimelineViewModel;
-  commits: React.ReactElement;
-  branch: BranchInfo;
+  commits?: React.ReactElement;
+  branch?: BranchInfo;
   isBelowRuler?: boolean;
   height?: number;
 };
 
 const TimelineGraph = observer(
   ({ commits, branch, vm, isBelowRuler, height }: TimelineGraphProps) => {
+    if (!commits || !branch) return <></>;
     const offset = isBelowRuler ? vm.graphs.pos : { x: 0, y: 0 };
     if (!height) height = vm.rowHeight;
     return (
@@ -553,7 +519,7 @@ function Commit({ commit, x, y, r = 10, vm, isHighlighted = false }: CommitProps
 }
 
 type CommitsProps = {
-  commits: CommitData[];
+  commits?: CommitData[];
   vm: TimelineViewModel;
   startDate: Date;
   endDate: Date;
@@ -563,6 +529,7 @@ type CommitsProps = {
 };
 
 function Commits({ commits, vm, startDate, endDate, dayWidth, yOffset, radius }: CommitsProps) {
+  if (!commits) return <></>;
   const commitCircles = commits.map((commit, i) => {
     const commitDay =
       (toDate(commit.timestamp).getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);

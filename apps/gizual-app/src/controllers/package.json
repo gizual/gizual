@@ -1,4 +1,7 @@
 {
   "name": "@app/controllers",
-  "main": "index.ts"
+  "main": "index.ts",
+  "dependencies": {
+    "@giz/explorer": "workspace:*"
+  }
 }

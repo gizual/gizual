@@ -1,8 +1,6 @@
 {
   "name": "@giz/explorer",
-  "module": "dist/index.mjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "scripts": {
     "clean": "rimraf dist",
     "lint": "eslint .",

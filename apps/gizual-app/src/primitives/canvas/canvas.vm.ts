@@ -1,4 +1,4 @@
-import {autorun, makeAutoObservable} from "mobx";
+import { autorun, makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
 import { FileViewModel } from "../file/file.vm";
@@ -7,13 +7,15 @@ import _ from "lodash";
 
 export class CanvasViewModel {
   _mainController: MainController;
-  _selectedFileVms: Record<string,FileViewModel> = {};
+  _selectedFileVms: Record<string, FileViewModel> = {};
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
     makeAutoObservable(this);
 
-    autorun(() => {this.loadSelectedFiles()})
+    autorun(() => {
+      this.loadSelectedFiles();
+    });
   }
 
   loadSelectedFiles() {
@@ -23,14 +25,14 @@ export class CanvasViewModel {
     const filesToLoad = _.difference(selectedFiles, existingFiles);
     const filesToUnload = _.difference(existingFiles, selectedFiles);
 
+    console.log("loadSelectedFiles", filesToLoad, filesToUnload, existingFiles);
     for (const file of filesToLoad) {
-        this._selectedFileVms[file] = new FileViewModel(this._mainController, file, {}, false, false);
+      this._selectedFileVms[file] = new FileViewModel(this._mainController, file, {}, false, false);
     }
 
     for (const file of filesToUnload) {
-        delete this._selectedFileVms[file];
+      delete this._selectedFileVms[file];
     }
-
   }
 
   get selectedFiles(): FileViewModel[] {

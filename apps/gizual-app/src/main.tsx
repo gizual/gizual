@@ -8,10 +8,10 @@ import "./index.scss";
 
 const mainController = new MainController();
 
+(window as any).mainController = mainController;
+
 ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
-  <React.StrictMode>
-    <MainContext.Provider value={mainController}>
-      <App />
-    </MainContext.Provider>
-  </React.StrictMode>
+  <MainContext.Provider value={mainController}>
+    <App />
+  </MainContext.Provider>
 );
