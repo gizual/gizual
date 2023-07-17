@@ -56,6 +56,13 @@ function File({ vm, isLoadIndicator }: FileProps) {
           <Skeleton active />
         </div>
       );
+    } else if (!vm.isValid) {
+      body = (
+        <div>
+          Invalid file.
+          <Skeleton style={{ marginTop: "1rem" }} />
+        </div>
+      );
     } else {
       body = <canvas className={style.FileCanvas} ref={canvasRef} />;
     }

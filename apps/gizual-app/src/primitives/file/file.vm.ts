@@ -75,6 +75,7 @@ export class FileViewModel {
 
   close() {
     this._mainController.toggleFile(this._fileName);
+    this._blameView.dispose();
   }
 
   get fileName() {
@@ -87,6 +88,12 @@ export class FileViewModel {
 
   get loading() {
     return this._blameView.loading;
+  }
+
+  get isValid() {
+    return (
+      this._blameView.blame && this._blameView.blame.lines && this._blameView.blame.lines.length > 0
+    );
   }
 
   get blameInfo() {
