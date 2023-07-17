@@ -120,8 +120,15 @@ export class WasiRuntimeWorker {
     return;
   }
 
+  private previousReader?: Promise<any>;
+
   async readLine() {
-    return this.asyncFS.stdout.readLine();
+    if (this.previousReader) {
+      await this.previousReader;
+    }
+    const prom = this.asyncFS.stdout.readLine();
+    this.previousReader = prom;
+    return prom;
   }
 
   async writeStdin(input: string) {

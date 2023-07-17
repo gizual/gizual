@@ -4,18 +4,16 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts",
-    "dev": "turbowatch",
     "clean": "rimraf dist",
     "lint": "eslint .",
     "type-check": "tsc"
   },
   "devDependencies": {
-    "rimraf": "4.4.1",
-    "tsup": "6.7.0",
-    "turbowatch": "2.20.0"
+    "@types/lodash": "4.14.195"
   },
   "dependencies": {
-    "@giz/explorer-libgit2": "workspace:*"
+    "@giz/explorer-libgit2": "workspace:*",
+    "lodash": "4.17.21",
+    "mobx": "6.9.1"
   }
 }

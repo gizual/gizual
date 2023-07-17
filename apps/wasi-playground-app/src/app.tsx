@@ -63,8 +63,12 @@ const App = () => {
           case "list_branches": {
             return runtime.getBranches();
           }
-          case "commit_tree": {
-            return runtime.getCommitTree();
+          case "git_graph": {
+            return runtime.getGitGraph();
+          }
+
+          case "get_commits_for_branch": {
+            return runtime.runRpcCommand("get_commits_for_branch", [branch]);
           }
         }
 
@@ -103,7 +107,8 @@ const App = () => {
             <option value="file_tree">file_tree</option>
             <option value="file_content">file_content</option>
             <option value="list_branches">list_branches</option>
-            <option value="commit_tree">commit_tree</option>
+            <option value="git_graph">git_graph</option>
+            <option value="get_commits_for_branch">get_commits_for_branch</option>
           </select>
 
           <input type="text" value={branch} onChange={(e) => setBranch(e.target.value)} />

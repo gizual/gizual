@@ -1,5 +1,6 @@
 use crate::utils;
 use git2::{ObjectType, Repository, Tree};
+use mime_guess::{Mime, MimeGuess};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -12,6 +13,8 @@ pub struct FileTree {
     name: String,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     children: Vec<FileTree>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    mime_type: Option<String>,
 }
 
 pub fn get_filetree(params: GetFileTreeParams, repo: &Repository) -> Result<FileTree, git2::Error> {
@@ -28,6 +31,7 @@ fn build_file_tree(repo: &Repository, tree: &Tree, name: &str) -> FileTree {
     let mut filetree = FileTree {
         name: name.to_string(),
         children: Vec::new(),
+        mime_type: None,
     };
 
     for entry in tree.iter() {
@@ -45,9 +49,13 @@ fn build_file_tree(repo: &Repository, tree: &Tree, name: &str) -> FileTree {
             }
         } else {
             let file = FileTree {
-                name: entry_name,
+                name: entry_name.clone(),
                 children: Vec::new(),
+                mime_type: MimeGuess::from_path(entry_name.as_str())
+                    .first()
+                    .map_or(None, |m| Some(m.to_string())),
             };
+
             filetree.children.push(file);
         }
     }

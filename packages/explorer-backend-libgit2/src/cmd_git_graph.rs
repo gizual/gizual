@@ -8,15 +8,27 @@ use std::{
 
 use petgraph::dot::{Config, Dot};
 use petgraph::graph::DiGraph;
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 
 type Oid = String;
+type Aid = String;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HistoryGraph {
     commit_indices: HashMap<Oid, usize>,
     commits: Vec<CommitInfo>,
     branches: Vec<BranchInfo>,
+    author_indices: HashMap<Aid, usize>,
+    authors: Vec<AuthorInfo>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuthorInfo {
+    pub id: Aid,
+    pub name: String,
+    pub email: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,38 +36,24 @@ pub struct BranchInfo {
     pub id: Oid,
     pub name: String,
     pub last_commit_id: Oid,
-
-    pub source_branch: Option<usize>,
-    pub source_commit: Option<usize>,
-
-    pub target_branch: Option<usize>,
-    pub merge_commit: Option<usize>,
-
-    pub first_commit: Option<usize>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CommitInfo {
     pub oid: Oid,
+    pub aid: Oid,
+    pub timestamp: String,
+    pub message: String,
+
     pub is_merge: bool,
     pub parents: [Option<Oid>; 2],
     pub children: Vec<Oid>,
-    pub branches: Vec<usize>,
 }
 
 impl fmt::Display for CommitInfo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.oid[0..7].to_string())
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CommitMeta {
-    pub oid: Oid,
-    author_name: String,
-    author_email: String,
-    timestamp: String,
-    message: String,
 }
 
 fn to_string_oid(oid: &git2::Oid) -> Oid {
@@ -82,7 +80,7 @@ pub struct CommitTree {
     pub dot: String,
 }
 
-pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2::Error> {
+pub fn cmd_get_git_graph(mut repo: &mut Repository) -> Result<CommitTree, git2::Error> {
     let stashes = get_stash_ids(&mut repo)?;
 
     let mut walk = repo.revwalk()?;
@@ -92,8 +90,9 @@ pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2
     walk.push_glob("*")?;
 
     let mut commit_infos = Vec::new();
-    let mut commit_metas = Vec::new();
+    let mut author_infos = Vec::new();
     let mut commit_indices = HashMap::new();
+    let mut author_indices = HashMap::new();
 
     for _oid in walk {
         if _oid.is_err() {
@@ -112,22 +111,53 @@ pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2
         for parent in parents {
             parent_ids.push(to_string_oid(&parent));
         }
-        let commit_meta = CommitMeta {
-            oid: oid_str.clone(),
-            author_name: commit.author().name().unwrap().to_string(),
-            author_email: commit.author().email().unwrap().to_string(),
-            timestamp: commit.time().seconds().to_string(),
-            message: commit.message().unwrap().to_string(),
+        let author = commit.author();
+
+        let author_name = author.name().unwrap().to_string();
+        let author_email = author.email().unwrap().to_string();
+
+        let mut s = DefaultHasher::new();
+        author_name.hash(&mut s);
+        author_email.hash(&mut s);
+
+        // to hex string
+        let author_id = format!("{:x}", s.finish());
+
+        // generate author id from name and email via a hash
+
+        let author_info = AuthorInfo {
+            id: author_id.clone(),
+            name: author_name,
+            email: author_email,
         };
+
+        if !author_indices.contains_key(&author_id) {
+            author_infos.push(author_info);
+            author_indices.insert(author_id.clone(), author_infos.len() - 1);
+        }
+
+        let mut message = commit.message().unwrap().to_string();
+
+        // ensure message is max 120 chars and only one line
+        if message.len() > 120 {
+            message = message[0..120].to_string();
+        }
+        if message.contains("\n") {
+            message = message[0..message.find("\n").unwrap()].to_string();
+        }
+
         let commit_info = CommitInfo {
             oid: oid_str.clone(),
+            aid: author_id.clone(),
+            timestamp: commit.time().seconds().to_string(),
+            message,
+
             is_merge: parent_ids.len() > 1,
             parents: [parent_ids.get(0).cloned(), parent_ids.get(1).cloned()],
             children: Vec::new(),
-            branches: Vec::new(),
         };
+
         commit_infos.push(commit_info);
-        commit_metas.push(commit_meta);
         commit_indices.insert(oid.to_string(), commit_infos.len() - 1);
     }
 
@@ -160,11 +190,6 @@ pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2
             id: branch_oid.clone(),
             name: branch_name.clone(),
             last_commit_id: branch_oid.clone(),
-            source_branch: None,
-            source_commit: None,
-            target_branch: None,
-            merge_commit: None,
-            first_commit: None,
         };
         branches.push(branch_info);
     }
@@ -181,13 +206,6 @@ pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2
 
     for (i, commit) in commit_infos.iter().enumerate() {
         let num_parents = commit.parents.iter().filter(|x| x.is_some()).count();
-
-        let mut msg = commit_metas.get(i).unwrap().message.clone();
-
-        // substring msg to first line
-        let mut lines = msg.lines();
-        msg = lines.next().unwrap_or_else(|| "").to_string();
-        msg = msg.replace("\n", "");
 
         let short_id = &commit.oid[..8];
         let parent_id_1 = commit.parents[0].clone().unwrap_or("".to_string());
@@ -213,7 +231,7 @@ pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2
             num_parents,
             parent_id_1,
             parent_id_2,
-            msg
+            commit.message
         );
     }
 
@@ -246,10 +264,6 @@ pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2
     #[cfg(not(target_arch = "wasm32"))]
     println!("Test: {}", dot);
 
-    // TODO: only supply first line of msg to commit_meta
-    // TODO: authors + add id for each
-    // TODO: use author-id in commit_meta
-
     //
 
     // Commit list per branch, each commit has a list of children (and parents), seperate info about child/parent branches
@@ -259,6 +273,8 @@ pub fn cmd_get_commit_tree(mut repo: &mut Repository) -> Result<CommitTree, git2
     let mut graph = HistoryGraph {
         commit_indices: commit_indices,
         commits: commit_infos,
+        author_indices,
+        authors: author_infos,
         branches,
     };
 

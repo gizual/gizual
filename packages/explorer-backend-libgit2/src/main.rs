@@ -1,15 +1,15 @@
 mod cmd_blame;
 mod cmd_branches;
-mod cmd_get_commit_tree;
 mod cmd_get_file_content;
 mod cmd_get_filetree;
+mod cmd_git_graph;
 mod utils;
 
 use serde_json::Value;
 use std::cell::Ref;
 use std::ops::Deref;
 
-use crate::cmd_get_commit_tree::{CommitTree, GetCommitTreeOptions};
+use crate::cmd_git_graph::{CommitTree, GetCommitTreeOptions};
 use git2::{BranchType, Repository};
 use jsonrpc_core::*;
 use jsonrpc_derive::rpc;
@@ -18,6 +18,7 @@ use std::result;
 use std::sync::{Arc, Mutex};
 
 use crate::cmd_blame::{Blame, BlameParams};
+use crate::cmd_branches::CommitsForBranch;
 use crate::cmd_get_file_content::GetFileContentParams;
 use crate::cmd_get_filetree::{FileTree, GetFileTreeParams};
 use structopt::StructOpt;
@@ -41,8 +42,8 @@ pub trait RpcCommands {
     #[rpc(name = "list_branches")]
     fn list_branches(&self) -> Result<Vec<String>>;
 
-    #[rpc(name = "commit_tree")]
-    fn commit_tree(&self) -> Result<CommitTree>;
+    #[rpc(name = "git_graph")]
+    fn git_graph(&self) -> Result<CommitTree>;
 
     #[rpc(name = "file_tree")]
     fn file_tree(&self, params: GetFileTreeParams) -> Result<FileTree>;
@@ -52,6 +53,9 @@ pub trait RpcCommands {
 
     #[rpc(name = "file_content")]
     fn file_content(&self, params: GetFileContentParams) -> Result<String>;
+
+    #[rpc(name = "get_commits_for_branch")]
+    fn get_commits_for_branch(&self, branch: String) -> Result<CommitsForBranch>;
 
     #[rpc(name = "shutdown")]
     fn shutdown(&self) -> Result<bool>;
@@ -79,9 +83,9 @@ impl RpcCommands for RpcHandler {
         return self.respond(result);
     }
 
-    fn commit_tree(&self) -> Result<CommitTree> {
+    fn git_graph(&self) -> Result<CommitTree> {
         let mut repo = self.repo.lock().unwrap();
-        let result = cmd_get_commit_tree::cmd_get_commit_tree(&mut repo);
+        let result = cmd_git_graph::cmd_get_git_graph(&mut repo);
         return self.respond(result);
     }
 
@@ -100,6 +104,12 @@ impl RpcCommands for RpcHandler {
     fn file_content(&self, params: GetFileContentParams) -> Result<String> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_get_file_content::get_file_content(params, &repo);
+        return self.respond(result);
+    }
+
+    fn get_commits_for_branch(&self, branch: String) -> Result<CommitsForBranch> {
+        let repo = self.repo.lock().unwrap();
+        let result = cmd_branches::get_commits_for_branch(&repo, branch);
         return self.respond(result);
     }
 

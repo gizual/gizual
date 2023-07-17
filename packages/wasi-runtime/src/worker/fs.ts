@@ -181,7 +181,7 @@ export class AsyncFS {
   async handleStdout(iovecPtr: number, len: number) {
     const iovecs = this.parseIovecArray(iovecPtr, len);
     const output = this.iovecsToString(iovecs);
-    this.logger.trace("stdout:", output);
+    this.logger.silly("stdout:", output);
     this.stdout.write(output);
   }
 
