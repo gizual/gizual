@@ -14,7 +14,7 @@ export type FileContext = {
 export class CanvasWorker {
   constructor() {}
 
-  draw(offscreen: OffscreenCanvas, fileContext: FileContext) {
+  async draw(offscreen: OffscreenCanvas, fileContext: FileContext) {
     const canvas = offscreen;
 
     const ctx = canvas.getContext("2d");
@@ -68,7 +68,8 @@ export class CanvasWorker {
     const nc = nColumns > 2 ? 2 : nColumns;
 
     console.log("[gizual-app] [canvas-worker] draw finished");
-    return { img: canvas.convertToBlob(), width: `${nc * 300}px` };
+    const blob = await canvas.convertToBlob();
+    return { img: blob, width: `${nc * 300}px` };
   }
 
   interpolateColor(updatedAt: number, fileContext: FileContext) {

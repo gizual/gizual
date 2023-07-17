@@ -64,13 +64,7 @@ pub fn blame(params: BlameParams, repo: &Repository) -> Result<Blame, git2::Erro
     let spec = format!("{}:{}", commit_id.to_string(), path.display());
 
     let mut opts = opts.newest_commit(commit_id).oldest_commit(parent_id);
-    let start = Instant::now();
     let blame = repo.blame_file(path, Some(&mut opts))?;
-    let duration2 = start.elapsed();
-
-    let mut lock = std::io::stderr().lock();
-    let _ = writeln!(lock, "Time elapsed in blame() is: {:?}", duration2);
-    let _ = lock.flush();
 
     let object = repo.revparse_single(&spec[..])?;
     let blob = repo.find_blob(object.id())?;

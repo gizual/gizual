@@ -36,7 +36,38 @@ export class ExplorerLibgit2 {
     return new ExplorerLibgit2(handle, runtime);
   }
 
-  async runRpcCommand(method: string, params?: any[]): Promise<any> {
+  private queueWorkLock: boolean;
+
+  private queue: {
+    method: string;
+    params?: any[];
+    resolve: (data: any) => void;
+    reject: (error: any) => void;
+  }[] = [];
+  private workOnQueue() {
+    if (this.queue.length === 0) {
+      return;
+    }
+
+    if (this.queueWorkLock) {
+      return;
+    }
+    this.queueWorkLock = true;
+
+    const { method, params, resolve, reject } = this.queue.shift()!;
+    this.execute(method, params)
+      .then(resolve)
+      .catch((error) => {
+        this.logger.error(error);
+        reject(error);
+      })
+      .finally(() => {
+        this.queueWorkLock = false;
+        setTimeout(() => this.workOnQueue(), 10);
+      });
+  }
+
+  private async execute(method: string, params?: any[]): Promise<any> {
     const payload = {
       jsonrpc: "2.0",
       id: this.counter++,
@@ -50,12 +81,19 @@ export class ExplorerLibgit2 {
 
     const stdout = await this.runtime.readStdout();
     const data = JSON.parse(stdout);
-    this.logger.trace("result", data);
+    //this.logger.trace("result", data);
 
     if (data.error) {
       throw new Error(data.error.message);
     }
     return data.result;
+  }
+
+  async runRpcCommand(method: string, params?: any[]): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ method, params, resolve, reject });
+      this.workOnQueue();
+    });
   }
 
   async getBranches(): Promise<string[]> {

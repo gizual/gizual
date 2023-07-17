@@ -199,6 +199,9 @@ export class FileViewModel {
       if (!result) return;
       fileContainer.style.width = result.width;
       console.log("[gizual-app] UI thread: draw result", result);
+      setTimeout(() => {
+        worker.terminate();
+      }, 5000);
     });
   }
 }
