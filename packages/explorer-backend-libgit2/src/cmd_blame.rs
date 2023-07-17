@@ -2,11 +2,12 @@ use crate::utils;
 use git2::{BlameOptions, Repository};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
+use std::time::Instant;
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Blame {
+pub struct Blame {
     #[serde(rename = "fileName")]
     file_name: String,
     commits: HashMap<String, CommitInfo>,
@@ -33,30 +34,44 @@ struct CommitInfo {
     timestamp: String,
 }
 
-fn blame(branch_name: &str, file_path: &str) -> Result<Blame, git2::Error> {
-    let file_name = file_path.split("/").last().unwrap();
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BlameParams {
+    pub branch: String,
+    pub path: String,
+}
+
+pub fn blame(params: BlameParams, repo: &Repository) -> Result<Blame, git2::Error> {
+    let file_name = params.path.split("/").last().unwrap();
     let mut result = Blame {
         file_name: file_name.to_string(),
         commits: HashMap::new(),
         lines: Vec::new(),
     };
 
-    let dir_path = "/repo";
+    let path = Path::new(params.path.as_str());
 
-    let repo = Repository::open(dir_path)?;
-    let path = Path::new(file_path);
-
-    let br = repo.find_branch(branch_name, git2::BranchType::Local)?;
+    let br = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
     let commit = br.get().peel_to_commit()?;
 
     let commit_id = commit.id();
 
+    // determine commit which is 2 commits older than commit
+    let parent = commit.parent(0).unwrap();
+    let parent_id = parent.id();
+
     let mut opts = BlameOptions::new();
-    let mut opts = opts.newest_commit(commit_id);
 
     let spec = format!("{}:{}", commit_id.to_string(), path.display());
 
+    let mut opts = opts.newest_commit(commit_id).oldest_commit(parent_id);
+    let start = Instant::now();
     let blame = repo.blame_file(path, Some(&mut opts))?;
+    let duration2 = start.elapsed();
+
+    let mut lock = std::io::stderr().lock();
+    let _ = writeln!(lock, "Time elapsed in blame() is: {:?}", duration2);
+    let _ = lock.flush();
+
     let object = repo.revparse_single(&spec[..])?;
     let blob = repo.find_blob(object.id())?;
     let reader = BufReader::new(blob.content());
@@ -88,11 +103,4 @@ fn blame(branch_name: &str, file_path: &str) -> Result<Blame, git2::Error> {
     }
 
     Ok(result)
-}
-
-pub fn cmd_blame(branch_name: &str, file_path: &str) -> Result<(), git2::Error> {
-    let blame = blame(branch_name, file_path)?;
-
-    utils::print_json(&blame);
-    Ok(())
 }

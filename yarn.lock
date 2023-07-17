@@ -763,6 +763,7 @@ __metadata:
   resolution: "@giz/explorer-libgit2@workspace:packages/explorer-libgit2"
   dependencies:
     "@giz/explorer-backend-libgit2": "workspace:*"
+    "@giz/logger": "workspace:*"
     "@giz/wasi-runtime": "workspace:*"
     rimraf: 4.4.1
     tsup: 6.7.0
@@ -775,9 +776,9 @@ __metadata:
   resolution: "@giz/explorer@workspace:packages/explorer"
   dependencies:
     "@giz/explorer-libgit2": "workspace:*"
-    rimraf: 4.4.1
-    tsup: 6.7.0
-    turbowatch: 2.20.0
+    "@types/lodash": 4.14.195
+    lodash: 4.17.21
+    mobx: 6.9.1
   languageName: unknown
   linkType: soft
 
@@ -834,6 +835,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@giz/logger@workspace:*, @giz/logger@workspace:packages/logger":
+  version: 0.0.0-use.local
+  resolution: "@giz/logger@workspace:packages/logger"
+  dependencies:
+    tslog: 4.8.2
+  languageName: unknown
+  linkType: soft
+
 "@giz/tsconfig@workspace:tools/tsconfig":
   version: 0.0.0-use.local
   resolution: "@giz/tsconfig@workspace:tools/tsconfig"
@@ -870,10 +879,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@giz/wasi-runtime@workspace:packages/wasi-runtime"
   dependencies:
+    "@giz/logger": "workspace:*"
     "@wasmer/wasi": 1.2.2
     "@wasmer/wasm-transformer": 0.12.0
     "@wasmer/wasmfs": 0.12.0
-    asyncify-wasm: ^1.2.1
+    "@xtuc/asyncify-wasm": 2.0.0
     comlink: 4.4.1
     turbowatch: 2.20.0
     typescript: 5.0.2
@@ -1925,6 +1935,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash@npm:4.14.195":
+  version: 4.14.195
+  resolution: "@types/lodash@npm:4.14.195"
+  checksum: 39b75ca635b3fa943d17d3d3aabc750babe4c8212485a4df166fe0516e39288e14b0c60afc6e21913cc0e5a84734633c71e617e2bd14eaa1cf51b8d7799c432e
+  languageName: node
+  linkType: hard
+
 "@types/lodash@npm:^4.14.194":
   version: 4.14.194
   resolution: "@types/lodash@npm:4.14.194"
@@ -2254,6 +2271,13 @@ __metadata:
     pako: ^1.0.11
     tar-stream: ^2.1.0
   checksum: c726a8653ba4ed05e033e2779d987933e39459be57054668d27dedbb555d2d12e62f50148340861d358bb7218060caa4acf5f46182ddb5c541679232c6beb502
+  languageName: node
+  linkType: hard
+
+"@xtuc/asyncify-wasm@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@xtuc/asyncify-wasm@npm:2.0.0"
+  checksum: 2a039d9813d714d7354ce4e2c23073030eef5d051919ed22a53e83f5a17dfd4812a234611360f5fb8dd28b2aa25c6f0e6a460793e45363d8340b4840623672d3
   languageName: node
   linkType: hard
 
@@ -5071,7 +5095,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.19, lodash@npm:^4.17.21":
+"lodash@npm:4.17.21, lodash@npm:^4.17.19, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -5344,6 +5368,13 @@ __metadata:
     react-native:
       optional: true
   checksum: 60a2580eb9a0b9988fc76959d7299f018733dc33cacaa73c45500953006d4d45e738d9ae39ccfc767ac19a75656dbc028d833282c848fbc67d8d18a2bcb5c262
+  languageName: node
+  linkType: hard
+
+"mobx@npm:6.9.1":
+  version: 6.9.1
+  resolution: "mobx@npm:6.9.1"
+  checksum: 98a0cc10c3ae46bd8ca71bd204e8574c4ed52a8e457ce53cd73e8b3a79f538fbb527eb9df708d92181f3ea0fb2efdb9fa9dafc1f86f2b950e268dceda842752d
   languageName: node
   linkType: hard
 
@@ -7578,6 +7609,13 @@ __metadata:
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
   checksum: ae3ed5f9ce29932d049908ebfdf21b3a003a85653a9a140d614da6b767a93ef94f460e52c3d787f0e4f383546981713f165037dc2274df212ea9f8a4541004e1
+  languageName: node
+  linkType: hard
+
+"tslog@npm:4.8.2":
+  version: 4.8.2
+  resolution: "tslog@npm:4.8.2"
+  checksum: 04d2c2c68be53578b090ff1729b08ee23f3b5c8c509d6ffa332c43d25bcb9599ede8cce1db2c9dcb29ea3647b21c47c1ba11180ee9652a03c901702199dc87cd
   languageName: node
   linkType: hard
 

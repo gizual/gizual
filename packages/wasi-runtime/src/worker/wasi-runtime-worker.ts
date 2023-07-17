@@ -1,11 +1,12 @@
 import * as wasmer from "@wasmer/wasi";
 import { lowerI64Imports } from "@wasmer/wasm-transformer";
-import * as Asyncify from "asyncify-wasm";
+import * as Asyncify from "@xtuc/asyncify-wasm";
 
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
-import { AsyncFS } from "./fs";
 import { debugWrapImports } from "./debug";
+import { AsyncFS } from "./fs";
+import { LOG } from "@giz/logger";
 
 let hasBeenInitialized = false;
 
@@ -15,8 +16,16 @@ export class WasiRuntimeWorker {
   private module!: WebAssembly.Module;
   private opts!: WasiRuntimeOpts;
   private folderMappings!: Record<string, FileSystemDirectoryHandle>;
+  private id = 0;
+  private logger = LOG.getSubLogger({ name: "WasiRuntimeWorker" });
   constructor() {
     this.folderMappings = {};
+  }
+
+  setId(id: number, minLevel = 0) {
+    this.id = id;
+    this.logger.settings.name = `WasiRuntimeWorker-${id}`;
+    this.logger.settings.minLevel = minLevel;
   }
 
   addFolderMapping(path: string, handle: FileSystemDirectoryHandle) {
@@ -38,15 +47,18 @@ export class WasiRuntimeWorker {
       this.memFS.createDir(folder);
     }
 
-    this.asyncFS = new AsyncFS({
-      ...this.folderMappings,
-    });
+    this.asyncFS = new AsyncFS(
+      {
+        ...this.folderMappings,
+      },
+      this.logger
+    );
 
     const wasmBytes = await fetch(this.opts.moduleUrl).then((res) => res.arrayBuffer());
     const loweredWasmBytes = await lowerI64Imports(new Uint8Array(wasmBytes));
     const wasmModule = await WebAssembly.compile(loweredWasmBytes);
     this.module = wasmModule;
-    console.log("successfully compiled wasm module");
+    this.logger.info("successfully compiled wasm module");
   }
 
   async run(opts: WasiRunOpts) {
@@ -77,22 +89,25 @@ export class WasiRuntimeWorker {
 
       const instance = await Asyncify.instantiate(
         this.module,
-        debugWrapImports({
-          ...imports,
-          feedback: {
-            finished: () => resolve(),
+        debugWrapImports(
+          {
+            ...imports,
+            feedback: {
+              finished: () => resolve(),
+            },
           },
-        }) as any
+          this.logger
+        ) as any
       );
 
       this.asyncFS.setMemory(instance.exports.memory as any);
 
       try {
-        console.log("starting WASI...");
+        this.logger.trace("starting WASI...");
 
         wasi.start(instance);
       } catch (error) {
-        console.error("error running WASI module", error);
+        this.logger.error("error running WASI module", error);
         reject(error);
       }
     });
@@ -101,7 +116,22 @@ export class WasiRuntimeWorker {
 
     const end = performance.now();
     const durationSeconds = (end - start) / 1000;
-    console.log(`Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`);
-    return this.asyncFS.getStdout();
+    this.logger.info(`Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`);
+    return;
+  }
+
+  private previousReader?: Promise<any>;
+
+  async readLine() {
+    if (this.previousReader) {
+      await this.previousReader;
+    }
+    const prom = this.asyncFS.stdout.readLine();
+    this.previousReader = prom;
+    return prom;
+  }
+
+  async writeStdin(input: string) {
+    return this.asyncFS.stdin.write(input);
   }
 }

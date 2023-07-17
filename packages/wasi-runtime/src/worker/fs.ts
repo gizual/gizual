@@ -1,3 +1,7 @@
+import { LOG, Logger } from "@giz/logger";
+
+import { StdIoPipe } from "./stdio";
+
 interface Memory {
   readonly buffer: ArrayBuffer;
   grow(delta: number): number;
@@ -11,6 +15,7 @@ type ModuleImports = Record<string, ImportValue>;
 const WASI_ESUCCESS = 0;
 const WASI_EBADF = 8;
 const WASI_EINVAL = 28;
+const WASI_ENOENT = 44;
 const WASI_ENOSYS = 52;
 
 type DirHandle = {
@@ -53,6 +58,7 @@ const STDERR_FD = 2;
 const ROOT_FD = 3;
 
 export class AsyncFS {
+  logger: Logger;
   originalImports!: any;
   nextFd = 5;
   FDs: Map<number, Handle> = new Map();
@@ -60,11 +66,16 @@ export class AsyncFS {
   memory!: WebAssembly.Memory;
   view!: DataView;
 
-  stdoutBuffer = "";
+  stdin: StdIoPipe = new StdIoPipe("in");
+  stdout: StdIoPipe = new StdIoPipe("out");
 
   mappings: Map<string, FileSystemDirectoryHandle> = new Map();
 
-  constructor(mappedPaths: Record<string, FileSystemDirectoryHandle>) {
+  constructor(mappedPaths: Record<string, FileSystemDirectoryHandle>, logger?: Logger) {
+    this.logger = (logger ?? LOG).getSubLogger({ name: "AsyncFS" });
+    this.stdout = new StdIoPipe("stdout", logger);
+    this.stdin = new StdIoPipe("stdin", logger);
+
     this.mappings = new Map();
 
     for (const [key, value] of Object.entries(mappedPaths)) {
@@ -131,7 +142,7 @@ export class AsyncFS {
       throw new Error(`File descriptor ${fd} not found`);
     }
     if (!isFileHandle(fileHandle)) {
-      console.error(fileHandle);
+      this.logger.error(fileHandle);
       throw new Error(`File descriptor ${fd} not a directory`);
     }
     return fileHandle;
@@ -143,23 +154,35 @@ export class AsyncFS {
       throw new Error(`Directory descriptor ${fd} not found`);
     }
     if (!isDirHandle(directoryHandle)) {
-      console.error(directoryHandle);
+      this.logger.error(directoryHandle);
       throw new Error(`Directory descriptor ${fd} not a directory`);
     }
     return directoryHandle;
   }
 
+  async handleStdin(iovecPtr: number, len: number): Promise<number> {
+    this.logger.silly("handleStdin", iovecPtr, len);
+    const iovecs = this.parseIovecArray(iovecPtr, len);
+    let written = 0;
+    for (const iov of iovecs) {
+      const buf = new Uint8Array(this.memory.buffer, iov.iov_base, iov.iov_len);
+      const input = await this.stdin.readBytes(iov.iov_len);
+      if (!input) {
+        this.logger.silly("got EOF");
+        return 0;
+      }
+      this.logger.silly("got input", input);
+      buf.set(new TextEncoder().encode(input));
+      written += input.length;
+    }
+    return written;
+  }
+
   async handleStdout(iovecPtr: number, len: number) {
     const iovecs = this.parseIovecArray(iovecPtr, len);
     const output = this.iovecsToString(iovecs);
-    console.log("stdout:", output);
-    this.stdoutBuffer += output;
-  }
-
-  getStdout() {
-    const output = this.stdoutBuffer;
-    this.stdoutBuffer = "";
-    return output;
+    this.logger.silly("stdout:", output);
+    this.stdout.write(output);
   }
 
   async getFSHandle(
@@ -170,7 +193,7 @@ export class AsyncFS {
     let currentHandle: FileSystemDirectoryHandle | FileSystemFileHandle = directoryHandle;
 
     for (const part of parts) {
-      console.log("step", part, currentHandle.name);
+      this.logger.silly("step", part, currentHandle.name);
       if (part === "") {
         continue;
       }
@@ -181,7 +204,7 @@ export class AsyncFS {
         if (name === part) {
           childHandle = handle;
           childName = name;
-          console.log("FOUND", { childName, childHandle });
+          this.logger.silly("FOUND", { childName, childHandle });
         }
       }
 
@@ -239,7 +262,7 @@ export class AsyncFS {
 
     for (const iov of iovecs) {
       if (iov.iov_len === 0) {
-        console.log("found empty iov, skipping");
+        this.logger.trace("found empty iov, skipping");
         continue;
       }
       const buf = new Uint8Array(this.memory.buffer, iov.iov_base, iov.iov_len);
@@ -259,7 +282,7 @@ export class AsyncFS {
         ...this.originalImports.wasi_snapshot_preview1,
         fd_write: (fd: number, iovecPtr: number, len: number, nwrittenPtr: number) => {
           this.refreshMemory();
-          console.log("fd_write", fd, iovecPtr, len, nwrittenPtr);
+          this.logger.trace("fd_write", fd, iovecPtr, len, nwrittenPtr);
 
           if (fd === STDOUT_FD) {
             const ioVecs = this.parseIovecArray(iovecPtr, len);
@@ -271,7 +294,9 @@ export class AsyncFS {
             const iovecs = this.parseIovecArray(iovecPtr, len);
             const numBytes = this.countIovecBytes(iovecs);
             const output = this.iovecsToString(iovecs);
-            console.error("stderr:", output);
+            if (output) {
+              this.logger.error("stderr:", output);
+            }
             this.view.setInt32(nwrittenPtr, numBytes, true);
             return WASI_ESUCCESS;
           } else {
@@ -281,6 +306,13 @@ export class AsyncFS {
         },
         fd_read: async (fdNum: number, iovecPtr: number, len: number, nreadPtr: number) => {
           this.refreshMemory();
+
+          if (fdNum === STDIN_FD) {
+            const numBytes = await this.handleStdin(iovecPtr, len);
+            this.view.setInt32(nreadPtr, numBytes, true);
+            return WASI_ESUCCESS;
+          }
+
           const fd = await this.getFileHandleFromFd(fdNum);
           if (!fd) {
             return this.originalImports.wasi_snapshot_preview1.fd_read(
@@ -342,7 +374,7 @@ export class AsyncFS {
           return WASI_ESUCCESS;
         },
         fd_seek: (fdNum: number, offset: number, whence: number, newOffsetPtr: number) => {
-          console.error("fd_seek", fdNum, offset, whence, newOffsetPtr);
+          this.logger.error("fd_seek", fdNum, offset, whence, newOffsetPtr);
           return 0;
         },
         fd_close: async (fdNum: number) => {
@@ -387,7 +419,7 @@ export class AsyncFS {
               size = f.size;
             }
           } else {
-            return WASI_EBADF;
+            return WASI_ENOENT;
           }
 
           // Fill in the filestat struct with fake values
@@ -415,11 +447,11 @@ export class AsyncFS {
           return 0;
         },
         fd_fdstat_set_flags: (fd: number, flags: number) => {
-          console.error("fd_fdstat_set_flags", fd, flags);
+          this.logger.error("fd_fdstat_set_flags", fd, flags);
           return 0;
         },
         fd_fdstat_set_rights: (fd: number, fsRightsBase: number, fsRightsInheriting: number) => {
-          console.error("fd_fdstat_set_rights", fd, fsRightsBase, fsRightsInheriting);
+          this.logger.error("fd_fdstat_set_rights", fd, fsRightsBase, fsRightsInheriting);
           return 0;
         },
         fd_readdir: async (
@@ -459,7 +491,7 @@ export class AsyncFS {
 
             const nameLen = nameBytes.byteLength;
 
-            console.log("write dirent for file", name);
+            this.logger.silly("write dirent for file", name);
             const type = entry.kind === "directory" ? 3 : 4;
 
             this.view.setBigUint64(bufPtr, BigInt(i + 1), true); // d_next
@@ -490,7 +522,7 @@ export class AsyncFS {
 
           const usedBytes = Math.min(bufPtr - startPtr, bufLen);
           this.view.setUint32(bufUsedPtr, usedBytes, true);
-          console.log("finished", usedBytes, bufPtr);
+          this.logger.trace("finished fd_readdir", usedBytes, bufPtr);
 
           return WASI_ESUCCESS;
         },
@@ -504,13 +536,12 @@ export class AsyncFS {
           this.refreshMemory();
 
           let path = this.readStringFromMemory(pathPtr, pathLen);
-          console.log("oringinal path", path);
           let handle: FileSystemDirectoryHandle | undefined;
           if (fd === ROOT_FD) {
             // accessing root FD, check if path is mapped
             const mappings = [...this.mappings.keys()];
             const mappedPath = mappings.find((mapping) => path.startsWith(mapping));
-            console.log({ mappings, mappedPath, path });
+            this.logger.silly({ mappings, mappedPath, path });
 
             if (mappedPath) {
               handle = this.mappings.get(mappedPath);
@@ -550,10 +581,10 @@ export class AsyncFS {
               size = f.size;
             }
           } else {
-            return WASI_EBADF;
+            return WASI_ENOENT;
           }
 
-          console.log("path_filestat_get", fd, path, kind, size);
+          this.logger.silly("path_filestat_get", fd, path, kind, size);
 
           const fakeTimestamp = BigInt(Date.now() * 1e6 - 1000);
           this.view.setBigUint64(bufPtr + 0, BigInt(0), true); // dev
@@ -594,7 +625,7 @@ export class AsyncFS {
             const fdHandle = await this.open(path, mappedHandle);
 
             if (!fdHandle) {
-              return WASI_EBADF;
+              return WASI_ENOENT;
             }
             this.view.setBigUint64(fdPtr, BigInt(fdHandle.fd), true);
             return 0;

@@ -20,6 +20,7 @@
   },
   "scripts": {
     "dev": "turbo run dev --parallel",
+    "playground": "yarn turbo run dev --scope @giz/wasi-playground-app  --include-dependencies",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "format": "yarn prettier:fix && turbo run format",
