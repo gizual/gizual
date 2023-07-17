@@ -1,4 +1,4 @@
-import { makeAutoObservable, toJS } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
 import { BranchInfo, CInfo } from "@app/types";
@@ -175,6 +175,22 @@ export class TimelineViewModel {
         commits: this.getCommitsForBranch(branch),
       };
     });
+  }
+
+  setStartDate(date: Date) {
+    this.mainController.setStartDate(date);
+  }
+
+  setEndDate(date: Date) {
+    this.mainController.setEndDate(date);
+  }
+
+  get startDate() {
+    return this.mainController.startDate;
+  }
+
+  get endDate() {
+    return this.mainController.endDate;
   }
 
   get selectedBranch(): ParsedBranch | undefined {

@@ -1,10 +1,10 @@
 import { BranchInfo, CInfo } from "@app/types";
 import { useWindowSize } from "@app/utils";
 import { InputNumber } from "antd";
+import { Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React, { MouseEventHandler } from "react";
-import { Spin } from "antd";
 
 import { useMainController } from "../../controllers";
 import { Button } from "../button";
@@ -34,41 +34,54 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   });
 
   const [mousePos, setMousePos] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [startDate, setStartDate] = React.useState(new Date("2023-04-15"));
-  const [endDate, setEndDate] = React.useState(new Date("2023-07-15"));
-
   const [hasSelection, setHasSelection] = React.useState<boolean>(false);
   const [isSelecting, setIsSelecting] = React.useState<boolean>(false);
   const [areaStart, setAreaStart] = React.useState<number>(0);
   const [areaEnd, setAreaEnd] = React.useState<number>(0);
   const [selectedArea, setSelectedArea] = React.useState<{ start: Date; end: Date }>({
-    start: startDate,
-    end: endDate,
+    start: vm.startDate,
+    end: vm.endDate,
   });
 
   const [windowWidth, __] = useWindowSize();
 
   // GHC magic :()
-  const numDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+  const numDays = (vm.endDate.getTime() - vm.startDate.getTime()) / (1000 * 60 * 60 * 24);
+
+  let separatorAt = 5;
+
+  let visualizedDays = numDays;
+  if (visualizedDays > 210) {
+    visualizedDays = numDays / 7;
+    separatorAt = 4;
+  }
 
   const dayWidth = vm.rulerWidth / numDays;
 
-  let tickDays = numDays;
-  while (tickDays > 100) {
-    tickDays = Math.round(tickDays / 1.5);
-  }
-  const tickWidth = vm.rulerWidth / tickDays;
+  const tickDays = visualizedDays / 2;
+  const tickWidth = vm.rulerWidth / visualizedDays;
 
   const ticks = Array.from({ length: tickDays }, (_, i) => (
-    <line
-      key={i}
-      x1={i * tickWidth}
-      y1={0}
-      x2={i * tickWidth}
-      y2={i % 5 === 0 ? vm.largeTickHeight : vm.smallTickHeight}
-      stroke="var(--foreground-primary)"
-      strokeWidth="1"
-    />
+    <>
+      <line
+        key={`-${i}`}
+        x1={i * tickWidth + vm.rulerWidth / 2}
+        y1={0}
+        x2={i * tickWidth + vm.rulerWidth / 2}
+        y2={i % separatorAt === 0 ? vm.largeTickHeight : vm.smallTickHeight}
+        stroke="var(--foreground-primary)"
+        strokeWidth="1"
+      />
+      <line
+        key={`+${i}`}
+        x1={-i * tickWidth + vm.rulerWidth / 2}
+        y1={0}
+        x2={-i * tickWidth + vm.rulerWidth / 2}
+        y2={i % separatorAt === 0 ? vm.largeTickHeight : vm.smallTickHeight}
+        stroke="var(--foreground-primary)"
+        strokeWidth="1"
+      />
+    </>
   ));
 
   const commits = (
@@ -76,12 +89,12 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     yOffset = vm.rowHeight / 2,
     radius = vm.commitSizeTop
   ) => {
-    if (!branch) return undefined;
+    if (!branch) return;
     return (
       <Commits
-        startDate={startDate}
+        startDate={vm.startDate}
         dayWidth={dayWidth}
-        endDate={endDate}
+        endDate={vm.endDate}
         commits={branch.commits}
         yOffset={yOffset}
         radius={radius}
@@ -135,7 +148,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
         setAreaStart(x);
         setSelectedArea({
           ...selectedArea,
-          start: getDayFromOffset(getDayFromCoordinate(x, boundingRect), startDate),
+          start: getDayFromOffset(getDayFromCoordinate(x, boundingRect), vm.startDate),
         });
         setHasSelection(true);
         setIsSelecting(true);
@@ -143,7 +156,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
       setAreaEnd(x);
       setSelectedArea({
         ...selectedArea,
-        end: getDayFromOffset(getDayFromCoordinate(x, boundingRect), startDate),
+        end: getDayFromOffset(getDayFromCoordinate(x, boundingRect), vm.startDate),
       });
       setTooltip({ day, x, y });
     } else {
@@ -159,22 +172,22 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
 
     if (event.deltaMode === 0) {
       // likely a touchpad
-      zoomFactor = 0.005;
-      scrollFactor = 0.005;
+      zoomFactor = 0.01;
+      scrollFactor = 0.01;
     }
 
-    const currentRange = endDate.getTime() - startDate.getTime();
-    let newStartDate = startDate.getTime();
-    let newEndDate = endDate.getTime();
+    const currentRange = vm.endDate.getTime() - vm.startDate.getTime();
+    let newStartDate = vm.startDate.getTime();
+    let newEndDate = vm.endDate.getTime();
 
     if (event.shiftKey) {
       // Move timeline
       if (event.deltaX < 0) {
-        newStartDate = startDate.getTime() + currentRange * scrollFactor;
-        newEndDate = endDate.getTime() + currentRange * scrollFactor;
+        newStartDate = vm.startDate.getTime() + currentRange * scrollFactor;
+        newEndDate = vm.endDate.getTime() + currentRange * scrollFactor;
       } else {
-        newStartDate = startDate.getTime() - currentRange * scrollFactor;
-        newEndDate = endDate.getTime() - currentRange * scrollFactor;
+        newStartDate = vm.startDate.getTime() - currentRange * scrollFactor;
+        newEndDate = vm.endDate.getTime() - currentRange * scrollFactor;
       }
     } else {
       // Zoom in/out
@@ -188,12 +201,13 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
         // Zoom out
         newRange = currentRange * (1 + zoomFactor);
       }
-      newStartDate = startDate.getTime() + (currentRange - newRange) / 2;
-      newEndDate = endDate.getTime() - (currentRange - newRange) / 2;
+      newStartDate = vm.startDate.getTime() + (currentRange - newRange) / 2;
+      newEndDate = vm.endDate.getTime() - (currentRange - newRange) / 2;
     }
 
-    setStartDate(new Date(newStartDate));
-    setEndDate(new Date(newEndDate));
+    vm.setStartDate(new Date(newStartDate));
+    vm.setEndDate(new Date(newEndDate));
+    setTooltip({ day: undefined, x: 0, y: 0 });
   };
 
   const handleOnClick = (_: any) => {
@@ -329,14 +343,14 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
             y={vm.rulerHeight - vm.padding}
             className={style.RulerAnnotationLeft}
           >
-            {getDateString(startDate)}
+            {getDateString(vm.startDate)}
           </text>
           <text
             x={vm.viewBox.width - 3 * vm.padding}
             y={vm.rulerHeight - vm.padding}
             className={style.RulerAnnotationRight}
           >
-            {getDateString(endDate)}
+            {getDateString(vm.endDate)}
           </text>
           <Translate {...vm.ruler.pos}>{ticks}</Translate>
           <TimelineGraph
@@ -390,7 +404,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
           >
             {tooltip.day === undefined
               ? vm.commitTooltip!.message
-              : getDateString(getDayFromOffset(tooltip.day, startDate))}
+              : getDateString(getDayFromOffset(tooltip.day, vm.startDate))}
           </div>
         )}
       </div>

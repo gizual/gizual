@@ -22,10 +22,16 @@ export class MainController {
   _isSettingsPanelVisible = true;
   _repo: Repository;
 
+  private _startDate: Date;
+  private _endDate: Date;
+
   constructor() {
     this._isRepoPanelVisible = LocalStorage.getBoolean("isRepoPanelVisible") ?? true;
     this._isSettingsPanelVisible = LocalStorage.getBoolean("isSettingsPanelVisible") ?? true;
     this._repo = new Repository();
+
+    this._startDate = new Date("2023-01-01");
+    this._endDate = new Date("2023-08-01");
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
@@ -146,5 +152,21 @@ export class MainController {
 
   setPage(page: "welcome" | "main") {
     this._page = page;
+  }
+
+  setStartDate(date: Date) {
+    this._startDate = date;
+  }
+
+  setEndDate(date: Date) {
+    this._endDate = date;
+  }
+
+  get startDate() {
+    return this._startDate;
+  }
+
+  get endDate() {
+    return this._endDate;
   }
 }

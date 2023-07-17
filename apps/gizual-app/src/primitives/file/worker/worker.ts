@@ -4,11 +4,11 @@ import { getColorScale, SPECIAL_COLORS } from "../../../utils";
 import { FileViewModel } from "../file.vm";
 
 export type FileContext = {
-  fileContent: FileViewModel["_fileContent"];
+  fileContent: FileViewModel["fileContent"];
   settings: FileViewModel["_settings"];
-  lineLengthMax: FileViewModel["_lineLengthMax"];
-  earliestTimestamp: FileViewModel["_earliestTimestamp"];
-  latestTimestamp: FileViewModel["_latestTimestamp"];
+  lineLengthMax: FileViewModel["lineLengthMax"];
+  earliestTimestamp: FileViewModel["earliestTimestamp"];
+  latestTimestamp: FileViewModel["latestTimestamp"];
 };
 
 export class CanvasWorker {
@@ -16,6 +16,7 @@ export class CanvasWorker {
 
   async draw(offscreen: OffscreenCanvas, fileContext: FileContext) {
     const canvas = offscreen;
+    const colors: string[] = [];
 
     const ctx = canvas.getContext("2d");
     if (!ctx) {
@@ -52,6 +53,7 @@ export class CanvasWorker {
 
       ctx.fillStyle = color;
       line.color = color;
+      colors.push(line.color);
       ctx.fillRect(currentX + lineOffset, currentY, rectWidth, rectHeight);
       currentY += lineHeight + fileContext.settings.lineSpacing;
       lineIndex++;
@@ -69,7 +71,7 @@ export class CanvasWorker {
 
     console.log("[gizual-app] [canvas-worker] draw finished");
     const blob = await canvas.convertToBlob();
-    return { img: blob, width: `${nc * 300}px` };
+    return { img: blob, width: `${nc * 300}px`, colors };
   }
 
   interpolateColor(updatedAt: number, fileContext: FileContext) {

@@ -103,7 +103,7 @@
 }
 
 .timelineOverlay {
-  @include shadow-huge;
+  @include shadow-bottom;
   border: 1px solid var(--border-primary);
   background-color: var(--background-secondary);
   position: absolute;

@@ -7,7 +7,7 @@ import { makeAutoObservable } from "mobx";
 import React from "react";
 
 import { MainController } from "../../controllers";
-import {FileViewModel} from "../file/file.vm";
+import { FileViewModel } from "../file/file.vm";
 
 export class EditorViewModel {
   _editorRef: React.RefObject<HTMLDivElement> | undefined;
@@ -56,7 +56,7 @@ export class EditorViewModel {
       toDOM() {
         const div = document.createElement("div");
         div.style.width = "0.25rem";
-        div.style.height="1.25rem";
+        div.style.height = "1.25rem";
         div.style.backgroundColor = "green";
         return div;
       }
@@ -68,14 +68,18 @@ export class EditorViewModel {
       class: "cm-blame-gutter",
       lineMarker(view, line, other) {
         return new (class extends GutterMarker {
-            _file: FileViewModel;
-          constructor(file: FileViewModel){super();this._file = file;}
+          _file: FileViewModel;
+          constructor(file: FileViewModel) {
+            super();
+            this._file = file;
+          }
           toDOM() {
             const lineNumber = view.state.doc.lineAt(line.from).number - 1;
             const div = document.createElement("div");
             div.style.width = "0.5rem";
-            div.style.height ="1.5rem";
-            div.style.backgroundColor = this._file.fileContent[lineNumber].color ?? "#232323";
+            div.style.height = "1.5rem";
+            div.style.backgroundColor =
+              (this._file.colors && this._file.colors[lineNumber]) ?? "#232323";
             div.title = this._file.fileContent[lineNumber].commit?.hash ?? "";
             return div;
           }

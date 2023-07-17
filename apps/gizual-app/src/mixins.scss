@@ -45,7 +45,10 @@
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 }
 @mixin shadow-huge {
-  box-shadow: 0 10px 60px #000c 
+  box-shadow: 0 10px 60px #000c;
+}
+@mixin shadow-bottom {
+  box-shadow: 0 15px 15px 2px #000c;
 }
 
 @mixin text-xs {

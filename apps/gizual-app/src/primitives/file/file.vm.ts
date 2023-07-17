@@ -44,6 +44,7 @@ export class FileViewModel {
   _mainController: MainController;
   _isEditorOpen = false;
   _blameView: BlameView;
+  _colors: string[] = [];
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
   _fileRef: React.RefObject<HTMLDivElement> | undefined;
@@ -166,6 +167,14 @@ export class FileViewModel {
     return this._isLoadIndicator;
   }
 
+  setColors(colors: string[]) {
+    this._colors = colors;
+  }
+
+  get colors() {
+    return this._colors;
+  }
+
   draw() {
     if (!this._canvasRef || !this._canvasRef.current || !this._fileRef) {
       return;
@@ -196,6 +205,7 @@ export class FileViewModel {
     drawResult.then((result) => {
       if (!result) return;
       fileContainer.style.width = result.width;
+      this.setColors(result.colors);
       console.log("[gizual-app] UI thread: draw result", result);
       setTimeout(() => {
         worker.terminate();
