@@ -163,7 +163,6 @@ export class TimelineViewModel {
       parsedCommits.push(currentCommit as any);
     }
 
-    console.log("getCommitsForBranch", parsedCommits);
     return parsedCommits;
   }
 

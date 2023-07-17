@@ -89,7 +89,6 @@ export class FileViewModel {
   }
 
   get blameInfo() {
-    console.log("getBlameInfo");
     const blame = this._blameView.blame;
 
     let lenMax = 0;
@@ -149,7 +148,6 @@ export class FileViewModel {
 
   toggleEditor() {
     this._isEditorOpen = !this._isEditorOpen;
-    console.log("Toggling editor", this._isEditorOpen);
   }
 
   get isEditorOpen() {

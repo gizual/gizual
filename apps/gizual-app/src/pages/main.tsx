@@ -13,7 +13,7 @@ import { MainPageViewModel } from "./main.vm";
 import ReactGridLayout from "react-grid-layout";
 
 import { useWindowSize } from "@app/utils";
-import { Container, Languages } from "@app/charts";
+import { Container, Languages, parseLanguages } from "@app/charts";
 import { AllContributions } from "@app/charts";
 import { Select } from "../primitives/select";
 
@@ -75,6 +75,9 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
 
   const [languageChartType, setLanguageChartType] = React.useState<"pie" | "bar">("pie");
 
+  if (!vm.mainController.fileTreeRoot) return <div />;
+  const languageData = parseLanguages(vm.mainController.fileTreeRoot);
+
   return (
     <div ref={ref} style={{ width: "100%", height: "100%" }}>
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
@@ -105,7 +108,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
               />
             }
           >
-            <Languages chartType={languageChartType} />
+            <Languages chartType={languageChartType} languages={languageData} />
           </Container>
         </div>
       </ReactGridLayout>

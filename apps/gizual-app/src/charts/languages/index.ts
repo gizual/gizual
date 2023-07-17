@@ -1,1 +1,1 @@
-export { Languages } from "./languages";
+export { Languages, parseLanguages } from "./languages";

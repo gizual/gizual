@@ -25,7 +25,6 @@ export class CanvasViewModel {
     const filesToLoad = _.difference(selectedFiles, existingFiles);
     const filesToUnload = _.difference(existingFiles, selectedFiles);
 
-    console.log("loadSelectedFiles", filesToLoad, filesToUnload, existingFiles);
     for (const file of filesToLoad) {
       this._selectedFileVms[file] = new FileViewModel(this._mainController, file, {}, false, false);
     }

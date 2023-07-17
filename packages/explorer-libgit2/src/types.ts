@@ -78,6 +78,7 @@ export function isFileContent(obj: any): obj is FileContent {
 export interface FileTree {
   name: string;
   children?: FileTree[];
+  mime_type?: string;
 }
 
 export function isFileTree(obj: any): obj is FileTree {

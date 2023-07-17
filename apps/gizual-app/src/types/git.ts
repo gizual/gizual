@@ -42,5 +42,5 @@ export interface GetBlameParams {
 export type FileTreeNode = {
   name: string;
   children?: FileTreeNode[];
-  mimeType?: string;
+  mime_type?: string;
 };

@@ -13,13 +13,6 @@ type LanguagesProps = {
   chartType?: "pie" | "bar";
 };
 
-const mockLanguages: LanguageInfo[] = [
-  { language: "TypeScript", percentage: 50 },
-  { language: "JavaScript", percentage: 30 },
-  { language: "Java", percentage: 5 },
-  { language: "Rust", percentage: 15 },
-];
-
 export function parseLanguages(fileTree: FileTreeNode) {
   const languages = new Map<string, number>();
   let numFiles = 0;
@@ -31,7 +24,7 @@ export function parseLanguages(fileTree: FileTreeNode) {
       }
     } else {
       numFiles += 1;
-      const language = file.mimeType;
+      const language = file.mime_type;
       if (language) {
         const count = languages.get(language) || 0;
         languages.set(language, count + 1);
@@ -58,8 +51,6 @@ function prepareData(languages: LanguageInfo[]) {
     data.push({ x: language.language, y: language.percentage });
   }
 
-  console.log("Data for language-chart:", data);
-
   return data;
 }
 
@@ -74,7 +65,7 @@ function* getNextColor(colorScale: string[]) {
 }
 
 export function Languages({ languages, chartType = "bar" }: LanguagesProps) {
-  if (!languages) languages = mockLanguages;
+  if (!languages) return <div />;
 
   const data = prepareData(languages);
   const colorGenerator = getNextColor(colorScale);

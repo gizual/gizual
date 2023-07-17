@@ -14,6 +14,10 @@ export class MainPageViewModel {
     );
   }
 
+  get mainController() {
+    return this._mainController;
+  }
+
   toggleRepoPanel() {
     this._mainController.setRepoPanelVisibility(!this._mainController.isRepoPanelVisible);
   }

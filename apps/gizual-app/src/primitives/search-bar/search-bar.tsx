@@ -138,7 +138,6 @@ const SearchInput = observer(({ vm }: SearchBarProps) => {
                 className={style.searchOverlayHintEntry}
                 key={tag.id}
                 onClick={() => vm.appendTag(tag)}
-                onMouseEnter={() => console.log("hover")}
               >
                 <pre className={style.tag}>{tag.id}: </pre>
                 <pre>{tag.hint}</pre>
