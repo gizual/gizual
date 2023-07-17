@@ -2,10 +2,7 @@ import { makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
 
-export type FileTreeNode = {
-  name: string;
-  children?: FileTreeNode[];
-};
+import { FileTreeNode } from "@app/types";
 
 export class FileTreeViewModel {
   _root: FileTreeNode;

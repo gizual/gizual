@@ -2,32 +2,15 @@
 @use "@/shared" as shared;
 
 .FileHead {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 0;
-  flex: 0 0;
-  margin-bottom: 0.5rem;
+  @include shared.card-head;
 }
 
 .FileIcon {
-  width: 32px;
-  height: 32px;
-  flex-grow: 0;
-  flex-shrink: 0;
+  @include shared.svg-icon;
 }
 
 .FileTitle {
-  @include text-base;
-  text-align: left;
-  font-family: monospace;
-  font-weight: bold;
-  margin: 0.75rem 0 0 0;
-  flex-grow: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  cursor: default;
+  @include shared.card-title;
 }
 
 @mixin favourite {
@@ -50,10 +33,7 @@
 }
 
 .FileActions {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  justify-self: flex-end;
+  @include shared.right-aligned-group;
 }
 
 .FileActionIcon {
@@ -79,11 +59,9 @@
 }
 
 .File {
-  position: relative;
+  @include shared.card;
   width: 300px;
   height: 400px;
-  display: flex;
-  flex-direction: column;
 }
 
 .LoadFileIcon {

@@ -1,12 +1,12 @@
 import clsx from "clsx";
-import { useState } from "react";
+import React from "react";
+import { useMainController } from "../../controllers";
 
 import style from "./title-bar.module.scss";
+import { observer } from "mobx-react-lite";
 
-export function TitleBar() {
-  const [selected, setSelected] = useState(0);
-  const isExploreSelected = selected === 0;
-  const isAnalyzeSelected = selected === 1;
+export const TitleBar = observer(() => {
+  const mainController = useMainController();
 
   return (
     <div className={style.titleBar}>
@@ -15,18 +15,28 @@ export function TitleBar() {
         <h1 className={style.title}>gizual</h1>
       </div>
       <div className={style.menu}>
-        <div className={clsx(style.menuItem, isExploreSelected ? style.selected : undefined)}>
-          <a className={style.menuItemText} onClick={() => setSelected(0)}>
+        <div
+          className={clsx(
+            style.menuItem,
+            mainController._selectedPanel === "explore" ? style.selected : undefined
+          )}
+        >
+          <a className={style.menuItemText} onClick={() => mainController.setPanel("explore")}>
             {" "}
             Explore
           </a>
         </div>
-        <div className={clsx(style.menuItem, isAnalyzeSelected ? style.selected : undefined)}>
-          <a className={style.menuItemText} onClick={() => setSelected(1)}>
+        <div
+          className={clsx(
+            style.menuItem,
+            mainController._selectedPanel === "analyze" ? style.selected : undefined
+          )}
+        >
+          <a className={style.menuItemText} onClick={() => mainController.setPanel("analyze")}>
             Analyze
           </a>
         </div>
       </div>
     </div>
   );
-}
+});

@@ -1,0 +1,8 @@
+{
+  "name": "@app/charts",
+  "main": "./index.ts",
+  "dependencies": {
+    "@app/controllers": "workspace:*",
+    "@app/primitives": "workspace:*"
+  }
+}

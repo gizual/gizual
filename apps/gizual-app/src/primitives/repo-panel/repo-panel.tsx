@@ -1,20 +1,21 @@
 import clsx from "clsx";
+import { observer } from "mobx-react-lite";
+import React from "react";
 
+import { useMainController } from "../../controllers";
 import sharedStyle from "../css/shared-styles.module.scss";
 import FileTree from "../file-tree/file-tree";
 import { Select } from "../select";
 import { ToggleButton } from "../toggle-button";
-import { useMainController } from "../../controllers";
 
 import style from "./repo-panel.module.scss";
 import { RepoPanelViewModel } from "./repo-panel.vm";
-import React from "react";
 
 export type RepoPanelProps = {
   vm?: RepoPanelViewModel;
 };
 
-export function RepoPanel({ vm: externalVm }: RepoPanelProps) {
+export const RepoPanel = observer(({ vm: externalVm }: RepoPanelProps) => {
   const mainController = useMainController();
   const vm: RepoPanelViewModel = React.useMemo(() => {
     return externalVm || new RepoPanelViewModel(mainController);
@@ -34,6 +35,7 @@ export function RepoPanel({ vm: externalVm }: RepoPanelProps) {
               placeholder="Select branch ..."
               groupTitle="Select branch"
               onValueChange={(v) => vm.onBranchChange(v)}
+              value={vm.selectedBranch}
             />
           </div>
           <div className={sharedStyle.block}>
@@ -74,4 +76,4 @@ export function RepoPanel({ vm: externalVm }: RepoPanelProps) {
       </div>
     </div>
   );
-}
+});

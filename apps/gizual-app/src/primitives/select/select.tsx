@@ -15,12 +15,25 @@ export type SelectProps = {
   onValueChange?: (value: string) => void;
   groupTitle?: string;
   placeholder?: string;
+  value?: string;
+  boxStyle?: React.CSSProperties;
 };
 
-export function Select({ groupTitle, placeholder, data, onValueChange }: SelectProps) {
+export function Select({
+  groupTitle,
+  placeholder,
+  data,
+  onValueChange,
+  value,
+  boxStyle,
+}: SelectProps) {
   return (
-    <RSelect.Root onValueChange={onValueChange}>
-      <RSelect.Trigger className={style.SelectTrigger} aria-label="Select Component">
+    <RSelect.Root onValueChange={onValueChange} value={value}>
+      <RSelect.Trigger
+        className={style.SelectTrigger}
+        aria-label="Select Component"
+        style={boxStyle}
+      >
         <RSelect.Value placeholder={placeholder} />
         <RSelect.Icon className={style.SelectIcon}>
           <ChevronDownIcon />

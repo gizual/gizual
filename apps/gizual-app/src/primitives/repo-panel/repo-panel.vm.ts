@@ -23,7 +23,15 @@ export class RepoPanelViewModel {
   }
 
   get selectBranchData() {
-    return this._mainController._branches.map((b) => ({value: b, label: b}));
+    return this._mainController._branches.map((b) => ({ value: b, label: b }));
+  }
+
+  get selectedBranch() {
+    return this._mainController._selectedBranch;
+  }
+
+  get selectedCommit() {
+    return this._mainController.selectedCommit;
   }
 
   get selectCommitData() {

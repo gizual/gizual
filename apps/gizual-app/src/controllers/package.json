@@ -1,4 +1,4 @@
 {
-  "name": "@giz/controllers",
+  "name": "@app/controllers",
   "main": "index.ts"
 }

@@ -12,6 +12,63 @@
   overflow-y: auto;
 }
 
+@mixin card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin card-title {
+  text-align: left;
+  font-family: monospace;
+  font-weight: bold;
+  margin: 0.75rem 0 0 0;
+  flex-grow: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.cardTitle {
+  @include card-title;
+}
+
+.card {
+  @include card;
+}
+
+@mixin card-head {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0;
+  flex: 0 0;
+  margin-bottom: 0.5rem;
+}
+
+.cardHead {
+  @include card-head;
+}
+
+@mixin right-aligned-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  justify-self: flex-end;
+}
+
+.right-aligned-group {
+  @include right-aligned-group;
+}
+
+@mixin svg-icon {
+  width: 32px;
+  height: 32px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
 .panel {
   @include panel;
 }

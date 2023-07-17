@@ -1,7 +1,10 @@
-import {autorun, makeAutoObservable, runInAction} from "mobx";
+import { autorun, makeAutoObservable, runInAction } from "mobx";
 
-import {ExplorerLibgit2} from "@giz/explorer-libgit2";
-import { FileTreeNode } from "../primitives/file-tree/file-tree.vm";
+import { ExplorerLibgit2 } from "@giz/explorer-libgit2";
+import { FileTreeNode } from "@app/types";
+import { LocalStorage } from "@app/utils";
+
+type Panel = "explore" | "analyze";
 
 export class MainController {
   _selectedFiles: Set<string> = new Set<string>();
@@ -14,9 +17,14 @@ export class MainController {
   _fileTreeRoot?: FileTreeNode;
   _page: "welcome" | "main" = "welcome";
   _libgit2!: ExplorerLibgit2;
+  _selectedPanel: Panel = "explore";
+  _isRepoPanelVisible = true;
+  _isSettingsPanelVisible = true;
 
   constructor() {
-    makeAutoObservable(this);
+    this._isRepoPanelVisible = LocalStorage.getBoolean("isRepoPanelVisible") ?? true;
+    this._isSettingsPanelVisible = LocalStorage.getBoolean("isSettingsPanelVisible") ?? true;
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   toggleFile(name: string) {
@@ -35,6 +43,32 @@ export class MainController {
 
   setFileTreeRoot(root: FileTreeNode) {
     this._fileTreeRoot = root;
+  }
+
+  setPanel(panel: Panel) {
+    this._selectedPanel = panel;
+  }
+
+  get selectedPanel() {
+    return this._selectedPanel;
+  }
+
+  setRepoPanelVisibility(visible: boolean) {
+    this._isRepoPanelVisible = visible;
+    LocalStorage.setItem("isRepoPanelVisible", this._isRepoPanelVisible.toString());
+  }
+
+  get isRepoPanelVisible() {
+    return this._isRepoPanelVisible;
+  }
+
+  setSettingsPanelVisibility(visible: boolean) {
+    this._isSettingsPanelVisible = visible;
+    LocalStorage.setItem("isSettingsPanelVisible", this._isSettingsPanelVisible.toString());
+  }
+
+  get isSettingsPanelVisible() {
+    return this._isSettingsPanelVisible;
   }
 
   toggleFavourite(name: string) {
@@ -82,13 +116,15 @@ export class MainController {
       this._selectedBranch = branches[0];
     });
 
-    autorun(() => {this.refreshFileTree()});
+    autorun(() => {
+      this.refreshFileTree();
+    });
     this.setPage("main");
   }
 
   async refreshFileTree() {
     this._libgit2.getFileTree(this.selectedBranch).then((tree) => {
-      this.setFileTreeRoot({name: "root", children: tree});
+      this.setFileTreeRoot({ name: "root", children: tree });
     });
   }
 

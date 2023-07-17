@@ -1,14 +1,7 @@
-import { observable, runInAction } from "mobx";
-
 import { SearchBarViewModel } from "../primitives/search-bar/search-bar.vm";
 import { MainController } from "../controllers";
 
 export class MainPageViewModel {
-  _state = observable({
-    repoPanelVisible: true,
-    settingsPanelVisible: true,
-  });
-
   private _searchBarVM: SearchBarViewModel;
   private _mainController: MainController;
 
@@ -21,24 +14,20 @@ export class MainPageViewModel {
     );
   }
 
-  toggleRepoPanel = () => {
-    runInAction(() => {
-      this._state.repoPanelVisible = !this._state.repoPanelVisible;
-    });
-  };
+  toggleRepoPanel() {
+    this._mainController.setRepoPanelVisibility(!this._mainController.isRepoPanelVisible);
+  }
 
-  toggleSettingsPanel = () => {
-    runInAction(() => {
-      this._state.settingsPanelVisible = !this._state.settingsPanelVisible;
-    });
-  };
+  toggleSettingsPanel() {
+    this._mainController.setSettingsPanelVisibility(!this._mainController.isSettingsPanelVisible);
+  }
 
   get isRepoPanelVisible() {
-    return this._state.repoPanelVisible;
+    return this._mainController.isRepoPanelVisible;
   }
 
   get isSettingsPanelVisible() {
-    return this._state.settingsPanelVisible;
+    return this._mainController.isSettingsPanelVisible;
   }
 
   get searchBarVM() {

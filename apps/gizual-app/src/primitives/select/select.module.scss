@@ -52,6 +52,7 @@ button {
   display: block;
   box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2);
   border: 1px solid var(--border-primary);
+  z-index: 1000;
 }
 
 .SelectViewport {
