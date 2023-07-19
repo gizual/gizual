@@ -10,7 +10,7 @@
     "@types/lodash": "4.14.195"
   },
   "dependencies": {
-    "@giz/explorer-libgit2": "workspace:*",
+    "@giz/explorer-backend-libgit2": "workspace:*",
     "lodash": "4.17.21",
     "mobx": "6.9.1"
   }

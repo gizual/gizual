@@ -1,6 +1,5 @@
 import { makeAutoObservable } from "mobx";
 
-import { ExplorerLibgit2 } from "@giz/explorer-libgit2";
 import { FileTreeNode } from "@app/types";
 import { LocalStorage } from "@app/utils";
 import { Repository } from "@giz/explorer";
@@ -16,7 +15,7 @@ export class MainController {
   _lineLengthScaling: "Local" | "Global" = "Local";
   _fileTreeRoot?: FileTreeNode;
   _page: "welcome" | "main" = "welcome";
-  _libgit2!: ExplorerLibgit2;
+  _libgit2!: any;
   _selectedPanel: Panel = "explore";
   _isRepoPanelVisible = true;
   _isSettingsPanelVisible = true;

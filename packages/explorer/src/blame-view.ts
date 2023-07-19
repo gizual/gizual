@@ -1,9 +1,8 @@
 import { computed, makeObservable } from "mobx";
 
-import { Blame } from "@giz/explorer-libgit2";
-
 import { PromiseObserver } from "./promise-observer";
 import { Repository } from "./repository";
+import { Blame } from "./types";
 
 export class BlameView {
   private repo: Repository;

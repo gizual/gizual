@@ -1,15 +1,9 @@
 import { action, makeObservable, observable, runInAction } from "mobx";
 
-import { ExplorerLibgit2 } from "@giz/explorer-libgit2";
-
 import { BlameView } from "./blame-view";
+import { ExplorerPool } from "./explorer-pool";
 import { PromiseObserver } from "./promise-observer";
-
-export type FileTree = {
-  name: string;
-  mime_type?: string;
-  children?: FileTree[];
-};
+import { FileTree } from "./types";
 
 type Oid = string;
 type Aid = string;
@@ -49,7 +43,7 @@ interface CommitInfo {
 }
 
 export class Repository {
-  backend?: ExplorerLibgit2;
+  backend?: ExplorerPool;
 
   _state: "uninitialized" | "loading" | "ready" | "error" = "uninitialized";
 
@@ -87,9 +81,9 @@ export class Repository {
 
     this._setState("loading");
 
-    let backend: ExplorerLibgit2;
+    let backend: ExplorerPool;
     try {
-      backend = await ExplorerLibgit2.create(handle);
+      backend = await ExplorerPool.create(handle);
     } catch (error) {
       this._setState("error");
       throw error;
@@ -106,7 +100,7 @@ export class Repository {
       throw new Error("No default branch found");
     }
 
-    const { startCommitId, endCommitId } = await backend.runRpcCommand("get_commits_for_branch", [
+    const { startCommitId, endCommitId } = await backend.execute("get_commits_for_branch", [
       defaultBranch,
     ]);
 
@@ -114,7 +108,7 @@ export class Repository {
       name: `GitGraph`,
       initialPromise: {
         create: async () => {
-          const data = await backend.runRpcCommand("git_graph");
+          const data = await backend.execute("git_graph");
           return data.graph;
         },
         args: [],

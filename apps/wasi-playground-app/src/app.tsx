@@ -1,11 +1,11 @@
 import React from "react";
 
-import { ExplorerLibgit2 } from "@giz/explorer-libgit2";
+import { ExplorerPool } from "@giz/explorer";
 
-async function prepareRuntime(): Promise<ExplorerLibgit2> {
+async function prepareRuntime(): Promise<ExplorerPool> {
   const handle = await window.showDirectoryPicker();
 
-  return await ExplorerLibgit2.create(handle);
+  return await ExplorerPool.create(handle);
 }
 
 const AnimatedLoadingIndicator = () => {
@@ -25,7 +25,7 @@ const AnimatedLoadingIndicator = () => {
 const App = () => {
   React.useEffect(() => {});
 
-  const [runtime, setRuntime] = React.useState<ExplorerLibgit2 | undefined>();
+  const [runtime, setRuntime] = React.useState<ExplorerPool | undefined>();
 
   const setupRuntime = React.useCallback(() => {
     prepareRuntime().then((runtime) => {
@@ -68,7 +68,7 @@ const App = () => {
           }
 
           case "get_commits_for_branch": {
-            return runtime.runRpcCommand("get_commits_for_branch", [branch]);
+            return runtime.execute("get_commits_for_branch", [branch]);
           }
         }
 

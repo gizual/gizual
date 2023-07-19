@@ -75,11 +75,11 @@ export function isFileContent(obj: any): obj is FileContent {
   );
 }
 
-export interface FileTree {
+export type FileTree = {
   name: string;
-  children?: FileTree[];
   mime_type?: string;
-}
+  children?: FileTree[];
+};
 
 export function isFileTree(obj: any): obj is FileTree {
   return (
