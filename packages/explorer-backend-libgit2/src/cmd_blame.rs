@@ -1,10 +1,8 @@
-use crate::utils;
 use git2::{BlameOptions, Repository};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::time::Instant;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Blame {
@@ -41,7 +39,7 @@ pub struct BlameParams {
 }
 
 pub fn blame(params: BlameParams, repo: &Repository) -> Result<Blame, git2::Error> {
-    let file_name = params.path.split("/").last().unwrap();
+    let file_name = params.path.split('/').last().unwrap();
     let mut result = Blame {
         file_name: file_name.to_string(),
         commits: HashMap::new(),
@@ -61,7 +59,7 @@ pub fn blame(params: BlameParams, repo: &Repository) -> Result<Blame, git2::Erro
 
     let mut opts = BlameOptions::new();
 
-    let spec = format!("{}:{}", commit_id.to_string(), path.display());
+    let spec = format!("{}:{}", commit_id, path.display());
 
     let mut opts = opts.newest_commit(commit_id).oldest_commit(parent_id);
     let blame = repo.blame_file(path, Some(&mut opts))?;

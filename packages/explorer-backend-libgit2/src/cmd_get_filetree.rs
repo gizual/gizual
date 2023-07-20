@@ -1,6 +1,5 @@
-use crate::utils;
 use git2::{ObjectType, Repository, Tree};
-use mime_guess::{Mime, MimeGuess};
+use mime_guess::MimeGuess;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -53,7 +52,7 @@ fn build_file_tree(repo: &Repository, tree: &Tree, name: &str) -> FileTree {
                 children: Vec::new(),
                 mime_type: MimeGuess::from_path(entry_name.as_str())
                     .first()
-                    .map_or(None, |m| Some(m.to_string())),
+                    .map(|m| m.to_string()),
             };
 
             filetree.children.push(file);

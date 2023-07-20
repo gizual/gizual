@@ -1,6 +1,5 @@
 use git2::{BranchType, Error, Repository};
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CommitsForBranch {
@@ -40,8 +39,8 @@ pub fn get_commits_for_branch(
 
     let first_commit_id = revwalk.next().unwrap().unwrap();
 
-    return Ok(CommitsForBranch {
+    Ok(CommitsForBranch {
         start_commit: first_commit_id.to_string(),
         end_commit: end_commit.id().to_string(),
-    });
+    })
 }

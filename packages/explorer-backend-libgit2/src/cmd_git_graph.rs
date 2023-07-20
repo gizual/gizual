@@ -1,4 +1,3 @@
-use crate::{cmd_branches, utils};
 use git2::{Error, Repository};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -52,7 +51,7 @@ pub struct CommitInfo {
 
 impl fmt::Display for CommitInfo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.oid[0..7].to_string())
+        write!(f, "{}", &self.oid[0..7])
     }
 }
 
@@ -80,8 +79,8 @@ pub struct CommitTree {
     pub dot: String,
 }
 
-pub fn cmd_get_git_graph(mut repo: &mut Repository) -> Result<CommitTree, git2::Error> {
-    let stashes = get_stash_ids(&mut repo)?;
+pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Error> {
+    let stashes = get_stash_ids(repo)?;
 
     let mut walk = repo.revwalk()?;
 
@@ -144,8 +143,8 @@ pub fn cmd_get_git_graph(mut repo: &mut Repository) -> Result<CommitTree, git2::
             let slice_position = message.char_indices().nth(120).unwrap().0;
             message = message[0..slice_position].to_string();
         }
-        if message.contains("\n") {
-            message = message[0..message.find("\n").unwrap()].to_string();
+        if message.contains('\n') {
+            message = message[0..message.find('\n').unwrap()].to_string();
         }
 
         let commit_info = CommitInfo {
@@ -206,12 +205,12 @@ pub fn cmd_get_git_graph(mut repo: &mut Repository) -> Result<CommitTree, git2::
     #[cfg(not(target_arch = "wasm32"))]
     println!("   {}", branch_dots);
 
-    for (i, commit) in commit_infos.iter().enumerate() {
-        let num_parents = commit.parents.iter().filter(|x| x.is_some()).count();
+    for (_i, commit) in commit_infos.iter().enumerate() {
+        let _num_parents = commit.parents.iter().filter(|x| x.is_some()).count();
 
-        let short_id = &commit.oid[..8];
-        let parent_id_1 = commit.parents[0].clone().unwrap_or("".to_string());
-        let parent_id_2 = commit.parents[1].clone().unwrap_or("".to_string());
+        let _short_id = &commit.oid[..8];
+        let _parent_id_1 = commit.parents[0].clone().unwrap_or("".to_string());
+        let _parent_id_2 = commit.parents[1].clone().unwrap_or("".to_string());
 
         let mut branch_indicator = String::new();
         for branch in branches.iter() {
@@ -241,13 +240,13 @@ pub fn cmd_get_git_graph(mut repo: &mut Repository) -> Result<CommitTree, git2::
 
     let mut commit_nodes = HashMap::new();
 
-    for (i, commit) in commit_infos.iter().enumerate() {
+    for (_i, commit) in commit_infos.iter().enumerate() {
         let commit_oid = commit.oid.clone();
         let node_idx = graph.add_node(commit.to_string());
         commit_nodes.insert(commit_oid, node_idx);
     }
 
-    for (i, commit) in commit_infos.iter().enumerate() {
+    for (_i, commit) in commit_infos.iter().enumerate() {
         let commit_oid = commit.oid.clone();
 
         for parent in commit.parents.iter() {
@@ -272,8 +271,8 @@ pub fn cmd_get_git_graph(mut repo: &mut Repository) -> Result<CommitTree, git2::
 
     //utils::print_json(&graph);
 
-    let mut graph = HistoryGraph {
-        commit_indices: commit_indices,
+    let graph = HistoryGraph {
+        commit_indices,
         commits: commit_infos,
         author_indices,
         authors: author_infos,

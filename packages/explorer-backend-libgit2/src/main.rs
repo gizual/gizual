@@ -5,12 +5,8 @@ mod cmd_get_filetree;
 mod cmd_git_graph;
 mod utils;
 
-use serde_json::Value;
-use std::cell::Ref;
-use std::ops::Deref;
-
-use crate::cmd_git_graph::{CommitTree, GetCommitTreeOptions};
-use git2::{BranchType, Repository};
+use crate::cmd_git_graph::CommitTree;
+use git2::Repository;
 use jsonrpc_core::*;
 use jsonrpc_derive::rpc;
 use std::io::BufRead;
@@ -24,8 +20,6 @@ use crate::cmd_get_filetree::{FileTree, GetFileTreeParams};
 use structopt::StructOpt;
 
 #[allow(unused_imports)]
-use asyncify_exports;
-
 #[derive(StructOpt)]
 struct Args {
     #[structopt(name = "repo_path", long, default_value = "/repo")]
@@ -63,16 +57,15 @@ pub trait RpcCommands {
 
 impl RpcHandler {
     fn respond<T: std::fmt::Debug>(&self, data: result::Result<T, git2::Error>) -> Result<T> {
-        if data.is_err() {
-            let err = data.unwrap_err();
-            let message = err.message();
+        if let Err(data) = data {
+            let message = data.message();
             return Err(Error {
                 code: ErrorCode::InternalError,
                 message: message.to_string(),
                 data: None,
             });
         }
-        return Ok(data.unwrap());
+        Ok(data.unwrap())
     }
 }
 
@@ -80,37 +73,37 @@ impl RpcCommands for RpcHandler {
     fn list_branches(&self) -> Result<Vec<String>> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_branches::list_branches(&repo);
-        return self.respond(result);
+        self.respond(result)
     }
 
     fn git_graph(&self) -> Result<CommitTree> {
         let mut repo = self.repo.lock().unwrap();
         let result = cmd_git_graph::cmd_get_git_graph(&mut repo);
-        return self.respond(result);
+        self.respond(result)
     }
 
     fn file_tree(&self, params: GetFileTreeParams) -> Result<FileTree> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_get_filetree::get_filetree(params, &repo);
-        return self.respond(result);
+        self.respond(result)
     }
 
     fn blame(&self, params: BlameParams) -> Result<Blame> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_blame::blame(params, &repo);
-        return self.respond(result);
+        self.respond(result)
     }
 
     fn file_content(&self, params: GetFileContentParams) -> Result<String> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_get_file_content::get_file_content(params, &repo);
-        return self.respond(result);
+        self.respond(result)
     }
 
     fn get_commits_for_branch(&self, branch: String) -> Result<CommitsForBranch> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_branches::get_commits_for_branch(&repo, branch);
-        return self.respond(result);
+        self.respond(result)
     }
 
     fn shutdown(&self) -> Result<bool> {
@@ -130,7 +123,7 @@ fn main() {
 
     let mut io = IoHandler::new();
     let handler = RpcHandler {
-        repo: locked_repo.clone(),
+        repo: locked_repo,
         shutdown_flag: shutdown_flag.clone(),
     };
 
@@ -141,14 +134,12 @@ fn main() {
     let stdin = std::io::stdin();
     println!("{}", initial_msg);
 
-    for line in stdin.lock().lines() {
-        if line.is_ok() {
-            let result = io.handle_request_sync(line.unwrap().as_str());
-            println!("{}", result.unwrap());
-            let shutdown = shutdown_flag.lock().unwrap();
-            if shutdown.eq(&true) {
-                break;
-            }
+    for line in stdin.lock().lines().flatten() {
+        let result = io.handle_request_sync(line.as_str());
+        println!("{}", result.unwrap());
+        let shutdown = shutdown_flag.lock().unwrap();
+        if shutdown.eq(&true) {
+            break;
         }
     }
 }

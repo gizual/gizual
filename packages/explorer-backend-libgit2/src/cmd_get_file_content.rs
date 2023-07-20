@@ -1,4 +1,3 @@
-use crate::utils;
 use git2::{ObjectType, Repository};
 use serde::{Deserialize, Serialize};
 use std::path::Path;

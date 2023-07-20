@@ -2,10 +2,10 @@
   "name": "@giz/explorer-backend-libgit2",
   "module": "dist/explorer-backend-libgit2.wasm",
   "scripts": {
-    "build": "zx build.mjs",
+    "build": "zx cmds.mjs build",
     "dev": "turbowatch",
     "clean": "rimraf dist",
-    "lint": "cargo clippy",
+    "lint": "zx cmds.mjs lint",
     "format": "cargo fmt"
   },
   "devDependencies": {
