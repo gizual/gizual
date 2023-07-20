@@ -15,7 +15,7 @@ const WelcomePage = observer(() => {
         <p className={baseStyle.p}>Welcome to Gizual!</p>
         <div className={baseStyle.card}>
           {mainController.isLoading ? (
-            <Spin tip={"Loading Repository"} size={"large"} style={{ margin: "auto" }}></Spin>
+            <Spin size={"large"} style={{ margin: "auto" }}></Spin>
           ) : (
             <Button
               variant="filled"

@@ -17,7 +17,8 @@ ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
       theme={{
         components: {
           Skeleton: {
-            color: "var(--background-tertiary)",
+            gradientFromColor: "var(--background-secondary)",
+            gradientToColor: "var(--background-tertiary)",
           },
         },
       }}

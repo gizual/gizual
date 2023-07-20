@@ -39,7 +39,7 @@ function FileTree({ root, mode = "tree" }: FileTreeProps) {
     setExpandedNodes(newExpandedNodes);
   });
 
-  const renderNode = (node: FileTreeNode, path: string | undefined) => {
+  const renderNode = (node: FileTreeNode, path?: string) => {
     const fullPath = path ? `${path}/${node.name}` : node.name;
     const isExpanded = expandedNodes.has(fullPath);
     const isDirectory = node.children ? node.children.length > 0 : false;
@@ -89,7 +89,9 @@ function FileTree({ root, mode = "tree" }: FileTreeProps) {
           </div>
           {vm.selectedFiles.length > 0 && <hr className={styles.hr} />}
           {root.children?.map((c) => (
-            <div className={styles.Tree}>{renderNode(c)}</div>
+            <div key={c.name} className={styles.Tree}>
+              {renderNode(c)}
+            </div>
           ))}
         </div>
       )}

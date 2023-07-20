@@ -62,7 +62,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const tickWidth = vm.rulerWidth / visualizedDays;
 
   const ticks = Array.from({ length: tickDays }, (_, i) => (
-    <>
+    <React.Fragment key={i}>
       <line
         key={`-${i}`}
         x1={i * tickWidth + vm.rulerWidth / 2}
@@ -81,7 +81,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
         stroke="var(--foreground-primary)"
         strokeWidth="1"
       />
-    </>
+    </React.Fragment>
   ));
 
   const commits = (
@@ -560,7 +560,7 @@ function Commits({ commits, vm, startDate, endDate, dayWidth, yOffset, radius }:
       toDate(commit.timestamp).getTime() < startDate.getTime() ||
       toDate(commit.timestamp).getTime() > endDate.getTime()
     )
-      return <></>;
+      return <React.Fragment key={i}></React.Fragment>;
     return (
       <Commit commit={commit} key={i} x={commitDay * dayWidth} y={yOffset} r={radius} vm={vm} />
     );
