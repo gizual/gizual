@@ -9,8 +9,8 @@
     "format": "cargo fmt"
   },
   "devDependencies": {
-    "turbowatch": "2.20.0",
-    "wasm-pack": "0.10.3",
-    "zx": "7.2.1"
+    "turbowatch": "2.29.4",
+    "wasm-pack": "0.12.1",
+    "zx": "7.2.3"
   }
 }
