@@ -2,11 +2,11 @@ import * as wasmer from "@wasmer/wasi";
 import { lowerI64Imports } from "@wasmer/wasm-transformer";
 import * as Asyncify from "@xtuc/asyncify-wasm";
 
+import { LOG } from "@giz/logger";
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
 import { debugWrapImports } from "./debug";
 import { AsyncFS } from "./fs";
-import { LOG } from "@giz/logger";
 
 let hasBeenInitialized = false;
 

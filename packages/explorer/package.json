@@ -13,6 +13,6 @@
     "@giz/explorer-backend-libgit2": "workspace:*",
     "@giz/wasi-runtime": "workspace:*",
     "lodash": "4.17.21",
-    "mobx": "6.9.1"
+    "mobx": "6.10.0"
   }
 }
