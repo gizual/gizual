@@ -19,7 +19,7 @@
     "typescript": "5.0.2"
   },
   "scripts": {
-    "dev": "turbo run dev --parallel --concurrency 20",
+    "dev": "turbo run dev --parallel --concurrency 20 --scope gizual-app --include-dependencies",
     "playground": "yarn turbo run dev --scope @giz/wasi-playground-app  --include-dependencies",
     "build": "turbo run build --scope gizual-app --include-dependencies",
     "lint": "turbo run lint",

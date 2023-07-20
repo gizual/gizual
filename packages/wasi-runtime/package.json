@@ -10,7 +10,8 @@
     "@wasmer/wasm-transformer": "0.12.0",
     "@wasmer/wasmfs": "0.12.0",
     "@xtuc/asyncify-wasm": "2.0.0",
-    "comlink": "4.4.1"
+    "comlink": "4.4.1",
+    "tsup": "7.1.0"
   },
   "devDependencies": {
     "turbowatch": "2.20.0",
