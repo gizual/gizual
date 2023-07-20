@@ -1,0 +1,53 @@
+@use "@/mixins" as *;
+
+.App {
+  background-color: var(--background-primary);
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.container {
+  @include shadow-2xl;
+  @include rounded;
+  background-color: var(--background-secondary);
+  width: 70%;
+  position: relative;
+  margin: auto auto;
+  max-width: 800px;
+}
+
+.img {
+  @include rounded;
+  margin-top: 2rem;
+  width: 25%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.h1 {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding-top: 1rem;
+}
+
+p {
+  text-align: center;
+}
+
+.p {
+  padding-top: 1rem;
+}
+
+.card {
+  width: 100%;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  display: flex;
+}
+
+.button {
+  margin: 0 auto;
+  margin-bottom: 1rem;
+}

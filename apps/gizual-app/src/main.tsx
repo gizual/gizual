@@ -1,12 +1,29 @@
+import { ConfigProvider } from "antd";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./app";
+import { MainContext, MainController } from "./controllers";
 
-import "./index.css";
+import "./index.scss";
+
+const mainController = new MainController();
+
+(window as any).mainController = mainController;
 
 ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <MainContext.Provider value={mainController}>
+    <ConfigProvider
+      theme={{
+        components: {
+          Skeleton: {
+            gradientFromColor: "var(--background-secondary)",
+            gradientToColor: "var(--background-tertiary)",
+          },
+        },
+      }}
+    >
+      <App />
+    </ConfigProvider>
+  </MainContext.Provider>
 );

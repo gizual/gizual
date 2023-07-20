@@ -1,0 +1,8 @@
+{
+  "name": "@app/primitives",
+  "main": "./index.ts",
+  "dependencies": {
+    "@app/types": "workspace:*",
+    "@app/utils": "workspace:*"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "name": "@app/types",
+  "main": "./index.ts"
+}

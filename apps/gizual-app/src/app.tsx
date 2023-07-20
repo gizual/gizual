@@ -1,41 +1,19 @@
-import { useState } from "react";
+import { observer } from "mobx-react-lite";
 
-import { createMsg } from "@giz/explorer";
-
-import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
-
-import "./app.css";
+import style from "./app.module.scss";
+import { useMainController } from "./controllers";
+import MainPage from "./pages/main";
+import WelcomePage from "./pages/welcome";
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  const onClick = () => {
-    setCount((count) => count + 1);
-    const msg = createMsg("World!");
-    console.log("Message:", msg);
-  };
+  const mainController = useMainController();
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={onClick}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
+    <div className={style.App}>
+      {mainController.page === "welcome" && <WelcomePage />}
+      {mainController.page === "main" && <MainPage />}
     </div>
   );
 }
 
-export default App;
+export default observer(App);

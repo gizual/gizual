@@ -1,0 +1,120 @@
+@use "@/mixins" as *;
+
+@mixin panel {
+  width: 300px;
+  height: 100%;
+  position: relative;
+  display: flex;
+  padding: 0.5rem 0.5rem;
+  flex-direction: column;
+  gap: 1rem;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+@mixin card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin card-title {
+  text-align: left;
+  font-family: monospace;
+  font-weight: bold;
+  margin: 0.75rem 0 0 0;
+  flex-grow: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.cardTitle {
+  @include card-title;
+}
+
+.card {
+  @include card;
+}
+
+@mixin card-head {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0;
+  flex: 0 0;
+  margin-bottom: 0.5rem;
+}
+
+.cardHead {
+  @include card-head;
+}
+
+@mixin right-aligned-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  justify-self: flex-end;
+}
+
+.right-aligned-group {
+  @include right-aligned-group;
+}
+
+@mixin svg-icon {
+  width: 32px;
+  height: 32px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.panel {
+  @include panel;
+}
+
+@mixin section {
+  @include rounded;
+  width: 100%;
+}
+.section {
+  @include section;
+}
+
+@mixin section-head {
+  background-color: var(--background-tertiary);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-primary);
+
+  h1 {
+    @include text-xl;
+  }
+}
+
+.sectionHead {
+  @include section-head;
+}
+
+@mixin section-body {
+  padding: 0.5rem 1rem;
+}
+
+.sectionBody > * {
+  @include section-body;
+}
+
+@mixin block {
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.block {
+  @include block;
+}
+
+.sectionBody .block:last-of-type {
+  border-bottom: none;
+}

@@ -1,0 +1,15 @@
+.editorHeader {
+  margin-bottom: 1rem;
+}
+
+.editorContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor {
+  display: flex;
+  flex-grow: 1;
+  position: relative;
+  z-index: 500;
+}

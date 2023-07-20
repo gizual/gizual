@@ -7,7 +7,8 @@
   "workspaces": [
     "./apps/*",
     "./packages/*",
-    "./tools/*"
+    "./tools/*",
+    "./apps/gizual-app/src/*"
   ],
   "devDependencies": {
     "husky": "8.0.3",
@@ -18,19 +19,20 @@
     "typescript": "5.0.2"
   },
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
+    "dev": "turbo run dev --parallel --concurrency 20 --scope gizual-app --include-dependencies",
+    "playground": "yarn turbo run dev --scope @giz/wasi-playground-app  --include-dependencies",
+    "build": "turbo run build --scope gizual-app --include-dependencies",
     "lint": "turbo run lint",
     "format": "yarn prettier:fix && turbo run format",
     "test": "turbo run test",
     "clean": "turbo run clean",
     "type-check": "turbo run type-check",
-    "prettier:check": "prettier --check \"{**/*,*}.{js,jsx,ts,tsx,md,html,json,yml,yaml,scss,css,toml}\"",
-    "prettier:fix": "prettier --loglevel warn --write \"{**/*,*}.{js,jsx,ts,tsx,md,html,json,yml,yaml,scss,css,toml}\"",
+    "prettier:check": "prettier --check \"{**/*,*}.{mjs,js,jsx,ts,tsx,md,html,json,yml,yaml,scss,css,toml}\"",
+    "prettier:fix": "prettier --loglevel warn --write \"{**/*,*}.{mjs,js,jsx,ts,tsx,md,html,json,yml,yaml,scss,css,toml}\"",
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,md,css,yaml,yml,json,html,toml}": "prettier --list-different",
+    "*.{mjs,js,jsx,ts,tsx,md,css,yaml,yml,json,html,toml}": "prettier --list-different",
     "*.rs": "cargo fmt --check --"
   },
   "engines": {

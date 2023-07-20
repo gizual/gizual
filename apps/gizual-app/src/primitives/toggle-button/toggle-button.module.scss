@@ -1,0 +1,46 @@
+@use "@/mixins" as *;
+
+.selector {
+  @include rounded;
+  border: none;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  padding: 0.25rem;
+  gap: 0.5rem;
+  background-color: var(--background-tertiary);
+}
+
+.radioButton {
+  flex-grow: 1;
+  display: flex;
+}
+
+.radioButton input[type="radio"] {
+  display: none;
+}
+
+.radioButton label {
+  @include rounded;
+  border: none;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: var(--background-tertiary);
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  text-align: center;
+}
+
+.radioButton input[type="radio"]:checked + label {
+  background-color: var(--accent-main);
+  color: var(--accent-main-fg);
+}
+
+.radioButton label:hover {
+  outline: 1px solid var(--accent-main);
+}
+
+.radioButton input[type="radio"]:focus + label {
+  outline: auto;
+}
