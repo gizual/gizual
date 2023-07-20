@@ -1,10 +1,9 @@
+import { ConfigProvider } from "antd";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./app";
 import { MainContext, MainController } from "./controllers";
-
-import { ConfigProvider } from "antd";
 
 import "./index.scss";
 

@@ -1,9 +1,10 @@
 import clsx from "clsx";
+import { observer } from "mobx-react-lite";
 import React from "react";
+
 import { useMainController } from "../../controllers";
 
 import style from "./title-bar.module.scss";
-import { observer } from "mobx-react-lite";
 
 export const TitleBar = observer(() => {
   const mainController = useMainController();

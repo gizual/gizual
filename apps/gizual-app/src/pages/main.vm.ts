@@ -1,5 +1,5 @@
-import { SearchBarViewModel } from "../primitives/search-bar/search-bar.vm";
 import { MainController } from "../controllers";
+import { SearchBarViewModel } from "../primitives/search-bar/search-bar.vm";
 
 export class MainPageViewModel {
   private _searchBarVM: SearchBarViewModel;

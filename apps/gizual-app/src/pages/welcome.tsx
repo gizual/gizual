@@ -1,15 +1,11 @@
+import { Spin } from "antd";
+import { observer } from "mobx-react-lite";
+
 import baseStyle from "../app.module.scss";
 import { useMainController } from "../controllers";
 import { Button } from "../primitives";
-import { observer } from "mobx-react-lite";
 
-import { Spin } from "antd";
-
-interface WelcomePageProps {
-  cb: () => void;
-}
-
-const WelcomePage = observer((props: WelcomePageProps) => {
+const WelcomePage = observer(() => {
   const mainController = useMainController();
   return (
     <div className={baseStyle.App}>

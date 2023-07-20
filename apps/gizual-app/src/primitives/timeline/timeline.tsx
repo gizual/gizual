@@ -524,7 +524,7 @@ function Commit({ commit, x, y, r = 10, vm, isHighlighted = false }: CommitProps
         )}
         onMouseEnter={() => {
           setHover(true);
-          vm.showTooltip(commit, x, y);
+          vm.showTooltip(commit);
         }}
         onMouseLeave={() => {
           setHover(false);

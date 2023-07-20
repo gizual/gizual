@@ -1,7 +1,7 @@
+import { BranchInfo, CInfo } from "@app/types";
 import { makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
-import { BranchInfo, CInfo } from "@app/types";
 
 export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
 
@@ -67,7 +67,7 @@ export class TimelineViewModel {
     this._isModalVisible = !this._isModalVisible;
   }
 
-  showTooltip(commit: CInfo, x: number, y: number) {
+  showTooltip(commit: CInfo) {
     this._commitTooltip = commit;
     this._isCommitTooltipVisible = true;
   }

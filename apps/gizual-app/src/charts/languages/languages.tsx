@@ -1,6 +1,7 @@
-import { VictoryBar, VictoryPie, VictoryAxis } from "victory";
 import { FileTreeNode } from "@app/types";
+import { VictoryAxis, VictoryBar, VictoryPie } from "victory";
 import { VictoryChart } from "victory-chart";
+
 import { victoryTheme } from "../theme";
 
 type LanguageInfo = {
@@ -77,7 +78,7 @@ export function Languages({ languages, chartType = "bar" }: LanguagesProps) {
           data={data}
           style={{
             data: {
-              fill: ({ datum }) => colorGenerator.next().value,
+              fill: () => colorGenerator.next().value as any,
             },
           }}
         ></VictoryBar>

@@ -1,9 +1,8 @@
+import _ from "lodash";
 import { autorun, makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
 import { FileViewModel } from "../file/file.vm";
-
-import _ from "lodash";
 
 export class CanvasViewModel {
   _mainController: MainController;

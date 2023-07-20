@@ -1,21 +1,20 @@
+import { Container, Languages, parseLanguages } from "@app/charts";
+import { AllContributions } from "@app/charts";
+import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import ReactGridLayout from "react-grid-layout";
 
 import { useMainController } from "../controllers";
 import { TitleBar } from "../primitives";
 import { Canvas } from "../primitives/canvas";
 import { RepoPanel } from "../primitives/repo-panel";
 import SearchBar from "../primitives/search-bar/search-bar";
+import { Select } from "../primitives/select";
 import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
 import { MainPageViewModel } from "./main.vm";
-import ReactGridLayout from "react-grid-layout";
-
-import { useWindowSize } from "@app/utils";
-import { Container, Languages, parseLanguages } from "@app/charts";
-import { AllContributions } from "@app/charts";
-import { Select } from "../primitives/select";
 
 export type MainPageProps = {
   vm?: MainPageViewModel;
@@ -67,10 +66,10 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
     console.log("Canvas dimensions, width:", canvasWidth, "height:", canvasHeight);
   }, [ref, width, height]);
 
-  const [layout, setLayout] = React.useState<ReactGridLayout.Layout[]>([
+  const layout: ReactGridLayout.Layout[] = [
     { i: "a", x: 0, y: 0, w: 2, h: 2 },
     { i: "b", x: 2, y: 0, w: 2, h: 2 },
-  ]);
+  ];
 
   const [languageChartType, setLanguageChartType] = React.useState<"pie" | "bar">("bar");
 

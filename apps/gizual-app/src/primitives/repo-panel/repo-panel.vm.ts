@@ -1,5 +1,5 @@
-import { SelectEntry } from "../select";
 import { MainController } from "../../controllers";
+import { SelectEntry } from "../select";
 
 export class RepoPanelViewModel {
   private _selectCommitData: SelectEntry[];

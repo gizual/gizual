@@ -1,5 +1,6 @@
 import { javascript } from "@codemirror/lang-javascript";
 import { EditorState } from "@codemirror/state";
+import { Extension } from "@codemirror/state";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, gutter, GutterMarker } from "@codemirror/view";
 import { basicSetup } from "codemirror";
@@ -64,9 +65,9 @@ export class EditorViewModel {
 
     const file = this._file;
 
-    const gitGutter = gutter({
+    const gitGutter: Extension = gutter({
       class: "cm-blame-gutter",
-      lineMarker(view, line, other) {
+      lineMarker(view, line, _) {
         return new (class extends GutterMarker {
           _file: FileViewModel;
           constructor(file: FileViewModel) {

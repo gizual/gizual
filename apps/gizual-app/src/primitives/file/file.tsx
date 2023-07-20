@@ -1,7 +1,7 @@
+import { Skeleton } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Skeleton } from "antd";
 
 import { ReactComponent as CloseBox } from "../../assets/icons/close-box.svg";
 import { ReactComponent as UnknownFile } from "../../assets/icons/file-extensions/unknown.svg";
@@ -9,7 +9,6 @@ import { ReactComponent as Plus } from "../../assets/icons/plus.svg";
 import { ReactComponent as Source } from "../../assets/icons/source.svg";
 import { ReactComponent as StarFilled } from "../../assets/icons/star-filled.svg";
 import { ReactComponent as StarOutline } from "../../assets/icons/star-outline.svg";
-import { useMainController } from "../../controllers";
 import { DialogProvider } from "../dialog-provider";
 import { Editor } from "../editor";
 
@@ -21,9 +20,8 @@ export type FileProps = {
   isLoadIndicator?: boolean;
 };
 
-function File({ vm, isLoadIndicator }: FileProps) {
-  const mainController = useMainController();
-  if (!vm) return;
+function File({ vm }: FileProps) {
+  if (!vm) return <></>;
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const fileRef = React.useRef<HTMLDivElement>(null);
@@ -56,15 +54,15 @@ function File({ vm, isLoadIndicator }: FileProps) {
           <Skeleton active />
         </div>
       );
-    } else if (!vm.isValid) {
+    } else if (vm.isValid) {
+      body = <canvas className={style.FileCanvas} ref={canvasRef} />;
+    } else {
       body = (
         <div>
           Invalid file.
           <Skeleton style={{ marginTop: "1rem" }} />
         </div>
       );
-    } else {
-      body = <canvas className={style.FileCanvas} ref={canvasRef} />;
     }
   }
 

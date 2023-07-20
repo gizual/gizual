@@ -3,10 +3,10 @@ import React from "react";
 
 import { useMainController } from "../../controllers";
 import { File } from "../file/";
+import { Timeline } from "../timeline";
 
 import style from "./canvas.module.scss";
 import { CanvasViewModel } from "./canvas.vm";
-import { Timeline } from "../timeline";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;

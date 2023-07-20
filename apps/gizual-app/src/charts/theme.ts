@@ -1,5 +1,5 @@
-import { VictoryTheme } from "victory-core";
 import { VictoryThemeDefinition } from "victory";
+import { VictoryTheme } from "victory-core";
 
 function deepMerge(obj1: Record<string, any>, obj2: Record<string, any>): Record<string, any> {
   const output: Record<string, any> = { ...obj1 };

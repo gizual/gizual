@@ -1,14 +1,14 @@
+import { FileTreeNode } from "@app/types";
+import { Skeleton } from "antd";
 import { action } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import React from "react";
-import { Skeleton } from "antd";
 
 import { useMainController } from "../../controllers";
 
 import styles from "./file-tree.module.scss";
 import { FileTreeViewModel } from "./file-tree.vm";
-import { FileTreeNode } from "@app/types";
 
 type FileTreeProps = {
   root?: FileTreeNode;

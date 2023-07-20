@@ -1,10 +1,11 @@
-import { autorun, makeAutoObservable, runInAction, toJS } from "mobx";
+import { transfer,wrap } from "comlink";
+import { makeAutoObservable, toJS } from "mobx";
 import React from "react";
 
-import { MainController } from "../../controllers";
-import { wrap, transfer } from "comlink";
-import { CanvasWorker } from "./worker/worker";
 import { BlameView } from "@giz/explorer";
+import { MainController } from "../../controllers";
+
+import { CanvasWorker } from "./worker/worker";
 
 export type FileInfo = {
   fileName: string;

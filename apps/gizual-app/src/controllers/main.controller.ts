@@ -1,7 +1,7 @@
-import { makeAutoObservable } from "mobx";
-
 import { FileTreeNode } from "@app/types";
 import { LocalStorage } from "@app/utils";
+import { makeAutoObservable } from "mobx";
+
 import { Repository } from "@giz/explorer";
 
 type Panel = "explore" | "analyze";
@@ -9,13 +9,11 @@ type Panel = "explore" | "analyze";
 export class MainController {
   _selectedFiles: Set<string> = new Set<string>();
   _favouriteFiles: Set<string> = new Set<string>();
-  _selectedBranch = "main";
 
   _coloringMode: "By Age" | "By Author" = "By Age";
   _lineLengthScaling: "Local" | "Global" = "Local";
   _fileTreeRoot?: FileTreeNode;
   _page: "welcome" | "main" = "welcome";
-  _libgit2!: any;
   _selectedPanel: Panel = "explore";
   _isRepoPanelVisible = true;
   _isSettingsPanelVisible = true;
@@ -116,17 +114,17 @@ export class MainController {
     this._coloringMode = mode;
   }
 
-  get coloringMode() {
-    return this._coloringMode;
-  }
+  //get coloringMode() {
+  //  return this._coloringMode;
+  //}
 
   setLineLengthScaling(mode: "Local" | "Global") {
     this._lineLengthScaling = mode;
   }
 
-  get lineLengthScaling() {
-    return this._lineLengthScaling;
-  }
+  //get lineLengthScaling() {
+  //  return this._lineLengthScaling;
+  //}
 
   get isLoading() {
     return this._repo.state === "loading";
@@ -139,11 +137,11 @@ export class MainController {
     this.setPage("main");
   }
 
-  async refreshFileTree() {
-    this._libgit2.getFileTree(this.selectedBranch).then((tree) => {
-      this.setFileTreeRoot(tree);
-    });
-  }
+  //async refreshFileTree() {
+  //  this._libgit2.getFileTree(this.selectedBranch).then((tree) => {
+  //    this.setFileTreeRoot(tree);
+  //  });
+  //}
 
   get page() {
     return this._page;

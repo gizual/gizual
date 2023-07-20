@@ -1,5 +1,6 @@
-import { VictoryLine } from "victory-line";
 import { VictoryChart } from "victory-chart";
+import { VictoryLine } from "victory-line";
+
 import { victoryTheme } from "../theme";
 
 type ContributionEntry = {
@@ -52,4 +53,6 @@ export function AllContributions({ contributions }: AllContributionsProps) {
 
 type AuthorContributionsProps = ContributionEntry & {};
 
-export function AuthorContributions({ contributions }: AuthorContributionsProps) {}
+export function AuthorContributions({ contributions }: AuthorContributionsProps) {
+  return <div>{contributions}</div>;
+}
