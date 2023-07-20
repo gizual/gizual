@@ -14,9 +14,9 @@ type ModuleImports = Record<string, ImportValue>;
 
 const WASI_ESUCCESS = 0;
 const WASI_EBADF = 8;
-const WASI_EINVAL = 28;
+const _WASI_EINVAL = 28;
 const WASI_ENOENT = 44;
-const WASI_ENOSYS = 52;
+const _WASI_ENOSYS = 52;
 
 type DirHandle = {
   fd: number;
@@ -397,7 +397,7 @@ export class AsyncFS {
           }
           return WASI_EBADF;
         },
-        fd_prestat_dir_name: (fd: number, pathPtr: number, pathLen: number) => {
+        fd_prestat_dir_name: (fd: number, pathPtr: number, _pathLen: number) => {
           this.refreshMemory();
 
           if (fd === ROOT_FD) {

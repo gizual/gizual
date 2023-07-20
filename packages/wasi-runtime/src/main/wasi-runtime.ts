@@ -1,10 +1,10 @@
 import * as Comlink from "comlink";
 
+import { LOG, Logger } from "@giz/logger";
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 import type { WasiRuntimeWorker } from "../worker/wasi-runtime-worker";
 
 import { createWorker } from "./create-worker";
-import { LOG, Logger } from "@giz/logger";
 
 export type ExtendedWasiRuntimeOpts = {
   folderMappings: Record<string, FileSystemDirectoryHandle>;

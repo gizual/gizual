@@ -1,10 +1,5 @@
 import { LOG, Logger } from "@giz/logger";
 
-export const EOF = Symbol("EOF");
-type EOF = typeof EOF;
-type InternalCallback = (data: string | EOF) => boolean;
-type Callback = (data: string | EOF) => void;
-
 export class StdIoPipe {
   private data = "";
   private listener: ((data: string) => void) | undefined = undefined;

@@ -20,6 +20,8 @@ use crate::cmd_get_filetree::{FileTree, GetFileTreeParams};
 use structopt::StructOpt;
 
 #[allow(unused_imports)]
+use asyncify_exports;
+
 #[derive(StructOpt)]
 struct Args {
     #[structopt(name = "repo_path", long, default_value = "/repo")]
