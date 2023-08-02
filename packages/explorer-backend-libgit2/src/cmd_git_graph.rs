@@ -19,8 +19,6 @@ pub struct HistoryGraph {
     commit_indices: HashMap<Oid, usize>,
     commits: Vec<CommitInfo>,
     branches: Vec<BranchInfo>,
-    author_indices: HashMap<Aid, usize>,
-    authors: Vec<AuthorInfo>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -89,9 +87,7 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
     walk.push_glob("*")?;
 
     let mut commit_infos = Vec::new();
-    let mut author_infos = Vec::new();
     let mut commit_indices = HashMap::new();
-    let mut author_indices = HashMap::new();
 
     for _oid in walk {
         if _oid.is_err() {
@@ -116,17 +112,6 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
         let author_email = author.email().unwrap().to_string();
 
         let author_id = get_author_id(&author_name, &author_email);
-
-        let author_info = AuthorInfo {
-            id: author_id.clone(),
-            name: author_name,
-            email: author_email,
-        };
-
-        if !author_indices.contains_key(&author_id) {
-            author_infos.push(author_info);
-            author_indices.insert(author_id.clone(), author_infos.len() - 1);
-        }
 
         let mut message = commit.message().unwrap().to_string();
 
@@ -254,8 +239,6 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
     let graph = HistoryGraph {
         commit_indices,
         commits: commit_infos,
-        author_indices,
-        authors: author_infos,
         branches,
     };
 

@@ -97,3 +97,40 @@ export type FileTreeNode = {
   kind?: MimeType | "folder";
   loading?: boolean;
 }
+
+
+export type Oid = string;
+export type Aid = string;
+export interface GitGraph {
+  commit_indices: Map<Oid, number>;
+  commits: CommitInfo[];
+  branches: BranchInfo[];
+}
+
+export interface BranchInfo {
+  id: Oid;
+  name: string;
+  last_commit_id: Oid;
+
+  //source_branch?: number;
+  //source_commit?: number;
+  //target_branch?: number;
+}
+
+export interface CommitInfo {
+  oid: Oid;
+  aid: string;
+  timestamp: string;
+  message: string; // max 1 line bzw max 120 chars
+  parents: [Oid | null, Oid | null];
+  children: Oid[];
+
+  is_merge: boolean;
+}
+
+export interface Author {
+  id: Aid; // hash(concat(name, email))
+  name: string;
+  email: string;
+  gravatarHash: string;
+}

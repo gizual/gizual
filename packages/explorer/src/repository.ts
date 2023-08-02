@@ -1,46 +1,11 @@
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { ObservableSet, action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { BlameView } from "./blame-view";
 import { ExplorerPool } from "./explorer-pool";
 import { PromiseObserver } from "./promise-observer";
 import { FileTreeView } from "./file-tree-view";
+import { Aid, Author } from "./types";
 
-type Oid = string;
-type Aid = string;
-interface GitGraph {
-  commit_indices: Map<Oid, number>;
-  commits: CommitInfo[];
-  branches: BranchInfo[];
-  authors_indices: Map<Aid, number>;
-  authors: AuthorInfo[];
-}
-
-interface AuthorInfo {
-  id: Aid; // hash(concat(name, email))
-  name: string;
-  email: string;
-}
-
-interface BranchInfo {
-  id: Oid;
-  name: string;
-  last_commit_id: Oid;
-
-  //source_branch?: number;
-  //source_commit?: number;
-  //target_branch?: number;
-}
-
-interface CommitInfo {
-  oid: Oid;
-  aid: string;
-  timestamp: string;
-  message: string; // max 1 line bzw max 120 chars
-  parents: [Oid | null, Oid | null];
-  children: Oid[];
-
-  is_merge: boolean;
-}
 
 export class Repository {
   backend?: ExplorerPool;
@@ -55,10 +20,13 @@ export class Repository {
   _fileTree: FileTreeView;
   _blames: BlameView[] = [];
 
+  _authors: Map<Aid, Author>;
+
   constructor(branch?: string, startCommit?: string, endCommit?: string) {
     if (branch) this._selectedBranch = branch;
     if (startCommit) this._selectedStartCommit = startCommit;
     if (endCommit) this._selectedEndCommit = endCommit;
+    this._authors = new Map();
     this._fileTree = new FileTreeView(this);
 
     makeObservable(this, {
@@ -68,7 +36,17 @@ export class Repository {
       _selectedEndCommit: observable,
       _gitGraph: observable,
       _setState: action,
+      authors: computed,
+      _authors: observable,
     });
+  }
+
+  get authors() {
+    return Array.from(this._authors.values());
+  }
+
+  getAuthor(aid: Aid): Author | undefined {
+    return this._authors.get(aid);
   }
 
   _setState(state: "uninitialized" | "loading" | "ready" | "error") {
@@ -125,6 +103,7 @@ export class Repository {
     });
 
     this._fileTree.update();
+    this._loadAuthors();
 
   }
 
@@ -189,5 +168,13 @@ export class Repository {
     for (const blame of this._blames) {
       blame._refresh();
     }
+  }
+
+  _loadAuthors() {
+    this.backend?.streamAuthors((author) => {
+      this._authors.set(author.id, author);
+    }, () => {}, () => {
+      console.error("Stream authors failed");
+    });
   }
 }
