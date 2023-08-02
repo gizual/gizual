@@ -8,33 +8,36 @@ pub struct GetFileTreeParams {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct FileTree {
-    name: String,
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    children: Vec<FileTree>,
+pub struct FileTreeNode {
+    path: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    mime_type: Option<String>,
+    kind: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    loading: Option<bool>,
 }
 
-pub fn get_filetree(params: GetFileTreeParams, repo: &Repository) -> Result<FileTree, git2::Error> {
+pub fn get_filetree(params: GetFileTreeParams, repo: &Repository) -> Result<bool, git2::Error> {
     let branch = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
     let commit = branch.get().peel_to_commit()?;
     let tree = commit.tree()?;
 
-    let file_tree = build_file_tree(repo, &tree, "");
+    traverse_tree(repo, &tree, Vec::new());
 
-    Ok(file_tree)
+    Ok(true)
 }
 
-fn build_file_tree(repo: &Repository, tree: &Tree, name: &str) -> FileTree {
-    let mut filetree = FileTree {
-        name: name.to_string(),
-        children: Vec::new(),
-        mime_type: None,
-    };
+// Traverse the file tree breadth-first and print findings as json objects
+fn traverse_tree(repo: &Repository, tree: &Tree, prefix: Vec<String>) {
+    let mut sub_trees: Vec<(Vec<String>, Tree)> = Vec::new();
 
     for entry in tree.iter() {
         let entry_name = entry.name().unwrap().to_string();
+
+        let path = {
+            let mut path = prefix.clone();
+            path.push(entry_name.clone());
+            path
+        };
 
         if entry.kind() == Some(ObjectType::Tree) {
             if let Some(subtree) = entry
@@ -42,22 +45,37 @@ fn build_file_tree(repo: &Repository, tree: &Tree, name: &str) -> FileTree {
                 .ok()
                 .and_then(|object| object.peel_to_tree().ok())
             {
-                let subtree = build_file_tree(repo, &subtree, entry_name.as_str());
+                let entry = FileTreeNode {
+                    path: path.clone(),
+                    kind: Some("folder".to_string()),
+                    loading: Some(true),
+                };
 
-                filetree.children.push(subtree);
+                sub_trees.push((path, subtree));
+                println!("{}", serde_json::to_string(&entry).unwrap());
             }
         } else {
-            let file = FileTree {
-                name: entry_name.clone(),
-                children: Vec::new(),
-                mime_type: MimeGuess::from_path(entry_name.as_str())
+            let entry = FileTreeNode {
+                path,
+                kind: MimeGuess::from_path(entry_name.as_str())
                     .first()
                     .map(|m| m.to_string()),
+                loading: None,
             };
 
-            filetree.children.push(file);
+            println!("{}", serde_json::to_string(&entry).unwrap());
         }
     }
 
-    filetree
+    for (path, subtree) in sub_trees {
+        traverse_tree(repo.clone(), &subtree, path);
+    }
+
+    let entry = FileTreeNode {
+        path: prefix,
+        kind: Some("folder".to_string()),
+        loading: Some(false),
+    };
+
+    println!("{}", serde_json::to_string(&entry).unwrap());
 }

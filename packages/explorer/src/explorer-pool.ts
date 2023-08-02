@@ -2,21 +2,57 @@ import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-lib
 import { LOG, Logger } from "@giz/logger";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
-import { Blame, FileTree, isBlame, isFileTree } from "./types";
+import { Blame, FileTreeNode, isBlame, isFileTree } from "./types";
+import { isNumber, isString } from "lodash";
 
 const SKIP_VALIDATION = true;
-const MAX_WORKERS = 3;
 
 type WorkerWithState = {
   busy: boolean;
   handle: WasiRuntime;
 };
 
-type Job = {
-  resolve: (value: any) => void;
-  reject: (reason?: any) => void;
+type CommandJob = {
   method: string;
   params?: any[];
+  onErr: (err: any) => void;
+  onEnd: (data: any) => void;
+};
+
+function isJob(obj: any): obj is Job {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "method" in obj &&
+    typeof obj.method === "string" &&
+    ("params" in obj ? Array.isArray(obj.params) : true) &&
+    "onErr" in obj &&
+    typeof obj.onErr === "function" &&
+    "onEnd" in obj &&
+    typeof obj.onEnd === "function"
+  );
+}
+
+type StreamJob = {
+  method: string;
+  params?: any[];
+  onEnd: () => void;
+  onData: (data: any) => void;
+  onErr: (err: any) => void;
+};
+
+function isStreamJob(obj: any): obj is StreamJob {
+  return isJob(obj) && "onData" in obj && typeof obj.onData === "function";
+}
+
+type Job = CommandJob | StreamJob;
+
+const a: Job = {
+  method: "blame",
+  params: ["path"],
+  onData: (data: Blame) => {},
+  onEnd: () => {},
+  onErr: (err: any) => {},
 };
 
 async function createWorker(handle: FileSystemDirectoryHandle) {
@@ -40,6 +76,8 @@ async function createWorker(handle: FileSystemDirectoryHandle) {
   return runtime;
 }
 
+const MAX_CONCURRENCY = navigator.hardwareConcurrency || 4;
+
 export class ExplorerPool {
   private workers: WorkerWithState[];
   private jobQueue: any[];
@@ -52,7 +90,7 @@ export class ExplorerPool {
     this.logger = LOG.getSubLogger({ name: "Explorer" });
   }
 
-  static async create(handle: FileSystemDirectoryHandle, numWorkers: number = MAX_WORKERS) {
+  static async create(handle: FileSystemDirectoryHandle, numWorkers: number = MAX_CONCURRENCY) {
     const workerPromises: Promise<WasiRuntime>[] = [];
 
     for (let i = 0; i < numWorkers; i++) {
@@ -68,15 +106,19 @@ export class ExplorerPool {
   execute(method: string, params?: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
       this.enqueueJob({
-        resolve,
-        reject,
+        onEnd: resolve,
+        onErr: reject,
         method,
         params,
       });
     });
   }
 
-  enqueueJob(job: Job) {
+  executeStream(job: StreamJob): void {
+    this.enqueueJob(job);
+  }
+
+  private enqueueJob(job: Job) {
     this.jobQueue.push(job);
     this.dispatchJob();
   }
@@ -95,14 +137,29 @@ export class ExplorerPool {
     const payloadString = JSON.stringify(payload) + "\n";
     worker.handle.writeStdin(payloadString);
 
-    const stdout = await worker.handle.readStdout();
-    const data = JSON.parse(stdout);
-    //this.logger.trace("result", data);
+    while (worker.busy) {
+      const stdout = await worker.handle.readStdout();
+      const data = JSON.parse(stdout);
 
-    if (data.error) {
-      job.reject(new Error(data.error.message));
-    } else {
-      job.resolve(data.result);
+      const isIntermediateResponse = !isString(data?.jsonrpc);
+      //this.logger.trace("stdout", stdout);
+
+      if (data.error) {
+        job.onErr(new Error(data.error.message));
+      }
+      if (!isIntermediateResponse) {
+        job.onEnd(data.result);
+        break;
+      } else if (isStreamJob(job) && isIntermediateResponse) {
+        job.onData(data);
+      } else {
+        job.onErr(
+          new Error(
+            `Unexpected stream response: isIntermediateResponse=${isIntermediateResponse} isStreamJob=${isStreamJob}`,
+          ),
+        );
+        break;
+      }
     }
     worker.busy = false;
     this.dispatchJob();
@@ -141,8 +198,8 @@ export class ExplorerPool {
     throw new TypeError("Unexpected output");
   }
 
-  async getBlame(branch: string, path: string): Promise<Blame> {
-    const output = await this.execute("blame", [{ branch, path }]);
+  async getBlame(branch: string, path: string, preview?: boolean): Promise<Blame> {
+    const output = await this.execute("blame", [{ branch, path, preview }]);
 
     if (SKIP_VALIDATION || isBlame(output)) {
       return output;
@@ -154,16 +211,22 @@ export class ExplorerPool {
     return this.execute("file_content", [{ branch, path }]);
   }
 
-  async getFileTree(branch: string): Promise<FileTree> {
-    const output = await this.execute("file_tree", [{ branch }]);
-
-    if (SKIP_VALIDATION || isFileTree(output)) {
-      return output;
-    }
-    throw new TypeError("Unexpected output");
-  }
-
   async getGitGraph() {
     return this.execute("git_graph");
+  }
+
+  async streamFileTree(
+    branch: string,
+    onData: (data: FileTreeNode) => void,
+    onEnd: () => void,
+    onErr: (err: any) => void,
+  ) {
+    this.executeStream({
+      method: "file_tree",
+      params: [{ branch }],
+      onData,
+      onEnd,
+      onErr,
+    });
   }
 }

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
+use crate::utils::get_author_id;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Blame {
@@ -25,10 +26,8 @@ struct BlameLine {
 struct CommitInfo {
     #[serde(rename = "commitId")]
     commit_id: String,
-    #[serde(rename = "authorName")]
-    author_name: String,
-    #[serde(rename = "authorEmail")]
-    author_email: String,
+    #[serde(rename = "authorId")]
+    author_id: String,
     timestamp: String,
 }
 
@@ -36,6 +35,8 @@ struct CommitInfo {
 pub struct BlameParams {
     pub branch: String,
     pub path: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub preview: Option<bool>,
 }
 
 pub fn blame(params: BlameParams, repo: &Repository) -> Result<Blame, git2::Error> {
@@ -53,15 +54,23 @@ pub fn blame(params: BlameParams, repo: &Repository) -> Result<Blame, git2::Erro
 
     let commit_id = commit.id();
 
-    // determine commit which is 2 commits older than commit
-    let parent = commit.parent(0).unwrap();
-    let parent_id = parent.id();
-
     let mut opts = BlameOptions::new();
 
     let spec = format!("{}:{}", commit_id, path.display());
 
-    let mut opts = opts.newest_commit(commit_id).oldest_commit(parent_id);
+    let mut opts = opts
+        .newest_commit(commit_id)
+        .track_copies_any_commit_copies(true)
+        .track_copies_same_commit_copies(true)
+        .track_copies_same_commit_moves(true)
+        .track_copies_same_file(true);
+
+    if let Some(true) = params.preview {
+        opts = opts
+            .first_parent(true)
+            .oldest_commit(commit.parent(0).unwrap().id());
+    }
+
     let blame = repo.blame_file(path, Some(&mut opts))?;
 
     let object = repo.revparse_single(&spec[..])?;
@@ -80,13 +89,18 @@ pub fn blame(params: BlameParams, repo: &Repository) -> Result<Blame, git2::Erro
                 content: line.to_string(),
             });
 
+            let author_name = String::from_utf8_lossy(sig.name_bytes()).to_string();
+            let author_email = String::from_utf8_lossy(sig.email_bytes()).to_string();
+
+            let author_id = get_author_id(&author_name, &author_email);
+
+
             if !result.commits.contains_key(commit_id.clone().as_str()) {
                 result.commits.insert(
                     commit_id.clone(),
                     CommitInfo {
                         commit_id: commit_id.to_string(),
-                        author_name: String::from_utf8_lossy(sig.name_bytes()).to_string(),
-                        author_email: String::from_utf8_lossy(sig.email_bytes()).to_string(),
+                        author_id,
                         timestamp: sig.when().seconds().to_string(),
                     },
                 );

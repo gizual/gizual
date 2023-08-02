@@ -43,9 +43,9 @@ export class MainController {
   }
 
   get fileTreeRoot(): FileTreeNode | undefined {
-    if (this._repo.state !== "ready" || this._repo.fileTree.loading) return undefined;
+    if (this._repo.state !== "ready") return undefined;
 
-    return this._repo.fileTree.value;
+    return this._repo.fileTree.tree;
     //return this._fileTreeRoot;
   }
 
