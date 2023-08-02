@@ -1,3 +1,4 @@
+mod cmd_authors;
 mod cmd_blame;
 mod cmd_branches;
 mod cmd_get_file_content;
@@ -38,6 +39,9 @@ pub trait RpcCommands {
     #[rpc(name = "list_branches")]
     fn list_branches(&self) -> Result<Vec<String>>;
 
+    #[rpc(name = "stream_authors")]
+    fn stream_authors(&self) -> Result<bool>;
+
     #[rpc(name = "git_graph")]
     fn git_graph(&self) -> Result<CommitTree>;
 
@@ -75,6 +79,12 @@ impl RpcCommands for RpcHandler {
     fn list_branches(&self) -> Result<Vec<String>> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_branches::list_branches(&repo);
+        self.respond(result)
+    }
+
+    fn stream_authors(&self) -> Result<bool> {
+        let repo = self.repo.lock().unwrap();
+        let result = cmd_authors::stream_authors(&repo);
         self.respond(result)
     }
 

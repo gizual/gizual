@@ -2,7 +2,7 @@ import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-lib
 import { LOG, Logger } from "@giz/logger";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
-import { Blame, FileTreeNode, isBlame, isFileTree } from "./types";
+import { Author, Blame, FileTreeNode, isBlame, isFileTree } from "./types";
 import { isNumber, isString } from "lodash";
 
 const SKIP_VALIDATION = true;
@@ -224,6 +224,20 @@ export class ExplorerPool {
     this.executeStream({
       method: "file_tree",
       params: [{ branch }],
+      onData,
+      onEnd,
+      onErr,
+    });
+  }
+
+  async streamAuthors(
+    onData: (data: Author) => void,
+    onEnd: () => void,
+    onErr: (err: any) => void,
+  ) {
+    this.executeStream({
+      method: "stream_authors",
+      params: [],
       onData,
       onEnd,
       onErr,
