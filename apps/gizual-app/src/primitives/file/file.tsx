@@ -1,4 +1,4 @@
-import { Skeleton } from "antd";
+import { Skeleton, Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -34,6 +34,10 @@ function File({ vm }: FileProps) {
   React.useEffect(() => {
     if (vm.shouldRedraw) vm.draw();
   }, [vm.shouldRedraw]);
+
+  React.useEffect(() => {
+    vm.draw();
+  }, [vm._blameView.isPreview]);
 
   React.useEffect(() => {
     vm.assignFileRef(fileRef);
@@ -90,7 +94,13 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
   ) : (
     <div className={style.FileHead}>
       <div className={style.FileHeadLeft}>
-        <UnknownFile className={style.FileIcon} />
+        {vm._blameView.isPreview ? (
+          <div style={{ display: "flex", alignItems: "center", width: "32px" }}>
+            <Spin size={"large"} />
+          </div>
+        ) : (
+          <UnknownFile className={style.FileIcon} />
+        )}
         <p className={style.FileTitle} title={vm.fileName}>
           {vm.fileName}
         </p>
