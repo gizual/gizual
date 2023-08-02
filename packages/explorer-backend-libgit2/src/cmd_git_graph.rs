@@ -7,9 +7,9 @@ use std::{
 
 use petgraph::dot::{Config, Dot};
 use petgraph::graph::DiGraph;
-use std::collections::hash_map::DefaultHasher;
 use std::fmt;
-use std::hash::{Hash, Hasher};
+
+use crate::utils::get_author_id;
 
 type Oid = String;
 type Aid = String;
@@ -115,14 +115,7 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
         let author_name = author.name().unwrap().to_string();
         let author_email = author.email().unwrap().to_string();
 
-        let mut s = DefaultHasher::new();
-        author_name.hash(&mut s);
-        author_email.hash(&mut s);
-
-        // to hex string
-        let author_id = format!("{:x}", s.finish());
-
-        // generate author id from name and email via a hash
+        let author_id = get_author_id(&author_name, &author_email);
 
         let author_info = AuthorInfo {
             id: author_id.clone(),
@@ -221,19 +214,6 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
                 branch_indicator = branch_indicator.add(" ");
             }
         }
-
-        #[cfg(not(target_arch = "wasm32"))]
-        println!(
-            "{:2}: {} {} has {} children and {} parents;  p1:{}, p2:{}; {}",
-            i,
-            branch_indicator,
-            short_id,
-            commit.children.len(),
-            num_parents,
-            parent_id_1,
-            parent_id_2,
-            commit.message
-        );
     }
 
     let mut graph: DiGraph<String, i32> = DiGraph::new();

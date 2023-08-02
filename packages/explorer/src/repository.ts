@@ -3,7 +3,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { BlameView } from "./blame-view";
 import { ExplorerPool } from "./explorer-pool";
 import { PromiseObserver } from "./promise-observer";
-import { FileTree } from "./types";
+import { FileTreeView } from "./file-tree-view";
 
 type Oid = string;
 type Aid = string;
@@ -52,13 +52,14 @@ export class Repository {
   _selectedEndCommit!: string;
 
   _gitGraph?: PromiseObserver<GitGraph>;
-  _fileTree?: PromiseObserver<FileTree>;
+  _fileTree: FileTreeView;
   _blames: BlameView[] = [];
 
   constructor(branch?: string, startCommit?: string, endCommit?: string) {
     if (branch) this._selectedBranch = branch;
     if (startCommit) this._selectedStartCommit = startCommit;
     if (endCommit) this._selectedEndCommit = endCommit;
+    this._fileTree = new FileTreeView(this);
 
     makeObservable(this, {
       _state: observable,
@@ -115,14 +116,6 @@ export class Repository {
       },
     });
 
-    this._fileTree = new PromiseObserver<FileTree>({
-      name: `FileTree`,
-      initialPromise: {
-        create: (b) => backend.getFileTree(b),
-        args: [defaultBranch],
-      },
-    });
-
     runInAction(() => {
       this.backend = backend;
       this._selectedBranch = defaultBranch;
@@ -130,6 +123,9 @@ export class Repository {
       this._selectedEndCommit = endCommitId;
       this._setState("ready");
     });
+
+    this._fileTree.update();
+
   }
 
   get selectedBranch() {
@@ -150,7 +146,7 @@ export class Repository {
 
   setBranch(branch: string) {
     this._selectedBranch = branch;
-    this._updateFileTree();
+    this._fileTree.update();
     this._updateBlames();
   }
 
@@ -159,13 +155,7 @@ export class Repository {
     this._selectedEndCommit = end;
   }
 
-  async _updateFileTree() {
-    if (!this.backend) {
-      throw new Error("Backend not initialized");
-    }
-
-    this._fileTree?.update((b) => this.backend!.getFileTree(b), this._selectedBranch);
-  }
+ 
 
   get gitGraph() {
     if (!this._gitGraph) {
@@ -175,9 +165,6 @@ export class Repository {
   }
 
   get fileTree() {
-    if (!this._fileTree) {
-      throw new Error("fileTree not initialized");
-    }
     return this._fileTree;
   }
 

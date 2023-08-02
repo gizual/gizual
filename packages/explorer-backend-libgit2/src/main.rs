@@ -16,7 +16,7 @@ use std::sync::{Arc, Mutex};
 use crate::cmd_blame::{Blame, BlameParams};
 use crate::cmd_branches::CommitsForBranch;
 use crate::cmd_get_file_content::GetFileContentParams;
-use crate::cmd_get_filetree::{FileTree, GetFileTreeParams};
+use crate::cmd_get_filetree::GetFileTreeParams;
 use structopt::StructOpt;
 
 #[allow(unused_imports)]
@@ -42,7 +42,7 @@ pub trait RpcCommands {
     fn git_graph(&self) -> Result<CommitTree>;
 
     #[rpc(name = "file_tree")]
-    fn file_tree(&self, params: GetFileTreeParams) -> Result<FileTree>;
+    fn file_tree(&self, params: GetFileTreeParams) -> Result<bool>;
 
     #[rpc(name = "blame")]
     fn blame(&self, params: BlameParams) -> Result<Blame>;
@@ -84,7 +84,7 @@ impl RpcCommands for RpcHandler {
         self.respond(result)
     }
 
-    fn file_tree(&self, params: GetFileTreeParams) -> Result<FileTree> {
+    fn file_tree(&self, params: GetFileTreeParams) -> Result<bool> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_get_filetree::get_filetree(params, &repo);
         self.respond(result)

@@ -38,9 +38,7 @@ export function isBlameLine(obj: any): obj is BlameLine {
 }
 
 export interface CommitInfo {
-  commitId: string;
-  authorName: string;
-  authorEmail: string;
+  authorId: string;
   timestamp: string;
 }
 
@@ -48,11 +46,8 @@ export function isCommitInfo(obj: any): obj is CommitInfo {
   return (
     typeof obj === "object" &&
     obj !== null &&
-    "commitId" in obj &&
-    typeof obj.commitId === "string" &&
-    "authorName" in obj &&
-    typeof obj.authorName === "string" &&
-    "authorEmail" in obj &&
+    "authorId" in obj &&
+    typeof obj.authorId === "string" &&
     typeof obj.authorEmail === "string" &&
     "timestamp" in obj &&
     typeof obj.timestamp === "string"
@@ -75,9 +70,12 @@ export function isFileContent(obj: any): obj is FileContent {
   );
 }
 
+type MimeType = string & { __mimeType?: number };
+
 export type FileTree = {
   name: string;
-  mime_type?: string;
+  kind?: MimeType | "folder";
+  loading?: boolean;
   children?: FileTree[];
 };
 
@@ -91,4 +89,11 @@ export function isFileTree(obj: any): obj is FileTree {
       obj.children?.every(isFileTree)) ||
     true
   );
+}
+
+
+export type FileTreeNode = {
+  path: string[];
+  kind?: MimeType | "folder";
+  loading?: boolean;
 }
