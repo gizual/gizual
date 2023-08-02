@@ -1,4 +1,3 @@
-import { ConfigProvider } from "antd";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
@@ -13,17 +12,6 @@ const mainController = new MainController();
 
 ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
   <MainContext.Provider value={mainController}>
-    <ConfigProvider
-      theme={{
-        components: {
-          Skeleton: {
-            gradientFromColor: "var(--background-secondary)",
-            gradientToColor: "var(--background-tertiary)",
-          },
-        },
-      }}
-    >
-      <App />
-    </ConfigProvider>
-  </MainContext.Provider>
+    <App />
+  </MainContext.Provider>,
 );
