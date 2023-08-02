@@ -17,6 +17,8 @@ export class MainController {
   _selectedPanel: Panel = "explore";
   _isRepoPanelVisible = true;
   _isSettingsPanelVisible = true;
+
+  _scale = 1;
   _repo: Repository;
 
   private _startDate: Date;
@@ -29,6 +31,7 @@ export class MainController {
 
     this._startDate = new Date("2023-01-01");
     this._endDate = new Date("2023-08-01");
+    this.setScale(1);
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
@@ -128,17 +131,17 @@ export class MainController {
     this._coloringMode = mode;
   }
 
-  //get coloringMode() {
-  //  return this._coloringMode;
-  //}
+  get coloringMode() {
+    return this._coloringMode;
+  }
 
   setLineLengthScaling(mode: "Local" | "Global") {
     this._lineLengthScaling = mode;
   }
 
-  //get lineLengthScaling() {
-  //  return this._lineLengthScaling;
-  //}
+  get lineLengthScaling() {
+    return this._lineLengthScaling;
+  }
 
   get isLoading() {
     return this._repo.state === "loading";
@@ -179,5 +182,16 @@ export class MainController {
 
   get endDate() {
     return this._endDate;
+  }
+
+  setScale(scale: number) {
+    const root = document.documentElement;
+    root.style.setProperty("--canvas-scale", scale.toString());
+    root.style.setProperty("--canvas-scale-reverse", (1 / scale).toString());
+    this._scale = scale;
+  }
+
+  get scale() {
+    return this._scale;
   }
 }
