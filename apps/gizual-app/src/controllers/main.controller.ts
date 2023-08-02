@@ -1,5 +1,5 @@
 import { FileTreeNode } from "@app/types";
-import { LocalStorage } from "@app/utils";
+import { BAND_COLOR_RANGE, getBandColorScale, LocalStorage } from "@app/utils";
 import { makeAutoObservable } from "mobx";
 
 import { Repository } from "@giz/explorer";
@@ -114,17 +114,18 @@ export class MainController {
   }
 
   get authors() {
-    if (this._repo.state !== "ready" || this._repo.gitGraph.loading) return [];
-    const authors = this._repo.gitGraph.value?.authors;
-    if (!authors) return [];
-    return authors;
+    return this._repo.authors;
   }
 
-  get authorsIndices() {
-    if (this._repo.state !== "ready" || this._repo.gitGraph.loading) return [];
-    const indices = this._repo.gitGraph.value?.authors_indices;
-    if (!indices) return [];
-    return indices;
+  get authorColorScale() {
+    return getBandColorScale(
+      this.authors.map((a) => a.id),
+      BAND_COLOR_RANGE,
+    );
+  }
+
+  getAuthorById(id: string) {
+    return this._repo.getAuthor(id);
   }
 
   setColoringMode(mode: "By Age" | "By Author") {
@@ -153,12 +154,6 @@ export class MainController {
 
     this.setPage("main");
   }
-
-  //async refreshFileTree() {
-  //  this._libgit2.getFileTree(this.selectedBranch).then((tree) => {
-  //    this.setFileTreeRoot(tree);
-  //  });
-  //}
 
   get page() {
     return this._page;

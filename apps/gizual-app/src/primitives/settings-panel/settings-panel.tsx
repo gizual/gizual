@@ -39,7 +39,12 @@ export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) =
           </div>
           <div className={sharedStyle.block}>
             <h3>Authors</h3>
-            <Table size={"small"} dataSource={vm.authors} columns={vm.columns}></Table>
+            <Table
+              size={"small"}
+              dataSource={vm.authors}
+              columns={vm.columns}
+              pagination={{ pageSizeOptions: [5, 10, 15] }}
+            ></Table>
           </div>
         </div>
       </div>

@@ -117,10 +117,11 @@ export class CanvasWorker {
         ? getColorScale(timeRange, colorRange)(updatedAt)
         : SPECIAL_COLORS.NOT_LOADED;
     } else {
+      const author = fileContext.authors.find((a) => a.id === line.commit?.authorId);
       return getBandColorScale(
-        fileContext.authors.map((a) => a.email),
+        fileContext.authors.map((a) => a.id),
         BAND_COLOR_RANGE,
-      )(line.commit?.authorEmail ?? "");
+      )(author?.id ?? "");
     }
   }
 }

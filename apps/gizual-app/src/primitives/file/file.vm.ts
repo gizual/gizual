@@ -285,7 +285,7 @@ export class FileViewModel {
 
     console.log("[gizual-app] UI thread: starting worker draw");
     const drawResult = CanvasWorkerProxy.draw({
-      authors: toJS(this._mainController.authors),
+      authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(this.fileContent),
       earliestTimestamp: toJS(this.earliestTimestamp),
       latestTimestamp: toJS(this.latestTimestamp),
