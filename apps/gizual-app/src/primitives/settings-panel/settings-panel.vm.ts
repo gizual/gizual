@@ -1,19 +1,19 @@
 import { makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
-
-const LineLengthScalingValues = ["Local", "Global"] as const;
-export type LineLengthScaling = (typeof LineLengthScalingValues)[number];
-
-function isLineLengthScaling(value: string): value is LineLengthScaling {
-  return LineLengthScalingValues.includes(value as LineLengthScaling);
-}
+import type { ColumnsType } from "antd/es/table";
 
 const ColoringModeValues = ["By Age", "By Author"] as const;
 export type ColoringMode = (typeof ColoringModeValues)[number];
 
 function isColoringMode(value: string): value is ColoringMode {
   return ColoringModeValues.includes(value as ColoringMode);
+}
+
+interface AuthorType {
+  key: React.Key;
+  name: string;
+  email: string;
 }
 
 export class SettingsPanelViewModel {
@@ -24,13 +24,6 @@ export class SettingsPanelViewModel {
 
     makeAutoObservable(this);
   }
-
-  onLineLengthScalingChange = (value: string) => {
-    if (!isLineLengthScaling(value)) {
-      return;
-    }
-    this._mainController.setLineLengthScaling(value);
-  };
 
   onColoringModeChange = (value: string) => {
     if (!isColoringMode(value)) {
@@ -43,7 +36,24 @@ export class SettingsPanelViewModel {
     return ColoringModeValues;
   }
 
-  get toggleLineLengthScalingValues() {
-    return LineLengthScalingValues;
+  get authors() {
+    return this._mainController.authors.map((author) => {
+      return { key: author.email, name: author.name, email: author.email };
+    });
+  }
+
+  get columns() {
+    const columns: ColumnsType<AuthorType> = [
+      {
+        title: "Name",
+        dataIndex: "name",
+        defaultSortOrder: "descend",
+      },
+      {
+        title: "Email",
+        dataIndex: "email",
+      },
+    ];
+    return columns;
   }
 }

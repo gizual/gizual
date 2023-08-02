@@ -5,13 +5,16 @@ import sharedStyle from "../css/shared-styles.module.scss";
 import { ToggleButton } from "../toggle-button";
 
 import style from "./settings-panel.module.scss";
-import { ColoringMode, LineLengthScaling, SettingsPanelViewModel } from "./settings-panel.vm";
+import { ColoringMode, SettingsPanelViewModel } from "./settings-panel.vm";
+
+import { Table } from "antd";
+import { observer } from "mobx-react-lite";
 
 export type SettingsPanelProps = {
   vm?: SettingsPanelViewModel;
 };
 
-export function SettingsPanel({ vm: externalVm }: SettingsPanelProps) {
+export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) => {
   const mainController = useMainController();
   const vm: SettingsPanelViewModel = React.useMemo(() => {
     return externalVm || new SettingsPanelViewModel(mainController);
@@ -29,23 +32,17 @@ export function SettingsPanel({ vm: externalVm }: SettingsPanelProps) {
             <ToggleButton<ColoringMode>
               ariaLabel="Coloring mode"
               values={vm.toggleColoringValues}
-              defaultChecked={0}
+              selected={mainController.coloringMode}
               toggleName="coloringMode"
               onChange={(n) => vm.onColoringModeChange(n)}
             />
           </div>
           <div className={sharedStyle.block}>
-            <h3>Line length scaling</h3>
-            <ToggleButton<LineLengthScaling>
-              ariaLabel="Line length scaling"
-              values={vm.toggleLineLengthScalingValues}
-              defaultChecked={0}
-              toggleName="lineLengthScaling"
-              onChange={(n) => vm.onLineLengthScalingChange(n)}
-            />
+            <h3>Authors</h3>
+            <Table size={"small"} dataSource={vm.authors} columns={vm.columns}></Table>
           </div>
         </div>
       </div>
     </div>
   );
-}
+});

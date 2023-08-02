@@ -1,6 +1,5 @@
 import { BranchInfo, CInfo } from "@app/types";
 import { useWindowSize } from "@app/utils";
-import { InputNumber } from "antd";
 import { Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
@@ -87,7 +86,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const commits = (
     branch?: ParsedBranch,
     yOffset = vm.rowHeight / 2,
-    radius = vm.commitSizeTop
+    radius = vm.commitSizeTop,
   ) => {
     if (!branch) return;
     return (
@@ -107,7 +106,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     return (
       Math.floor(
         (x - boundingRect.width * (vm.leftColWidth / vm.viewBox.width)) /
-          ((boundingRect.width * vm.rulerWidth) / vm.viewBox.width / numDays)
+          ((boundingRect.width * vm.rulerWidth) / vm.viewBox.width / numDays),
       ) + 1
     );
   };
@@ -140,7 +139,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
       x = Math.min(
         x,
         boundingRect.width * (vm.leftColWidth / vm.viewBox.width) +
-          boundingRect.width * (1 - (vm.leftColWidth + 3 * vm.padding) / vm.viewBox.width)
+          boundingRect.width * (1 - (vm.leftColWidth + 3 * vm.padding) / vm.viewBox.width),
       );
       x = Math.max(x, boundingRect.width * (vm.leftColWidth / vm.viewBox.width));
 
@@ -251,41 +250,13 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     <div className={style.TimelineContainer} id={"TimelineContainer"}>
       <div className={style.TimelineHeader}>
         <h1 className={style.Header}>Timeline</h1>
-        <Button variant={"filled"} onClick={() => vm.toggleModal()} style={{ width: "80px" }}>
+        <Button
+          variant={"filled"}
+          onClick={() => vm.toggleModal()}
+          style={{ width: "80px", marginRight: "1rem" }}
+        >
           {vm.isModalVisible ? "Close" : "Expand"}
         </Button>
-        <div>
-          <p style={{ fontSize: "0.75rem", lineHeight: "0.75rem" }}>Spacing</p>
-          <InputNumber
-            placeholder={"Spacing"}
-            value={vm.laneSpacing}
-            onChange={(v) => vm.setSpacing(v)}
-            style={{ width: "50px" }}
-            size={"small"}
-          />
-        </div>
-
-        <div>
-          <p style={{ fontSize: "0.75rem", lineHeight: "0.75rem" }}>CSizeT</p>
-          <InputNumber
-            placeholder={"Commit Size Top"}
-            value={vm.commitSizeTop}
-            onChange={(v) => vm.setCommitSizeTop(v)}
-            style={{ width: "50px" }}
-            size={"small"}
-          />
-        </div>
-
-        <div>
-          <p style={{ fontSize: "0.75rem", lineHeight: "0.75rem" }}>CSizeM</p>
-          <InputNumber
-            placeholder={"Commit Size Modal"}
-            value={vm.commitSizeModal}
-            onChange={(v) => vm.setCommitSizeModal(v)}
-            style={{ width: "50px" }}
-            size={"small"}
-          />
-        </div>
       </div>
 
       <div
@@ -472,7 +443,7 @@ const TimelineGraph = observer(
         </Translate>
       </Translate>
     );
-  }
+  },
 );
 
 type TimelineGraphSvgProps = TimelineGraphProps & {
@@ -494,7 +465,7 @@ const TimelineGraphSvg = observer(
         <TimelineGraph commits={commits} vm={vm} height={50} branch={branch} />
       </svg>
     );
-  }
+  },
 );
 
 type CommitProps = {
@@ -520,7 +491,7 @@ function Commit({ commit, x, y, r = 10, vm, isHighlighted = false }: CommitProps
         className={clsx(
           style.CommitCircle,
           hover && style.CommitCircleHover,
-          isHighlighted && style.CommitCircleHover
+          isHighlighted && style.CommitCircleHover,
         )}
         onMouseEnter={() => {
           setHover(true);

@@ -110,6 +110,20 @@ export class MainController {
     return this.branches.map((b) => b.name);
   }
 
+  get authors() {
+    if (this._repo.state !== "ready" || this._repo.gitGraph.loading) return [];
+    const authors = this._repo.gitGraph.value?.authors;
+    if (!authors) return [];
+    return authors;
+  }
+
+  get authorsIndices() {
+    if (this._repo.state !== "ready" || this._repo.gitGraph.loading) return [];
+    const indices = this._repo.gitGraph.value?.authors_indices;
+    if (!indices) return [];
+    return indices;
+  }
+
   setColoringMode(mode: "By Age" | "By Author") {
     this._coloringMode = mode;
   }
