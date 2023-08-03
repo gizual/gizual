@@ -1,8 +1,7 @@
-import { FileTreeNode } from "@app/types";
-import { LocalStorage } from "@app/utils";
+import { BAND_COLOR_RANGE, getBandColorScale, LocalStorage } from "@app/utils";
 import { makeAutoObservable } from "mobx";
 
-import { Repository } from "@giz/explorer";
+import { FileTree, Repository } from "@giz/explorer";
 
 type Panel = "explore" | "analyze";
 
@@ -12,11 +11,13 @@ export class MainController {
 
   _coloringMode: "By Age" | "By Author" = "By Age";
   _lineLengthScaling: "Local" | "Global" = "Local";
-  _fileTreeRoot?: FileTreeNode;
+  _fileTreeRoot?: FileTree;
   _page: "welcome" | "main" = "welcome";
   _selectedPanel: Panel = "explore";
   _isRepoPanelVisible = true;
   _isSettingsPanelVisible = true;
+
+  _scale = 1;
   _repo: Repository;
 
   private _startDate: Date;
@@ -29,6 +30,7 @@ export class MainController {
 
     this._startDate = new Date("2023-01-01");
     this._endDate = new Date("2023-08-01");
+    this.setScale(1);
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
@@ -42,14 +44,14 @@ export class MainController {
     return [...this._selectedFiles.values()];
   }
 
-  get fileTreeRoot(): FileTreeNode | undefined {
+  get fileTreeRoot(): FileTree | undefined {
     if (this._repo.state !== "ready") return undefined;
 
     return this._repo.fileTree.tree;
     //return this._fileTreeRoot;
   }
 
-  setFileTreeRoot(root: FileTreeNode) {
+  setFileTreeRoot(root: FileTree) {
     this._fileTreeRoot = root;
   }
 
@@ -110,21 +112,36 @@ export class MainController {
     return this.branches.map((b) => b.name);
   }
 
+  get authors() {
+    return this._repo.authors;
+  }
+
+  get authorColorScale() {
+    return getBandColorScale(
+      this.authors.map((a) => a.id),
+      BAND_COLOR_RANGE,
+    );
+  }
+
+  getAuthorById(id: string) {
+    return this._repo.getAuthor(id);
+  }
+
   setColoringMode(mode: "By Age" | "By Author") {
     this._coloringMode = mode;
   }
 
-  //get coloringMode() {
-  //  return this._coloringMode;
-  //}
+  get coloringMode() {
+    return this._coloringMode;
+  }
 
   setLineLengthScaling(mode: "Local" | "Global") {
     this._lineLengthScaling = mode;
   }
 
-  //get lineLengthScaling() {
-  //  return this._lineLengthScaling;
-  //}
+  get lineLengthScaling() {
+    return this._lineLengthScaling;
+  }
 
   get isLoading() {
     return this._repo.state === "loading";
@@ -136,12 +153,6 @@ export class MainController {
 
     this.setPage("main");
   }
-
-  //async refreshFileTree() {
-  //  this._libgit2.getFileTree(this.selectedBranch).then((tree) => {
-  //    this.setFileTreeRoot(tree);
-  //  });
-  //}
 
   get page() {
     return this._page;
@@ -165,5 +176,16 @@ export class MainController {
 
   get endDate() {
     return this._endDate;
+  }
+
+  setScale(scale: number) {
+    const root = document.documentElement;
+    root.style.setProperty("--canvas-scale", scale.toString());
+    root.style.setProperty("--canvas-scale-reverse", (1 / scale).toString());
+    this._scale = scale;
+  }
+
+  get scale() {
+    return this._scale;
   }
 }

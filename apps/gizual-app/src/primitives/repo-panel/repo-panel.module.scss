@@ -8,3 +8,8 @@
 .fileTree {
   margin-bottom: 10rem;
 }
+
+.sectionHead {
+  @include section-head;
+  justify-content: space-between;
+}

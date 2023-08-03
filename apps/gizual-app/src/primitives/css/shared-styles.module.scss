@@ -85,6 +85,8 @@
   background-color: var(--background-tertiary);
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: row;
 
   h1 {
     @include text-xl;

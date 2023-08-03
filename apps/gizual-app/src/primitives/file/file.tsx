@@ -1,4 +1,4 @@
-import { Skeleton } from "antd";
+import { Skeleton, Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -30,6 +30,14 @@ function File({ vm }: FileProps) {
     vm.assignCanvasRef(canvasRef);
     vm.draw();
   }, [canvasRef, vm.loading]);
+
+  React.useEffect(() => {
+    if (vm.shouldRedraw) vm.draw();
+  }, [vm.shouldRedraw]);
+
+  React.useEffect(() => {
+    vm.draw();
+  }, [vm._blameView.isPreview]);
 
   React.useEffect(() => {
     vm.assignFileRef(fileRef);
@@ -85,26 +93,34 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
     <div className={style.FileHead} />
   ) : (
     <div className={style.FileHead}>
-      <UnknownFile className={style.FileIcon} />
-      <p className={style.FileTitle} title={vm.fileName}>
-        {vm.fileName}
-      </p>
-      {vm.isFavourite ? (
-        <StarFilled
-          className={style.FavouriteIcon}
-          onClick={() => {
-            vm.unsetFavourite();
-          }}
-        />
-      ) : (
-        <StarOutline
-          className={style.FavouriteIconUnfilled}
-          onClick={() => {
-            vm.setFavourite();
-          }}
-        />
-      )}
+      <div className={style.FileHeadLeft}>
+        {vm._blameView.isPreview ? (
+          <div style={{ display: "flex", alignItems: "center", minWidth: "32px" }}>
+            <Spin size={"large"} />
+          </div>
+        ) : (
+          <UnknownFile className={style.FileIcon} />
+        )}
+        <p className={style.FileTitle} title={vm.fileName}>
+          {vm.fileName}
+        </p>
+      </div>
       <div className={style.FileActions}>
+        {vm.isFavourite ? (
+          <StarFilled
+            className={style.FavouriteIcon}
+            onClick={() => {
+              vm.unsetFavourite();
+            }}
+          />
+        ) : (
+          <StarOutline
+            className={style.FavouriteIconUnfilled}
+            onClick={() => {
+              vm.setFavourite();
+            }}
+          />
+        )}
         <DialogProvider
           trigger={
             <div>

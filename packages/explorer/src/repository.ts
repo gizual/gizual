@@ -1,11 +1,10 @@
-import { ObservableSet, action, computed, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { BlameView } from "./blame-view";
 import { ExplorerPool } from "./explorer-pool";
 import { PromiseObserver } from "./promise-observer";
 import { FileTreeView } from "./file-tree-view";
-import { Aid, Author } from "./types";
-
+import { Aid, Author, GitGraph } from "./types";
 
 export class Repository {
   backend?: ExplorerPool;
@@ -104,7 +103,6 @@ export class Repository {
 
     this._fileTree.update();
     this._loadAuthors();
-
   }
 
   get selectedBranch() {
@@ -133,8 +131,6 @@ export class Repository {
     this._selectedStartCommit = start;
     this._selectedEndCommit = end;
   }
-
- 
 
   get gitGraph() {
     if (!this._gitGraph) {
@@ -171,10 +167,16 @@ export class Repository {
   }
 
   _loadAuthors() {
-    this.backend?.streamAuthors((author) => {
-      this._authors.set(author.id, author);
-    }, () => {}, () => {
-      console.error("Stream authors failed");
-    });
+    this.backend?.streamAuthors(
+      (author) => {
+        runInAction(() => {
+          this._authors.set(author.id, author);
+        });
+      },
+      () => {},
+      () => {
+        console.error("Stream authors failed");
+      },
+    );
   }
 }

@@ -3,6 +3,19 @@
 
 .FileHead {
   @include shared.card-head;
+  margin-bottom: calc(0.5rem * var(--canvas-scale-reverse));
+  flex: unset;
+}
+
+.FileHeadLeft {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0;
+  overflow: hidden;
+  @include adjust-scale-with-canvas;
+  transform-origin: bottom left;
 }
 
 .FileIcon {
@@ -34,6 +47,8 @@
 
 .FileActions {
   @include shared.right-aligned-group;
+  @include adjust-scale-with-canvas;
+  transform-origin: bottom right;
 }
 
 .FileActionIcon {
@@ -72,7 +87,7 @@
 }
 
 .FileBody {
-  @include rounded;
+  border: 1px solid var(--border-primary);
   flex: 1 0;
   position: relative;
 }

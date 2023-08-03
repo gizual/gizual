@@ -1,5 +1,6 @@
 declare const classNames: {
   readonly FileHead: "FileHead";
+  readonly FileHeadLeft: "FileHeadLeft";
   readonly FileIcon: "FileIcon";
   readonly FileTitle: "FileTitle";
   readonly FavouriteIcon: "FavouriteIcon";
