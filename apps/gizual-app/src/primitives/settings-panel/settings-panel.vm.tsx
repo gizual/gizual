@@ -74,7 +74,7 @@ export class SettingsPanelViewModel {
         dataIndex: "avatar",
         render: (_, record) => (
           <Avatar
-            src={`https://www.gravatar.com/avatar/${record.avatar}`}
+            src={`https://www.gravatar.com/avatar/${record.avatar}?d=retro`}
             style={{ border: "1px solid var(--border-primary)", width: 28, height: 28 }}
           />
         ),
