@@ -6,6 +6,7 @@ import sharedStyle from "../css/shared-styles.module.scss";
 import FileTree from "../file-tree/file-tree";
 import style from "./repo-panel.module.scss";
 import { useMainController } from "@app/controllers";
+import { Spin } from "antd";
 
 export const RepoPanel = observer(() => {
   const mainController = useMainController();
@@ -28,8 +29,9 @@ export const RepoPanel = observer(() => {
         </div>
       )*/}
       <div className={clsx(sharedStyle.section, style.fileTree)}>
-        <div className={sharedStyle.sectionHead}>
+        <div className={style.sectionHead}>
           <h1>Files</h1>
+          <Spin size={"large"} spinning={mainController._repo.fileTree.loading} />
         </div>
         <div className={sharedStyle.sectionBody}>
           <FileTree />
