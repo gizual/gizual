@@ -273,7 +273,6 @@ export class FileViewModel {
     rect.height = rect.height * (1 / scale);
 
     if (this._canvasRef?.current) {
-      console.log("Assigning canvas size", rect);
       this._canvasRef.current.style.width = `${rect.width}px`;
       this._canvasRef.current.style.height = `${rect.height}px`;
     }
@@ -283,7 +282,7 @@ export class FileViewModel {
       throw new Error("Could not assign canvas worker");
     }
 
-    console.log("[gizual-app] UI thread: starting worker draw");
+    //console.log("[gizual-app] UI thread: starting worker draw");
     const drawResult = CanvasWorkerProxy.draw({
       authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(this.fileContent),
@@ -301,7 +300,7 @@ export class FileViewModel {
       if (!result) return;
       fileContainer.style.width = result.width;
       this.setColors(result.colors);
-      console.log("[gizual-app] UI thread: draw result", result);
+      //console.log("[gizual-app] UI thread: draw result", result);
       this.setLastDrawScale(scale);
       this.setLastDrawnColorMode(coloringMode);
       this.incrementRedrawCount();

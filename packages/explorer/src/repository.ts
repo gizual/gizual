@@ -169,7 +169,9 @@ export class Repository {
   _loadAuthors() {
     this.backend?.streamAuthors(
       (author) => {
-        this._authors.set(author.id, author);
+        runInAction(() => {
+          this._authors.set(author.id, author);
+        });
       },
       () => {},
       () => {

@@ -30,7 +30,10 @@
 }
 
 .Tree {
-  border-radius: 4px;
+  background-color: unset;
+  :global(.ant-tree-treenode-selected .ant-tree-title) {
+    background-color: unset;
+  }
 }
 
 .hr {

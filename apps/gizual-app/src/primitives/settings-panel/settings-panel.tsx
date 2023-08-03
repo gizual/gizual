@@ -7,7 +7,7 @@ import { ToggleButton } from "../toggle-button";
 import style from "./settings-panel.module.scss";
 import { ColoringMode, SettingsPanelViewModel } from "./settings-panel.vm";
 
-import { Table } from "antd";
+import { Skeleton, Table } from "antd";
 import { observer } from "mobx-react-lite";
 
 export type SettingsPanelProps = {
@@ -39,12 +39,16 @@ export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) =
           </div>
           <div className={sharedStyle.block}>
             <h3>Authors</h3>
-            <Table
-              size={"small"}
-              dataSource={vm.authors}
-              columns={vm.columns}
-              pagination={{ pageSizeOptions: [5, 10, 15] }}
-            ></Table>
+            {vm.authors.length > 0 ? (
+              <Table
+                size={"small"}
+                dataSource={vm.authors}
+                columns={vm.columns}
+                pagination={{ pageSizeOptions: [5, 10, 15] }}
+              />
+            ) : (
+              <Skeleton active />
+            )}
           </div>
         </div>
       </div>

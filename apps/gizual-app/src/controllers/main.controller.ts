@@ -1,8 +1,7 @@
-import { FileTreeNode } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale, LocalStorage } from "@app/utils";
 import { makeAutoObservable } from "mobx";
 
-import { Repository } from "@giz/explorer";
+import { FileTree, Repository } from "@giz/explorer";
 
 type Panel = "explore" | "analyze";
 
@@ -12,7 +11,7 @@ export class MainController {
 
   _coloringMode: "By Age" | "By Author" = "By Age";
   _lineLengthScaling: "Local" | "Global" = "Local";
-  _fileTreeRoot?: FileTreeNode;
+  _fileTreeRoot?: FileTree;
   _page: "welcome" | "main" = "welcome";
   _selectedPanel: Panel = "explore";
   _isRepoPanelVisible = true;
@@ -45,14 +44,14 @@ export class MainController {
     return [...this._selectedFiles.values()];
   }
 
-  get fileTreeRoot(): FileTreeNode | undefined {
+  get fileTreeRoot(): FileTree | undefined {
     if (this._repo.state !== "ready") return undefined;
 
     return this._repo.fileTree.tree;
     //return this._fileTreeRoot;
   }
 
-  setFileTreeRoot(root: FileTreeNode) {
+  setFileTreeRoot(root: FileTree) {
     this._fileTreeRoot = root;
   }
 

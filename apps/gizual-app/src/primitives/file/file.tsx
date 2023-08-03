@@ -95,7 +95,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
     <div className={style.FileHead}>
       <div className={style.FileHeadLeft}>
         {vm._blameView.isPreview ? (
-          <div style={{ display: "flex", alignItems: "center", width: "32px" }}>
+          <div style={{ display: "flex", alignItems: "center", minWidth: "32px" }}>
             <Spin size={"large"} />
           </div>
         ) : (

@@ -96,7 +96,6 @@ export class CanvasWorker {
       10 * fileCtx.dpr,
     );
 
-    console.log("[gizual-app] [canvas-worker] draw finished");
     const blob = await canvas.convertToBlob();
     return { img: blob, width: `${nc * 300}px`, colors };
   }
