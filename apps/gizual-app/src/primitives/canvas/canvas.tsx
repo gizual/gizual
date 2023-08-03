@@ -29,6 +29,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           initialScale={1}
           initialPositionX={0}
           initialPositionY={0}
+          wheel={{ smoothStep: 0.005 }}
           onTransformed={(
             ref: ReactZoomPanPinchRef,
             state: {
