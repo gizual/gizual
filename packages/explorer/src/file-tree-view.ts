@@ -1,6 +1,7 @@
 import { action, makeAutoObservable } from "mobx";
 import type { Repository } from "./repository";
 import type { FileTree, FileTreeNode } from "./types";
+import { getFileIcon } from "./file-icon-db";
 
 export class FileTreeView {
   loading: boolean = false;
@@ -29,6 +30,8 @@ export class FileTreeView {
     this.tree = {
       name: "",
       children: [],
+      kind: "folder",
+      loading: true,
     };
     const branch = this.repo.selectedBranch;
     this.repo.backend.streamFileTree(branch, this._onData, this._onEnd, this._onErr);

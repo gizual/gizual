@@ -74,7 +74,7 @@ type MimeType = string & { __mimeType?: number };
 
 export type FileTree = {
   name: string;
-  kind?: MimeType | "folder";
+  kind?: number | "folder";
   loading?: boolean;
   children?: FileTree[];
 };
@@ -94,7 +94,7 @@ export function isFileTree(obj: any): obj is FileTree {
 
 export type FileTreeNode = {
   path: string[];
-  kind?: MimeType | "folder";
+  kind?: number | "folder";
   loading?: boolean;
 }
 

@@ -5,6 +5,11 @@ mod cmd_get_file_content;
 mod cmd_get_filetree;
 mod cmd_git_graph;
 mod utils;
+mod file_types;
+mod file_types_db;
+
+#[macro_use]
+extern crate lazy_static;
 
 use crate::cmd_git_graph::CommitTree;
 use git2::Repository;
