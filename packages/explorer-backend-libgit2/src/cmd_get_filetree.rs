@@ -1,6 +1,9 @@
 use git2::{ObjectType, Repository, Tree};
-use mime_guess::MimeGuess;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+use crate::file_types::get_file_type;
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetFileTreeParams {
@@ -11,7 +14,7 @@ pub struct GetFileTreeParams {
 pub struct FileTreeNode {
     path: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    kind: Option<String>,
+    kind: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     loading: Option<bool>,
 }
@@ -47,7 +50,7 @@ fn traverse_tree(repo: &Repository, tree: &Tree, prefix: Vec<String>) {
             {
                 let entry = FileTreeNode {
                     path: path.clone(),
-                    kind: Some("folder".to_string()),
+                    kind: Some("folder".into()),
                     loading: Some(true),
                 };
 
@@ -57,9 +60,7 @@ fn traverse_tree(repo: &Repository, tree: &Tree, prefix: Vec<String>) {
         } else {
             let entry = FileTreeNode {
                 path,
-                kind: MimeGuess::from_path(entry_name.as_str())
-                    .first()
-                    .map(|m| m.to_string()),
+                kind: Some(get_file_type(&entry_name).into()),
                 loading: None,
             };
 
@@ -73,7 +74,7 @@ fn traverse_tree(repo: &Repository, tree: &Tree, prefix: Vec<String>) {
 
     let entry = FileTreeNode {
         path: prefix,
-        kind: Some("folder".to_string()),
+        kind: Some("folder".into()),
         loading: Some(false),
     };
 
