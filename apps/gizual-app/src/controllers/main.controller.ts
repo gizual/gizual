@@ -1,21 +1,23 @@
-import { BAND_COLOR_RANGE, getBandColorScale, LocalStorage } from "@app/utils";
+import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
 import { makeAutoObservable } from "mobx";
-
 import { FileTree, Repository } from "@giz/explorer";
+import { ColoringMode, FileNodeInfos } from "@app/types";
+import { ViewModelController } from "./vm.controller";
 
 type Panel = "explore" | "analyze";
 
 export class MainController {
-  _selectedFiles: Set<string> = new Set<string>();
+  _selectedFiles: Map<string, FileNodeInfos | {}> = new Map();
   _favouriteFiles: Set<string> = new Set<string>();
 
-  _coloringMode: "By Age" | "By Author" = "By Age";
-  _lineLengthScaling: "Local" | "Global" = "Local";
+  _coloringMode: ColoringMode = "age";
   _fileTreeRoot?: FileTree;
   _page: "welcome" | "main" = "welcome";
   _selectedPanel: Panel = "explore";
-  _isRepoPanelVisible = true;
-  _isSettingsPanelVisible = true;
+
+  _vmController = new ViewModelController();
+  _numActiveWorkers = 0;
+  _isBusy = false;
 
   _scale = 1;
   _repo: Repository;
@@ -24,8 +26,6 @@ export class MainController {
   private _endDate: Date;
 
   constructor() {
-    this._isRepoPanelVisible = LocalStorage.getBoolean("isRepoPanelVisible") ?? true;
-    this._isSettingsPanelVisible = LocalStorage.getBoolean("isSettingsPanelVisible") ?? true;
     this._repo = new Repository();
 
     this._startDate = new Date("2023-01-01");
@@ -34,14 +34,18 @@ export class MainController {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  toggleFile(name: string) {
+  toggleFile(name: string, info?: FileNodeInfos) {
     if (this._selectedFiles.has(name)) {
       this._selectedFiles.delete(name);
-    } else this._selectedFiles.add(name);
+    } else this._selectedFiles.set(name, info ?? {});
   }
 
   get selectedFiles(): string[] {
-    return [...this._selectedFiles.values()];
+    return [...this._selectedFiles.keys()];
+  }
+
+  getFileNode(key: string) {
+    return this._selectedFiles.get(key);
   }
 
   get fileTreeRoot(): FileTree | undefined {
@@ -61,24 +65,6 @@ export class MainController {
 
   get selectedPanel() {
     return this._selectedPanel;
-  }
-
-  setRepoPanelVisibility(visible: boolean) {
-    this._isRepoPanelVisible = visible;
-    LocalStorage.setItem("isRepoPanelVisible", this._isRepoPanelVisible.toString());
-  }
-
-  get isRepoPanelVisible() {
-    return this._isRepoPanelVisible;
-  }
-
-  setSettingsPanelVisibility(visible: boolean) {
-    this._isSettingsPanelVisible = visible;
-    LocalStorage.setItem("isSettingsPanelVisible", this._isSettingsPanelVisible.toString());
-  }
-
-  get isSettingsPanelVisible() {
-    return this._isSettingsPanelVisible;
   }
 
   toggleFavourite(name: string) {
@@ -127,20 +113,12 @@ export class MainController {
     return this._repo.getAuthor(id);
   }
 
-  setColoringMode(mode: "By Age" | "By Author") {
+  setColoringMode(mode: ColoringMode) {
     this._coloringMode = mode;
   }
 
   get coloringMode() {
     return this._coloringMode;
-  }
-
-  setLineLengthScaling(mode: "Local" | "Global") {
-    this._lineLengthScaling = mode;
-  }
-
-  get lineLengthScaling() {
-    return this._lineLengthScaling;
   }
 
   get isLoading() {
@@ -187,5 +165,34 @@ export class MainController {
 
   get scale() {
     return this._scale;
+  }
+
+  get vmController() {
+    return this._vmController;
+  }
+
+  get isBusy() {
+    return this.isLoading;
+  }
+
+  setIsBusy(busy: boolean) {
+    this._isBusy = busy;
+  }
+
+  get numActiveWorkers() {
+    return this._numActiveWorkers;
+  }
+
+  setNumActiveWorkers(n: number) {
+    this._numActiveWorkers = n;
+  }
+
+  decrementNumActiveWorkers() {
+    this._numActiveWorkers--;
+    if (this.numActiveWorkers < 0) this._numActiveWorkers = 0;
+  }
+
+  incrementNumActiveWorkers() {
+    this._numActiveWorkers++;
   }
 }

@@ -16,6 +16,7 @@ import { IconButton } from "../icon-button";
 
 import style from "./search-bar.module.scss";
 import { AvailableTags, SearchBarViewModel } from "./search-bar.vm";
+import { useMainController, useViewModelController } from "@app/controllers";
 
 const myTheme = createTheme({
   theme: "dark",
@@ -63,24 +64,31 @@ const customParser = StreamLanguage.define(
       { regex: /:(\S+)/, token: "emphasis", next: "start" },
       { regex: /./, token: "text" },
     ],
-  })
+  }),
 );
 
 export type SearchBarProps = {
-  vm: SearchBarViewModel;
+  vm?: SearchBarViewModel;
 };
 
-function SearchBar({ vm }: SearchBarProps) {
+function SearchBar({ vm: externalVm }: SearchBarProps) {
+  const mainController = useMainController();
+  const vmController = useViewModelController();
+
+  const vm: SearchBarViewModel = React.useMemo(() => {
+    return externalVm || new SearchBarViewModel(mainController);
+  }, [externalVm]);
+
   return (
     <div className={style.searchBar}>
       <div className={style.content}>
-        <IconButton onClick={vm.onToggleRepoPanel}>
+        <IconButton onClick={vmController.toggleRepoPanelVisibility}>
           <TreeIcon />
         </IconButton>
         <div id="inputWrapper" className={style.searchInputWrapper}>
           <SearchInput vm={vm} />
         </div>
-        <IconButton onClick={vm.onToggleSettingsPanel}>
+        <IconButton onClick={vmController.toggleSettingsPanelVisibility}>
           <SettingsIcon />
         </IconButton>
       </div>
@@ -88,7 +96,7 @@ function SearchBar({ vm }: SearchBarProps) {
   );
 }
 
-const SearchInput = observer(({ vm }: SearchBarProps) => {
+const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
   const ref = React.useRef<ReactCodeMirrorRef>(null);
 
   const customKeymap = keymap.of([

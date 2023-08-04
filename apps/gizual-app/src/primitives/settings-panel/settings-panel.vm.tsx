@@ -3,13 +3,7 @@ import { makeAutoObservable } from "mobx";
 import { MainController } from "../../controllers";
 import type { ColumnsType } from "antd/es/table";
 import { Avatar } from "antd";
-
-const ColoringModeValues = ["By Age", "By Author"] as const;
-export type ColoringMode = (typeof ColoringModeValues)[number];
-
-function isColoringMode(value: string): value is ColoringMode {
-  return ColoringModeValues.includes(value as ColoringMode);
-}
+import { ColoringMode, ColoringModeLabels } from "@app/types";
 
 interface AuthorType {
   key: React.Key;
@@ -28,15 +22,12 @@ export class SettingsPanelViewModel {
     makeAutoObservable(this);
   }
 
-  onColoringModeChange = (value: string) => {
-    if (!isColoringMode(value)) {
-      return;
-    }
+  onColoringModeChange = (value: ColoringMode) => {
     this._mainController.setColoringMode(value);
   };
 
   get toggleColoringValues() {
-    return ColoringModeValues;
+    return Object.entries(ColoringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
   get authors(): AuthorType[] {

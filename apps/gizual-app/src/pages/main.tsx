@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
 
-import { useMainController } from "../controllers";
+import { useMainController, useViewModelController } from "../controllers";
 import { TitleBar } from "../primitives";
 import { Canvas } from "../primitives/canvas";
 import { RepoPanel } from "../primitives/repo-panel";
@@ -31,7 +31,7 @@ function MainPage({ vm: externalVm }: MainPageProps) {
     <div className={style.page}>
       <div style={{ position: "relative" }}>
         <TitleBar />
-        {mainController.selectedPanel === "explore" && <SearchBar vm={vm.searchBarVM} />}
+        {mainController.selectedPanel === "explore" && <SearchBar />}
       </div>
       <div className={style.body}>
         {mainController.selectedPanel === "explore" && <ExplorePage vm={vm} />}
@@ -42,18 +42,20 @@ function MainPage({ vm: externalVm }: MainPageProps) {
 }
 
 const ExplorePage = observer(({ vm }: MainPageProps) => {
+  const vmController = useViewModelController();
   if (!vm) return <div />;
 
   return (
     <>
-      {vm.isRepoPanelVisible && <RepoPanel />}
+      {vmController.isRepoPanelVisible && <RepoPanel />}
       <Canvas />
-      {vm.isSettingsPanelVisible && <SettingsPanel />}
+      {vmController.isSettingsPanelVisible && <SettingsPanel />}
     </>
   );
 });
 
 const AnalyzePage = observer(({ vm }: MainPageProps) => {
+  const mainController = useMainController();
   if (!vm) return <div />;
   const [width, height] = useWindowSize();
   const [canvasWidth, setCanvasWidth] = React.useState(0);
@@ -63,7 +65,6 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
   React.useEffect(() => {
     setCanvasWidth(ref.current?.clientWidth ?? width);
     setCanvasHeight(ref.current?.clientHeight ?? height);
-    console.log("Canvas dimensions, width:", canvasWidth, "height:", canvasHeight);
   }, [ref, width, height]);
 
   const layout: ReactGridLayout.Layout[] = [
@@ -73,8 +74,8 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
 
   const [languageChartType, setLanguageChartType] = React.useState<"pie" | "bar">("bar");
 
-  if (!vm.mainController.fileTreeRoot) return <div />;
-  const languageData = parseLanguages(vm.mainController.fileTreeRoot);
+  if (!mainController.fileTreeRoot) return <div />;
+  const languageData = parseLanguages(mainController.fileTreeRoot);
 
   return (
     <div ref={ref} style={{ width: "100%", height: "100%" }}>

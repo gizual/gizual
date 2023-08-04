@@ -1,7 +1,7 @@
 import { expose } from "comlink";
 
-import { MainController } from "../../../controllers";
-import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SPECIAL_COLORS } from "../../../utils";
+import { MainController } from "@app/controllers";
+import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SPECIAL_COLORS } from "@app/utils";
 import { FileViewModel, Line } from "../file.vm";
 
 export type FileContext = {
@@ -101,7 +101,7 @@ export class CanvasWorker {
   }
 
   interpolateColor(line: Line, fileContext: FileContext) {
-    if (fileContext.coloringMode === "By Age") {
+    if (fileContext.coloringMode === "age") {
       const updatedAt = +(line.commit?.timestamp ?? 0);
       const timeRange: [number, number] = [
         fileContext.earliestTimestamp,

@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React, { MouseEventHandler } from "react";
 
-import { useMainController } from "../../controllers";
+import { useMainController, useViewModelController } from "../../controllers";
 import { Button } from "../button";
 
 import style from "./timeline.module.scss";
@@ -21,6 +21,7 @@ function toDate(timestamp: string) {
 
 export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const mainController = useMainController();
+  const vmController = useViewModelController();
 
   const vm: TimelineViewModel = React.useMemo(() => {
     return externalVm || new TimelineViewModel(mainController);
@@ -231,8 +232,8 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   }, [
     svgContainerRef,
     width,
-    vm.mainController.isRepoPanelVisible,
-    vm.mainController.isSettingsPanelVisible,
+    vmController.isRepoPanelVisible,
+    vmController.isSettingsPanelVisible,
     vm.branches,
   ]);
 

@@ -34,8 +34,6 @@ export const AvailableTags: Tag[] = [
 ];
 
 export class SearchBarViewModel {
-  _toggleRepoPanel: () => void;
-  _toggleSettingsPanel: () => void;
   _searchBarRef: React.RefObject<ReactCodeMirrorRef> | undefined;
   _mainController: MainController;
   _searchString = "";
@@ -46,25 +44,11 @@ export class SearchBarViewModel {
     tags: [] as SelectedTag[],
   });
 
-  constructor(
-    toggleRepoPanel: () => void,
-    toggleSettingsPanel: () => void,
-    mainController: MainController
-  ) {
-    this._toggleRepoPanel = toggleRepoPanel;
-    this._toggleSettingsPanel = toggleSettingsPanel;
+  constructor(mainController: MainController) {
     this._searchBarRef = undefined;
     this._mainController = mainController;
 
     makeAutoObservable(this, {}, { autoBind: true });
-  }
-
-  onToggleRepoPanel() {
-    this._toggleRepoPanel();
-  }
-
-  onToggleSettingsPanel() {
-    this._toggleSettingsPanel();
   }
 
   assignSearchBarRef(ref: React.RefObject<ReactCodeMirrorRef>) {
@@ -103,7 +87,7 @@ export class SearchBarViewModel {
 
   removeTag(tag: SelectedTag) {
     this._state.tags = this._state.tags.filter(
-      (t) => t.tag.id !== tag.tag.id || t.value !== tag.value
+      (t) => t.tag.id !== tag.tag.id || t.value !== tag.value,
     );
   }
 

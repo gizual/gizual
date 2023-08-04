@@ -2,12 +2,11 @@ import React from "react";
 
 import { useMainController } from "../../controllers";
 import sharedStyle from "../css/shared-styles.module.scss";
-import { ToggleButton } from "../toggle-button";
 
 import style from "./settings-panel.module.scss";
-import { ColoringMode, SettingsPanelViewModel } from "./settings-panel.vm";
+import { SettingsPanelViewModel } from "./settings-panel.vm";
 
-import { Skeleton, Table } from "antd";
+import { Radio, Skeleton, Table } from "antd";
 import { observer } from "mobx-react-lite";
 
 export type SettingsPanelProps = {
@@ -29,13 +28,24 @@ export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) =
         <div className={sharedStyle.sectionBody}>
           <div className={sharedStyle.block}>
             <h3>Coloring mode</h3>
-            <ToggleButton<ColoringMode>
+            {/*<ToggleButton<ColoringMode>
               ariaLabel="Coloring mode"
               values={vm.toggleColoringValues}
               selected={mainController.coloringMode}
               toggleName="coloringMode"
               onChange={(n) => vm.onColoringModeChange(n)}
-            />
+            />*/}
+            <Radio.Group
+              buttonStyle={"solid"}
+              value={mainController.coloringMode}
+              onChange={(n) => vm.onColoringModeChange(n.target.value)}
+            >
+              {vm.toggleColoringValues.map((v) => (
+                <Radio.Button key={v.value} value={v.value}>
+                  {v.label}
+                </Radio.Button>
+              ))}
+            </Radio.Group>
           </div>
           <div className={sharedStyle.block}>
             <h3>Authors</h3>

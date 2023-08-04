@@ -14,75 +14,78 @@ import { Editor } from "../editor";
 
 import style from "./file.module.scss";
 import { FileViewModel } from "./file.vm";
+import { FontIcon } from "../font-icon/font-icon";
 
 export type FileProps = {
   vm?: FileViewModel;
   isLoadIndicator?: boolean;
 };
 
-function File({ vm }: FileProps) {
-  if (!vm) return <></>;
+export const File = observer(
+  React.forwardRef<HTMLDivElement, FileProps>(function File({ vm }: FileProps, ref) {
+    if (!vm) return <></>;
 
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const fileRef = React.useRef<HTMLDivElement>(null);
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+    const fileRef = ref;
 
-  React.useEffect(() => {
-    vm.assignCanvasRef(canvasRef);
-    vm.draw();
-  }, [canvasRef, vm.loading]);
+    React.useEffect(() => {
+      vm.assignCanvasRef(canvasRef);
+      vm.draw();
+    }, [canvasRef, vm.loading]);
 
-  React.useEffect(() => {
-    if (vm.shouldRedraw) vm.draw();
-  }, [vm.shouldRedraw]);
+    React.useEffect(() => {
+      if (vm.shouldRedraw) vm.draw();
+    }, [vm.shouldRedraw]);
 
-  React.useEffect(() => {
-    vm.draw();
-  }, [vm._blameView.isPreview]);
+    React.useEffect(() => {
+      vm.draw();
+    }, [vm._blameView.isPreview]);
 
-  React.useEffect(() => {
-    vm.assignFileRef(fileRef);
-  }, [fileRef]);
+    React.useEffect(() => {
+      vm.assignFileRef(fileRef);
+    }, [fileRef]);
 
-  let body = (
-    <DialogProvider
-      trigger={
-        <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
-          <Plus className={style.LoadFileIcon} />
-        </div>
+    let body = (
+      <DialogProvider
+        trigger={
+          <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
+            <Plus className={style.LoadFileIcon} />
+          </div>
+        }
+      >
+        <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
+      </DialogProvider>
+    );
+
+    if (!vm._isLoadIndicator) {
+      if (vm.loading) {
+        body = (
+          <div>
+            <Skeleton active />
+          </div>
+        );
+      } else if (vm.isValid) {
+        body = <canvas className={style.FileCanvas} ref={canvasRef} />;
+      } else {
+        body = (
+          <div>
+            Invalid file.
+            <Skeleton style={{ marginTop: "1rem" }} />
+          </div>
+        );
       }
-    >
-      <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
-    </DialogProvider>
-  );
-
-  if (!vm._isLoadIndicator) {
-    if (vm.loading) {
-      body = (
-        <div>
-          <Skeleton active />
-        </div>
-      );
-    } else if (vm.isValid) {
-      body = <canvas className={style.FileCanvas} ref={canvasRef} />;
-    } else {
-      body = (
-        <div>
-          Invalid file.
-          <Skeleton style={{ marginTop: "1rem" }} />
-        </div>
-      );
     }
-  }
 
-  return (
-    <>
-      <div className={style.File} ref={fileRef}>
-        <FileHeader vm={vm} />
-        <div className={style.FileBody}>{body}</div>
-      </div>
-    </>
-  );
-}
+    return (
+      <>
+        <div className={style.File} ref={fileRef}>
+          <FileHeader vm={vm} />
+          <div className={style.FileBody}>{body}</div>
+        </div>
+      </>
+    );
+  }),
+);
 
 export type FileHeaderProps = {
   vm: FileViewModel;
@@ -95,11 +98,15 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
     <div className={style.FileHead}>
       <div className={style.FileHeadLeft}>
         {vm._blameView.isPreview ? (
-          <div style={{ display: "flex", alignItems: "center", minWidth: "32px" }}>
-            <Spin size={"large"} />
+          <div className={style.LoadingContainer}>
+            <Spin size={"default"} />
           </div>
         ) : (
-          <UnknownFile className={style.FileIcon} />
+          <FontIcon
+            className={style.FontIcon}
+            name={vm.fileInfo!.fileIcon}
+            colors={vm.fileInfo!.fileIconColor!}
+          />
         )}
         <p className={style.FileTitle} title={vm.fileName}>
           {vm.fileName}
@@ -140,5 +147,3 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
     </div>
   );
 });
-
-export default observer(File);

@@ -13,11 +13,6 @@ export const RepoPanel = observer(() => {
 
   return (
     <div className={style.repoPanel}>
-      <div className={sharedStyle.section}>
-        <div className={sharedStyle.sectionHead}>
-          <h1>Repository</h1>
-        </div>
-      </div>
       {/*mainController.favouriteFiles.length > 0 && (
         <div className={sharedStyle.section}>
           <div className={sharedStyle.sectionHead}>

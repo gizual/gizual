@@ -10,8 +10,15 @@ export type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   border?: "right";
 };
 
-export function IconButton(props: IconButtonProps) {
-  const { className, onClick, colored, wide, border, children } = props;
+export function IconButton({
+  className,
+  onClick,
+  colored,
+  wide,
+  border,
+  children,
+  ...props
+}: IconButtonProps) {
   return (
     <button
       className={clsx(
@@ -19,9 +26,10 @@ export function IconButton(props: IconButtonProps) {
         colored ? style.colored : "",
         wide ? style.wide : "",
         border === "right" ? style.borderRight : "",
-        className
+        className,
       )}
       onClick={onClick}
+      {...props}
     >
       {children}
     </button>

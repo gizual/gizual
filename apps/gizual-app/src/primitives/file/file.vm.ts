@@ -7,21 +7,7 @@ import { CommitInfo } from "@giz/explorer";
 import { MainController } from "../../controllers";
 
 import { CanvasWorker } from "./worker/worker";
-
-export type FileInfo = {
-  fileName: string;
-  fileExtension: string;
-  fileContent: Line[];
-  lineLengthMax: number;
-
-  earliestTimestamp: number;
-  latestTimestamp: number;
-};
-
-//export type Commit = {
-//  hash: string;
-//  timestamp: number;
-//};
+import { FileNodeInfos } from "@app/types";
 
 export type Line = {
   content: string;
@@ -49,17 +35,20 @@ export class FileViewModel {
   _colors: string[] = [];
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
-  _fileRef: React.RefObject<HTMLDivElement> | undefined;
+  _fileRef: React.ForwardedRef<HTMLDivElement> | undefined;
   _canvasWorker?: Remote<CanvasWorker>;
   _worker?: Worker;
   _redrawCount = 0;
   _lastDrawScale = 1;
-  _lastDrawnColorMode?: MainController["coloringMode"] = "By Age";
+  _lastDrawnColorMode?: MainController["coloringMode"] = "age";
+
+  _fileInfo?: FileNodeInfos;
 
   constructor(
     mainController: MainController,
     path: string,
     settings: Settings,
+    fileInfo?: FileNodeInfos,
     isFavourite?: boolean,
     isLoadIndicator?: boolean,
   ) {
@@ -76,8 +65,13 @@ export class FileViewModel {
       ...settings,
     };
     this._blameView = this._mainController._repo.getBlame(path);
+    this._fileInfo = fileInfo;
 
     makeAutoObservable(this);
+  }
+
+  get fileInfo() {
+    return this._fileInfo;
   }
 
   dispose() {
@@ -174,7 +168,7 @@ export class FileViewModel {
     this._canvasRef = ref;
   }
 
-  assignFileRef(ref: React.RefObject<HTMLDivElement>) {
+  assignFileRef(ref: React.ForwardedRef<HTMLDivElement>) {
     this._fileRef = ref;
   }
 
@@ -282,6 +276,7 @@ export class FileViewModel {
       throw new Error("Could not assign canvas worker");
     }
 
+    this._mainController.incrementNumActiveWorkers();
     //console.log("[gizual-app] UI thread: starting worker draw");
     const drawResult = CanvasWorkerProxy.draw({
       authors: this._mainController.authors.map((a) => toJS(a)),
@@ -304,6 +299,7 @@ export class FileViewModel {
       this.setLastDrawScale(scale);
       this.setLastDrawnColorMode(coloringMode);
       this.incrementRedrawCount();
+      this._mainController.decrementNumActiveWorkers();
     });
   }
 }

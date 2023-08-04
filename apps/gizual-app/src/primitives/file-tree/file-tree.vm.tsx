@@ -2,13 +2,15 @@ import { makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
 import type { DataNode } from "antd/es/tree";
-import { FileTree } from "@giz/explorer";
+import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
 import React from "react";
+import { isNumber } from "lodash";
+import { FileNodeInfos } from "@app/types";
 
-export type FileTreeDataNode = DataNode & {
-  children: FileTreeDataNode[];
-  path: string;
-};
+export type FileTreeDataNode = DataNode &
+  FileNodeInfos & {
+    children: FileTreeDataNode[];
+  };
 
 export class FileTreeViewModel {
   _mainController: MainController;
@@ -16,12 +18,13 @@ export class FileTreeViewModel {
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
+    this._mainController.vmController.setFileTreeViewModel(this);
 
     makeAutoObservable(this);
   }
 
-  toggleFile(name: string) {
-    this._mainController.toggleFile(name);
+  toggleFile(name: string, info: FileNodeInfos) {
+    this._mainController.toggleFile(name, info);
   }
 
   get selectedFiles(): string[] {
@@ -49,11 +52,17 @@ export class FileTreeViewModel {
 
         const childKey = key + "-" + index;
         const childPath = path ? path + "/" + child.name : child.name;
+
+        let fileIcon: FileIcon | undefined;
+        if (isNumber(child.kind)) fileIcon = getFileIcon(child.kind);
+
         children.push({
           key: childPath, //key + "-" + index,
-          title: child.name ?? "---unknown",
+          title: child.name,
           children: parseChildren(child, childPath, childKey),
           isLeaf: child.kind !== "folder",
+          fileIcon: fileIcon?.icon,
+          fileIconColor: fileIcon?.color,
           path: childPath,
         });
       }
@@ -69,7 +78,7 @@ export class FileTreeViewModel {
 
   onFileTreeSelect(node: FileTreeDataNode) {
     if (node.isLeaf) {
-      this.toggleFile(node.path);
+      this.toggleFile(node.path, node);
       return;
     }
 
@@ -78,7 +87,7 @@ export class FileTreeViewModel {
 
       for (const child of currentNode.children) {
         if (child.isLeaf) {
-          this.toggleFile(child.path);
+          this.toggleFile(child.path, child);
         } else {
           toggleChildren(child);
         }
