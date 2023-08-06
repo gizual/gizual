@@ -3,7 +3,7 @@
 
 .FileHead {
   @include shared.card-head;
-  margin-bottom: calc(0.5rem * var(--canvas-scale-reverse));
+  margin-bottom: 0.5rem; //calc(0.5rem * var(--canvas-scale-reverse));
   flex: unset;
   //@include adjust-scale-y-with-canvas;
   transform-origin: bottom;

@@ -4,17 +4,16 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { ReactComponent as CloseBox } from "../../assets/icons/close-box.svg";
-import { ReactComponent as UnknownFile } from "../../assets/icons/file-extensions/unknown.svg";
 import { ReactComponent as Plus } from "../../assets/icons/plus.svg";
 import { ReactComponent as Source } from "../../assets/icons/source.svg";
 import { ReactComponent as StarFilled } from "../../assets/icons/star-filled.svg";
 import { ReactComponent as StarOutline } from "../../assets/icons/star-outline.svg";
 import { DialogProvider } from "../dialog-provider";
 import { Editor } from "../editor";
+import { FontIcon } from "../font-icon/font-icon";
 
 import style from "./file.module.scss";
 import { FileViewModel } from "./file.vm";
-import { FontIcon } from "../font-icon/font-icon";
 
 export type FileProps = {
   vm?: FileViewModel;

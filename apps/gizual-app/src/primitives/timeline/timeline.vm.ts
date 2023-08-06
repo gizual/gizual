@@ -116,7 +116,7 @@ export class TimelineViewModel {
   get commitIndices() {
     if (this.mainController._repo.gitGraph.loading) return;
     return new Map<string, number>(
-      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {})
+      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {}),
     );
   }
 
@@ -138,7 +138,7 @@ export class TimelineViewModel {
         "Aborting, cannot find origin in indices, origin:",
         origin,
         "indices:",
-        this.commitIndices
+        this.commitIndices,
       );
       return parsedCommits;
     } //throw new Error(`Could not find commit index for commit ${origin}`);

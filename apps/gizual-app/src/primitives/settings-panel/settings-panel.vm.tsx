@@ -1,9 +1,9 @@
+import { ColoringMode, ColoringModeLabels } from "@app/types";
+import { Avatar } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import { makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
-import type { ColumnsType } from "antd/es/table";
-import { Avatar } from "antd";
-import { ColoringMode, ColoringModeLabels } from "@app/types";
 
 interface AuthorType {
   key: React.Key;
@@ -53,9 +53,11 @@ export class SettingsPanelViewModel {
               width: 5,
               height: 25,
               display: "block",
-              border: "1px solid var(--border-primary)",
               borderRadius: 5,
-              backgroundColor: this._mainController.authorColorScale(record.id ?? ""),
+              backgroundColor:
+                this._mainController.coloringMode === "author"
+                  ? this._mainController.authorColorScale(record.id ?? "")
+                  : "transparent",
             }}
           />
         ),

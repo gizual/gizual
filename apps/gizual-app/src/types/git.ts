@@ -45,3 +45,13 @@ export type FileNodeInfos = {
   fileIcon?: string;
   fileIconColor: [string | null, string | null] | undefined;
 };
+
+export function isFileNodeInfo(o: any): o is FileNodeInfos {
+  return (
+    o !== undefined &&
+    o.path &&
+    typeof o.path === "string" &&
+    o.title &&
+    typeof o.title === "string"
+  );
+}

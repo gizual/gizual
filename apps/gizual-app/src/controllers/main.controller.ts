@@ -1,14 +1,16 @@
+import { ColoringMode, FileNodeInfos } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
 import { makeAutoObservable } from "mobx";
+
 import { FileTree, Repository } from "@giz/explorer";
-import { ColoringMode, FileNodeInfos } from "@app/types";
+
 import { ViewModelController } from "./vm.controller";
 
 type Panel = "explore" | "analyze";
 
 export class MainController {
   _selectedFiles: Map<string, FileNodeInfos | {}> = new Map();
-  _favouriteFiles: Set<string> = new Set<string>();
+  _favouriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
 
   _coloringMode: ColoringMode = "age";
   _fileTreeRoot?: FileTree;
@@ -44,7 +46,11 @@ export class MainController {
     return [...this._selectedFiles.keys()];
   }
 
-  getFileNode(key: string) {
+  isFileSelected(f: string) {
+    return this._selectedFiles.has(f);
+  }
+
+  getSelectedFileNodeInfo(key: string) {
     return this._selectedFiles.get(key);
   }
 
@@ -67,14 +73,18 @@ export class MainController {
     return this._selectedPanel;
   }
 
-  toggleFavourite(name: string) {
+  toggleFavourite(name: string, info?: FileNodeInfos) {
     if (this._favouriteFiles.has(name)) {
       this._favouriteFiles.delete(name);
-    } else this._favouriteFiles.add(name);
+    } else this._favouriteFiles.set(name, info);
   }
 
-  get favouriteFiles(): string[] {
-    return [...this._favouriteFiles.values()];
+  get favouriteFiles() {
+    return this._favouriteFiles;
+  }
+
+  getFavouriteFileNodeInfo(key: string) {
+    return this._favouriteFiles.get(key);
   }
 
   setBranchByName(name: string) {

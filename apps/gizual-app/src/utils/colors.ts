@@ -44,10 +44,10 @@ export const SPECIAL_COLORS = {
 
 export const getColorScale = (
   domain: [number, number],
-  colorRange: [string, string] = [LINEAR_COLOR_RANGE[0], LINEAR_COLOR_RANGE[1]]
+  colorRange: [string, string] = [LINEAR_COLOR_RANGE[0], LINEAR_COLOR_RANGE[1]],
 ): ScaleLinear<string, string, never> => scaleLinear<string>().range(colorRange).domain(domain);
 
 export const getBandColorScale = (
   domain: string[],
-  colorRange: string[]
+  colorRange: string[],
 ): ScaleOrdinal<string, string, never> => scaleOrdinal<string>().range(colorRange).domain(domain);

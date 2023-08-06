@@ -1,11 +1,11 @@
-import { FileTreeNode } from "@app/types";
-import { VictoryAxis, VictoryBar, VictoryPie } from "victory";
+import { VictoryAxis, VictoryBar } from "victory";
 import { VictoryChart } from "victory-chart";
 
+import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
 import { victoryTheme } from "../theme";
 
 type LanguageInfo = {
-  language?: string;
+  iconInfo?: FileIcon;
   percentage?: number;
 };
 
@@ -14,21 +14,21 @@ type LanguagesProps = {
   chartType?: "pie" | "bar";
 };
 
-export function parseLanguages(fileTree: FileTreeNode) {
-  const languages = new Map<string, number>();
+export function parseLanguages(fileTree: FileTree) {
+  const languages = new Map<number, number>();
   let numFiles = 0;
 
-  function walk(file: FileTreeNode) {
+  function walk(file: FileTree) {
     if (file.children) {
       for (const child of file.children) {
         walk(child);
       }
     } else {
       numFiles += 1;
-      const language = file.mime_type;
-      if (language) {
-        const count = languages.get(language) || 0;
-        languages.set(language, count + 1);
+      const kind = file.kind;
+      if (kind && kind !== "folder") {
+        const count = languages.get(kind) || 0;
+        languages.set(kind, count + 1);
       }
     }
   }
@@ -36,9 +36,9 @@ export function parseLanguages(fileTree: FileTreeNode) {
   walk(fileTree);
 
   const languageInfos: LanguageInfo[] = [];
-  for (const [language, count] of languages.entries()) {
+  for (const [kind, count] of languages.entries()) {
     languageInfos.push({
-      language,
+      iconInfo: getFileIcon(kind),
       percentage: count / numFiles,
     });
   }
@@ -46,48 +46,49 @@ export function parseLanguages(fileTree: FileTreeNode) {
   return languageInfos;
 }
 
-function prepareData(languages: LanguageInfo[]) {
-  const data: any[] = [];
+type VictoryDatum = {
+  x: string;
+  y?: number;
+};
+
+function prepareData(languages: LanguageInfo[]): {
+  data: VictoryDatum[];
+  colors: Map<string, string>;
+} {
+  const colors: Map<string, string> = new Map();
+  const data: VictoryDatum[] = [];
+
   for (const language of languages) {
-    data.push({ x: language.language, y: language.percentage });
+    const iconName = language.iconInfo?.icon ?? "-icon";
+    const languageString = iconName.slice(0, Math.max(0, iconName.length - 5));
+    data.push({ x: languageString, y: language.percentage });
+    const color = language.iconInfo?.color[0];
+    const simpleColor = color?.slice(color.indexOf("-") + 1);
+    colors.set(languageString, simpleColor ?? "red");
   }
 
-  return data;
+  return { data, colors };
 }
 
-const colorScale = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"];
-
-function* getNextColor(colorScale: string[]) {
-  let i = 0;
-  while (true) {
-    yield colorScale[i % colorScale.length];
-    i += 1;
-  }
-}
-
-export function Languages({ languages, chartType = "bar" }: LanguagesProps) {
+export function Languages({ languages }: LanguagesProps) {
   if (!languages) return <div />;
 
-  const data = prepareData(languages);
-  const colorGenerator = getNextColor(colorScale);
+  const { data, colors } = prepareData(languages);
 
-  if (chartType === "bar")
-    return (
-      <VictoryChart theme={victoryTheme} domainPadding={10}>
-        <VictoryBar
-          data={data}
-          style={{
-            data: {
-              fill: () => colorGenerator.next().value as any,
-            },
-          }}
-        ></VictoryBar>
-        <VictoryAxis
-          tickValues={[1, 2, 3, 4, 5]}
-          style={{ tickLabels: { angle: -45, textAnchor: "end", fontSize: 6 } }}
-        />
-      </VictoryChart>
-    );
-
-  return <VictoryPie theme={victoryTheme} data={data}></VictoryPie>;
+  return (
+    <VictoryChart theme={victoryTheme} domainPadding={10}>
+      <VictoryBar
+        data={data}
+        style={{
+          data: {
+            fill: ({ datum }) => colors.get(datum.x) ?? "red",
+          },
+        }}
+      ></VictoryBar>
+      <VictoryAxis
+        tickValues={[1, 2, 3, 4, 5]}
+        style={{ tickLabels: { angle: -45, textAnchor: "end", fontSize: 6 } }}
+      />
+    </VictoryChart>
+  );
 }

@@ -34,7 +34,7 @@ export class CanvasViewModel {
     const filesToUnload = _.difference(existingFiles, selectedFiles);
 
     for (const file of filesToLoad) {
-      const fileInfo = this._mainController.getFileNode(file);
+      const fileInfo = this._mainController.getSelectedFileNodeInfo(file);
       if (!fileInfo) console.warn(`Info object for ${file} not found.`);
 
       this._selectedFileVms[file] = new FileViewModel(
@@ -82,9 +82,9 @@ export class CanvasViewModel {
     this.canvasContainerRef.current.zoomOut(0.25);
   }
 
-  center() {
+  center(scale?: number) {
     if (!this.canvasContainerRef?.current) return;
-    this.canvasContainerRef.current.setTransform(0, 0, this._mainController.scale);
+    this.canvasContainerRef.current.setTransform(0, 0, scale ?? this._mainController.scale);
   }
 
   zoomTo(n: number | null) {
@@ -100,5 +100,12 @@ export class CanvasViewModel {
     if (!el) return;
 
     this.canvasContainerRef?.current?.zoomToElement(el, 0);
+  }
+
+  unloadAllFiles() {
+    for (const file of Object.keys(this._selectedFileVms)) {
+      this._mainController.toggleFile(file);
+      delete this._selectedFileVms[file];
+    }
   }
 }

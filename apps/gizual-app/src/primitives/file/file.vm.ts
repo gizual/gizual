@@ -1,3 +1,4 @@
+import { FileNodeInfos } from "@app/types";
 import { Remote, transfer, wrap } from "comlink";
 import { makeAutoObservable, toJS } from "mobx";
 import React from "react";
@@ -7,7 +8,6 @@ import { CommitInfo } from "@giz/explorer";
 import { MainController } from "../../controllers";
 
 import { CanvasWorker } from "./worker/worker";
-import { FileNodeInfos } from "@app/types";
 
 export type Line = {
   content: string;
@@ -145,11 +145,11 @@ export class FileViewModel {
   }
 
   get isFavourite() {
-    return this._mainController._favouriteFiles.has(this.fileName);
+    return this._mainController.favouriteFiles.has(this.fileName);
   }
 
   setFavourite() {
-    this._mainController.toggleFavourite(this._fileName);
+    this._mainController.toggleFavourite(this._fileName, this._fileInfo);
   }
 
   unsetFavourite() {
@@ -250,7 +250,7 @@ export class FileViewModel {
       return;
     }
 
-    const fileContainer = this._fileRef.current;
+    const fileContainer = (this._fileRef as any).current;
     if (!fileContainer) {
       return;
     }

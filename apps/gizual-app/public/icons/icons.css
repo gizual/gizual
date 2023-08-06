@@ -30,6 +30,17 @@
 .sharpen {
   text-shadow: 0 0 0;
 }
+
+.directory-closed-icon:before {
+  font-family: FontAwesome;
+  content: "\1F4C1";
+}
+
+.directory-open-icon:before {
+  font-family: FontAwesome;
+  content: "\1F4C2";
+}
+
 /*============================================================================*
   Octicons
   https://github.com/github/octicons

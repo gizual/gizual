@@ -1,11 +1,11 @@
-import { makeAutoObservable } from "mobx";
-
-import { MainController } from "../../controllers";
-import type { DataNode } from "antd/es/tree";
-import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
-import React from "react";
-import { isNumber } from "lodash";
 import { FileNodeInfos } from "@app/types";
+import type { DataNode } from "antd/es/tree";
+import { isNumber } from "lodash";
+import { makeAutoObservable } from "mobx";
+import React from "react";
+
+import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
+import { MainController } from "../../controllers";
 
 export type FileTreeDataNode = DataNode &
   FileNodeInfos & {
@@ -31,12 +31,35 @@ export class FileTreeViewModel {
     return this._mainController.selectedFiles;
   }
 
+  get selectedFavouriteFiles(): string[] {
+    const files: string[] = [];
+    for (const file of this.selectedFiles) {
+      if (this._mainController.favouriteFiles.has(file)) files.push(file);
+    }
+    return files;
+  }
+
   toggleFavourite(name: string) {
     this._mainController.toggleFavourite(name);
   }
 
-  get favouriteFiles(): string[] {
-    return this._mainController.favouriteFiles;
+  get favouriteTreeData(): FileTreeDataNode[] {
+    const tree: FileTreeDataNode[] = [];
+
+    for (const [path, info] of this._mainController.favouriteFiles) {
+      if (!info) continue;
+      tree.push({
+        key: path,
+        children: [],
+        path: path,
+        title: path,
+        fileIcon: info.fileIcon,
+        fileIconColor: info.fileIconColor,
+        isLeaf: true,
+      });
+    }
+
+    return tree;
   }
 
   get treeData(): FileTreeDataNode[] {
@@ -105,5 +128,21 @@ export class FileTreeViewModel {
 
   get expandedKeys(): React.Key[] {
     return [...this._expandedKeys];
+  }
+
+  zoomToFile(path: string) {
+    this._mainController.vmController?.canvasViewModel?.zoomToFile(path);
+  }
+
+  setFavourite(node: FileTreeDataNode) {
+    this._mainController.toggleFavourite(node.path, node);
+  }
+
+  isFavourite(node: FileTreeDataNode) {
+    return this._mainController.favouriteFiles.has(node.path);
+  }
+
+  isFileSelected(node: FileTreeDataNode) {
+    return this._mainController.isFileSelected(node.path);
   }
 }

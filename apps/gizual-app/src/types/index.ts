@@ -1,3 +1,3 @@
 export * from "./git";
-export * from "./visualization";
 export * from "./settings";
+export * from "./visualization";
