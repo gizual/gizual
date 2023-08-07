@@ -37,7 +37,19 @@ export class Repository {
       _setState: action,
       authors: computed,
       _authors: observable,
+      metrics: computed,
     });
+  }
+
+  get metrics() {
+
+    if (!this.backend) throw new Error("No backend");
+
+    return {
+      numWorkers: this.backend.numWorkers,
+      numJobsInQueue: this.backend.numJobsInQueue,
+      numBusyWorkers: this.backend.numBusyWorkers,
+    }
   }
 
   get authors() {
