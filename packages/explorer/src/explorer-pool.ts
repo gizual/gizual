@@ -1,10 +1,11 @@
+import { isString } from "lodash";
+import { makeObservable, observable } from "mobx";
+
 import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
 import { LOG, Logger } from "@giz/logger";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
-import { Author, Blame, FileTreeNode, isBlame, isFileTree } from "./types";
-import { isNumber, isString } from "lodash";
-import { makeObservable, observable } from "mobx";
+import { Author, Blame, FileTreeNode, isBlame } from "./types";
 
 const SKIP_VALIDATION = true;
 
@@ -47,14 +48,6 @@ function isStreamJob(obj: any): obj is StreamJob {
 }
 
 type Job = CommandJob | StreamJob;
-
-const a: Job = {
-  method: "blame",
-  params: ["path"],
-  onData: (data: Blame) => {},
-  onEnd: () => {},
-  onErr: (err: any) => {},
-};
 
 async function createWorker(handle: FileSystemDirectoryHandle) {
   const runtime = await WasiRuntime.create({

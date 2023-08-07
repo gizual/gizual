@@ -70,8 +70,6 @@ export function isFileContent(obj: any): obj is FileContent {
   );
 }
 
-type MimeType = string & { __mimeType?: number };
-
 export type FileTree = {
   name: string;
   kind?: number | "folder";

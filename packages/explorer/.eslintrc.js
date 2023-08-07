@@ -3,5 +3,6 @@ module.exports = {
   extends: ["@giz/eslint-config"],
   rules: {
     "unicorn/no-useless-undefined": "off",
+    "unicorn/no-null": "off",
   },
 };

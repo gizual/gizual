@@ -2,8 +2,8 @@ import { action, computed, makeObservable, observable, runInAction } from "mobx"
 
 import { BlameView } from "./blame-view";
 import { ExplorerPool } from "./explorer-pool";
-import { PromiseObserver } from "./promise-observer";
 import { FileTreeView } from "./file-tree-view";
+import { PromiseObserver } from "./promise-observer";
 import { Aid, Author, GitGraph } from "./types";
 
 export class Repository {
@@ -53,7 +53,7 @@ export class Repository {
   }
 
   get authors() {
-    return Array.from(this._authors.values());
+    return [...this._authors.values()];
   }
 
   getAuthor(aid: Aid): Author | undefined {

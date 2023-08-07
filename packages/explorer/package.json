@@ -7,7 +7,8 @@
     "type-check": "tsc"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.195"
+    "@types/lodash": "4.14.195",
+    "eslint": "8.45.0"
   },
   "dependencies": {
     "@giz/explorer-backend-libgit2": "workspace:*",

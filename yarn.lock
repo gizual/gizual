@@ -773,6 +773,7 @@ __metadata:
     "@giz/explorer-backend-libgit2": "workspace:*"
     "@giz/wasi-runtime": "workspace:*"
     "@types/lodash": 4.14.195
+    eslint: 8.45.0
     lodash: 4.17.21
     mobx: 6.10.0
   languageName: unknown
