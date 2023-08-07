@@ -15,12 +15,11 @@ export const Footer = observer(() => {
       </div>
       <div className={style.right}>
         <Spin spinning={mainController.isBusy} />
-        {mainController.numActiveWorkers === 0 && (
-          <p>
-            <em style={{ fontWeight: "bold" }}>{mainController.numActiveWorkers}</em> busy canvas
-            workers
-          </p>
-        )}
+        <p>
+          {mainController.backendMetrics.numBusyWorkers}/{mainController.backendMetrics.numWorkers}{" "}
+          backend workers
+        </p>
+        <p>{mainController.numActiveWorkers} render jobs</p>
       </div>
     </div>
   );
