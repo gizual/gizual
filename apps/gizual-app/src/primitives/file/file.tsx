@@ -1,3 +1,4 @@
+import { useMainController } from "@app/controllers";
 import { Skeleton, Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
@@ -22,6 +23,7 @@ export type FileProps = {
 
 export const File = observer(
   React.forwardRef<HTMLDivElement, FileProps>(function File({ vm }: FileProps, ref) {
+    const mainController = useMainController();
     if (!vm) return <></>;
 
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -38,7 +40,7 @@ export const File = observer(
 
     React.useEffect(() => {
       vm.draw();
-    }, [vm._blameView.isPreview]);
+    }, [vm._blameView.isPreview, mainController.selectedStartDate, mainController.selectedEndDate]);
 
     React.useEffect(() => {
       vm.assignFileRef(fileRef);

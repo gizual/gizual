@@ -8,16 +8,23 @@ import React, { MouseEventHandler } from "react";
 import { useMainController, useViewModelController } from "../../controllers";
 import { Button } from "../button";
 
+import { RulerTicks } from "./ruler-ticks";
 import style from "./timeline.module.scss";
-import { ParsedBranch, TimelineViewModel } from "./timeline.vm";
+import {
+  getDateString,
+  getDayFromOffset,
+  normalizeWheelEventDirection,
+  ParsedBranch,
+  TimelineViewModel,
+  toDate,
+} from "./timeline.vm";
+
+const MOUSE_BUTTON_PRIMARY = 1;
+const MOUSE_BUTTON_WHEEL = 4;
 
 export type TimelineProps = {
   vm?: TimelineViewModel;
 };
-
-function toDate(timestamp: string) {
-  return new Date(Number(timestamp) * 1000);
-}
 
 export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const mainController = useMainController();
@@ -38,51 +45,20 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const [isSelecting, setIsSelecting] = React.useState<boolean>(false);
   const [areaStart, setAreaStart] = React.useState<number>(0);
   const [areaEnd, setAreaEnd] = React.useState<number>(0);
-  const [selectedArea, setSelectedArea] = React.useState<{ start: Date; end: Date }>({
-    start: vm.startDate,
-    end: vm.endDate,
-  });
 
   const [windowWidth, __] = useWindowSize();
 
-  // GHC magic :()
   const numDays = (vm.endDate.getTime() - vm.startDate.getTime()) / (1000 * 60 * 60 * 24);
 
-  let separatorAt = 5;
+  let emphasizeDistance = 7;
 
   let visualizedDays = numDays;
   if (visualizedDays > 210) {
     visualizedDays = numDays / 7;
-    separatorAt = 4;
+    emphasizeDistance = 4;
   }
 
   const dayWidth = vm.rulerWidth / numDays;
-
-  const tickDays = visualizedDays / 2;
-  const tickWidth = vm.rulerWidth / visualizedDays;
-
-  const ticks = Array.from({ length: tickDays }, (_, i) => (
-    <React.Fragment key={i}>
-      <line
-        key={`-${i}`}
-        x1={i * tickWidth + vm.rulerWidth / 2}
-        y1={0}
-        x2={i * tickWidth + vm.rulerWidth / 2}
-        y2={i % separatorAt === 0 ? vm.largeTickHeight : vm.smallTickHeight}
-        stroke="var(--foreground-primary)"
-        strokeWidth="1"
-      />
-      <line
-        key={`+${i}`}
-        x1={-i * tickWidth + vm.rulerWidth / 2}
-        y1={0}
-        x2={-i * tickWidth + vm.rulerWidth / 2}
-        y2={i % separatorAt === 0 ? vm.largeTickHeight : vm.smallTickHeight}
-        stroke="var(--foreground-primary)"
-        strokeWidth="1"
-      />
-    </React.Fragment>
-  ));
 
   const commits = (
     branch?: ParsedBranch,
@@ -119,6 +95,12 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     let x = event.clientX - boundingRect.left;
     const y = event.clientY - boundingRect.top + 25; // hardcoded offset from the top (header height)
 
+    const delta_x = Math.abs(mousePos.x - x);
+    const delta_y = Math.abs(mousePos.y - y);
+    const MIN_MOUSE_MOVE_THRESHOLD_PX = 5; // TODO: Sync threshold to ticks
+
+    if (delta_x < MIN_MOUSE_MOVE_THRESHOLD_PX && delta_y < MIN_MOUSE_MOVE_THRESHOLD_PX) return;
+
     setMousePos({ x: event.clientX + 200 > windowWidth ? x - 200 : x, y });
 
     const day = getDayFromCoordinate(x, boundingRect);
@@ -126,8 +108,8 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     if (
       x > boundingRect.width * (vm.leftColWidth / vm.viewBox.width) &&
       x < boundingRect.width * ((vm.leftColWidth + vm.rulerWidth) / vm.viewBox.width) &&
-      y > 0 &&
-      y < boundingRect.height * (vm.rulerHeight / vm.viewBox.height)
+      y > vm.graphs.pos.y &&
+      y < boundingRect.height * (vm.rulerHeight / vm.viewBox.height) + vm.graphs.pos.y
     ) {
       setTooltip({ day, x, y });
     } else {
@@ -136,7 +118,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
 
     event.bubbles = false;
 
-    if (event.buttons === 1) {
+    if (event.buttons === MOUSE_BUTTON_PRIMARY) {
       x = Math.min(
         x,
         boundingRect.width * (vm.leftColWidth / vm.viewBox.width) +
@@ -146,34 +128,46 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
 
       if (!isSelecting) {
         setAreaStart(x);
-        setSelectedArea({
-          ...selectedArea,
-          start: getDayFromOffset(getDayFromCoordinate(x, boundingRect), vm.startDate),
-        });
+        vm.setSelectedStartDate(
+          getDayFromOffset(getDayFromCoordinate(x, boundingRect), vm.startDate),
+        );
         setHasSelection(true);
         setIsSelecting(true);
       }
       setAreaEnd(x);
-      setSelectedArea({
-        ...selectedArea,
-        end: getDayFromOffset(getDayFromCoordinate(x, boundingRect), vm.startDate),
-      });
+      vm.setSelectedEndDate(getDayFromOffset(getDayFromCoordinate(x, boundingRect), vm.startDate));
       setTooltip({ day, x, y });
     } else {
       if (isSelecting) {
         setIsSelecting(false);
       }
     }
+    if (event.buttons === MOUSE_BUTTON_WHEEL) {
+      console.log("TODO: Mouse-wheel drag");
+      //vm.setStartDate(new Date(vm.startDate.getTime() - 1000 * 60 * 24));
+      //vm.setEndDate(new Date(vm.endDate.getTime() - 1000 * 60 * 24));
+    }
   };
 
   const handleScroll: React.WheelEventHandler<SVGSVGElement | undefined> = (event) => {
-    let zoomFactor = 0.05;
-    let scrollFactor = 0.05;
+    const zoomFactor = 0.05;
+    const scrollFactor = 0.05;
 
-    if (event.deltaMode === 0) {
-      // likely a touchpad
-      zoomFactor = 0.01;
-      scrollFactor = 0.01;
+    let ticks = 0;
+    const delta = normalizeWheelEventDirection(event);
+    // eslint-disable-next-line unicorn/prefer-ternary
+    if (Math.abs(delta) > 2) {
+      /**
+       * probably a mouse wheel with big delta`s per wheel action
+       * so we can just go 1 full tick per event
+       */
+      ticks = Math.sign(delta);
+    } else {
+      /**
+       * probably something fine-grained, like a trackpad gesture.
+       * We need to accumulate ticks to ensure smooth zooming
+       * */
+      ticks = vm.accumulateWheelTicks(delta * 0.005);
     }
 
     const currentRange = vm.endDate.getTime() - vm.startDate.getTime();
@@ -182,40 +176,32 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
 
     if (event.shiftKey) {
       // Move timeline
-      if (event.deltaX < 0) {
-        newStartDate = vm.startDate.getTime() + currentRange * scrollFactor;
-        newEndDate = vm.endDate.getTime() + currentRange * scrollFactor;
-      } else {
-        newStartDate = vm.startDate.getTime() - currentRange * scrollFactor;
-        newEndDate = vm.endDate.getTime() - currentRange * scrollFactor;
-      }
+      newStartDate = vm.startDate.getTime() - currentRange * ticks * scrollFactor;
+      newEndDate = vm.endDate.getTime() - currentRange * ticks * scrollFactor;
     } else {
       // Zoom in/out
       let newRange = currentRange;
 
-      // eslint-disable-next-line unicorn/prefer-ternary
-      if (event.deltaY < 0) {
-        // Zoom in
-        newRange = currentRange * (1 - zoomFactor);
-      } else {
-        // Zoom out
-        newRange = currentRange * (1 + zoomFactor);
-      }
+      newRange = currentRange * (1 + zoomFactor * -ticks);
+
       newStartDate = vm.startDate.getTime() + (currentRange - newRange) / 2;
       newEndDate = vm.endDate.getTime() - (currentRange - newRange) / 2;
     }
 
     vm.setStartDate(new Date(newStartDate));
     vm.setEndDate(new Date(newEndDate));
+    handleOnClick(_, true);
     setTooltip({ day: undefined, x: 0, y: 0 });
   };
 
-  const handleOnClick = (_: any) => {
-    if (hasSelection && !isSelecting) {
+  const handleOnClick = (_: any, force?: boolean) => {
+    if (force || (hasSelection && !isSelecting)) {
       setHasSelection(false);
       setIsSelecting(false);
       setAreaStart(0);
       setAreaEnd(0);
+      vm.setSelectedStartDate(vm.startDate);
+      vm.setSelectedEndDate(vm.endDate);
     }
   };
 
@@ -278,16 +264,19 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
               onMouseMove={handleMouseMove as any}
               style={{ gap: `${vm.laneSpacing}rem` }}
             >
-              {vm.branches.map((branch, i) => (
-                <TimelineGraphSvg
-                  key={i}
-                  vm={vm}
-                  commits={commits(branch, 25, vm.commitSizeModal)}
-                  handleScroll={handleScroll}
-                  handleOnClick={handleOnClick}
-                  branch={branch}
-                ></TimelineGraphSvg>
-              ))}
+              {vm.branches.map(
+                (branch, i) =>
+                  branch.name !== vm.selectedBranch?.name && (
+                    <TimelineGraphSvg
+                      key={i}
+                      vm={vm}
+                      commits={commits(branch, 25, vm.commitSizeModal)}
+                      handleScroll={handleScroll}
+                      handleOnClick={handleOnClick}
+                      branch={branch}
+                    ></TimelineGraphSvg>
+                  ),
+              )}
             </div>
           </div>
         )}
@@ -304,7 +293,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
         >
           <rect
             x={vm.leftColWidth - vm.padding}
-            y={0}
+            y={vm.graphs.pos.y}
             width={vm.viewBox.width - vm.leftColWidth - vm.padding}
             height={vm.rulerHeight}
             strokeWidth={1}
@@ -312,25 +301,29 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
           ></rect>
           <text
             x={vm.leftColWidth}
-            y={vm.rulerHeight - vm.padding}
+            y={vm.rulerHeight - vm.padding + vm.graphs.pos.y}
             className={style.RulerAnnotationLeft}
           >
             {getDateString(vm.startDate)}
           </text>
           <text
             x={vm.viewBox.width - 3 * vm.padding}
-            y={vm.rulerHeight - vm.padding}
+            y={vm.rulerHeight - vm.padding + vm.graphs.pos.y}
             className={style.RulerAnnotationRight}
           >
             {getDateString(vm.endDate)}
           </text>
-          <Translate {...vm.ruler.pos}>{ticks}</Translate>
-          <TimelineGraph
-            commits={commits(vm.selectedBranch)}
-            vm={vm}
-            branch={vm.selectedBranch}
-            isBelowRuler
-          />
+          <Translate {...vm.ruler.pos}>
+            <RulerTicks
+              x={0}
+              y={vm.graphs.pos.y}
+              width={vm.rulerWidth}
+              amount={visualizedDays}
+              emphasize={{ distance: emphasizeDistance, height: 20, width: 2 }}
+              tickSize={{ height: 10, width: 1 }}
+            />
+          </Translate>
+          <TimelineGraph commits={commits(vm.selectedBranch)} vm={vm} branch={vm.selectedBranch} />
         </svg>
 
         {hasSelection && (
@@ -492,7 +485,7 @@ function Commit({ commit, x, y, r = 10, vm, isHighlighted = false }: CommitProps
         className={clsx(
           style.CommitCircle,
           hover && style.CommitCircleHover,
-          isHighlighted && style.CommitCircleHover,
+          isHighlighted && style.CommitCircleHighlight,
         )}
         onMouseEnter={() => {
           setHover(true);
@@ -526,27 +519,30 @@ type CommitsProps = {
 function Commits({ commits, vm, startDate, endDate, dayWidth, yOffset, radius }: CommitsProps) {
   if (!commits) return <></>;
   const commitCircles = commits.map((commit, i) => {
-    const commitDay =
-      (toDate(commit.timestamp).getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+    const commitDate = toDate(commit.timestamp);
+    const commitDay = (commitDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    const isHighlighted = vm.selectedStartDate < commitDate && commitDate < vm.selectedEndDate;
+
     if (
       toDate(commit.timestamp).getTime() < startDate.getTime() ||
       toDate(commit.timestamp).getTime() > endDate.getTime()
     )
       return <React.Fragment key={i}></React.Fragment>;
     return (
-      <Commit commit={commit} key={i} x={commitDay * dayWidth} y={yOffset} r={radius} vm={vm} />
+      <Commit
+        commit={commit}
+        key={i}
+        x={commitDay * dayWidth}
+        y={yOffset}
+        r={radius}
+        vm={vm}
+        isHighlighted={isHighlighted}
+      />
     );
   });
 
   return <>{commitCircles}</>;
-}
-
-function getDayFromOffset(offset: number, startDate: Date) {
-  return new Date(startDate.getTime() + offset * 1000 * 60 * 60 * 24);
-}
-
-function getDateString(date: Date) {
-  return date.toLocaleDateString(undefined, { dateStyle: "medium" });
 }
 
 function Translate({

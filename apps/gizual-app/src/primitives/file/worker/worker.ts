@@ -1,7 +1,7 @@
-import { expose } from "comlink";
-
 import { MainController } from "@app/controllers";
 import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SPECIAL_COLORS } from "@app/utils";
+import { expose } from "comlink";
+
 import { FileViewModel, Line } from "../file.vm";
 
 export type FileContext = {
@@ -11,6 +11,8 @@ export type FileContext = {
   lineLengthMax: FileViewModel["lineLengthMax"];
   earliestTimestamp: FileViewModel["earliestTimestamp"];
   latestTimestamp: FileViewModel["latestTimestamp"];
+  selectedStartDate: Date;
+  selectedEndDate: Date;
   authors: MainController["authors"];
   dpr: number;
   rect: DOMRect;
@@ -101,8 +103,16 @@ export class CanvasWorker {
   }
 
   interpolateColor(line: Line, fileContext: FileContext) {
+    const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
+
+    // If the line was updated before the start or after the end date, grey it out.
+    if (
+      updatedAtSeconds * 1000 < fileContext.selectedStartDate.getTime() ||
+      updatedAtSeconds * 1000 > fileContext.selectedEndDate.getTime()
+    )
+      return SPECIAL_COLORS.NOT_LOADED;
+
     if (fileContext.coloringMode === "age") {
-      const updatedAt = +(line.commit?.timestamp ?? 0);
       const timeRange: [number, number] = [
         fileContext.earliestTimestamp,
         fileContext.latestTimestamp,
@@ -112,8 +122,8 @@ export class CanvasWorker {
         fileContext.settings.colorNew,
       ];
 
-      return updatedAt
-        ? getColorScale(timeRange, colorRange)(updatedAt)
+      return updatedAtSeconds
+        ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
         : SPECIAL_COLORS.NOT_LOADED;
     } else {
       const author = fileContext.authors.find((a) => a.id === line.commit?.authorId);

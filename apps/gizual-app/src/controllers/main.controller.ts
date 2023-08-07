@@ -25,13 +25,17 @@ export class MainController {
   _repo: Repository;
 
   private _startDate: Date;
+  private _selectedStartDate: Date;
   private _endDate: Date;
+  private _selectedEndDate: Date;
 
   constructor() {
     this._repo = new Repository();
 
     this._startDate = new Date("2023-01-01");
-    this._endDate = new Date("2023-08-01");
+    this._selectedStartDate = new Date("2023-01-01");
+    this._endDate = new Date("2023-07-30");
+    this._selectedEndDate = new Date("2023-07-30");
     this.setScale(1);
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -154,16 +158,36 @@ export class MainController {
     this._startDate = date;
   }
 
+  setSelectedStartDate(date: Date) {
+    if (this._selectedStartDate.getTime() !== date.getTime()) this._selectedStartDate = date;
+  }
+
   setEndDate(date: Date) {
     this._endDate = date;
+  }
+
+  setSelectedEndDate(date: Date) {
+    if (this._selectedEndDate.getTime() !== date.getTime()) this._selectedEndDate = date;
   }
 
   get startDate() {
     return this._startDate;
   }
 
+  get selectedStartDate() {
+    return this._selectedStartDate < this._selectedEndDate
+      ? this._selectedStartDate
+      : this._selectedEndDate;
+  }
+
   get endDate() {
     return this._endDate;
+  }
+
+  get selectedEndDate() {
+    return this._selectedEndDate > this._selectedStartDate
+      ? this._selectedEndDate
+      : this._selectedStartDate;
   }
 
   setScale(scale: number) {

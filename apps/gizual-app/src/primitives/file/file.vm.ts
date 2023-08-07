@@ -277,7 +277,7 @@ export class FileViewModel {
     }
 
     this._mainController.incrementNumActiveWorkers();
-    //console.log("[gizual-app] UI thread: starting worker draw");
+
     const drawResult = CanvasWorkerProxy.draw({
       authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(this.fileContent),
@@ -285,6 +285,8 @@ export class FileViewModel {
       latestTimestamp: toJS(this.latestTimestamp),
       settings: toJS(this._settings),
       lineLengthMax: toJS(this.lineLengthMax),
+      selectedStartDate: toJS(this._mainController.selectedStartDate),
+      selectedEndDate: toJS(this._mainController.selectedEndDate),
       dpr,
       rect,
       coloringMode,

@@ -13,3 +13,26 @@
   position: relative;
   z-index: 500;
 }
+
+:global(.GitGutter) {
+  --_paddingTop: 0.1rem;
+
+  width: 8rem;
+  height: 100%;
+  height: calc(100% - var(--_paddingTop));
+  color: white;
+
+  font-size: 0.45rem;
+  line-height: 0.45rem;
+  padding-left: 0.1rem;
+  padding-top: var(--_paddingTop);
+  text-align: left;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  word-break: break-word;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
