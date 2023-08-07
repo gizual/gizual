@@ -40,6 +40,12 @@ export class MainController {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  get backendMetrics() {
+    if (this._repo.state !== "ready") return { numBusyWorkers: 0, numWorkers: 0 };
+
+    return this._repo.metrics;
+  }
+
   toggleFile(name: string, info?: FileNodeInfos) {
     if (this._selectedFiles.has(name)) {
       this._selectedFiles.delete(name);
