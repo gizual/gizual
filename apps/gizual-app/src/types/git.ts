@@ -39,8 +39,19 @@ export interface GetBlameParams {
   path: string;
 }
 
-export type FileTreeNode = {
-  name: string;
-  children?: FileTreeNode[];
-  mime_type?: string;
+export type FileNodeInfos = {
+  path: string;
+  title: string;
+  fileIcon?: string;
+  fileIconColor: [string | null, string | null] | undefined;
 };
+
+export function isFileNodeInfo(o: any): o is FileNodeInfos {
+  return (
+    o !== undefined &&
+    o.path &&
+    typeof o.path === "string" &&
+    o.title &&
+    typeof o.title === "string"
+  );
+}

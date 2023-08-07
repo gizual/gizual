@@ -56,6 +56,9 @@
   flex-direction: row;
   justify-content: flex-start;
   justify-self: flex-end;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  flex-shrink: 0;
 }
 
 .right-aligned-group {
@@ -119,4 +122,32 @@
 
 .sectionBody .block:last-of-type {
   border-bottom: none;
+}
+
+@mixin inline-row {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  flex: 0 0;
+}
+
+.inlineRow {
+  @include inline-row;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.toolbarIcon {
+  @include svg-icon;
+}
+
+.flexGrow {
+  position: relative;
+  flex-grow: 1;
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
 }

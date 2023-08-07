@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useMainController } from "../../controllers";
-import {FileViewModel} from "../file/file.vm";
+import { FileViewModel } from "../file/file.vm";
 
 import style from "./editor.module.scss";
 import { EditorViewModel } from "./editor.vm";

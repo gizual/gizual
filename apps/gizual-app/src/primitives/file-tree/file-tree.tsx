@@ -1,82 +1,105 @@
-import { FileTreeNode } from "@app/types";
-import { Skeleton, Tree } from "antd";
-import { action } from "mobx";
+import { Dropdown, MenuProps, Tree } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { useMainController } from "../../controllers";
+import { FontIcon } from "../font-icon/font-icon";
 
 import styles from "./file-tree.module.scss";
-import { FileTreeViewModel } from "./file-tree.vm";
+import { FileTreeDataNode, FileTreeViewModel } from "./file-tree.vm";
 
 type FileTreeProps = {
-  root?: FileTreeNode;
+  vm: FileTreeViewModel;
   mode?: "favourite" | "tree";
 };
 
-function FileTree({ mode = "tree" }: FileTreeProps) {
-  const mainController = useMainController();
+/**
+ * File Tree component, responsible for rendering the file tree and the favourite tree.
+ */
+function FileTree({ mode = "tree", vm }: FileTreeProps) {
+  const treeData = mode === "favourite" ? vm.favouriteTreeData : vm.treeData;
+  const selectedKeys = mode === "favourite" ? vm.selectedFavouriteFiles : vm.selectedFiles;
+  if (vm.treeData.length < 0) return <></>;
 
-  const vm: FileTreeViewModel = React.useMemo(() => {
-    return new FileTreeViewModel(mainController);
-  }, []);
-
-  return (
-    <>
-      {mode === "favourite" ? (
-        <div />
-      ) : (
-        <Tree
-          checkable
-          onCheck={(_, i) => vm.onFileTreeSelect(i.node)}
-          checkedKeys={vm.selectedFiles}
-          multiple
-          defaultExpandAll
-          showIcon
-          showLine
-          treeData={vm.treeData}
-          className={styles.Tree}
-          rootClassName={styles.Tree}
-          onSelect={(_, i) => vm.onFileTreeSelect(i.node)}
-          selectedKeys={vm.selectedFiles}
-          onExpand={(k) => vm.onFileTreeExpand(k)}
-          expandedKeys={vm.expandedKeys}
-        />
-      )}
-    </>
+  // We're deliberately only setting `currentNode` when a right-click on a tree element is detected.
+  // This right-click then triggers a rerender of the components of the `Dropdown` element, based on the
+  // selected node. Including the `Dropdown` element for each entry of the `Tree` introduces lots of
+  // rendering overhead for no apparent benefit.
+  const [currentNode, setCurrentNode] = React.useState<FileTreeDataNode | undefined>(
+    vm.treeData[0],
   );
-}
 
-function FavouriteFileList({ root, mode = "tree" }: FileTreeProps) {
-  const mainController = useMainController();
-  root = mainController.fileTreeRoot;
+  const items: MenuProps["items"] = React.useMemo(
+    () => [
+      {
+        key: "1",
+        label: currentNode && vm.isFileSelected(currentNode) ? "Close" : "Open",
+        onClick: () => currentNode && vm.onFileTreeSelect(currentNode),
+      },
+      {
+        key: "2",
+        label: "Focus",
+        disabled: currentNode && !vm.selectedFiles.includes(currentNode?.path),
 
-  const vm: FileTreeViewModel = React.useMemo(() => {
-    return new FileTreeViewModel(mainController);
-  }, []);
+        onClick: () => currentNode && vm.zoomToFile(currentNode?.path),
+      },
+      {
+        key: "3",
+        label:
+          currentNode && vm.isFavourite(currentNode)
+            ? "Remove from favourites"
+            : "Mark as favourite",
+        onClick: () => currentNode && vm.setFavourite(currentNode),
+      },
+    ],
+    [currentNode],
+  );
 
-  const handleNodeToggle = action((name: string, isDirectory: boolean) => {
-    if (!isDirectory) {
-      vm.toggleFile(name);
-      return;
-    }
-  });
-
-  if (!root) {
-    return <Skeleton active />;
-  }
   return (
-    <div>
-      <div className={styles.FileList}>
-        <ul>
-          {vm.favouriteFiles.map((file) => (
-            <li key={file} onClick={() => handleNodeToggle(file, false)}>
-              {file}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <Dropdown menu={{ items }} trigger={["contextMenu"]}>
+      <Tree
+        checkable
+        onCheck={(_, i) => vm.onFileTreeSelect(i.node, true)}
+        checkedKeys={selectedKeys}
+        multiple
+        defaultExpandAll
+        showIcon
+        showLine
+        treeData={treeData}
+        className={styles.Tree}
+        rootClassName={styles.Tree}
+        selectedKeys={vm.selectedFiles}
+        onExpand={(k) => vm.onFileTreeExpand(k)}
+        expandedKeys={vm.expandedKeys}
+        style={{ overflow: "scroll" }}
+        onRightClick={(i) => setCurrentNode(i.node)}
+        titleRender={(node) => {
+          const isDirectory = node.isLeaf === false;
+          const isExpanded = vm.expandedKeys.includes(node.key);
+          let icon = node.fileIcon;
+          if (isDirectory && !isExpanded) {
+            icon = "directory-closed-icon";
+          }
+          if (isDirectory && isExpanded) {
+            icon = "directory-open-icon";
+          }
+
+          return (
+            <div
+              key={node.key}
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                gap: "0.5rem",
+              }}
+            >
+              <FontIcon name={icon} colors={node.fileIconColor} />
+              <div onClick={() => vm.onFileTreeSelect(node)}>{node.title}</div>
+            </div>
+          );
+        }}
+      />
+    </Dropdown>
   );
 }
 

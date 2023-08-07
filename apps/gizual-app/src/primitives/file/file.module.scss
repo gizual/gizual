@@ -3,57 +3,81 @@
 
 .FileHead {
   @include shared.card-head;
-  margin-bottom: calc(0.5rem * var(--canvas-scale-reverse));
+  margin-bottom: 0.5rem; //calc(0.5rem * var(--canvas-scale-reverse));
   flex: unset;
+  //@include adjust-scale-y-with-canvas;
+  transform-origin: bottom;
 }
 
 .FileHeadLeft {
   display: flex;
   flex-grow: 1;
   flex-direction: row;
+  align-items: flex-end;
   justify-content: flex-start;
-  gap: 0;
+  gap: 0.5rem; //calc(0.5rem * var(--canvas-scale-reverse));
   overflow: hidden;
-  @include adjust-scale-with-canvas;
+  //@include adjust-scale-y-with-canvas-reverse;
   transform-origin: bottom left;
+  font-size: 1rem; //calc(1rem * var(--canvas-scale-reverse));
+  line-height: 1rem; //calc(1rem * var(--canvas-scale-reverse));
+}
+
+@mixin icon-scaled {
+  @include shared.svg-icon;
+  width: 25px; //calc(32px * var(--canvas-scale-reverse));
+  height: 25px; //calc(32px * var(--canvas-scale-reverse));
 }
 
 .FileIcon {
-  @include shared.svg-icon;
+  width: 25px;
+  height: 25px;
+  @include icon-scaled;
 }
 
 .FileTitle {
   @include shared.card-title;
+  margin: unset;
+  align-self: flex-end;
 }
 
-@mixin favourite {
-  width: 32px;
-  height: 32px;
-  flex-grow: 0;
-  flex-shrink: 0;
+.FontIcon {
+  //@include adjust-scale-with-canvas;
+  transform-origin: bottom left;
 }
 
 .FavouriteIcon {
-  @include favourite;
+  @include icon-scaled;
   & > path {
     fill: var(--color-gold);
   }
 }
 
 .FavouriteIconUnfilled {
-  @include favourite;
+  @include icon-scaled;
   fill: var(--color-gold);
+}
+
+.LoadingContainer {
+  display: flex;
+  align-items: center;
+  width: 25px; //calc(32px * var(--canvas-scale-reverse));
+  height: 25px; //calc(32px * var(--canvas-scale-reverse));
+  flex-shrink: 0;
+  flex-grow: 0;
+  //padding: calc(5px * var(--canvas-scale-reverse));
+  transform-origin: center left;
+  @include adjust-scale-with-canvas;
 }
 
 .FileActions {
   @include shared.right-aligned-group;
-  @include adjust-scale-with-canvas;
+  //@include adjust-scale-y-with-canvas-reverse;
   transform-origin: bottom right;
 }
 
 .FileActionIcon {
-  width: 32px;
-  height: 32px;
+  @include icon-scaled;
   fill: var(--foreground-primary);
   &:hover > path {
     @include transition-all;

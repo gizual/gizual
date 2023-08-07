@@ -1,1 +1,1 @@
-export { default as File } from "./file";
+export { File } from "./file";

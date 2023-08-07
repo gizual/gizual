@@ -26,3 +26,23 @@ export const useTheme = () => {
   }, []);
   return theme;
 };
+
+export const useDoc = () => {
+  const [doc, setDoc] = useState<HTMLElement | undefined>();
+  useEffect(() => {
+    setDoc(document.documentElement);
+  }, []);
+
+  return doc;
+};
+
+export const useStyle = (key: string) => {
+  const doc = useDoc();
+  const [style, setStyle] = useState<string>("#f00");
+  useEffect(() => {
+    if (!doc) return;
+    setStyle(getComputedStyle(doc).getPropertyValue(key));
+  }, [doc, key]);
+
+  return style;
+};

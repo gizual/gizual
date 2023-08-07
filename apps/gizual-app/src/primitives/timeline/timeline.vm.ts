@@ -12,6 +12,7 @@ export class TimelineViewModel {
   private _laneSpacing = 1;
   private _commitSizeTop = 10;
   private _commitSizeModal = 5;
+  private _wheelUnusedTicks = 0;
 
   viewBox = {
     width: 1000,
@@ -111,12 +112,13 @@ export class TimelineViewModel {
 
   setActiveBranch(branch: BranchInfo) {
     this.mainController.setBranchByName(branch.name);
+    this.toggleModal();
   }
 
   get commitIndices() {
     if (this.mainController._repo.gitGraph.loading) return;
     return new Map<string, number>(
-      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {})
+      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {}),
     );
   }
 
@@ -138,7 +140,7 @@ export class TimelineViewModel {
         "Aborting, cannot find origin in indices, origin:",
         origin,
         "indices:",
-        this.commitIndices
+        this.commitIndices,
       );
       return parsedCommits;
     } //throw new Error(`Could not find commit index for commit ${origin}`);
@@ -181,16 +183,32 @@ export class TimelineViewModel {
     this.mainController.setStartDate(date);
   }
 
+  setSelectedStartDate(date: Date) {
+    this.mainController.setSelectedStartDate(date);
+  }
+
   setEndDate(date: Date) {
     this.mainController.setEndDate(date);
+  }
+
+  setSelectedEndDate(date: Date) {
+    this.mainController.setSelectedEndDate(date);
   }
 
   get startDate() {
     return this.mainController.startDate;
   }
 
+  get selectedStartDate() {
+    return this.mainController.selectedStartDate;
+  }
+
   get endDate() {
     return this.mainController.endDate;
+  }
+
+  get selectedEndDate() {
+    return this.mainController.selectedEndDate;
   }
 
   get selectedBranch(): ParsedBranch | undefined {
@@ -198,4 +216,40 @@ export class TimelineViewModel {
 
     return this.branches?.find((b) => b.name === this._mainController.selectedBranch);
   }
+
+  accumulateWheelTicks(ticks: number) {
+    // If the scroll direction changed, reset the accumulated wheel ticks.
+    if ((this._wheelUnusedTicks > 0 && ticks < 0) || (this._wheelUnusedTicks < 0 && ticks > 0)) {
+      this._wheelUnusedTicks = 0;
+    }
+    this._wheelUnusedTicks += ticks;
+    const wholeTicks =
+      Math.sign(this._wheelUnusedTicks) * Math.floor(Math.abs(this._wheelUnusedTicks));
+    this._wheelUnusedTicks -= wholeTicks;
+    return wholeTicks;
+  }
+}
+
+export function normalizeWheelEventDirection(evt: React.WheelEvent<SVGSVGElement | undefined>) {
+  let delta = Math.hypot(evt.deltaX, evt.deltaY);
+  const angle = Math.atan2(evt.deltaY, evt.deltaX);
+  if (-0.25 * Math.PI < angle && angle < 0.75 * Math.PI) {
+    // All that is left-up oriented has to change the sign.
+    delta = -delta;
+  }
+  return delta;
+}
+
+export function toDate(timestamp: string) {
+  return new Date(Number(timestamp) * 1000);
+}
+
+export function getDayFromOffset(offset: number, startDate: Date) {
+  const d = new Date(startDate.getTime() + offset * 1000 * 60 * 60 * 24);
+  //console.log("getDayFromOffset", offset, startDate, "=", d);
+  return d;
+}
+
+export function getDateString(date: Date) {
+  return date.toLocaleDateString(undefined, { dateStyle: "medium" });
 }

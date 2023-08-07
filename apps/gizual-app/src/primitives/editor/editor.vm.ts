@@ -76,12 +76,25 @@ export class EditorViewModel {
           }
           toDOM() {
             const lineNumber = view.state.doc.lineAt(line.from).number - 1;
+            const fileContent = this._file.fileContent;
+            const lineContent = fileContent[lineNumber];
+            const authorId = lineContent.commit?.authorId;
+            const authorName = authorId
+              ? this._file._mainController.getAuthorById(authorId)?.name
+              : "Unknown Author";
+
             const div = document.createElement("div");
-            div.style.width = "0.5rem";
-            div.style.height = "1.5rem";
+            div.className = "GitGutter";
             div.style.backgroundColor =
               (this._file.colors && this._file.colors[lineNumber]) ?? "#232323";
-            div.title = this._file.fileContent[lineNumber].commit?.hash ?? "";
+            div.textContent =
+              new Date(
+                Number(this._file.fileContent[lineNumber].commit?.timestamp ?? 0) * 1000,
+              ).toDateString() +
+              " - " +
+              authorName;
+
+            div.title = this._file.fileContent[lineNumber].commit?.message ?? "";
             return div;
           }
         })(file);

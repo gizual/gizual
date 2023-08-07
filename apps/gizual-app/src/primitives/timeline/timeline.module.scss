@@ -93,6 +93,11 @@
   fill: var(--background-primary);
 }
 
+.CommitCircleHighlight {
+  stroke: var(--color-gold) !important;
+  stroke-width: 2px !important;
+}
+
 .Svg {
   user-select: none;
   -webkit-user-select: none;

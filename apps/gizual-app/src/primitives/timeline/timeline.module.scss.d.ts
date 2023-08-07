@@ -12,6 +12,7 @@ declare const classNames: {
   readonly BranchName: "BranchName";
   readonly CommitCircle: "CommitCircle";
   readonly CommitCircleHover: "CommitCircleHover";
+  readonly CommitCircleHighlight: "CommitCircleHighlight";
   readonly Svg: "Svg";
   readonly timelineOverlay: "timelineOverlay";
   readonly timelineOverlayContent: "timelineOverlayContent";

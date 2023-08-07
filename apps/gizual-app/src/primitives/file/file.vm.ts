@@ -1,3 +1,4 @@
+import { FileNodeInfos } from "@app/types";
 import { Remote, transfer, wrap } from "comlink";
 import { makeAutoObservable, toJS } from "mobx";
 import React from "react";
@@ -7,21 +8,6 @@ import { CommitInfo } from "@giz/explorer";
 import { MainController } from "../../controllers";
 
 import { CanvasWorker } from "./worker/worker";
-
-export type FileInfo = {
-  fileName: string;
-  fileExtension: string;
-  fileContent: Line[];
-  lineLengthMax: number;
-
-  earliestTimestamp: number;
-  latestTimestamp: number;
-};
-
-//export type Commit = {
-//  hash: string;
-//  timestamp: number;
-//};
 
 export type Line = {
   content: string;
@@ -49,17 +35,20 @@ export class FileViewModel {
   _colors: string[] = [];
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
-  _fileRef: React.RefObject<HTMLDivElement> | undefined;
+  _fileRef: React.ForwardedRef<HTMLDivElement> | undefined;
   _canvasWorker?: Remote<CanvasWorker>;
   _worker?: Worker;
   _redrawCount = 0;
   _lastDrawScale = 1;
-  _lastDrawnColorMode?: MainController["coloringMode"] = "By Age";
+  _lastDrawnColorMode?: MainController["coloringMode"] = "age";
+
+  _fileInfo?: FileNodeInfos;
 
   constructor(
     mainController: MainController,
     path: string,
     settings: Settings,
+    fileInfo?: FileNodeInfos,
     isFavourite?: boolean,
     isLoadIndicator?: boolean,
   ) {
@@ -76,8 +65,13 @@ export class FileViewModel {
       ...settings,
     };
     this._blameView = this._mainController._repo.getBlame(path);
+    this._fileInfo = fileInfo;
 
     makeAutoObservable(this);
+  }
+
+  get fileInfo() {
+    return this._fileInfo;
   }
 
   dispose() {
@@ -151,11 +145,11 @@ export class FileViewModel {
   }
 
   get isFavourite() {
-    return this._mainController._favouriteFiles.has(this.fileName);
+    return this._mainController.favouriteFiles.has(this.fileName);
   }
 
   setFavourite() {
-    this._mainController.toggleFavourite(this._fileName);
+    this._mainController.toggleFavourite(this._fileName, this._fileInfo);
   }
 
   unsetFavourite() {
@@ -174,7 +168,7 @@ export class FileViewModel {
     this._canvasRef = ref;
   }
 
-  assignFileRef(ref: React.RefObject<HTMLDivElement>) {
+  assignFileRef(ref: React.ForwardedRef<HTMLDivElement>) {
     this._fileRef = ref;
   }
 
@@ -256,7 +250,7 @@ export class FileViewModel {
       return;
     }
 
-    const fileContainer = this._fileRef.current;
+    const fileContainer = (this._fileRef as any).current;
     if (!fileContainer) {
       return;
     }
@@ -282,7 +276,8 @@ export class FileViewModel {
       throw new Error("Could not assign canvas worker");
     }
 
-    //console.log("[gizual-app] UI thread: starting worker draw");
+    this._mainController.incrementNumActiveWorkers();
+
     const drawResult = CanvasWorkerProxy.draw({
       authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(this.fileContent),
@@ -290,6 +285,8 @@ export class FileViewModel {
       latestTimestamp: toJS(this.latestTimestamp),
       settings: toJS(this._settings),
       lineLengthMax: toJS(this.lineLengthMax),
+      selectedStartDate: toJS(this._mainController.selectedStartDate),
+      selectedEndDate: toJS(this._mainController.selectedEndDate),
       dpr,
       rect,
       coloringMode,
@@ -304,6 +301,7 @@ export class FileViewModel {
       this.setLastDrawScale(scale);
       this.setLastDrawnColorMode(coloringMode);
       this.incrementRedrawCount();
+      this._mainController.decrementNumActiveWorkers();
     });
   }
 }

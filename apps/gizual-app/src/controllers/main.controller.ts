@@ -1,47 +1,61 @@
-import { BAND_COLOR_RANGE, getBandColorScale, LocalStorage } from "@app/utils";
+import { ColoringMode, FileNodeInfos } from "@app/types";
+import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
 import { makeAutoObservable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer";
 
+import { ViewModelController } from "./vm.controller";
+
 type Panel = "explore" | "analyze";
 
 export class MainController {
-  _selectedFiles: Set<string> = new Set<string>();
-  _favouriteFiles: Set<string> = new Set<string>();
+  _selectedFiles: Map<string, FileNodeInfos | {}> = new Map();
+  _favouriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
 
-  _coloringMode: "By Age" | "By Author" = "By Age";
-  _lineLengthScaling: "Local" | "Global" = "Local";
+  _coloringMode: ColoringMode = "age";
   _fileTreeRoot?: FileTree;
   _page: "welcome" | "main" = "welcome";
   _selectedPanel: Panel = "explore";
-  _isRepoPanelVisible = true;
-  _isSettingsPanelVisible = true;
+
+  _vmController = new ViewModelController();
+  _numActiveWorkers = 0;
+  _isBusy = false;
 
   _scale = 1;
   _repo: Repository;
 
   private _startDate: Date;
+  private _selectedStartDate: Date;
   private _endDate: Date;
+  private _selectedEndDate: Date;
 
   constructor() {
-    this._isRepoPanelVisible = LocalStorage.getBoolean("isRepoPanelVisible") ?? true;
-    this._isSettingsPanelVisible = LocalStorage.getBoolean("isSettingsPanelVisible") ?? true;
     this._repo = new Repository();
 
     this._startDate = new Date("2023-01-01");
-    this._endDate = new Date("2023-08-01");
+    this._selectedStartDate = new Date("2023-01-01");
+    this._endDate = new Date("2023-07-30");
+    this._selectedEndDate = new Date("2023-07-30");
     this.setScale(1);
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  toggleFile(name: string) {
+  toggleFile(name: string, info?: FileNodeInfos) {
     if (this._selectedFiles.has(name)) {
       this._selectedFiles.delete(name);
-    } else this._selectedFiles.add(name);
+    } else this._selectedFiles.set(name, info ?? {});
   }
 
   get selectedFiles(): string[] {
-    return [...this._selectedFiles.values()];
+    return [...this._selectedFiles.keys()];
+  }
+
+  isFileSelected(f: string) {
+    return this._selectedFiles.has(f);
+  }
+
+  getSelectedFileNodeInfo(key: string) {
+    return this._selectedFiles.get(key);
   }
 
   get fileTreeRoot(): FileTree | undefined {
@@ -63,32 +77,18 @@ export class MainController {
     return this._selectedPanel;
   }
 
-  setRepoPanelVisibility(visible: boolean) {
-    this._isRepoPanelVisible = visible;
-    LocalStorage.setItem("isRepoPanelVisible", this._isRepoPanelVisible.toString());
-  }
-
-  get isRepoPanelVisible() {
-    return this._isRepoPanelVisible;
-  }
-
-  setSettingsPanelVisibility(visible: boolean) {
-    this._isSettingsPanelVisible = visible;
-    LocalStorage.setItem("isSettingsPanelVisible", this._isSettingsPanelVisible.toString());
-  }
-
-  get isSettingsPanelVisible() {
-    return this._isSettingsPanelVisible;
-  }
-
-  toggleFavourite(name: string) {
+  toggleFavourite(name: string, info?: FileNodeInfos) {
     if (this._favouriteFiles.has(name)) {
       this._favouriteFiles.delete(name);
-    } else this._favouriteFiles.add(name);
+    } else this._favouriteFiles.set(name, info);
   }
 
-  get favouriteFiles(): string[] {
-    return [...this._favouriteFiles.values()];
+  get favouriteFiles() {
+    return this._favouriteFiles;
+  }
+
+  getFavouriteFileNodeInfo(key: string) {
+    return this._favouriteFiles.get(key);
   }
 
   setBranchByName(name: string) {
@@ -127,20 +127,12 @@ export class MainController {
     return this._repo.getAuthor(id);
   }
 
-  setColoringMode(mode: "By Age" | "By Author") {
+  setColoringMode(mode: ColoringMode) {
     this._coloringMode = mode;
   }
 
   get coloringMode() {
     return this._coloringMode;
-  }
-
-  setLineLengthScaling(mode: "Local" | "Global") {
-    this._lineLengthScaling = mode;
-  }
-
-  get lineLengthScaling() {
-    return this._lineLengthScaling;
   }
 
   get isLoading() {
@@ -166,16 +158,36 @@ export class MainController {
     this._startDate = date;
   }
 
+  setSelectedStartDate(date: Date) {
+    if (this._selectedStartDate.getTime() !== date.getTime()) this._selectedStartDate = date;
+  }
+
   setEndDate(date: Date) {
     this._endDate = date;
+  }
+
+  setSelectedEndDate(date: Date) {
+    if (this._selectedEndDate.getTime() !== date.getTime()) this._selectedEndDate = date;
   }
 
   get startDate() {
     return this._startDate;
   }
 
+  get selectedStartDate() {
+    return this._selectedStartDate < this._selectedEndDate
+      ? this._selectedStartDate
+      : this._selectedEndDate;
+  }
+
   get endDate() {
     return this._endDate;
+  }
+
+  get selectedEndDate() {
+    return this._selectedEndDate > this._selectedStartDate
+      ? this._selectedEndDate
+      : this._selectedStartDate;
   }
 
   setScale(scale: number) {
@@ -187,5 +199,34 @@ export class MainController {
 
   get scale() {
     return this._scale;
+  }
+
+  get vmController() {
+    return this._vmController;
+  }
+
+  get isBusy() {
+    return this.isLoading;
+  }
+
+  setIsBusy(busy: boolean) {
+    this._isBusy = busy;
+  }
+
+  get numActiveWorkers() {
+    return this._numActiveWorkers;
+  }
+
+  setNumActiveWorkers(n: number) {
+    this._numActiveWorkers = n;
+  }
+
+  decrementNumActiveWorkers() {
+    this._numActiveWorkers--;
+    if (this.numActiveWorkers < 0) this._numActiveWorkers = 0;
+  }
+
+  incrementNumActiveWorkers() {
+    this._numActiveWorkers++;
   }
 }

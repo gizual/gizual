@@ -43,6 +43,7 @@
     "victory": "36.6.11"
   },
   "devDependencies": {
+    "@giz/eslint-config": "workspace:*",
     "@types/d3-interpolate": "^3.0.1",
     "@types/d3-scale": "^4.0.3",
     "@types/lodash": "^4.14.194",
@@ -50,6 +51,7 @@
     "@types/react-dom": "18.0.11",
     "@vitejs/plugin-react-swc": "3.3.2",
     "autoprefixer": "10.4.14",
+    "eslint": "8.45.0",
     "rimraf": "5.0.1",
     "sass": "1.60.0",
     "turbowatch": "2.29.4",

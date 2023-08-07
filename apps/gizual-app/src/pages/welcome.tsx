@@ -1,5 +1,6 @@
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import baseStyle from "../app.module.scss";
 import { useMainController } from "../controllers";
@@ -17,13 +18,15 @@ const WelcomePage = observer(() => {
           {mainController.isLoading ? (
             <Spin size={"large"} style={{ margin: "auto" }}></Spin>
           ) : (
-            <Button
-              variant="filled"
-              onClick={() => mainController.openRepository()}
-              className={baseStyle.button}
-            >
-              Load Repository
-            </Button>
+            <>
+              <Button
+                variant="filled"
+                onClick={() => mainController.openRepository()}
+                className={baseStyle.button}
+              >
+                Load Repository
+              </Button>
+            </>
           )}
         </div>
       </div>

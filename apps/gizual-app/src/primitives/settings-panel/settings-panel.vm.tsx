@@ -1,15 +1,9 @@
+import { ColoringMode, ColoringModeLabels } from "@app/types";
+import { Avatar } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import { makeAutoObservable } from "mobx";
 
 import { MainController } from "../../controllers";
-import type { ColumnsType } from "antd/es/table";
-import { Avatar } from "antd";
-
-const ColoringModeValues = ["By Age", "By Author"] as const;
-export type ColoringMode = (typeof ColoringModeValues)[number];
-
-function isColoringMode(value: string): value is ColoringMode {
-  return ColoringModeValues.includes(value as ColoringMode);
-}
 
 interface AuthorType {
   key: React.Key;
@@ -28,15 +22,12 @@ export class SettingsPanelViewModel {
     makeAutoObservable(this);
   }
 
-  onColoringModeChange = (value: string) => {
-    if (!isColoringMode(value)) {
-      return;
-    }
+  onColoringModeChange = (value: ColoringMode) => {
     this._mainController.setColoringMode(value);
   };
 
   get toggleColoringValues() {
-    return ColoringModeValues;
+    return Object.entries(ColoringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
   get authors(): AuthorType[] {
@@ -62,9 +53,11 @@ export class SettingsPanelViewModel {
               width: 5,
               height: 25,
               display: "block",
-              border: "1px solid var(--border-primary)",
               borderRadius: 5,
-              backgroundColor: this._mainController.authorColorScale(record.id ?? ""),
+              backgroundColor:
+                this._mainController.coloringMode === "author"
+                  ? this._mainController.authorColorScale(record.id ?? "")
+                  : "transparent",
             }}
           />
         ),

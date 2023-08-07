@@ -59,30 +59,56 @@
   box-shadow: 0 15px 15px 2px #000c;
 }
 
+//@mixin text-xs {
+//  font-size: 0.75rem; /* 12px */
+//  line-height: 1rem; /* 16px */
+//}
+//@mixin text-sm {
+//  font-size: 0.875rem; /* 14px */
+//  line-height: 1.25rem; /* 20px */
+//}
+//@mixin text-base {
+//  font-size: 1rem; /* 16px */
+//  line-height: 1.5rem; /* 24px */
+//}
+//@mixin text-lg {
+//  font-size: 1.125rem; /* 18px */
+//  line-height: 1.75rem; /* 28px */
+//}
+//@mixin text-xl {
+//  font-size: 1.25rem; /* 20px */
+//  line-height: 1.75rem; /* 28px */
+//}
+//@mixin text-2xl {
+//  font-size: 1.5rem; /* 24px */
+//  line-height: 2rem; /* 32px */
+//}
+
 @mixin text-xs {
-  font-size: 0.75rem; /* 12px */
-  line-height: 1rem; /* 16px */
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.875rem; /* 14px */
 }
 @mixin text-sm {
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
+  font-size: 0.75rem; /* 12px */
+  line-height: 1.125rem; /* 18px */
 }
 @mixin text-base {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.375rem; /* 22px */
+}
+@mixin text-lg {
   font-size: 1rem; /* 16px */
   line-height: 1.5rem; /* 24px */
 }
-@mixin text-lg {
-  font-size: 1.125rem; /* 18px */
-  line-height: 1.75rem; /* 28px */
-}
 @mixin text-xl {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.5rem; /* 24px */
+}
+@mixin text-2xl {
   font-size: 1.25rem; /* 20px */
   line-height: 1.75rem; /* 28px */
 }
-@mixin text-2xl {
-  font-size: 1.5rem; /* 24px */
-  line-height: 2rem; /* 32px */
-}
+
 @mixin transition-bg {
   transition-property: background-color;
   transition-delay: 0s;
@@ -94,4 +120,48 @@
 
 @mixin adjust-scale-with-canvas {
   transform: scale(var(--canvas-scale-reverse));
+}
+
+@mixin adjust-scale-x-with-canvas {
+  transform: scale(var(--canvas-scale-reverse), 1);
+}
+
+@mixin adjust-scale-x-with-canvas-reverse {
+  transform: scale(var(--canvas-scale-reverse), 1);
+}
+
+@mixin adjust-scale-y-with-canvas {
+  transform: scale(1, var(--canvas-scale));
+}
+
+@mixin adjust-scale-y-with-canvas-reverse {
+  transform: scale(1, var(--canvas-scale-reverse));
+}
+
+@mixin z-index-base {
+  z-index: 0;
+}
+
+@mixin z-index-base-1 {
+  z-index: 1;
+}
+
+@mixin z-index-base-2 {
+  z-index: 2;
+}
+
+@mixin z-index-base-3 {
+  z-index: 3;
+}
+
+@mixin z-index-elevated {
+  z-index: 5;
+}
+
+@mixin z-index-elevated-2 {
+  z-index: 6;
+}
+
+@mixin z-index-dialog {
+  z-index: 10;
 }

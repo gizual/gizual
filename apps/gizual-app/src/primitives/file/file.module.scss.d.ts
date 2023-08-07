@@ -3,8 +3,10 @@ declare const classNames: {
   readonly FileHeadLeft: "FileHeadLeft";
   readonly FileIcon: "FileIcon";
   readonly FileTitle: "FileTitle";
+  readonly FontIcon: "FontIcon";
   readonly FavouriteIcon: "FavouriteIcon";
   readonly FavouriteIconUnfilled: "FavouriteIconUnfilled";
+  readonly LoadingContainer: "LoadingContainer";
   readonly FileActions: "FileActions";
   readonly FileActionIcon: "FileActionIcon";
   readonly EmptyCanvas: "EmptyCanvas";
