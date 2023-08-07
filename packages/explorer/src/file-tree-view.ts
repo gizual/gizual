@@ -1,10 +1,10 @@
 import { action, makeAutoObservable } from "mobx";
+
 import type { Repository } from "./repository";
 import type { FileTree, FileTreeNode } from "./types";
-import { getFileIcon } from "./file-icon-db";
 
 export class FileTreeView {
-  loading: boolean = false;
+  loading = false;
   error: string | undefined = undefined;
 
   tree: FileTree;
@@ -62,7 +62,7 @@ export class FileTreeView {
     }
 
     const file: FileTree = {
-      name: path[path.length - 1],
+      name: path.at(-1),
       kind,
     };
     if (!current.children) current.children = [];

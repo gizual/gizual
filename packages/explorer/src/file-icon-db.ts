@@ -26,7 +26,7 @@ export function getFileIcon(kind: number): FileIcon | undefined {
  * The regex matching is done in the rust explorer-backend-libgit2 package 
  * (packages/explorer-backend-libgit2/src/file_types_db.rs)
  */
-const FILE_ICON_DB: [string, [string | null, string  | null]][] = [
+const FILE_ICON_DB: [string, [string | null, string | null]][] = [
   ["lock-icon", ["dark-blue", "dark-blue"]],
   ["binary-icon", ["dark-green", "dark-green"]],
   ["database-icon", ["medium-red", "medium-red"]],

@@ -1,9 +1,11 @@
+import { isString } from "lodash";
+import { makeObservable, observable } from "mobx";
+
 import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
 import { LOG, Logger } from "@giz/logger";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
-import { Author, Blame, FileTreeNode, isBlame, isFileTree } from "./types";
-import { isNumber, isString } from "lodash";
+import { Author, Blame, FileTreeNode, isBlame } from "./types";
 
 const SKIP_VALIDATION = true;
 
@@ -47,14 +49,6 @@ function isStreamJob(obj: any): obj is StreamJob {
 
 type Job = CommandJob | StreamJob;
 
-const a: Job = {
-  method: "blame",
-  params: ["path"],
-  onData: (data: Blame) => {},
-  onEnd: () => {},
-  onErr: (err: any) => {},
-};
-
 async function createWorker(handle: FileSystemDirectoryHandle) {
   const runtime = await WasiRuntime.create({
     moduleUrl: wasmFileUrl,
@@ -79,15 +73,32 @@ async function createWorker(handle: FileSystemDirectoryHandle) {
 const MAX_CONCURRENCY = navigator.hardwareConcurrency || 4;
 
 export class ExplorerPool {
-  private workers: WorkerWithState[];
-  private jobQueue: any[];
+   _workers: WorkerWithState[];
+   _jobQueue: Job[];
   private counter = 0;
   logger: Logger;
 
   constructor(workers: WorkerWithState[]) {
-    this.workers = workers;
-    this.jobQueue = [];
+    this._workers = workers;
+    this._jobQueue = [];
     this.logger = LOG.getSubLogger({ name: "Explorer" });
+
+    makeObservable(this, {
+      _workers: observable,
+      _jobQueue: observable,
+    });
+  }
+
+  get numWorkers() {
+    return this._workers.length;
+  }
+
+  get numJobsInQueue() {
+    return this._jobQueue.length;
+  }
+
+  get numBusyWorkers() {
+    return this._workers.filter((w) => w.busy).length;
   }
 
   static async create(handle: FileSystemDirectoryHandle, numWorkers: number = MAX_CONCURRENCY) {
@@ -98,7 +109,7 @@ export class ExplorerPool {
     }
     const workers = await Promise.all(workerPromises);
 
-    const pool = workers.map((w) => ({ handle: w, busy: false }));
+    const pool = workers.map((w) => (observable({ handle: w, busy: false })));
 
     return new ExplorerPool(pool);
   }
@@ -119,7 +130,7 @@ export class ExplorerPool {
   }
 
   private enqueueJob(job: Job) {
-    this.jobQueue.push(job);
+    this._jobQueue.push(job);
     this.dispatchJob();
   }
 
@@ -166,22 +177,27 @@ export class ExplorerPool {
   }
 
   private dispatchJob() {
-    if (this.jobQueue.length === 0) {
+    if (this._jobQueue.length === 0) {
       return;
     }
-    const job = this.jobQueue.shift();
+    const job = this._jobQueue.shift();
+
+    if (!job) {
+      return;
+    }
+
     const worker = this.getAvailableWorker();
 
     if (worker) {
       worker.busy = true;
       this.executeOnWorker(worker, job);
     } else {
-      this.jobQueue.unshift(job);
+      this._jobQueue.unshift(job);
     }
   }
 
   private getAvailableWorker(): WorkerWithState | undefined {
-    return this.workers.find((worker) => !worker.busy);
+    return this._workers.find((worker) => !worker.busy);
   }
 
   // -------
