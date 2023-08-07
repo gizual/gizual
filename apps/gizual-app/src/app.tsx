@@ -1,14 +1,13 @@
+import { ConfigProvider, theme as AntdTheme, ThemeConfig } from "antd";
+import { SeedToken } from "antd/es/theme/interface";
 import { observer } from "mobx-react-lite";
 
 import style from "./app.module.scss";
-import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import { useMainController } from "./controllers";
 import MainPage from "./pages/main";
 import WelcomePage from "./pages/welcome";
-import { useStyle, useTheme } from "./utils";
-import { ConfigProvider, theme as AntdTheme, ThemeConfig } from "antd";
-import { SeedToken } from "antd/es/theme/interface";
 import { Footer } from "./primitives/footer";
+import { useStyle, useTheme } from "./utils";
 
 function App() {
   const mainController = useMainController();

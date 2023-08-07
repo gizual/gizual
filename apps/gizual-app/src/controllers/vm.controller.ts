@@ -1,7 +1,6 @@
+import type { MainPageViewModel } from "@app/pages";
 import type { CanvasViewModel } from "@app/primitives/canvas";
 import type { FileTreeViewModel } from "@app/primitives/file-tree";
-import type { MainPageViewModel } from "@app/pages";
-
 import { LocalStorage } from "@app/utils";
 import { makeAutoObservable } from "mobx";
 

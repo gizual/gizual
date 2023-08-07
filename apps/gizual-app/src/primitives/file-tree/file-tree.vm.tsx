@@ -99,7 +99,7 @@ export class FileTreeViewModel {
     return [];
   }
 
-  onFileTreeSelect(node: FileTreeDataNode) {
+  onFileTreeSelect(node: FileTreeDataNode, check = false) {
     if (node.isLeaf) {
       this.toggleFile(node.path, node);
       return;
@@ -109,10 +109,12 @@ export class FileTreeViewModel {
       if (!currentNode.children) return;
 
       for (const child of currentNode.children) {
-        if (child.isLeaf) {
-          this.toggleFile(child.path, child);
-        } else {
-          toggleChildren(child);
+        if (check) {
+          if (child.isLeaf) {
+            this.toggleFile(child.path, child);
+          } else {
+            toggleChildren(child);
+          }
         }
       }
 

@@ -58,7 +58,7 @@ function FileTree({ mode = "tree", vm }: FileTreeProps) {
     <Dropdown menu={{ items }} trigger={["contextMenu"]}>
       <Tree
         checkable
-        onCheck={(_, i) => vm.onFileTreeSelect(i.node)}
+        onCheck={(_, i) => vm.onFileTreeSelect(i.node, true)}
         checkedKeys={selectedKeys}
         multiple
         defaultExpandAll

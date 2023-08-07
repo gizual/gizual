@@ -1,3 +1,5 @@
+import { Radio, Skeleton, Table } from "antd";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useMainController } from "../../controllers";
@@ -5,9 +7,6 @@ import sharedStyle from "../css/shared-styles.module.scss";
 
 import style from "./settings-panel.module.scss";
 import { SettingsPanelViewModel } from "./settings-panel.vm";
-
-import { Radio, Skeleton, Table } from "antd";
-import { observer } from "mobx-react-lite";
 
 export type SettingsPanelProps = {
   vm?: SettingsPanelViewModel;

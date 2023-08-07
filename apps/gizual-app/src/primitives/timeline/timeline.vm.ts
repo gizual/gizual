@@ -112,6 +112,7 @@ export class TimelineViewModel {
 
   setActiveBranch(branch: BranchInfo) {
     this.mainController.setBranchByName(branch.name);
+    this.toggleModal();
   }
 
   get commitIndices() {

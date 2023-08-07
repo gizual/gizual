@@ -89,6 +89,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
             initialPositionY={0}
             wheel={{ smoothStep: 0.005 }}
             limitToBounds={false}
+            panning={{ velocityDisabled: true }}
             ref={ref}
             onTransformed={(
               ref: ReactZoomPanPinchRef,
@@ -113,7 +114,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                 height: "100%",
               }}
             >
-              {vm.selectedFiles.map((file, index) => (
+              {vm.selectedFiles.map((file, _index) => (
                 <File ref={vm.getFileRef(file.fileName)} vm={file} key={file.fileName} />
               ))}
             </TransformComponent>

@@ -59,12 +59,10 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
   if (!vm) return <div />;
   const [width, height] = useWindowSize();
   const [canvasWidth, setCanvasWidth] = React.useState(0);
-  const [canvasHeight, setCanvasHeight] = React.useState(0);
 
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     setCanvasWidth(ref.current?.clientWidth ?? width);
-    setCanvasHeight(ref.current?.clientHeight ?? height);
   }, [ref, width, height]);
 
   const layout: ReactGridLayout.Layout[] = [

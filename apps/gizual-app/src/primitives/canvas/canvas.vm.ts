@@ -1,13 +1,13 @@
+import { FileNodeInfos } from "@app/types";
 import _ from "lodash";
 import { autorun, makeAutoObservable } from "mobx";
 import React, { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
-import { FileNodeInfos } from "@app/types";
 
 import { MainController } from "../../controllers";
 import { FileViewModel } from "../file/file.vm";
 
-export const MIN_ZOOM = 1;
+export const MIN_ZOOM = 0.6;
 export const MAX_ZOOM = 3;
 
 export class CanvasViewModel {

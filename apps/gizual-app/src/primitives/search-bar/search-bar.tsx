@@ -1,5 +1,6 @@
 /// <reference types="vite-plugin-svgr/client" />
 
+import { useMainController, useViewModelController } from "@app/controllers";
 import { StreamLanguage } from "@codemirror/language";
 import { simpleMode } from "@codemirror/legacy-modes/mode/simple-mode";
 import { keymap } from "@codemirror/view";
@@ -16,7 +17,6 @@ import { IconButton } from "../icon-button";
 
 import style from "./search-bar.module.scss";
 import { AvailableTags, SearchBarViewModel } from "./search-bar.vm";
-import { useMainController, useViewModelController } from "@app/controllers";
 
 const myTheme = createTheme({
   theme: "dark",
