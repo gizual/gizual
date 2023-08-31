@@ -8,6 +8,7 @@ let { stdout: rootPath } = await $`git rev-parse --show-toplevel`;
 rootPath = rootPath.trim();
 
 const PATH_SEPARATOR = process.platform === "win32" ? ";" : ":";
+const EXE_SUFFIX = process.platform === "win32" ? ".exe" : "";
 
 // WASI SDK ------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ async function installWasiSdk() {
 
   const wasiSdkPath = `${rootPath}/.cache/tools/wasi-sdk`;
 
-  if (fs.existsSync(path.join(wasiSdkPath, "bin", "clang"))) {
+  if (fs.existsSync(path.join(wasiSdkPath, "bin", `clang${EXE_SUFFIX}`))) {
     return wasiSdkPath;
   }
 
@@ -91,6 +92,16 @@ const env = {
   // RUSTFLAGS: `-Z wasi-exec-model=reactor`
 };
 
+if (process.platform === "win32") {
+  const gitPath = await which("git");
+  if (!gitPath) {
+    throw new Error("git not found on PATH");
+  }
+  const gitDir = path.dirname(gitPath);
+
+  env.PATH = `${gitDir}${PATH_SEPARATOR}${env.PATH}`;
+}
+
 const wasiSdkPath = await installWasiSdk();
 env.WASI_SDK_PATH = wasiSdkPath;
 $.log(`Using wasi-sdk from ${wasiSdkPath}`);
@@ -118,8 +129,9 @@ $.env = env;
 switch (command) {
   case "build": {
     if (process.platform === "win32") {
-      await $`rustup toolchain install stable-gnu`;
-      await $`rustup override set stable-gnu`;
+      await $`rustup toolchain install stable-x86_64-pc-windows-gnu --force-non-host`;
+      await $`rustup override set stable-x86_64-pc-windows-gnu`;
+      await $`rustup target add x86_64-pc-windows-gnu`;
     }
     await $`rustup target add ${TARGET}`;
     await $`cargo build --release --target=${TARGET}`;
@@ -127,6 +139,8 @@ switch (command) {
     const wasmFileSrc = `${rootPath}/target/${TARGET}/release/explorer-backend-libgit2.wasm`;
     const wasmFilDest = `dist/explorer-backend-libgit2.wasm`;
     await mkdirp(path.join(rootPath, "dist"));
+    await mkdirp(path.join(__dirname, "dist"));
+
     await fs.copyFile(wasmFileSrc, wasmFilDest);
     await $`wasm-opt -O3 ${wasmFileSrc} --asyncify -o ${wasmFilDest}  --debuginfo`;
     break;
