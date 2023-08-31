@@ -9,6 +9,8 @@
     "format": "cargo fmt"
   },
   "devDependencies": {
+    "download": "8.0.0",
+    "mkdirp": "3.0.1",
     "turbowatch": "2.29.4",
     "wasm-pack": "0.12.1",
     "zx": "7.2.3"
