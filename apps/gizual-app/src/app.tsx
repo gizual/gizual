@@ -18,6 +18,9 @@ function App() {
     ...AntdTheme.defaultSeed,
     ...AntdTheme.compactAlgorithm,
     colorPrimary: useStyle("--accent-main"),
+    colorBgBase: useStyle("--background-primary"),
+    colorTextBase: useStyle("--foreground-primary"),
+    borderRadius: 4,
   };
 
   const token =

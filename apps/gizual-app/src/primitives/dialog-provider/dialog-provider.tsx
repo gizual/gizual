@@ -19,7 +19,7 @@ function DialogProvider({ vm: externalVm, trigger, children }: PopoverProviderPr
 
   return (
     <Dialog.Root open={vm.isVisible} modal>
-      <Dialog.Trigger asChild={false} onClick={() => vm!.open()}>
+      <Dialog.Trigger asChild={true} onClick={() => vm!.open()}>
         {trigger}
       </Dialog.Trigger>
       <Dialog.Portal>

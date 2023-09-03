@@ -57,7 +57,7 @@ const SettingsGroup = observer(({ settings, prefix = "" }: { settings: any; pref
         if (entry && (isSettingsEntry(entry) || isGroupEntry(entry))) {
           // eslint-disable-next-line unicorn/prefer-ternary
           if (isGroupEntry(entry)) {
-            return <SettingsGroup settings={entry} prefix={entry.groupName} />;
+            return <SettingsGroup key={index} settings={entry} prefix={entry.groupName} />;
           } else {
             return <SettingsEntry key={index} entry={entry} prefix={prefix} />;
           }
@@ -92,6 +92,7 @@ const SettingsEntry = observer(
           {entry.controlType === "select" && (
             <Select
               defaultValue={entry.value}
+              style={{ width: 200 }}
               onChange={onChange}
               options={entry.availableValues}
             />
