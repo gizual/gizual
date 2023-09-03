@@ -1,3 +1,4 @@
+import * as child from "node:child_process";
 import path from "node:path";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
@@ -6,8 +7,13 @@ import svgr from "vite-plugin-svgr";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 
+const commitHash = child.execSync("git rev-parse --short HEAD").toString();
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    __COMMIT_HASH__: JSON.stringify(commitHash),
+  },
   resolve: {
     alias: {
       "@/mixins": path.join(__dirname, "/src/mixins.scss"),

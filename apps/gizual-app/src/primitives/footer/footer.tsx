@@ -11,7 +11,7 @@ export const Footer = observer(() => {
   return (
     <div className={style.footer}>
       <div className={style.left}>
-        <p>Gizual v0.1</p>
+        <p>Gizual v0.2 - Build #{__COMMIT_HASH__}</p>
       </div>
       <div className={style.right}>
         <Spin spinning={mainController.isBusy} />
