@@ -201,6 +201,7 @@ checksum = "3a471a38ef8ed83cd6e40aa59c1ffe17db6855c18e3604d9c4ed8c08ebc28678"
 [[package]]
 name = "git2"
 version = "0.17.0"
+source = "git+https://github.com/gizual/git2-rs?branch=wasm32-wasi-support#fc3e45fc2579ef8c9cbd3f4c76312b3b75e044e4"
 dependencies = [
  "bitflags",
  "libc",
@@ -353,6 +354,7 @@ checksum = "99227334921fae1a979cf0bfdfcc6b3e5ce376ef57e16fb6fb3ea2ed6095f80c"
 [[package]]
 name = "libgit2-sys"
 version = "0.15.0+1.6.3"
+source = "git+https://github.com/gizual/git2-rs?branch=wasm32-wasi-support#fc3e45fc2579ef8c9cbd3f4c76312b3b75e044e4"
 dependencies = [
  "cc",
  "libc",
