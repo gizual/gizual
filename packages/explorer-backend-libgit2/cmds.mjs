@@ -138,7 +138,6 @@ switch (command) {
 
     const wasmFileSrc = `${rootPath}/target/${TARGET}/release/explorer-backend-libgit2.wasm`;
     const wasmFilDest = `dist/explorer-backend-libgit2.wasm`;
-    await mkdirp(path.join(rootPath, "dist"));
     await mkdirp(path.join(__dirname, "dist"));
 
     await fs.copyFile(wasmFileSrc, wasmFilDest);
