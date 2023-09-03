@@ -12,5 +12,6 @@ declare const classNames: {
   readonly fullWidth: "fullWidth";
   readonly toolbarIcon: "toolbarIcon";
   readonly flexGrow: "flexGrow";
+  readonly pointer: "pointer";
 };
 export = classNames;

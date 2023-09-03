@@ -14,7 +14,7 @@ export function useWindowSize() {
 }
 
 export const useTheme = () => {
-  const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)") ? "dark" : "light";
+  const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   const [theme, setTheme] = useState<"dark" | "light">(defaultTheme);
   useEffect(() => {
     window

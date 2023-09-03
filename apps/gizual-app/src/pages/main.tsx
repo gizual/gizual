@@ -15,6 +15,7 @@ import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
 import { MainPageViewModel } from "./main.vm";
+import { SettingsPage } from "./settings";
 
 export type MainPageProps = {
   vm?: MainPageViewModel;
@@ -33,9 +34,11 @@ function MainPage({ vm: externalVm }: MainPageProps) {
         <TitleBar />
         {mainController.selectedPanel === "explore" && <SearchBar />}
       </div>
+
       <div className={style.body}>
         {mainController.selectedPanel === "explore" && <ExplorePage vm={vm} />}
         {mainController.selectedPanel === "analyze" && <AnalyzePage vm={vm} />}
+        {mainController.selectedPanel === "settings" && <SettingsPage />}
       </div>
     </div>
   );

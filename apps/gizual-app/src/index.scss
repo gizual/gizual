@@ -1,5 +1,7 @@
 @use "mixins" as *;
 
+@layer reset, components, overrides;
+
 @font-face {
   font-family: "Noto Sans";
   src: url("/fonts/NotoSans-Regular.woff2") format("woff2");
@@ -87,87 +89,90 @@
   }
 }
 
-html {
-  font-family: "Noto Sans", system-ui, sans-serif;
-  background-color: var(--color-giz-white);
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
+@layer reset {
+  html {
+    font-family: "Noto Sans", system-ui, sans-serif;
+    background-color: var(--color-giz-white);
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    scrollbar-width: thin;
+  }
 
-body {
-  height: 100%;
-  margin: 0;
-}
+  body {
+    height: 100%;
+    margin: 0;
+  }
 
-#root {
-  height: 100%;
-}
+  #root {
+    height: 100%;
+  }
 
-/* Sane CSS defaults inspired by `preflight` */
-blockquote,
-dl,
-dd,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-hr,
-figure,
-p,
-pre {
-  margin: 0;
-}
+  /* Sane CSS defaults inspired by `preflight` */
+  blockquote,
+  dl,
+  dd,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  hr,
+  figure,
+  p,
+  pre {
+    margin: 0;
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: inherit;
-  font-weight: inherit;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
 
-ol,
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+  ol,
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-img,
-svg,
-video,
-canvas,
-audio,
-iframe,
-embed,
-object {
-  display: block;
-}
-/* End of preflight block */
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+  }
+  /* End of preflight block */
 
-body > * {
-  @include text-base;
-  color: var(--foreground-primary);
-}
+  body > * {
+    @include text-base;
+    color: var(--foreground-primary);
+  }
 
-h1 {
-  @include text-2xl;
-  font-weight: bold;
-}
+  h1 {
+    @include text-2xl;
+    font-weight: bold;
+  }
 
-h2 {
-  @include text-xl;
-  font-weight: medium;
-}
+  h2 {
+    @include text-xl;
+    font-weight: medium;
+  }
 
-h3 {
-  @include text-lg;
-  font-weight: medium;
+  h3 {
+    @include text-lg;
+    font-weight: medium;
+  }
 }
 
 .overlay {

@@ -70,7 +70,6 @@ function FileTree({ mode = "tree", vm }: FileTreeProps) {
         selectedKeys={vm.selectedFiles}
         onExpand={(k) => vm.onFileTreeExpand(k)}
         expandedKeys={vm.expandedKeys}
-        style={{ overflow: "scroll" }}
         onRightClick={(i) => setCurrentNode(i.node)}
         titleRender={(node) => {
           const isDirectory = node.isLeaf === false;

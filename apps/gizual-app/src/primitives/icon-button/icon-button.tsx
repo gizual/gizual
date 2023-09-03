@@ -5,6 +5,7 @@ import style from "./icon-button.module.scss";
 export type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
   onClick: () => void;
+  ariaLabel?: string;
   colored?: boolean;
   wide?: boolean;
   border?: "right";

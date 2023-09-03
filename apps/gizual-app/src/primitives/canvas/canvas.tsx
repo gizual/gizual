@@ -1,4 +1,4 @@
-import { Dropdown, InputNumber, MenuProps } from "antd";
+import { Dropdown, InputNumber, MenuProps, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -61,9 +61,11 @@ function Canvas({ vm: externalVm }: CanvasProps) {
       <Timeline />
       <div className={style.Toolbar}>
         <div className={sharedStyle.inlineRow}>
-          <IconButton onClick={() => vm.zoomOut()}>
-            <MagnifyMinus className={sharedStyle.toolbarIcon} />
-          </IconButton>
+          <Tooltip title={"Zoom out"}>
+            <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
+              <MagnifyMinus className={sharedStyle.toolbarIcon} />
+            </IconButton>
+          </Tooltip>
           <InputNumber
             value={currentZoomLevel}
             suffix={"%"}
@@ -71,12 +73,16 @@ function Canvas({ vm: externalVm }: CanvasProps) {
             size={"large"}
             controls={false}
           />
-          <IconButton onClick={() => vm.zoomIn()}>
-            <MagnifyPlus className={sharedStyle.toolbarIcon} />
-          </IconButton>
-          <IconButton onClick={() => vm.center(1)}>
-            <Center className={sharedStyle.toolbarIcon} />
-          </IconButton>
+          <Tooltip title={"Zoom in"}>
+            <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
+              <MagnifyPlus className={sharedStyle.toolbarIcon} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={"Center"}>
+            <IconButton onClick={() => vm.center(1)} aria-label="Center">
+              <Center className={sharedStyle.toolbarIcon} />
+            </IconButton>
+          </Tooltip>
         </div>
       </div>
       <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
@@ -87,7 +93,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
             maxScale={MAX_ZOOM}
             initialPositionX={0}
             initialPositionY={0}
-            wheel={{ smoothStep: 0.005 }}
+            wheel={{ smoothStep: 0.001 }}
             limitToBounds={false}
             panning={{ velocityDisabled: true }}
             ref={ref}

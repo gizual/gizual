@@ -18,6 +18,7 @@ export type Line = {
 export type Settings = Partial<{
   colorOld: string;
   colorNew: string;
+  colorNotLoaded: string;
   maxLineLength: number;
   lineSpacing: number;
   maxLineCount: number;
@@ -57,8 +58,10 @@ export class FileViewModel {
     this._mainController = mainController;
     this._isLoadIndicator = isLoadIndicator ?? false;
     this._settings = {
-      colorNew: "rgb(204, 0, 0)",
-      colorOld: "rgb(51, 51, 153)",
+      colorNew: mainController.settingsController.settings.visualisationSettings.colors.new.value,
+      colorOld: mainController.settingsController.settings.visualisationSettings.colors.old.value,
+      colorNotLoaded:
+        mainController.settingsController.settings.visualisationSettings.colors.notLoaded.value,
       maxLineLength: 120,
       lineSpacing: 0,
       maxLineCount: 60,

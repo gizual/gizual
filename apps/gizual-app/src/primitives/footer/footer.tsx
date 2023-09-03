@@ -15,6 +15,7 @@ export const Footer = observer(() => {
       </div>
       <div className={style.right}>
         <Spin spinning={mainController.isBusy} />
+        <p>{mainController.selectedFiles.length} files selected</p>
         <p>
           {mainController.backendMetrics.numBusyWorkers}/{mainController.backendMetrics.numWorkers}{" "}
           backend workers

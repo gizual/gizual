@@ -4,9 +4,11 @@ import { makeAutoObservable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer";
 
+import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-type Panel = "explore" | "analyze";
+type Panel = "explore" | "analyze" | "settings";
+type Page = "welcome" | "main";
 
 export class MainController {
   _selectedFiles: Map<string, FileNodeInfos | {}> = new Map();
@@ -14,15 +16,17 @@ export class MainController {
 
   _coloringMode: ColoringMode = "age";
   _fileTreeRoot?: FileTree;
-  _page: "welcome" | "main" = "welcome";
+  _page: Page = "welcome";
   _selectedPanel: Panel = "explore";
 
   _vmController = new ViewModelController();
+  _settingsController: SettingsController;
   _numActiveWorkers = 0;
   _isBusy = false;
 
   _scale = 1;
   _repo: Repository;
+  _numFiles = 0;
 
   private _startDate: Date;
   private _selectedStartDate: Date;
@@ -37,6 +41,8 @@ export class MainController {
     this._endDate = new Date("2023-07-30");
     this._selectedEndDate = new Date("2023-07-30");
     this.setScale(1);
+    this._settingsController = new SettingsController();
+    this._settingsController.loadSettings();
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
@@ -156,7 +162,7 @@ export class MainController {
     return this._page;
   }
 
-  setPage(page: "welcome" | "main") {
+  setPage(page: Page) {
     this._page = page;
   }
 
@@ -234,5 +240,22 @@ export class MainController {
 
   incrementNumActiveWorkers() {
     this._numActiveWorkers++;
+  }
+
+  closeRepository() {
+    this.setPage("welcome");
+    this._repo = new Repository();
+  }
+
+  setNumFiles(n: number) {
+    this._numFiles = n;
+  }
+
+  get numFiles() {
+    return this._numFiles;
+  }
+
+  get settingsController() {
+    return this._settingsController;
   }
 }

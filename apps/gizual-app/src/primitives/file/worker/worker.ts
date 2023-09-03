@@ -70,7 +70,9 @@ export class CanvasWorker {
       const rectWidth = ((lineLength - lineOffsetUnscaled) / fileCtx.lineLengthMax) * columnWidth;
 
       const rectHeight = lineHeight;
-      const color = line.commit ? this.interpolateColor(line, fileCtx) : SPECIAL_COLORS.NOT_LOADED;
+      const color = line.commit
+        ? this.interpolateColor(line, fileCtx)
+        : fileCtx.settings.colorNotLoaded;
 
       ctx.fillStyle = color;
       line.color = color;
@@ -110,7 +112,7 @@ export class CanvasWorker {
       updatedAtSeconds * 1000 < fileContext.selectedStartDate.getTime() ||
       updatedAtSeconds * 1000 > fileContext.selectedEndDate.getTime()
     )
-      return SPECIAL_COLORS.NOT_LOADED;
+      return fileContext.settings.colorNotLoaded;
 
     if (fileContext.coloringMode === "age") {
       const timeRange: [number, number] = [
@@ -124,7 +126,7 @@ export class CanvasWorker {
 
       return updatedAtSeconds
         ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
-        : SPECIAL_COLORS.NOT_LOADED;
+        : fileContext.settings.colorNotLoaded;
     } else {
       const author = fileContext.authors.find((a) => a.id === line.commit?.authorId);
       return getBandColorScale(

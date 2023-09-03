@@ -64,15 +64,18 @@ export class EditorViewModel {
     })();
 
     const file = this._file;
+    const mainController = this._mainController;
 
     const gitGutter: Extension = gutter({
       class: "cm-blame-gutter",
       lineMarker(view, line, _) {
         return new (class extends GutterMarker {
           _file: FileViewModel;
-          constructor(file: FileViewModel) {
+          _mainController: MainController;
+          constructor(file: FileViewModel, mainController: MainController) {
             super();
             this._file = file;
+            this._mainController = mainController;
           }
           toDOM() {
             const lineNumber = view.state.doc.lineAt(line.from).number - 1;
@@ -84,20 +87,28 @@ export class EditorViewModel {
               : "Unknown Author";
 
             const div = document.createElement("div");
+            const gutterStyle =
+              this._mainController.settingsController.settings.editor.gutterStyle.value;
             div.className = "GitGutter";
+            div.style.width = gutterStyle === "author" ? "8rem" : "0.5rem";
             div.style.backgroundColor =
-              (this._file.colors && this._file.colors[lineNumber]) ?? "#232323";
-            div.textContent =
-              new Date(
-                Number(this._file.fileContent[lineNumber].commit?.timestamp ?? 0) * 1000,
-              ).toDateString() +
-              " - " +
-              authorName;
+              (this._file.colors && this._file.colors[lineNumber]) ??
+              this._mainController.settingsController.settings.visualisationSettings.colors
+                .notLoaded;
 
-            div.title = this._file.fileContent[lineNumber].commit?.message ?? "";
+            if (gutterStyle === "author") {
+              div.textContent =
+                new Date(
+                  Number(this._file.fileContent[lineNumber].commit?.timestamp ?? 0) * 1000,
+                ).toDateString() +
+                " - " +
+                authorName;
+
+              div.title = this._file.fileContent[lineNumber].commit?.message ?? "";
+            }
             return div;
           }
-        })(file);
+        })(file, mainController);
       },
       initialSpacer: () => gitMarker,
     });

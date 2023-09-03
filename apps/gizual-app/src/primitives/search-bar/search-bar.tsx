@@ -17,6 +17,7 @@ import { IconButton } from "../icon-button";
 
 import style from "./search-bar.module.scss";
 import { AvailableTags, SearchBarViewModel } from "./search-bar.vm";
+import { Tooltip } from "antd";
 
 const myTheme = createTheme({
   theme: "dark",
@@ -82,15 +83,25 @@ function SearchBar({ vm: externalVm }: SearchBarProps) {
   return (
     <div className={style.searchBar}>
       <div className={style.content}>
-        <IconButton onClick={vmController.toggleRepoPanelVisibility}>
-          <TreeIcon />
-        </IconButton>
+        <Tooltip title={"Toggle repository panel"}>
+          <IconButton
+            onClick={vmController.toggleRepoPanelVisibility}
+            aria-label="Toggle repository panel"
+          >
+            <TreeIcon />
+          </IconButton>
+        </Tooltip>
         <div id="inputWrapper" className={style.searchInputWrapper}>
           <SearchInput vm={vm} />
         </div>
-        <IconButton onClick={vmController.toggleSettingsPanelVisibility}>
-          <SettingsIcon />
-        </IconButton>
+        <Tooltip title={"Toggle settings panel"}>
+          <IconButton
+            onClick={vmController.toggleSettingsPanelVisibility}
+            aria-label="Toggle settings panel"
+          >
+            <SettingsIcon />
+          </IconButton>
+        </Tooltip>
       </div>
     </div>
   );
@@ -161,6 +172,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
         wide
         border="right"
         onClick={() => vm.search}
+        aria-label="Search"
       >
         <SearchIcon />
       </IconButton>
