@@ -23,6 +23,7 @@ export class MainController {
   _settingsController: SettingsController;
   _numActiveWorkers = 0;
   _isBusy = false;
+  _repoName = "";
 
   _scale = 1;
   _repo: Repository;
@@ -89,6 +90,14 @@ export class MainController {
     return this._selectedPanel;
   }
 
+  setRepoName(name: string) {
+    this._repoName = name;
+  }
+
+  get repoName() {
+    return this._repoName;
+  }
+
   toggleFavourite(name: string, info?: FileNodeInfos) {
     if (this._favouriteFiles.has(name)) {
       this._favouriteFiles.delete(name);
@@ -153,6 +162,7 @@ export class MainController {
 
   async openRepository() {
     const handle = await window.showDirectoryPicker();
+    this.setRepoName(handle.name);
     await this._repo.setup(handle);
 
     this.setPage("main");

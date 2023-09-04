@@ -55,7 +55,7 @@ export const TitleBar = observer(() => {
           </div>
         </div>
         <div className={style.right}>
-          <h3 className={style.infoText}>Repository: Llorem Ipsum</h3>
+          <h3 className={style.infoText}>Repository: {mainController.repoName}</h3>
           <Tooltip title="Close repository">
             <IconButton
               className={style.closeButton}

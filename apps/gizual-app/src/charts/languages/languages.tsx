@@ -3,11 +3,11 @@ import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { Bar } from "@visx/shape";
+import { Spin, Tooltip } from "antd";
 import type { ScaleBand, ScaleLinear } from "d3-scale";
-import { Tooltip } from "antd";
+import React from "react";
 
 import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
-import React from "react";
 
 type LanguageInfo = {
   iconInfo?: FileIcon;
@@ -126,7 +126,12 @@ const compose =
     scale(accessor(data)) ?? 0;
 
 export function Languages({ languages }: LanguagesProps) {
-  if (!languages) return <div />;
+  if (!languages)
+    return (
+      <div>
+        <Spin />
+      </div>
+    );
   const data = React.useMemo(() => prepareData(languages).slice(1), [languages]);
 
   return (
@@ -138,7 +143,6 @@ export function Languages({ languages }: LanguagesProps) {
         const xMax = width - margin.left - margin.right;
         const yMax = height - margin.top - margin.bottom;
 
-        console.log(data);
         const xScale = scaleBand({
           range: [0, xMax],
           domain: data.map((d) => d.x),
