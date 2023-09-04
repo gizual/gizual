@@ -2,6 +2,7 @@ import { BranchInfo, CInfo } from "@app/types";
 import { useWindowSize } from "@app/utils";
 import { Spin } from "antd";
 import clsx from "clsx";
+import { clamp } from "lodash";
 import { observer } from "mobx-react-lite";
 import React, { MouseEventHandler } from "react";
 
@@ -45,6 +46,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const [isSelecting, setIsSelecting] = React.useState<boolean>(false);
   const [areaStart, setAreaStart] = React.useState<number>(0);
   const [areaEnd, setAreaEnd] = React.useState<number>(0);
+  const [tickJiggle, setTickJiggle] = React.useState<number>(0);
 
   const [windowWidth, __] = useWindowSize();
 
@@ -125,6 +127,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
           boundingRect.width * (1 - (vm.leftColWidth + 3 * vm.padding) / vm.viewBox.width),
       );
       x = Math.max(x, boundingRect.width * (vm.leftColWidth / vm.viewBox.width));
+      x = x + tickJiggle;
 
       if (!isSelecting) {
         setAreaStart(x);
@@ -143,9 +146,37 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
       }
     }
     if (event.buttons === MOUSE_BUTTON_WHEEL) {
-      console.log("TODO: Mouse-wheel drag");
+      const tickSpace = vm.rulerWidth / visualizedDays;
+      let newTickJiggle = tickJiggle + x - mousePos.x;
+
+      newTickJiggle = clamp(newTickJiggle, -tickSpace, tickSpace);
+      let jiggleDays = (newTickJiggle / tickSpace) * -1;
+
+      if (newTickJiggle === -tickSpace || newTickJiggle === tickSpace) {
+        newTickJiggle = 0;
+        jiggleDays = Math.round(jiggleDays);
+        vm.setStartDate(
+          new Date(
+            vm.startDate.getTime() +
+              1000 * 60 * 60 * 24 * jiggleDays * (emphasizeDistance === 4 ? 7 : 1),
+          ),
+        );
+        vm.setEndDate(
+          new Date(
+            vm.endDate.getTime() +
+              1000 * 60 * 60 * 24 * jiggleDays * (emphasizeDistance === 4 ? 7 : 1),
+          ),
+        );
+      }
+      setTickJiggle(newTickJiggle);
+      setTooltip({ day: undefined, x: 0, y: 0 });
+      handleOnClick(_, true);
+
       //vm.setStartDate(new Date(vm.startDate.getTime() - 1000 * 60 * 24));
       //vm.setEndDate(new Date(vm.endDate.getTime() - 1000 * 60 * 24));
+    }
+    if (event.buttons !== MOUSE_BUTTON_WHEEL) {
+      setTickJiggle(0);
     }
   };
 
@@ -262,6 +293,12 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
               className={style.timelineOverlayContent}
               onWheel={handleScroll as any}
               onMouseMove={handleMouseMove as any}
+              onMouseUp={(e) => {
+                if (e.button === MOUSE_BUTTON_WHEEL) {
+                  setTickJiggle(0);
+                  handleOnClick(_, true);
+                }
+              }}
               style={{ gap: `${vm.laneSpacing}rem` }}
             >
               {vm.branches.map(
@@ -287,6 +324,12 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
           viewBox={`0 0 ${vm.viewBox.width} ${vm.viewBox.height}`}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          onMouseUp={(e) => {
+            if (e.button === MOUSE_BUTTON_WHEEL) {
+              setTickJiggle(0);
+              handleOnClick(_);
+            }
+          }}
           onWheel={handleScroll}
           onClick={handleOnClick}
           className={style.Svg}
@@ -321,6 +364,8 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
               amount={visualizedDays}
               emphasize={{ distance: emphasizeDistance, height: 20, width: 2 }}
               tickSize={{ height: 10, width: 1 }}
+              tickJiggle={tickJiggle}
+              startDate={vm.startDate}
             />
           </Translate>
           <TimelineGraph commits={commits(vm.selectedBranch)} vm={vm} branch={vm.selectedBranch} />

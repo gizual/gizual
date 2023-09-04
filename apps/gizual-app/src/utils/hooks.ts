@@ -14,7 +14,7 @@ export function useWindowSize() {
 }
 
 export const useTheme = () => {
-  const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)") ? "dark" : "light";
+  const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   const [theme, setTheme] = useState<"dark" | "light">(defaultTheme);
   useEffect(() => {
     window
@@ -38,11 +38,12 @@ export const useDoc = () => {
 
 export const useStyle = (key: string) => {
   const doc = useDoc();
+  const theme = useTheme();
   const [style, setStyle] = useState<string>("#f00");
   useEffect(() => {
     if (!doc) return;
     setStyle(getComputedStyle(doc).getPropertyValue(key));
-  }, [doc, key]);
+  }, [doc, key, theme]);
 
   return style;
 };

@@ -1,42 +1,44 @@
 @use "@/mixins" as *;
 
-.iconButton {
-  @include rounded;
-  @include transition-bg;
-  padding: 0.25rem;
-  cursor: pointer;
-  background-color: var(--background-secondary);
-  width: 3rem;
-  display: flex;
-  &:hover {
-    background-color: var(--background-tertiary);
+@layer components {
+  .iconButton {
+    @include rounded;
+    @include transition-bg;
+    padding: 0.25rem;
+    cursor: pointer;
+    background-color: var(--background-secondary);
+    width: 3rem;
+    display: flex;
+    &:hover {
+      background-color: var(--background-tertiary);
+    }
+    flex-shrink: 0;
+    flex-grow: 0;
   }
-  flex-shrink: 0;
-  flex-grow: 0;
-}
 
-.wide {
-  width: 5rem;
-}
+  .wide {
+    width: 5rem;
+  }
 
-.borderRight {
-  @include rounded-right;
-}
+  .borderRight {
+    @include rounded-right;
+  }
 
-svg {
-  margin: auto;
-  height: 100%;
-  width: auto;
-}
+  svg {
+    margin: auto;
+    height: 100%;
+    width: auto;
+  }
 
-svg > path {
-  fill: var(--foreground-primary);
-}
-
-.colored {
-  background-color: var(--accent-main);
-  color: #fff;
   svg > path {
-    fill: #fff;
+    fill: var(--foreground-primary);
+  }
+
+  .colored {
+    background-color: var(--accent-main);
+    color: #fff;
+    svg > path {
+      fill: #fff;
+    }
   }
 }

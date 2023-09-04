@@ -11,14 +11,16 @@ export const Footer = observer(() => {
   return (
     <div className={style.footer}>
       <div className={style.left}>
-        <p>Gizual v0.1</p>
+        <p>Gizual v0.2 - Build #{__COMMIT_HASH__}</p>
       </div>
       <div className={style.right}>
         <Spin spinning={mainController.isBusy} />
+        <p>{mainController.selectedFiles.length} files selected</p>
         <p>
           {mainController.backendMetrics.numBusyWorkers}/{mainController.backendMetrics.numWorkers}{" "}
           backend workers
         </p>
+        <p>{mainController.backendMetrics.numJobsInQueue} pending backend jobs</p>
         <p>{mainController.numActiveWorkers} render jobs</p>
       </div>
     </div>

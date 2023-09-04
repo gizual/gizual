@@ -10,11 +10,11 @@ import { TitleBar } from "../primitives";
 import { Canvas } from "../primitives/canvas";
 import { RepoPanel } from "../primitives/repo-panel";
 import SearchBar from "../primitives/search-bar/search-bar";
-import { Select } from "../primitives/select";
 import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
 import { MainPageViewModel } from "./main.vm";
+import { SettingsPage } from "./settings";
 
 export type MainPageProps = {
   vm?: MainPageViewModel;
@@ -33,9 +33,11 @@ function MainPage({ vm: externalVm }: MainPageProps) {
         <TitleBar />
         {mainController.selectedPanel === "explore" && <SearchBar />}
       </div>
+
       <div className={style.body}>
         {mainController.selectedPanel === "explore" && <ExplorePage vm={vm} />}
         {mainController.selectedPanel === "analyze" && <AnalyzePage vm={vm} />}
+        {mainController.selectedPanel === "settings" && <SettingsPage />}
       </div>
     </div>
   );
@@ -67,7 +69,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
 
   const layout: ReactGridLayout.Layout[] = [
     { i: "a", x: 0, y: 0, w: 2, h: 2 },
-    { i: "b", x: 2, y: 0, w: 2, h: 2 },
+    //{ i: "b", x: 2, y: 0, w: 2, h: 2 },
   ];
 
   const [languageChartType, setLanguageChartType] = React.useState<"pie" | "bar">("bar");
@@ -79,26 +81,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
     <div ref={ref} style={{ width: "100%", height: "100%" }}>
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
         <div key={"a"}>
-          <Container title={"Contributions"}>
-            <AllContributions />
-          </Container>
-        </div>
-
-        <div key={"b"}>
-          <Container
-            title={"Language Distribution"}
-            titleBar={
-              <Select
-                data={[
-                  { value: "pie", label: "pie" },
-                  { value: "bar", label: "bar" },
-                ]}
-                value={languageChartType}
-                onValueChange={(value) => setLanguageChartType(value as any)}
-                boxStyle={{ maxWidth: "100px" }}
-              />
-            }
-          >
+          <Container title={"Language Distribution"}>
             <Languages chartType={languageChartType} languages={languageData} />
           </Container>
         </div>

@@ -1,4 +1,5 @@
 import { ConfigProvider, theme as AntdTheme, ThemeConfig } from "antd";
+import { App as AntdApp } from "antd";
 import { SeedToken } from "antd/es/theme/interface";
 import { observer } from "mobx-react-lite";
 
@@ -17,6 +18,9 @@ function App() {
     ...AntdTheme.defaultSeed,
     ...AntdTheme.compactAlgorithm,
     colorPrimary: useStyle("--accent-main"),
+    colorBgBase: useStyle("--background-primary"),
+    colorTextBase: useStyle("--foreground-primary"),
+    borderRadius: 4,
   };
 
   const token =
@@ -36,13 +40,15 @@ function App() {
 
   return (
     <ConfigProvider theme={config}>
-      <div className={style.App}>
-        <div className={style.Main}>
-          {mainController.page === "welcome" && <WelcomePage />}
-          {mainController.page === "main" && <MainPage />}
+      <AntdApp>
+        <div className={style.App}>
+          <div className={style.Main}>
+            {mainController.page === "welcome" && <WelcomePage />}
+            {mainController.page === "main" && <MainPage />}
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </AntdApp>
     </ConfigProvider>
   );
 }

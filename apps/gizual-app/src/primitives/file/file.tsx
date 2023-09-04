@@ -1,5 +1,6 @@
 import { useMainController } from "@app/controllers";
-import { Skeleton, Spin } from "antd";
+import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
+import { Skeleton, Spin, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -41,6 +42,12 @@ export const File = observer(
     React.useEffect(() => {
       vm.draw();
     }, [vm._blameView.isPreview, mainController.selectedStartDate, mainController.selectedEndDate]);
+
+    React.useEffect(() => {
+      return () => {
+        vm.dispose();
+      };
+    }, []);
 
     React.useEffect(() => {
       vm.assignFileRef(fileRef);
@@ -115,35 +122,46 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
       </div>
       <div className={style.FileActions}>
         {vm.isFavourite ? (
-          <StarFilled
-            className={style.FavouriteIcon}
-            onClick={() => {
-              vm.unsetFavourite();
-            }}
-          />
+          <Tooltip title="Remove from favourites">
+            <StarFilled
+              className={clsx(style.FavouriteIcon, sharedStyle.pointer)}
+              onClick={() => {
+                vm.unsetFavourite();
+              }}
+            />
+          </Tooltip>
         ) : (
-          <StarOutline
-            className={style.FavouriteIconUnfilled}
-            onClick={() => {
-              vm.setFavourite();
-            }}
-          />
+          <Tooltip title="Add to favourites">
+            <StarOutline
+              className={clsx(style.FavouriteIconUnfilled, sharedStyle.pointer)}
+              onClick={() => {
+                vm.setFavourite();
+              }}
+            />
+          </Tooltip>
         )}
         <DialogProvider
           trigger={
-            <div>
-              <Source className={style.FileIcon} />
-            </div>
+            <Tooltip title="Show file content">
+              <div className={sharedStyle.pointer}>
+                <Source className={style.FileIcon} />
+              </div>
+            </Tooltip>
           }
         >
           <Editor file={vm} />
         </DialogProvider>
-        <CloseBox
-          className={style.FileActionIcon}
-          onClick={() => {
-            vm.close();
-          }}
-        />
+
+        <Tooltip title="Close file">
+          <div className={sharedStyle.pointer}>
+            <CloseBox
+              className={style.FileActionIcon}
+              onClick={() => {
+                vm.close();
+              }}
+            />
+          </div>
+        </Tooltip>
       </div>
     </div>
   );

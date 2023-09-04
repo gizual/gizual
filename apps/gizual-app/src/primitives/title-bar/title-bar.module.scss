@@ -30,10 +30,26 @@
   flex-direction: row;
 }
 
+.left {
+  display: flex;
+  flex-direction: row;
+  justify-self: flex-start;
+}
+
+.right {
+  display: flex;
+  flex-direction: row;
+  justify-self: flex-end;
+  padding-right: 1rem;
+  gap: 1rem;
+}
+
 .menu {
   padding: 0.5rem 0;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  flex-grow: 1;
 }
 
 .menuItem {
@@ -68,4 +84,23 @@
   text-align: center;
   font-size: 1.3rem;
   line-height: 2rem;
+}
+
+.menuItemText:hover {
+  color: var(--accent-main);
+}
+
+.infoText {
+  color: var(--foreground-primary);
+  font-weight: 400;
+  text-align: right;
+  font-size: 1rem;
+  line-height: 1rem;
+  margin: auto 0;
+}
+
+@layer overrides {
+  .closeButton:hover {
+    background-color: var(--color-tomato);
+  }
 }

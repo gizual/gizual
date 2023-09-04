@@ -1,7 +1,7 @@
 import { FileNodeInfos } from "@app/types";
 import type { DataNode } from "antd/es/tree";
 import { isNumber } from "lodash";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import React from "react";
 
 import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
@@ -66,6 +66,7 @@ export class FileTreeViewModel {
     const root = this._mainController.fileTreeRoot;
     if (!root) return [];
 
+    let numFiles = 0;
     const parseChildren = (el: FileTree, path: string, key: string): FileTreeDataNode[] => {
       if (!el.children) return [];
 
@@ -75,6 +76,7 @@ export class FileTreeViewModel {
 
         const childKey = key + "-" + index;
         const childPath = path ? path + "/" + child.name : child.name;
+        numFiles++;
 
         let fileIcon: FileIcon | undefined;
         if (isNumber(child.kind)) fileIcon = getFileIcon(child.kind);
@@ -90,6 +92,9 @@ export class FileTreeViewModel {
         });
       }
 
+      runInAction(() => {
+        this._mainController.setNumFiles(numFiles);
+      });
       return children;
     };
 
@@ -102,6 +107,7 @@ export class FileTreeViewModel {
   onFileTreeSelect(node: FileTreeDataNode, check = false) {
     if (node.isLeaf) {
       this.toggleFile(node.path, node);
+      this.zoomToFile(node.path);
       return;
     }
 
@@ -112,6 +118,7 @@ export class FileTreeViewModel {
         if (check) {
           if (child.isLeaf) {
             this.toggleFile(child.path, child);
+            this.zoomToFile(node.path);
           } else {
             toggleChildren(child);
           }
