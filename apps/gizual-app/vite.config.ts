@@ -11,6 +11,9 @@ const commitHash = child.execSync("git rev-parse --short HEAD").toString();
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    include: ["@wasmer/wasi", "@xtuc/asyncify-wasm", "@wasmer/wasm-transformer"],
+  },
   define: {
     __COMMIT_HASH__: JSON.stringify(commitHash),
   },
