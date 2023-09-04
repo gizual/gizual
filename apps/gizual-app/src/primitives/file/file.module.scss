@@ -63,11 +63,12 @@
   align-items: center;
   width: 25px; //calc(32px * var(--canvas-scale-reverse));
   height: 25px; //calc(32px * var(--canvas-scale-reverse));
+  padding-left: 0.5rem;
   flex-shrink: 0;
   flex-grow: 0;
   //padding: calc(5px * var(--canvas-scale-reverse));
   transform-origin: center left;
-  @include adjust-scale-with-canvas;
+  //@include adjust-scale-with-canvas;
 }
 
 .FileActions {

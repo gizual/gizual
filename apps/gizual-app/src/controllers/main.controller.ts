@@ -48,7 +48,8 @@ export class MainController {
   }
 
   get backendMetrics() {
-    if (this._repo.state !== "ready") return { numBusyWorkers: 0, numWorkers: 0 };
+    if (this._repo.state !== "ready")
+      return { numBusyWorkers: 0, numWorkers: 0, numJobsInQueue: 0 };
 
     return this._repo.metrics;
   }
@@ -83,6 +84,7 @@ export class MainController {
   }
 
   setPanel(panel: Panel) {
+    this._scale = 1;
     this._selectedPanel = panel;
   }
 

@@ -79,11 +79,11 @@ export class FileViewModel {
 
   dispose() {
     this._worker?.terminate();
+    this._blameView.dispose();
   }
 
   close() {
     this._mainController.toggleFile(this._fileName);
-    this._blameView.dispose();
   }
 
   get fileName() {

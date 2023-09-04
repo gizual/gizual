@@ -20,6 +20,7 @@ export const Footer = observer(() => {
           {mainController.backendMetrics.numBusyWorkers}/{mainController.backendMetrics.numWorkers}{" "}
           backend workers
         </p>
+        <p>{mainController.backendMetrics.numJobsInQueue} pending backend jobs</p>
         <p>{mainController.numActiveWorkers} render jobs</p>
       </div>
     </div>

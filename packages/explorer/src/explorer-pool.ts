@@ -1,5 +1,5 @@
 import { isString } from "lodash";
-import { makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, runInAction } from "mobx";
 
 import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-libgit2.wasm?url";
 import { LOG, Logger } from "@giz/logger";
@@ -70,11 +70,11 @@ async function createWorker(handle: FileSystemDirectoryHandle) {
   return runtime;
 }
 
-const MAX_CONCURRENCY = navigator.hardwareConcurrency || 4;
+const MAX_CONCURRENCY = (navigator.hardwareConcurrency || 4) * 2;
 
 export class ExplorerPool {
-   _workers: WorkerWithState[];
-   _jobQueue: Job[];
+  _workers: WorkerWithState[];
+  _jobQueue: Job[];
   private counter = 0;
   logger: Logger;
 
@@ -86,6 +86,8 @@ export class ExplorerPool {
     makeObservable(this, {
       _workers: observable,
       _jobQueue: observable,
+      _dispatchJob: action,
+      _enqueueJob: action,
     });
   }
 
@@ -109,14 +111,14 @@ export class ExplorerPool {
     }
     const workers = await Promise.all(workerPromises);
 
-    const pool = workers.map((w) => (observable({ handle: w, busy: false })));
+    const pool = workers.map((w) => observable({ handle: w, busy: false }));
 
     return new ExplorerPool(pool);
   }
 
   execute(method: string, params?: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.enqueueJob({
+      this._enqueueJob({
         onEnd: resolve,
         onErr: reject,
         method,
@@ -126,12 +128,12 @@ export class ExplorerPool {
   }
 
   executeStream(job: StreamJob): void {
-    this.enqueueJob(job);
+    this._enqueueJob(job);
   }
 
-  private enqueueJob(job: Job) {
+  _enqueueJob(job: Job) {
     this._jobQueue.push(job);
-    this.dispatchJob();
+    this._dispatchJob();
   }
 
   private async executeOnWorker(worker: WorkerWithState, job: Job): Promise<any> {
@@ -172,11 +174,13 @@ export class ExplorerPool {
         break;
       }
     }
-    worker.busy = false;
-    this.dispatchJob();
+    runInAction(() => {
+      worker.busy = false;
+    });
+    this._dispatchJob();
   }
 
-  private dispatchJob() {
+  _dispatchJob() {
     if (this._jobQueue.length === 0) {
       return;
     }

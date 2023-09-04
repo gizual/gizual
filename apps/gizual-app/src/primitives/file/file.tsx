@@ -44,6 +44,12 @@ export const File = observer(
     }, [vm._blameView.isPreview, mainController.selectedStartDate, mainController.selectedEndDate]);
 
     React.useEffect(() => {
+      return () => {
+        vm.dispose();
+      };
+    }, []);
+
+    React.useEffect(() => {
       vm.assignFileRef(fileRef);
     }, [fileRef]);
 

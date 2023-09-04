@@ -155,12 +155,22 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
       if (newTickJiggle === -tickSpace || newTickJiggle === tickSpace) {
         newTickJiggle = 0;
         jiggleDays = Math.round(jiggleDays);
-        vm.setStartDate(new Date(vm.startDate.getTime() + 1000 * 60 * 60 * 24 * jiggleDays));
-        vm.setEndDate(new Date(vm.endDate.getTime() + 1000 * 60 * 60 * 24 * jiggleDays));
+        vm.setStartDate(
+          new Date(
+            vm.startDate.getTime() +
+              1000 * 60 * 60 * 24 * jiggleDays * (emphasizeDistance === 4 ? 7 : 1),
+          ),
+        );
+        vm.setEndDate(
+          new Date(
+            vm.endDate.getTime() +
+              1000 * 60 * 60 * 24 * jiggleDays * (emphasizeDistance === 4 ? 7 : 1),
+          ),
+        );
       }
       setTickJiggle(newTickJiggle);
       setTooltip({ day: undefined, x: 0, y: 0 });
-      handleOnClick(_);
+      handleOnClick(_, true);
 
       //vm.setStartDate(new Date(vm.startDate.getTime() - 1000 * 60 * 24));
       //vm.setEndDate(new Date(vm.endDate.getTime() - 1000 * 60 * 24));
@@ -284,8 +294,10 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
               onWheel={handleScroll as any}
               onMouseMove={handleMouseMove as any}
               onMouseUp={(e) => {
-                console.log("up");
-                setTickJiggle(0);
+                if (e.button === MOUSE_BUTTON_WHEEL) {
+                  setTickJiggle(0);
+                  handleOnClick(_, true);
+                }
               }}
               style={{ gap: `${vm.laneSpacing}rem` }}
             >
@@ -313,7 +325,10 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onMouseUp={(e) => {
-            setTickJiggle(0);
+            if (e.button === MOUSE_BUTTON_WHEEL) {
+              setTickJiggle(0);
+              handleOnClick(_);
+            }
           }}
           onWheel={handleScroll}
           onClick={handleOnClick}

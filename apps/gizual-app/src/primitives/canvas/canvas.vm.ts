@@ -7,7 +7,7 @@ import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { MainController } from "../../controllers";
 import { FileViewModel } from "../file/file.vm";
 
-export const MIN_ZOOM = 0.6;
+export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
 
 export class CanvasViewModel {
