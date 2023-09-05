@@ -2,8 +2,8 @@
   "name": "@giz/wasi-runtime",
   "version": "0.0.1",
   "module": "dist/index.mjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
   "dependencies": {
     "@giz/logger": "workspace:*",
     "@wasmer/wasi": "1.2.2",

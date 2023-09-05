@@ -1,11 +1,32 @@
 import React from "react";
 
+import dbModule from "@giz/db/db.wasm?url";
 import { ExplorerPool } from "@giz/explorer";
+import { WasiRuntime } from "@giz/wasi-runtime";
 
-async function prepareRuntime(): Promise<ExplorerPool> {
+async function prepareRuntime(): Promise<[ExplorerPool | undefined, WasiRuntime]> {
   const handle = await window.showDirectoryPicker();
 
-  return await ExplorerPool.create(handle);
+  //const runtime = await ExplorerPool.create(handle);
+
+  const db = await WasiRuntime.create({
+    folderMappings: {
+      "/repo": handle,
+    },
+    moduleName: "db",
+    moduleUrl: dbModule,
+
+  });
+
+  db.run({
+    env: {},
+    args: [],
+  })
+
+  const stdout = await db.readStdout();
+  console.log(stdout);
+
+  return [undefined, db];
 }
 
 const AnimatedLoadingIndicator = () => {
@@ -26,12 +47,50 @@ const App = () => {
   React.useEffect(() => {});
 
   const [runtime, setRuntime] = React.useState<ExplorerPool | undefined>();
+  const [db, setDb] = React.useState<WasiRuntime | undefined>();
+  const [sql, setSql] = React.useState<string>("SELECT * FROM commits");
 
   const setupRuntime = React.useCallback(() => {
-    prepareRuntime().then((runtime) => {
-      setRuntime(runtime);
+    setLoading(true);
+    prepareRuntime().then(([runtime_, db_]) => {
+      setRuntime(runtime_);
+      setDb(db_);
+      setLoading(false);
     });
   }, []);
+
+  const runSql = async () => {
+    console.log("Running SQL");
+    if (!db) {
+      console.error("No db");
+      return;
+    }
+    const payload = {
+      jsonrpc: "2.0",
+      method: "run_sqlite",
+      params: [sql.trim()],
+      id: 1,
+    };
+
+    await db.writeStdin(JSON.stringify(payload) + "\n");
+    let stdout = "";
+    while (true) {
+      console.log("awaiting stdout");
+
+      stdout = await db.readStdout();
+      if (!stdout) {
+        console.log("No stdout");
+        continue;
+      }
+      break;
+    }
+
+    console.log(stdout);
+
+    const data = JSON.parse(stdout || "{}");
+
+    setOutput(data.result)
+  };
 
   const [output, setOutput] = React.useState("");
 
@@ -97,7 +156,7 @@ const App = () => {
 
   return (
     <div>
-      {!runtime && <button onClick={setupRuntime}>Setup runtime</button>}
+      {!runtime && !db && <button onClick={setupRuntime}>Setup runtime</button>}
       {runtime && (
         <>
           <button onClick={runCommand}>Run command</button>
@@ -115,6 +174,20 @@ const App = () => {
           <input type="text" value={file} onChange={(e) => setFile(e.target.value)} />
         </>
       )}
+
+      {db && (
+        <>
+          <br />
+
+         
+
+          <div style={{ display: "flex"}}>
+          <textarea rows={3} cols={75} value={sql} onChange={(e) => setSql(e.target.value)} />
+          <button onClick={runSql}>Run SQL</button>
+          </div>
+        </>
+      )}
+
       <code>
         <pre>{output}</pre>
       </code>

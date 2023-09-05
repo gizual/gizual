@@ -1,0 +1,14 @@
+{
+  "name": "@giz/rust-wasi-tools",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./binaryen": "./binaryen.js"
+  },
+  "devDependencies": {
+    "download": "8.0.0",
+    "mkdirp": "3.0.1",
+    "zx": "7.2.3"
+  }
+}

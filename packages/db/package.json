@@ -1,6 +1,11 @@
 {
-  "name": "@giz/explorer-backend-libgit2",
-  "module": "dist/explorer-backend-libgit2.wasm",
+  "name": "@giz/db",
+  "module": "dist/db.wasm",
+  "exports": {
+    ".": "./dist/db.wasm",
+    "./db.wasm": "./dist/db.wasm"
+  },
+  "main": "./dist/db.wasm",
   "scripts": {
     "build": "zx cmds.mjs build",
     "dev": "turbowatch",
@@ -9,7 +14,8 @@
     "format": "cargo fmt"
   },
   "devDependencies": {
-    "@giz/rust-wasi-tools": "workspace:*",
+    "download": "8.0.0",
+    "mkdirp": "3.0.1",
     "turbowatch": "2.29.4",
     "zx": "7.2.3"
   }

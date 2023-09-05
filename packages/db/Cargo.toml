@@ -1,29 +1,23 @@
 [package]
-name = "explorer-backend-libgit2"
+name = "db"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
 asyncify_exports = { path = "../asyncify_exports" }
+rusqlite = { git = "https://github.com/rusqlite/rusqlite.git", rev = "714ce2e17117b2d46485aa12479f8e1802b78ba0", features = [
+    "bundled",
+    "wasm32-wasi-vfs",
+    "backup",
+    "serde_json"
+] }
+tokio = { version = "1", features = ["rt", "sync", "macros", "io-util", "time"] }
 structopt = "0.3"
 serde_json = "1.0"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_with = "3.0.0"
 jsonrpc-core = "15.0"
 jsonrpc-derive = "15.0"
-mime_guess = "2.0.4"
-md5 = "0.6.0"
-lazy_static = "1.4.0"
-regex = "1.9.1"
 git2 = { git = "https://github.com/gizual/git2-rs", default-features = false, branch = "wasm32-wasi-support", features = [
   "vendored-zlib"
 ] }
-
-#git2 = { path = "../../../git2-rs", default-features = false,  features = [
-#  "vendored-zlib"
-#] }
-
-[target.'cfg(not(target_os = "wasm"))'.dependencies]
-petgraph = "0.6.3"
-
-[dev-dependencies]
