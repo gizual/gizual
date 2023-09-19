@@ -4,8 +4,6 @@ declare const classNames: {
   readonly container: "container";
   readonly img: "img";
   readonly h1: "h1";
-  readonly p: "p";
-  readonly card: "card";
-  readonly button: "button";
+  readonly codeDark: "codeDark";
 };
 export = classNames;
