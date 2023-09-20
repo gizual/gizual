@@ -1,9 +1,18 @@
 import { BranchInfo, CInfo } from "@app/types";
 import { makeAutoObservable } from "mobx";
+import { RefObject } from "react";
 
 import { MainController } from "../../controllers";
 
 export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
+
+export function convertMsToDays(ms: number) {
+  return ms / (1000 * 60 * 60 * 24);
+}
+
+export function getDaysBetween(start: Date, end: Date) {
+  return Math.round(Math.abs(convertMsToDays(start.getTime() - end.getTime())));
+}
 
 export class TimelineViewModel {
   private _mainController: MainController;
@@ -14,29 +23,44 @@ export class TimelineViewModel {
   private _commitSizeModal = 5;
   private _wheelUnusedTicks = 0;
 
+  private _baseLayer?: RefObject<SVGGElement> = undefined;
+  private _commitLayer?: RefObject<SVGGElement> = undefined;
+  private _interactionLayer?: RefObject<HTMLDivElement> = undefined;
+
+  // Timeline dimensions. All values in px.
   viewBox = {
     width: 1000,
     height: 200,
   };
 
-  leftColWidth = 120;
-  rulerHeight = 80;
+  textColumnWidth = 120;
   rowHeight = 80;
   padding = 20;
-  smallTickHeight = 10;
-  largeTickHeight = 20;
 
   ruler = {
     pos: {
-      x: this.leftColWidth,
+      x: this.textColumnWidth,
       y: this.padding,
+    },
+    width: this.viewBox.width - this.textColumnWidth - 3 * this.padding,
+    height: 80,
+    ticks: {
+      emphasisOpts: {
+        distance: 7,
+        height: 20,
+        width: 2,
+      },
+      tickSize: {
+        height: 10,
+        width: 1,
+      },
     },
   };
 
   graphs = {
     pos: {
       x: 0,
-      y: this.rulerHeight + this.padding * 2,
+      y: this.ruler.height + this.padding * 2,
     },
   };
 
@@ -48,12 +72,36 @@ export class TimelineViewModel {
     makeAutoObservable(this);
   }
 
+  setBaseLayer(ref?: RefObject<SVGGElement>) {
+    this._baseLayer = ref;
+  }
+
+  get baseLayer() {
+    return this._baseLayer?.current;
+  }
+
+  setCommitLayer(ref?: RefObject<SVGGElement>) {
+    this._commitLayer = ref;
+  }
+
+  get commitLayer() {
+    return this._commitLayer?.current;
+  }
+
+  setInteractionLayer(ref?: RefObject<HTMLDivElement>) {
+    this._interactionLayer = ref;
+  }
+
+  get interactionLayer() {
+    return this._interactionLayer?.current;
+  }
+
   get mainController() {
     return this._mainController;
   }
 
   get rulerWidth() {
-    return this.viewBox.width - this.leftColWidth - 3 * this.padding;
+    return this.viewBox.width - this.textColumnWidth - 3 * this.padding;
   }
 
   setViewBoxWidth(width: number) {
@@ -211,6 +259,14 @@ export class TimelineViewModel {
     return this.mainController.selectedEndDate;
   }
 
+  get daysFromStartToEnd() {
+    return getDaysBetween(this.startDate, this.endDate);
+  }
+
+  get dayWidthInPx() {
+    return this.ruler.width / this.daysFromStartToEnd;
+  }
+
   get selectedBranch(): ParsedBranch | undefined {
     if (this._mainController._repo.gitGraph.loading) return;
 
@@ -240,7 +296,7 @@ export function normalizeWheelEventDirection(evt: React.WheelEvent<SVGSVGElement
   return delta;
 }
 
-export function toDate(timestamp: string) {
+export function getDateFromTimestamp(timestamp: string) {
   return new Date(Number(timestamp) * 1000);
 }
 
