@@ -1,9 +1,9 @@
 import { BranchInfo } from "@app/types";
-import { NoVmError } from "@app/utils";
+import { NoVmError, useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 
-import { useMainController } from "../../controllers";
+import { useMainController, useViewModelController } from "../../controllers";
 import { Button } from "../button";
 
 import { Commits } from "./commits";
@@ -13,6 +13,7 @@ import { getDateString, TimelineViewModel } from "./timeline.vm";
 
 //const MOUSE_BUTTON_PRIMARY = 1;
 //const MOUSE_BUTTON_WHEEL = 4;
+const PRERENDER_MULTIPLIER = 3;
 
 export type TimelineProps = {
   vm?: TimelineViewModel;
@@ -147,7 +148,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
     return vm.setInteractionLayer();
   }, [ref]);
 
-  return <div ref={ref}></div>;
+  return <div className={style.InteractionLayer} id={"TimelineInteractionLayer"} ref={ref}></div>;
 });
 
 export const Ruler = observer(({ vm }: TimelineProps) => {
@@ -193,13 +194,41 @@ export const Ruler = observer(({ vm }: TimelineProps) => {
 
 export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const mainController = useMainController();
+  const vmController = useViewModelController();
 
   const vm: TimelineViewModel = React.useMemo(() => {
     return externalVm || new TimelineViewModel(mainController);
   }, [externalVm]);
 
+  const timelineContainerRef = useRef<HTMLDivElement>(null);
+  const timelineSvgWrapperRef = useRef<HTMLDivElement>(null);
+
+  const timelineSvgRef = useRef<SVGSVGElement>(null);
+  React.useEffect(() => vm.setTimelineSvg(timelineSvgRef), [timelineSvgRef]);
+
+  // This LayoutEffect is pretty much the only time we actually need to re-render
+  // the entire component, because the dimensions of the viewport must be changed
+  // to adhere the dimensions of the parent.
+  const [width, _] = useWindowSize();
+  React.useLayoutEffect(() => {
+    const containerWidth = timelineContainerRef.current?.clientWidth ?? 1000;
+    vm.setViewBoxWidth(containerWidth * 3);
+
+    const timelineSvgWrapper = timelineSvgWrapperRef?.current;
+    if (timelineSvgWrapper) {
+      timelineSvgWrapper.style.left = `${vm.textColumnWidth}px`;
+      timelineSvgWrapper.style.width = `${containerWidth - vm.textColumnWidth - 3 * vm.padding}px`;
+    }
+  }, [
+    timelineContainerRef,
+    vmController.isRepoPanelVisible,
+    vmController.isSettingsPanelVisible,
+    vm.branches,
+    width,
+  ]);
+
   return (
-    <div className={style.TimelineContainer} id={"TimelineContainer"}>
+    <div className={style.TimelineComponent} id={"TimelineComponent"}>
       <div className={style.TimelineHeader}>
         <h1 className={style.Header}>Timeline</h1>
         <Button
@@ -211,25 +240,21 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
         </Button>
       </div>
 
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
-          maxHeight: "200px",
-          minHeight: "150px",
-        }}
-      >
-        <svg
-          width={"100%"}
-          height={"100%"}
-          viewBox={`0 0 ${vm.viewBox.width} ${vm.viewBox.height}`}
-          className={style.Svg}
-        >
-          <BaseLayer vm={vm} />
-          <CommitLayer vm={vm} />
+      <div className={style.TimelineContainer} ref={timelineContainerRef}>
+        <div className={style.TimelineSvgWrapper} ref={timelineSvgWrapperRef}>
+          <svg
+            width={"100%"}
+            height={"100%"}
+            viewBox={`0 0 ${vm.viewBox.width} ${vm.viewBox.height}`}
+            className={style.Svg}
+            ref={timelineSvgRef}
+          >
+            <BaseLayer vm={vm} />
+            <CommitLayer vm={vm} />
+          </svg>
+
           <InteractionLayer vm={vm} />
-        </svg>
+        </div>
       </div>
     </div>
   );

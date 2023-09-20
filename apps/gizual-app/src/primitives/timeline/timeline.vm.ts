@@ -26,6 +26,11 @@ export class TimelineViewModel {
   private _baseLayer?: RefObject<SVGGElement> = undefined;
   private _commitLayer?: RefObject<SVGGElement> = undefined;
   private _interactionLayer?: RefObject<HTMLDivElement> = undefined;
+  private _timelineSvg?: RefObject<SVGSVGElement> = undefined;
+
+  private _currentTranslationX = 0;
+  private _dragStartX = 0;
+  private _isDragging = false;
 
   // Timeline dimensions. All values in px.
   viewBox = {
@@ -37,32 +42,36 @@ export class TimelineViewModel {
   rowHeight = 80;
   padding = 20;
 
-  ruler = {
-    pos: {
-      x: this.textColumnWidth,
-      y: this.padding,
-    },
-    width: this.viewBox.width - this.textColumnWidth - 3 * this.padding,
-    height: 80,
-    ticks: {
-      emphasisOpts: {
-        distance: 7,
-        height: 20,
-        width: 2,
+  get ruler() {
+    return {
+      pos: {
+        x: this.textColumnWidth,
+        y: this.padding,
       },
-      tickSize: {
-        height: 10,
-        width: 1,
+      width: this.viewBox.width - this.textColumnWidth - 3 * this.padding,
+      height: 80,
+      ticks: {
+        emphasisOpts: {
+          distance: 7,
+          height: 20,
+          width: 2,
+        },
+        tickSize: {
+          height: 10,
+          width: 1,
+        },
       },
-    },
-  };
+    };
+  }
 
-  graphs = {
-    pos: {
-      x: 0,
-      y: this.ruler.height + this.padding * 2,
-    },
-  };
+  get graphs() {
+    return {
+      pos: {
+        x: 0,
+        y: this.ruler.height + this.padding * 2,
+      },
+    };
+  }
 
   private _isModalVisible = false;
 
@@ -70,6 +79,14 @@ export class TimelineViewModel {
     this._mainController = mainController;
 
     makeAutoObservable(this);
+  }
+
+  setTimelineSvg(ref?: RefObject<SVGSVGElement>) {
+    this._timelineSvg = ref;
+  }
+
+  get timelineSvg() {
+    return this._timelineSvg?.current;
   }
 
   setBaseLayer(ref?: RefObject<SVGGElement>) {
@@ -90,6 +107,24 @@ export class TimelineViewModel {
 
   setInteractionLayer(ref?: RefObject<HTMLDivElement>) {
     this._interactionLayer = ref;
+    if (this._interactionLayer?.current) {
+      const interactionLayer = this._interactionLayer.current;
+      interactionLayer.addEventListener(
+        "mousemove",
+        (e) => {
+          if (!this._isDragging) return;
+          this.applyTransform(this._dragStartX - e.clientX);
+        },
+        true,
+      );
+      interactionLayer.addEventListener("mousedown", (e) => {
+        this._isDragging = true;
+        this._dragStartX = e.clientX + this._currentTranslationX;
+      });
+      interactionLayer.addEventListener("mouseup", () => {
+        this._isDragging = false;
+      });
+    }
   }
 
   get interactionLayer() {
@@ -271,6 +306,13 @@ export class TimelineViewModel {
     if (this._mainController._repo.gitGraph.loading) return;
 
     return this.branches?.find((b) => b.name === this._mainController.selectedBranch);
+  }
+
+  applyTransform(x: number) {
+    this._currentTranslationX = x;
+    if (this.timelineSvg) {
+      this.timelineSvg.style.transform = `translateX(${-x}px)`;
+    }
   }
 
   accumulateWheelTicks(ticks: number) {

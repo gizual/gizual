@@ -1,6 +1,9 @@
 declare const classNames: {
   readonly Timeline: "Timeline";
+  readonly TimelineComponent: "TimelineComponent";
   readonly TimelineContainer: "TimelineContainer";
+  readonly TimelineSvgWrapper: "TimelineSvgWrapper";
+  readonly InteractionLayer: "InteractionLayer";
   readonly Header: "Header";
   readonly TimelineHeader: "TimelineHeader";
   readonly RectContainer: "RectContainer";

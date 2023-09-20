@@ -7,11 +7,38 @@
   max-height: 50vh;
 }
 
-.TimelineContainer {
+.TimelineComponent {
   display: flex;
   flex-direction: column;
   position: relative;
   border-bottom: 1px solid var(--border-primary);
+}
+
+.TimelineContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 200px;
+  min-height: 150px;
+}
+
+.TimelineSvgWrapper {
+  width: 100%; /* Overridden through the LayoutEffect later */
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: mistyrose;
+}
+
+.InteractionLayer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
 }
 
 .Header {
