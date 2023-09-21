@@ -1,24 +1,11 @@
 import { BranchInfo, CInfo } from "@app/types";
-import { makeAutoObservable } from "mobx";
+import { convertDaysToMs, getDaysBetween } from "@app/utils";
+import { makeAutoObservable, runInAction } from "mobx";
 import { RefObject } from "react";
 
 import { MainController } from "../../controllers";
 
 export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
-
-const DAYS_MS_FACTOR = 1000 * 60 * 60 * 24;
-
-export function convertMsToDays(ms: number) {
-  return ms / DAYS_MS_FACTOR;
-}
-
-export function convertDaysToMs(days: number) {
-  return days * DAYS_MS_FACTOR;
-}
-
-export function getDaysBetween(start: Date, end: Date) {
-  return Math.round(Math.abs(convertMsToDays(start.getTime() - end.getTime())));
-}
 
 export class TimelineViewModel {
   private _mainController: MainController;
@@ -40,22 +27,26 @@ export class TimelineViewModel {
 
   viewBox = {
     width: 1000,
-    height: 200,
+    height: 120,
   };
 
   textColumnWidth = 120;
-  rowHeight = 80;
-  padding = 20;
+  rowHeight = 60;
+  paddingY = 10;
 
   get ruler() {
     return {
       pos: {
         x: 0,
-        y: this.padding,
+        y: this.rowHeight + this.paddingY,
       },
       width: this.viewBox.width,
-      height: 80,
+      height: 50,
       ticks: {
+        pos: {
+          x: 0,
+          y: 10,
+        },
         emphasisOpts: {
           distance: 7,
           height: 20,
@@ -69,21 +60,16 @@ export class TimelineViewModel {
     };
   }
 
-  get graphs() {
-    return {
-      pos: {
-        x: 0,
-        y: this.ruler.height + this.padding * 2,
-      },
-    };
-  }
-
   private _isModalVisible = false;
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
 
-    makeAutoObservable(this);
+    makeAutoObservable(
+      this,
+      { mouseMove: false, mouseDown: false, mouseUp: false },
+      { autoBind: true },
+    );
   }
 
   setTimelineSvg(ref?: RefObject<SVGSVGElement>) {
@@ -110,29 +96,75 @@ export class TimelineViewModel {
     return this._commitLayer?.current;
   }
 
+  mouseMove = (e: MouseEvent) => {
+    if (!this._isDragging) return;
+    this.applyTransform(this._dragStartX - e.clientX);
+  };
+
+  mouseDown = (e: MouseEvent) => {
+    this._isDragging = true;
+    this._dragStartX = e.clientX + this._currentTranslationX;
+  };
+
+  mouseUp = () => {
+    this._isDragging = false;
+    const pxOffset = this._currentTranslationX - this.viewBox.width / 3;
+
+    const newStartDate = this.offsetDateByPx(this.startDate, pxOffset);
+    const newEndDate = this.offsetDateByPx(this.endDate, pxOffset);
+
+    runInAction(() => {
+      this.setStartDate(newStartDate);
+      this.setEndDate(newEndDate);
+    });
+    this.applyTransform(this.viewBox.width / 3);
+  };
+
+  wheel = (e: WheelEvent) => {
+    const scrollFactor = 0.05;
+
+    let ticks = 0;
+    const delta = normalizeWheelEventDirection(e);
+    // eslint-disable-next-line unicorn/prefer-ternary
+    if (Math.abs(delta) > 2) {
+      // Probably a proper mouse wheel.
+      ticks = Math.sign(delta);
+    } else {
+      // Probably something fine-grained (e.g. trackpad)
+      ticks = this.accumulateWheelTicks(delta * 0.005);
+    }
+
+    const currentRange = this.endDate.getTime() - this.startDate.getTime();
+    let newStartDate = this.startDate.getTime();
+    let newEndDate = this.endDate.getTime();
+    let newRange = currentRange;
+
+    newRange = currentRange * (1 + scrollFactor * -ticks);
+
+    newStartDate = this.startDate.getTime() + (currentRange - newRange) / 2;
+    newEndDate = this.endDate.getTime() - (currentRange - newRange) / 2;
+    runInAction(() => {
+      this.setStartDate(new Date(newStartDate));
+      this.setEndDate(new Date(newEndDate));
+    });
+  };
+
   setInteractionLayer(ref?: RefObject<HTMLDivElement>) {
     this._interactionLayer = ref;
+
     if (this._interactionLayer?.current) {
       const interactionLayer = this._interactionLayer.current;
-      interactionLayer.addEventListener(
-        "mousemove",
-        (e) => {
-          e.stopPropagation();
-          if (!this._isDragging) return;
-          this.applyTransform(this._dragStartX - e.clientX);
-        },
-        true,
-      );
-      interactionLayer.addEventListener("mousedown", (e) => {
-        this._isDragging = true;
-        this._dragStartX = e.clientX + this._currentTranslationX;
-      });
-      interactionLayer.addEventListener("mouseup", () => {
-        this._isDragging = false;
-        this.setStartDate(this.offsetDateByPx(this.startDate, this._currentTranslationX));
-        this.setEndDate(this.offsetDateByPx(this.endDate, this._currentTranslationX));
-        this.applyTransform(this.viewBox.width / 3);
-      });
+
+      // If we ever get here again, just remove the old listeners first for safety.
+      interactionLayer.removeEventListener("mousemove", this.mouseMove);
+      interactionLayer.removeEventListener("mousedown", this.mouseDown);
+      interactionLayer.removeEventListener("mouseup", this.mouseUp);
+      interactionLayer.removeEventListener("wheel", this.wheel);
+
+      interactionLayer.addEventListener("mousemove", this.mouseMove);
+      interactionLayer.addEventListener("mousedown", this.mouseDown);
+      interactionLayer.addEventListener("mouseup", this.mouseUp);
+      interactionLayer.addEventListener("wheel", this.wheel, { passive: true });
     }
   }
 
@@ -144,21 +176,9 @@ export class TimelineViewModel {
     return this._mainController;
   }
 
-  get rulerWidth() {
-    return this.viewBox.width - this.textColumnWidth - 3 * this.padding;
-  }
-
   setViewBoxWidth(width: number) {
     this.viewBox.width = width;
-    this._currentTranslationX = -width / 3;
-  }
-
-  get isModalVisible() {
-    return this._isModalVisible;
-  }
-
-  toggleModal() {
-    this._isModalVisible = !this._isModalVisible;
+    this._currentTranslationX = width / 3;
   }
 
   showTooltip(commit: CInfo) {
@@ -183,10 +203,6 @@ export class TimelineViewModel {
     return this._laneSpacing;
   }
 
-  setSpacing(n: number | null) {
-    this._laneSpacing = n ?? 1;
-  }
-
   get commitSizeTop() {
     return this._commitSizeTop;
   }
@@ -201,11 +217,6 @@ export class TimelineViewModel {
 
   setCommitSizeModal(n: number | null) {
     this._commitSizeModal = n ?? 5;
-  }
-
-  setActiveBranch(branch: BranchInfo) {
-    this.mainController.setBranchByName(branch.name);
-    this.toggleModal();
   }
 
   get commitIndices() {
@@ -273,7 +284,6 @@ export class TimelineViewModel {
   }
 
   setStartDate(date: Date) {
-    console.log("Setting start date, old:", this.mainController.startDate, "new:", date);
     this.mainController.setStartDate(date);
   }
 
@@ -282,7 +292,6 @@ export class TimelineViewModel {
   }
 
   setEndDate(date: Date) {
-    console.log("Setting end date, old:", this.mainController.endDate, "new:", date);
     this.mainController.setEndDate(date);
   }
 
@@ -316,9 +325,7 @@ export class TimelineViewModel {
 
   offsetDateByPx(startDate: Date, px: number): Date {
     const days = px / this.dayWidthInPx;
-    console.log(
-      `Timeline was moved by ${days} days. One day is ${this.dayWidthInPx}px, we moved by ${px}px.`,
-    );
+
     return new Date(startDate.getTime() + convertDaysToMs(days));
   }
 
@@ -348,7 +355,7 @@ export class TimelineViewModel {
   }
 }
 
-export function normalizeWheelEventDirection(evt: React.WheelEvent<SVGSVGElement | undefined>) {
+export function normalizeWheelEventDirection(evt: WheelEvent) {
   let delta = Math.hypot(evt.deltaX, evt.deltaY);
   const angle = Math.atan2(evt.deltaY, evt.deltaX);
   if (-0.25 * Math.PI < angle && angle < 0.75 * Math.PI) {
@@ -356,18 +363,4 @@ export function normalizeWheelEventDirection(evt: React.WheelEvent<SVGSVGElement
     delta = -delta;
   }
   return delta;
-}
-
-export function getDateFromTimestamp(timestamp: string) {
-  return new Date(Number(timestamp) * 1000);
-}
-
-export function getDayFromOffset(offset: number, startDate: Date) {
-  const d = new Date(startDate.getTime() + offset * 1000 * 60 * 60 * 24);
-  //console.log("getDayFromOffset", offset, startDate, "=", d);
-  return d;
-}
-
-export function getDateString(date: Date) {
-  return date.toLocaleDateString(undefined, { dateStyle: "medium" });
 }

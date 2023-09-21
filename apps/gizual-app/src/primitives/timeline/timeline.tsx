@@ -4,12 +4,11 @@ import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 
 import { useMainController, useViewModelController } from "../../controllers";
-import { Button } from "../button";
 
 import { Commits } from "./commits";
 import { RulerTicks } from "./ruler-ticks";
 import style from "./timeline.module.scss";
-import { getDateString, TimelineViewModel } from "./timeline.vm";
+import { TimelineViewModel } from "./timeline.vm";
 
 //const MOUSE_BUTTON_PRIMARY = 1;
 //const MOUSE_BUTTON_WHEEL = 4;
@@ -34,20 +33,18 @@ function Translate({
 type TimelineGraphProps = {
   vm: TimelineViewModel;
   branch?: BranchInfo;
-  isBelowRuler?: boolean;
   height?: number;
 };
 
-const TimelineGraph = observer(({ branch, vm, isBelowRuler, height }: TimelineGraphProps) => {
+const TimelineGraph = observer(({ branch, vm, height }: TimelineGraphProps) => {
   if (!branch) return <></>;
-  const offset = isBelowRuler ? vm.graphs.pos : { x: 0, y: 0 };
   if (!height) height = vm.rowHeight;
   return (
-    <Translate {...offset} data-test-id="timeline-graph">
+    <Translate x={0} y={0} data-test-id="timeline-graph">
       <rect
         x={0}
         y={0}
-        width={vm.viewBox.width - vm.textColumnWidth - vm.padding}
+        width={vm.viewBox.width}
         height={height}
         strokeWidth={1}
         className={style.RectContainer}
@@ -127,35 +124,21 @@ export const Ruler = observer(({ vm }: TimelineProps) => {
     <g data-test-id={"timeline-ruler"}>
       <rect
         x={0}
-        y={vm.graphs.pos.y}
+        y={vm.ruler.pos.y}
         width={vm.viewBox.width}
         height={vm.ruler.height}
         strokeWidth={1}
         className={style.RectContainer}
       ></rect>
-      <text
-        x={0}
-        y={vm.ruler.height - vm.padding + vm.graphs.pos.y}
-        className={style.RulerAnnotationLeft}
-      >
-        {getDateString(vm.startDate)}
-      </text>
-      <text
-        x={vm.viewBox.width}
-        y={vm.ruler.height - vm.padding + vm.graphs.pos.y}
-        className={style.RulerAnnotationRight}
-      >
-        {getDateString(vm.endDate)}
-      </text>
       <Translate x={vm.ruler.pos.x} y={vm.ruler.pos.y}>
         <RulerTicks
-          x={0}
-          y={vm.graphs.pos.y}
-          width={vm.rulerWidth}
+          x={vm.ruler.ticks.pos.x}
+          y={vm.ruler.ticks.pos.y}
           amount={vm.daysFromStartToEnd}
           emphasize={vm.ruler.ticks.emphasisOpts}
           tickSize={vm.ruler.ticks.tickSize}
           startDate={vm.startDate}
+          dayWidth={vm.dayWidthInPx}
         />
       </Translate>
     </g>
@@ -183,11 +166,15 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   React.useLayoutEffect(() => {
     const containerWidth = timelineContainerRef.current?.clientWidth ?? 1000;
 
-    const timelineSvgWrapperWidth = containerWidth - vm.textColumnWidth - 3 * vm.padding;
+    const timelineSvgWrapperWidth = containerWidth; //previously: containerWidth - vm.textColumnWidth - 3 * vm.padding;
     const timelineSvgWrapper = timelineSvgWrapperRef?.current;
     if (timelineSvgWrapper) {
-      timelineSvgWrapper.style.left = `${vm.textColumnWidth}px`;
+      timelineSvgWrapper.style.left = "0"; //previous: `${vm.textColumnWidth}px`;
       timelineSvgWrapper.style.width = `${timelineSvgWrapperWidth}px`;
+    }
+    const timelineSvg = timelineSvgRef?.current;
+    if (timelineSvg) {
+      timelineSvg.style.width = `${timelineSvgWrapperWidth * PRERENDER_MULTIPLIER}px`;
     }
     vm.setViewBoxWidth(timelineSvgWrapperWidth * PRERENDER_MULTIPLIER);
   }, [
@@ -198,28 +185,22 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     width,
   ]);
 
+  //if (!vm.branches || vm.branches.length === 0)
+  //  return (
+  //    <div
+  //      className={style.TimelineContainer}
+  //      style={{ height: "100px", display: "flex", justifyContent: "center", alignItems: "center" }}
+  //    >
+  //      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+  //        <h2>Loading branches & commits. Please wait! 🙏 </h2>
+  //        <Spin size={"large"} />
+  //      </div>
+  //    </div>
+  //  );
+
   return (
     <div className={style.TimelineComponent} id={"TimelineComponent"}>
-      <div className={style.TimelineHeader}>
-        <h1 className={style.Header}>Timeline</h1>
-        <Button
-          variant={"filled"}
-          onClick={() => vm.toggleModal()}
-          style={{ width: "80px", marginRight: "1rem" }}
-        >
-          {vm.isModalVisible ? "Close" : "Expand"}
-        </Button>
-      </div>
-
       <div className={style.TimelineContainer} ref={timelineContainerRef}>
-        <div className={style.TimelineInfoColumn}>
-          <div
-            className={style.CurrentBranchInfoContainer}
-            onClick={() => console.log("Branch selection is not yet implemented in TimelineV2")}
-          >
-            <p className={style.BranchName}>{vm.selectedBranch?.name ?? "unknown"}</p>
-          </div>
-        </div>
         <div className={style.TimelineSvgWrapper} ref={timelineSvgWrapperRef}>
           <svg
             width={"100%"}

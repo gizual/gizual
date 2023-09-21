@@ -71,8 +71,6 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
     //{ i: "b", x: 2, y: 0, w: 2, h: 2 },
   ];
 
-  const [languageChartType, setLanguageChartType] = React.useState<"pie" | "bar">("bar");
-
   if (!mainController.fileTreeRoot) return <div />;
   const languageData = parseLanguages(mainController.fileTreeRoot);
 
@@ -81,7 +79,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
         <div key={"a"}>
           <Container title={"Language Distribution"}>
-            <Languages chartType={languageChartType} languages={languageData} />
+            <Languages languages={languageData} />
           </Container>
         </div>
       </ReactGridLayout>
