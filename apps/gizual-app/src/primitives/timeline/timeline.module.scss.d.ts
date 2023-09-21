@@ -3,6 +3,8 @@ declare const classNames: {
   readonly TimelineComponent: "TimelineComponent";
   readonly TimelineContainer: "TimelineContainer";
   readonly TimelineSvgWrapper: "TimelineSvgWrapper";
+  readonly TimelineInfoColumn: "TimelineInfoColumn";
+  readonly CurrentBranchInfoContainer: "CurrentBranchInfoContainer";
   readonly InteractionLayer: "InteractionLayer";
   readonly Header: "Header";
   readonly TimelineHeader: "TimelineHeader";

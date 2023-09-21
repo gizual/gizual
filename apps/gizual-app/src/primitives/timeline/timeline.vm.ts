@@ -6,8 +6,14 @@ import { MainController } from "../../controllers";
 
 export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
 
+const DAYS_MS_FACTOR = 1000 * 60 * 60 * 24;
+
 export function convertMsToDays(ms: number) {
-  return ms / (1000 * 60 * 60 * 24);
+  return ms / DAYS_MS_FACTOR;
+}
+
+export function convertDaysToMs(days: number) {
+  return days * DAYS_MS_FACTOR;
 }
 
 export function getDaysBetween(start: Date, end: Date) {
@@ -32,7 +38,6 @@ export class TimelineViewModel {
   private _dragStartX = 0;
   private _isDragging = false;
 
-  // Timeline dimensions. All values in px.
   viewBox = {
     width: 1000,
     height: 200,
@@ -45,10 +50,10 @@ export class TimelineViewModel {
   get ruler() {
     return {
       pos: {
-        x: this.textColumnWidth,
+        x: 0,
         y: this.padding,
       },
-      width: this.viewBox.width - this.textColumnWidth - 3 * this.padding,
+      width: this.viewBox.width,
       height: 80,
       ticks: {
         emphasisOpts: {
@@ -112,6 +117,7 @@ export class TimelineViewModel {
       interactionLayer.addEventListener(
         "mousemove",
         (e) => {
+          e.stopPropagation();
           if (!this._isDragging) return;
           this.applyTransform(this._dragStartX - e.clientX);
         },
@@ -123,6 +129,9 @@ export class TimelineViewModel {
       });
       interactionLayer.addEventListener("mouseup", () => {
         this._isDragging = false;
+        this.setStartDate(this.offsetDateByPx(this.startDate, this._currentTranslationX));
+        this.setEndDate(this.offsetDateByPx(this.endDate, this._currentTranslationX));
+        this.applyTransform(this.viewBox.width / 3);
       });
     }
   }
@@ -141,6 +150,7 @@ export class TimelineViewModel {
 
   setViewBoxWidth(width: number) {
     this.viewBox.width = width;
+    this._currentTranslationX = -width / 3;
   }
 
   get isModalVisible() {
@@ -263,6 +273,7 @@ export class TimelineViewModel {
   }
 
   setStartDate(date: Date) {
+    console.log("Setting start date, old:", this.mainController.startDate, "new:", date);
     this.mainController.setStartDate(date);
   }
 
@@ -271,6 +282,7 @@ export class TimelineViewModel {
   }
 
   setEndDate(date: Date) {
+    console.log("Setting end date, old:", this.mainController.endDate, "new:", date);
     this.mainController.setEndDate(date);
   }
 
@@ -300,6 +312,14 @@ export class TimelineViewModel {
 
   get dayWidthInPx() {
     return this.ruler.width / this.daysFromStartToEnd;
+  }
+
+  offsetDateByPx(startDate: Date, px: number): Date {
+    const days = px / this.dayWidthInPx;
+    console.log(
+      `Timeline was moved by ${days} days. One day is ${this.dayWidthInPx}px, we moved by ${px}px.`,
+    );
+    return new Date(startDate.getTime() + convertDaysToMs(days));
   }
 
   get selectedBranch(): ParsedBranch | undefined {

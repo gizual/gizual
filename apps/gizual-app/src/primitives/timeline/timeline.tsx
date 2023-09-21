@@ -33,66 +33,36 @@ function Translate({
 
 type TimelineGraphProps = {
   vm: TimelineViewModel;
-  commits?: React.ReactElement;
   branch?: BranchInfo;
   isBelowRuler?: boolean;
   height?: number;
 };
 
-const TimelineGraph = observer(
-  ({ commits, branch, vm, isBelowRuler, height }: TimelineGraphProps) => {
-    if (!branch) return <></>;
-    const offset = isBelowRuler ? vm.graphs.pos : { x: 0, y: 0 };
-    if (!height) height = vm.rowHeight;
-    return (
-      <Translate {...offset} data-test-id="timeline-graph">
-        <foreignObject
-          x={vm.padding}
-          y={0}
-          width={vm.textColumnWidth - 2 * vm.padding}
-          height={height}
-        >
-          <div
-            style={{
-              width: "90%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              position: "relative",
-              cursor: "pointer",
-            }}
-            onClick={() => vm.setActiveBranch(branch)}
-          >
-            <p className={style.BranchName}>{branch.name}</p>
-          </div>
-        </foreignObject>
-        <rect
-          x={vm.textColumnWidth - vm.padding}
-          y={0}
-          width={vm.viewBox.width - vm.textColumnWidth - vm.padding}
-          height={height}
-          strokeWidth={1}
-          className={style.RectContainer}
-        ></rect>
-        <Translate x={vm.textColumnWidth - vm.padding} y={0}>
-          <line
-            x1={0}
-            x2={vm.viewBox.width - vm.textColumnWidth - vm.padding}
-            y1={height / 2}
-            y2={height / 2}
-            stroke={"white"}
-            strokeWidth={4}
-          />
-
-          <Translate x={vm.padding} y={0}>
-            {commits}
-          </Translate>
-        </Translate>
-      </Translate>
-    );
-  },
-);
+const TimelineGraph = observer(({ branch, vm, isBelowRuler, height }: TimelineGraphProps) => {
+  if (!branch) return <></>;
+  const offset = isBelowRuler ? vm.graphs.pos : { x: 0, y: 0 };
+  if (!height) height = vm.rowHeight;
+  return (
+    <Translate {...offset} data-test-id="timeline-graph">
+      <rect
+        x={0}
+        y={0}
+        width={vm.viewBox.width - vm.textColumnWidth - vm.padding}
+        height={height}
+        strokeWidth={1}
+        className={style.RectContainer}
+      ></rect>
+      <line
+        x1={0}
+        x2={vm.viewBox.width}
+        y1={height / 2}
+        y2={height / 2}
+        stroke={"white"}
+        strokeWidth={4}
+      />
+    </Translate>
+  );
+});
 
 export const BaseLayer = observer(({ vm }: TimelineProps) => {
   if (!vm) throw new NoVmError("BaseLayer");
@@ -122,7 +92,7 @@ export const CommitLayer = observer(({ vm }: TimelineProps) => {
 
   return (
     <g ref={ref}>
-      <Translate x={vm.textColumnWidth} y={vm.rowHeight / 2}>
+      <Translate x={0} y={vm.rowHeight / 2}>
         <Commits
           startDate={vm.startDate}
           endDate={vm.endDate}
@@ -130,7 +100,7 @@ export const CommitLayer = observer(({ vm }: TimelineProps) => {
           selectionEndDate={vm.selectedEndDate}
           dayWidth={vm.dayWidthInPx}
           commits={vm.selectedBranch?.commits}
-          yOffset={vm.rowHeight / 2}
+          yOffset={0}
           radius={vm.commitSizeTop}
           vm={vm}
         />
@@ -156,22 +126,22 @@ export const Ruler = observer(({ vm }: TimelineProps) => {
   return (
     <g data-test-id={"timeline-ruler"}>
       <rect
-        x={vm.textColumnWidth - vm.padding}
+        x={0}
         y={vm.graphs.pos.y}
-        width={vm.viewBox.width - vm.textColumnWidth - vm.padding}
+        width={vm.viewBox.width}
         height={vm.ruler.height}
         strokeWidth={1}
         className={style.RectContainer}
       ></rect>
       <text
-        x={vm.textColumnWidth}
+        x={0}
         y={vm.ruler.height - vm.padding + vm.graphs.pos.y}
         className={style.RulerAnnotationLeft}
       >
         {getDateString(vm.startDate)}
       </text>
       <text
-        x={vm.viewBox.width - 3 * vm.padding}
+        x={vm.viewBox.width}
         y={vm.ruler.height - vm.padding + vm.graphs.pos.y}
         className={style.RulerAnnotationRight}
       >
@@ -212,13 +182,14 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   const [width, _] = useWindowSize();
   React.useLayoutEffect(() => {
     const containerWidth = timelineContainerRef.current?.clientWidth ?? 1000;
-    vm.setViewBoxWidth(containerWidth * 3);
 
+    const timelineSvgWrapperWidth = containerWidth - vm.textColumnWidth - 3 * vm.padding;
     const timelineSvgWrapper = timelineSvgWrapperRef?.current;
     if (timelineSvgWrapper) {
       timelineSvgWrapper.style.left = `${vm.textColumnWidth}px`;
-      timelineSvgWrapper.style.width = `${containerWidth - vm.textColumnWidth - 3 * vm.padding}px`;
+      timelineSvgWrapper.style.width = `${timelineSvgWrapperWidth}px`;
     }
+    vm.setViewBoxWidth(timelineSvgWrapperWidth * PRERENDER_MULTIPLIER);
   }, [
     timelineContainerRef,
     vmController.isRepoPanelVisible,
@@ -241,6 +212,14 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
       </div>
 
       <div className={style.TimelineContainer} ref={timelineContainerRef}>
+        <div className={style.TimelineInfoColumn}>
+          <div
+            className={style.CurrentBranchInfoContainer}
+            onClick={() => console.log("Branch selection is not yet implemented in TimelineV2")}
+          >
+            <p className={style.BranchName}>{vm.selectedBranch?.name ?? "unknown"}</p>
+          </div>
+        </div>
         <div className={style.TimelineSvgWrapper} ref={timelineSvgWrapperRef}>
           <svg
             width={"100%"}
@@ -248,6 +227,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
             viewBox={`0 0 ${vm.viewBox.width} ${vm.viewBox.height}`}
             className={style.Svg}
             ref={timelineSvgRef}
+            style={{ transform: `translateX(${-vm.viewBox.width / 3}px)` }}
           >
             <BaseLayer vm={vm} />
             <CommitLayer vm={vm} />

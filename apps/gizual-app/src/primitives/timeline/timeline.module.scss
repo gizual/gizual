@@ -32,6 +32,24 @@
   background-color: mistyrose;
 }
 
+.TimelineInfoColumn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 120px;
+}
+
+.CurrentBranchInfoContainer {
+  width: 90%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
 .InteractionLayer {
   position: absolute;
   top: 0;
