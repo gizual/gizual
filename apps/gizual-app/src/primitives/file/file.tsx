@@ -1,12 +1,12 @@
 import { useMainController } from "@app/controllers";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
+import { isRef } from "@app/utils/tsutils";
 import { Skeleton, Spin, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { ReactComponent as CloseBox } from "../../assets/icons/close-box.svg";
-import { ReactComponent as Plus } from "../../assets/icons/plus.svg";
 import { ReactComponent as Source } from "../../assets/icons/source.svg";
 import { ReactComponent as StarFilled } from "../../assets/icons/star-filled.svg";
 import { ReactComponent as StarOutline } from "../../assets/icons/star-outline.svg";
@@ -18,18 +18,25 @@ import style from "./file.module.scss";
 import { FileViewModel } from "./file.vm";
 
 export type FileProps = {
-  vm?: FileViewModel;
+  parentContainer: Element | null;
+  vm: FileViewModel;
   isLoadIndicator?: boolean;
 };
 
 export const File = observer(
-  React.forwardRef<HTMLDivElement, FileProps>(function File({ vm }: FileProps, ref) {
+  React.forwardRef<HTMLDivElement, FileProps>(function File(
+    { vm, parentContainer }: FileProps,
+    ref,
+  ) {
+    if (!isRef(ref))
+      throw new Error(
+        "The File component only supports valid React refs created through `createRef` or `useRef`.",
+      );
+
     const mainController = useMainController();
-    if (!vm) return <></>;
+    const settingsController = mainController.settingsController;
 
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
-    const fileRef = ref;
-
     React.useEffect(() => {
       vm.assignCanvasRef(canvasRef);
       vm.draw();
@@ -41,29 +48,43 @@ export const File = observer(
 
     React.useEffect(() => {
       vm.draw();
-    }, [vm._blameView.isPreview, mainController.selectedStartDate, mainController.selectedEndDate]);
+    }, [
+      vm._blameView.isPreview,
+      mainController.selectedStartDate,
+      mainController.selectedEndDate,
+      vm.shouldRender,
+    ]);
 
+    // Attach IntersectionObserver on load, detach on dispose.
     React.useEffect(() => {
+      if (!ref) return;
+
+      const ioOptions: IntersectionObserverInit = {
+        root: parentContainer,
+        rootMargin: `${settingsController.visualisationSettings.canvas.rootMargin.value}px`,
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+      };
+
+      const ioCallback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[]) => {
+        if (entries.length <= 0) return;
+        vm.setRenderPriority(entries[0].intersectionRatio * 100);
+      };
+
+      const ioObserver = new IntersectionObserver(ioCallback, ioOptions);
+      ioObserver.observe(ref.current);
       return () => {
+        ioObserver.disconnect();
+        //ioObserver.unobserve(ref.current);
         vm.dispose();
       };
     }, []);
 
     React.useEffect(() => {
-      vm.assignFileRef(fileRef);
-    }, [fileRef]);
+      vm.assignFileRef(ref);
+    }, [ref]);
 
-    let body = (
-      <DialogProvider
-        trigger={
-          <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
-            <Plus className={style.LoadFileIcon} />
-          </div>
-        }
-      >
-        <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
-      </DialogProvider>
-    );
+    // This should never be displayed.
+    let body: React.ReactElement = <div>An unknown error occurred.</div>;
 
     if (!vm._isLoadIndicator) {
       if (vm.loading) {
@@ -86,7 +107,7 @@ export const File = observer(
 
     return (
       <>
-        <div className={style.File} ref={fileRef}>
+        <div className={style.File} ref={ref}>
           <FileHeader vm={vm} />
           <div className={style.FileBody}>{body}</div>
         </div>

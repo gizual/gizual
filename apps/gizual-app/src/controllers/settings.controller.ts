@@ -67,6 +67,7 @@ type VisualisationSettings = {
   } & GroupEntry;
   canvas: {
     viewMode: SettingsEntry<ViewMode, "select">;
+    rootMargin: SettingsEntry<number, "number">;
   } & GroupEntry;
 } & GroupEntry;
 
@@ -118,6 +119,11 @@ export class SettingsController {
         VIEW_MODES.map((s) => {
           return { value: s, label: s };
         }),
+      ),
+      rootMargin: createNumberSetting(
+        "Root Margin",
+        "The margin of the canvas for evaluating file visibility, given in pixels. Positive margins enlarge the bounding box, negative margins shrink it.",
+        200,
       ),
     },
   };

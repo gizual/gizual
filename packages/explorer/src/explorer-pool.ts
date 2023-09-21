@@ -200,6 +200,7 @@ export class ExplorerPool {
       runInAction(() => {
         this._workers.push(observable({ handle: w, busy: false }));
       });
+      this._dispatchJob();
     });
   }
 

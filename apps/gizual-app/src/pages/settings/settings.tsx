@@ -2,6 +2,7 @@ import { useMainController } from "@app/controllers";
 import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/controllers/settings.controller";
 import { IconButton } from "@app/primitives/icon-button";
 import { ColorPicker, Input, InputNumber, Select, Tooltip } from "antd";
+import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -74,7 +75,9 @@ const SettingsEntry = observer(
     const settingsController = mainController._settingsController;
 
     const onChange = (e: any) => {
-      entry.value = e;
+      runInAction(() => {
+        entry.value = e;
+      });
       settingsController.storeSettings();
     };
 

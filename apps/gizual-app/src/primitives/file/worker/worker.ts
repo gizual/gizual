@@ -7,7 +7,7 @@ import { FileViewModel, Line } from "../file.vm";
 export type FileContext = {
   coloringMode: MainController["_coloringMode"];
   fileContent: FileViewModel["fileContent"];
-  settings: FileViewModel["_settings"];
+  renderConfiguration: FileViewModel["_renderConfiguration"];
   lineLengthMax: FileViewModel["lineLengthMax"];
   earliestTimestamp: FileViewModel["earliestTimestamp"];
   latestTimestamp: FileViewModel["latestTimestamp"];
@@ -46,13 +46,16 @@ export class CanvasWorker {
     let nColumns = 1;
     const columnSpacing = 0;
 
-    if (fileCtx.fileContent.length > fileCtx.settings.maxLineCount) {
-      nColumns = Math.floor(fileCtx.fileContent.length / fileCtx.settings.maxLineCount) + 1;
+    if (fileCtx.fileContent.length > fileCtx.renderConfiguration.maxLineCount) {
+      nColumns =
+        Math.floor(fileCtx.fileContent.length / fileCtx.renderConfiguration.maxLineCount) + 1;
     }
 
     canvas.height = fileCtx.rect.height * fileCtx.dpr;
     //(lineHeight + fileContext.settings.lineSpacing) * fileContext.settings.maxLineCount;
-    const lineHeight = canvas.height / fileCtx.settings.maxLineCount - fileCtx.settings.lineSpacing;
+    const lineHeight =
+      canvas.height / fileCtx.renderConfiguration.maxLineCount -
+      fileCtx.renderConfiguration.lineSpacing;
 
     canvas.width = fileCtx.rect.width * fileCtx.dpr; //canvas.width * resolutionScale;
 
@@ -72,16 +75,16 @@ export class CanvasWorker {
       const rectHeight = lineHeight;
       const color = line.commit
         ? this.interpolateColor(line, fileCtx)
-        : fileCtx.settings.colorNotLoaded;
+        : fileCtx.renderConfiguration.colorNotLoaded;
 
       ctx.fillStyle = color;
       line.color = color;
       colors.push(line.color);
       ctx.fillRect(currentX + lineOffsetScaled, currentY, rectWidth, rectHeight);
-      currentY += lineHeight + fileCtx.settings.lineSpacing;
+      currentY += lineHeight + fileCtx.renderConfiguration.lineSpacing;
       lineIndex++;
 
-      if (lineIndex > fileCtx.settings.maxLineCount) {
+      if (lineIndex > fileCtx.renderConfiguration.maxLineCount) {
         ctx.fillStyle = SPECIAL_COLORS.NOT_LOADED;
         currentY = 0;
         currentX += columnWidth;
@@ -112,7 +115,7 @@ export class CanvasWorker {
       updatedAtSeconds * 1000 < fileContext.selectedStartDate.getTime() ||
       updatedAtSeconds * 1000 > fileContext.selectedEndDate.getTime()
     )
-      return fileContext.settings.colorNotLoaded;
+      return fileContext.renderConfiguration.colorNotLoaded;
 
     if (fileContext.coloringMode === "age") {
       const timeRange: [number, number] = [
@@ -120,13 +123,13 @@ export class CanvasWorker {
         fileContext.latestTimestamp,
       ];
       const colorRange: [string, string] = [
-        fileContext.settings.colorOld,
-        fileContext.settings.colorNew,
+        fileContext.renderConfiguration.colorOld,
+        fileContext.renderConfiguration.colorNew,
       ];
 
       return updatedAtSeconds
         ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
-        : fileContext.settings.colorNotLoaded;
+        : fileContext.renderConfiguration.colorNotLoaded;
     } else {
       const author = fileContext.authors.find((a) => a.id === line.commit?.authorId);
       return getBandColorScale(
