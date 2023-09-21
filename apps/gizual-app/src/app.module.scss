@@ -46,18 +46,22 @@ p {
   text-align: center;
 }
 
-.p {
-  padding-top: 1rem;
+code {
+  background-color: var(--background-tertiary);
+  color: var(--foreground-primary);
 }
 
-.card {
-  width: 100%;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  display: flex;
+.codeDark {
+  background-color: var(--color-gunmetal);
+  color: var(--color-lightgray);
 }
 
-.button {
-  margin: 0 auto;
-  margin-bottom: 1rem;
+a {
+  text-decoration: underline;
+  color: var(--foreground-link);
+}
+
+a:hover {
+  text-decoration: none;
+  color: var(--foreground-link);
 }

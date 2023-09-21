@@ -1,0 +1,28 @@
+.emphasized {
+  background-color: var(--background-red);
+  color: var(--foreground-primary);
+  font-weight: medium;
+  padding: 1rem;
+  text-wrap: balance;
+  width: 100%;
+}
+
+.emphasizedHeader {
+  text-align: center;
+  padding-bottom: 0.5rem;
+}
+
+.p {
+  padding-top: 1rem;
+}
+
+.card {
+  width: 100%;
+  padding-top: 2rem;
+  display: flex;
+}
+
+.button {
+  margin: 0 auto;
+  margin-bottom: 2rem;
+}

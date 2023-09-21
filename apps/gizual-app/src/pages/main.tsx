@@ -1,5 +1,4 @@
 import { Container, Languages, parseLanguages } from "@app/charts";
-import { AllContributions } from "@app/charts";
 import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
