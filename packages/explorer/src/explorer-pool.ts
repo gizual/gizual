@@ -5,16 +5,17 @@ import wasmFileUrl from "@giz/explorer-backend-libgit2/dist/explorer-backend-lib
 import { LOG, Logger } from "@giz/logger";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
-import { Author, Blame, FileTreeNode, isBlame } from "./types";
-
-const SKIP_VALIDATION = true;
+import { Author, Blame, FileTreeNode } from "./types";
 
 type WorkerWithState = {
   busy: boolean;
   handle: WasiRuntime;
+  activeJob?: Job;
 };
 
 type CommandJob = {
+  id?: number;
+  priority?: number;
   method: string;
   params?: any[];
   onErr: (err: any) => void;
@@ -36,6 +37,8 @@ function isJob(obj: any): obj is Job {
 }
 
 type StreamJob = {
+  id?: number;
+  priority?: number;
   method: string;
   params?: any[];
   onEnd: () => void;
@@ -72,13 +75,60 @@ async function createWorker(handle: FileSystemDirectoryHandle) {
 
 const MAX_CONCURRENCY = (navigator.hardwareConcurrency || 4) * 2;
 
+export class JobRef<T = any> {
+  private id_: number;
+  private priority_: number;
+  private promise_: Promise<T>;
+  constructor(
+    private pool: ExplorerPool,
+    job: Job,
+  ) {
+    this.id_ = job.id ?? this.pool.counter++;
+    this.priority_ = job.priority ?? 1;
+
+    this.promise_ = new Promise<T>((resolve, reject) => {
+      const originalOnEnd = job.onEnd;
+      const originalOnErr = job.onErr;
+
+      job.onEnd = (data) => {
+        originalOnEnd(data);
+        resolve(data);
+      };
+      job.onErr = (error) => {
+        originalOnErr(error);
+        reject(error);
+      };
+    });
+  }
+
+  get priority() {
+    return this.priority_;
+  }
+
+  setPriority(priority: number) {
+    this.priority_ = priority;
+    this.pool.setJobPriority(this.id_, priority);
+  }
+
+  cancel() {
+    console.warn("cancel", this.id_);
+    this.pool.cancelJob(this.id_);
+  }
+
+  get promise() {
+    return this.promise_;
+  }
+}
+
 export class ExplorerPool {
   _workers: WorkerWithState[];
   _jobQueue: Job[];
-  private counter = 0;
+  counter = 0;
   logger: Logger;
+  handle: FileSystemDirectoryHandle;
 
-  constructor(workers: WorkerWithState[]) {
+  constructor(workers: WorkerWithState[], handle: FileSystemDirectoryHandle) {
+    this.handle = handle;
     this._workers = workers;
     this._jobQueue = [];
     this.logger = LOG.getSubLogger({ name: "Explorer" });
@@ -88,6 +138,8 @@ export class ExplorerPool {
       _jobQueue: observable,
       _dispatchJob: action,
       _enqueueJob: action,
+      cancelJob: action,
+      addWorker: action,
     });
   }
 
@@ -113,35 +165,89 @@ export class ExplorerPool {
 
     const pool = workers.map((w) => observable({ handle: w, busy: false }));
 
-    return new ExplorerPool(pool);
+    return new ExplorerPool(pool, handle);
   }
 
-  execute(method: string, params?: any[]): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this._enqueueJob({
-        onEnd: resolve,
-        onErr: reject,
-        method,
-        params,
+  setJobPriority(id: number, priority: number) {
+    const job = this._jobQueue.find((job) => job.id === id);
+    if (job) {
+      job.priority = priority;
+    }
+  }
+
+  cancelJob(id: number) {
+    const job = this._jobQueue.find((job) => job.id === id);
+    if (job) {
+      this._jobQueue = this._jobQueue.filter((j) => job !== j);
+    } else {
+      const workerIndex = this._workers.findIndex((worker) => worker.activeJob?.id === id);
+      if (workerIndex > -1) {
+        const worker = this._workers[workerIndex];
+        worker.activeJob?.onErr(new Error("Job cancelled"));
+        worker.handle.dispose();
+
+        this._workers = this._workers.filter((w) => w !== worker);
+
+        this.addWorker();
+      } else {
+        console.warn("Job not found", id);
+      }
+    }
+  }
+
+  addWorker() {
+    createWorker(this.handle).then((w) => {
+      runInAction(() => {
+        this._workers.push(observable({ handle: w, busy: false }));
       });
     });
   }
 
-  executeStream(job: StreamJob): void {
+  execute(method: string, params?: any[], priority = 100): JobRef {
+    const job = {
+      id: this.counter++,
+      priority,
+      params,
+      method,
+      onEnd: () => {},
+      onErr: () => {},
+    };
+
+    const ref = new JobRef(this, job);
+
     this._enqueueJob(job);
+
+    return ref;
   }
 
-  _enqueueJob(job: Job) {
+  executeStream(job: StreamJob) {
+    return this._enqueueJob(job);
+  }
+
+  _enqueueJob(job_: Job) {
+    const id = job_.id ?? this.counter++;
+    const priority = job_.priority ?? 1;
+
+    const job = {
+      ...job_,
+      id,
+      priority,
+    };
+
+    const ref = new JobRef(this, job);
     this._jobQueue.push(job);
+
     this._dispatchJob();
+
+    return ref;
   }
 
   private async executeOnWorker(worker: WorkerWithState, job: Job): Promise<any> {
-    const { method, params } = job;
+    const { method, params, id } = job;
 
     const payload = {
       jsonrpc: "2.0",
-      id: this.counter++,
+      id: id ?? this.counter++,
       method,
       params,
     };
@@ -176,6 +282,7 @@ export class ExplorerPool {
     }
     runInAction(() => {
       worker.busy = false;
+      worker.activeJob = undefined;
     });
     this._dispatchJob();
   }
@@ -184,6 +291,9 @@ export class ExplorerPool {
     if (this._jobQueue.length === 0) {
       return;
     }
+
+    this._jobQueue = this._jobQueue.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+
     const job = this._jobQueue.shift();
 
     if (!job) {
@@ -194,6 +304,7 @@ export class ExplorerPool {
 
     if (worker) {
       worker.busy = true;
+      worker.activeJob = job;
       this.executeOnWorker(worker, job);
     } else {
       this._jobQueue.unshift(job);
@@ -206,42 +317,29 @@ export class ExplorerPool {
 
   // -------
 
-  async getBranches(): Promise<string[]> {
-    const output = await this.execute("list_branches");
-
-    if (
-      SKIP_VALIDATION ||
-      (Array.isArray(output) && output.every((branch) => typeof branch === "string"))
-    ) {
-      return output;
-    }
-    throw new TypeError("Unexpected output");
+  getBranches(): Promise<string[]> {
+    return this.execute("list_branches").promise;
   }
 
-  async getBlame(branch: string, path: string, preview?: boolean): Promise<Blame> {
-    const output = await this.execute("blame", [{ branch, path, preview }]);
-
-    if (SKIP_VALIDATION || isBlame(output)) {
-      return output;
-    }
-    throw new TypeError("Unexpected output");
+  getBlame(branch: string, path: string, preview?: boolean): JobRef<Blame> {
+    return this.execute("blame", [{ branch, path, preview }], preview ? 100 : 1);
   }
 
-  async getFileContent(branch: string, path: string): Promise<string> {
-    return this.execute("file_content", [{ branch, path }]);
+  getFileContent(branch: string, path: string): Promise<string> {
+    return this.execute("file_content", [{ branch, path }]).promise;
   }
 
-  async getGitGraph() {
-    return this.execute("git_graph");
+  getGitGraph() {
+    return this.execute("git_graph").promise;
   }
 
-  async streamFileTree(
+  streamFileTree(
     branch: string,
     onData: (data: FileTreeNode) => void,
     onEnd: () => void,
     onErr: (err: any) => void,
   ) {
-    this.executeStream({
+    return this.executeStream({
       method: "file_tree",
       params: [{ branch }],
       onData,
@@ -250,12 +348,8 @@ export class ExplorerPool {
     });
   }
 
-  async streamAuthors(
-    onData: (data: Author) => void,
-    onEnd: () => void,
-    onErr: (err: any) => void,
-  ) {
-    this.executeStream({
+  streamAuthors(onData: (data: Author) => void, onEnd: () => void, onErr: (err: any) => void) {
+    return this.executeStream({
       method: "stream_authors",
       params: [],
       onData,

@@ -1,3 +1,4 @@
+import { lowerI64Imports } from "@wasmer/wasm-transformer";
 import * as Comlink from "comlink";
 
 import { LOG, Logger } from "@giz/logger";
@@ -11,12 +12,16 @@ export type ExtendedWasiRuntimeOpts = {
 } & WasiRuntimeOpts;
 
 let COUNTER = 0;
+
+const WASM_CACHE: Record<string, Uint8Array> = {};
+
 export class WasiRuntime {
   id = 0;
   logger: Logger;
   private constructor(
     private opts: ExtendedWasiRuntimeOpts,
-    private worker: Comlink.Remote<WasiRuntimeWorker>
+    private worker: Comlink.Remote<WasiRuntimeWorker>,
+    private terminate: () => void,
   ) {
     this.id = COUNTER++;
     this.logger = LOG.getSubLogger({ name: `WasiRuntime-${this.id}` });
@@ -30,11 +35,22 @@ export class WasiRuntime {
     }
     console.log("init");
 
-    await this.worker.init({
-      moduleUrl: this.opts.moduleUrl,
-      moduleName: this.opts.moduleName,
-    });
-    (<any>window).W = this.worker;
+    let bytes: Uint8Array;
+    if (WASM_CACHE[this.opts.moduleUrl]) {
+      bytes = new Uint8Array(WASM_CACHE[this.opts.moduleUrl]);
+    } else {
+      const wasmBytes = await fetch(this.opts.moduleUrl).then((res) => res.arrayBuffer());
+      bytes = await lowerI64Imports(new Uint8Array(wasmBytes));
+      WASM_CACHE[this.opts.moduleUrl] = new Uint8Array(bytes);
+    }
+
+    await this.worker.init(
+      {
+        moduleUrl: this.opts.moduleUrl,
+        moduleName: this.opts.moduleName,
+      },
+      Comlink.transfer(bytes, [bytes.buffer]),
+    );
   }
 
   async run(opts: WasiRunOpts) {
@@ -49,10 +65,14 @@ export class WasiRuntime {
     return this.worker.writeStdin(input);
   }
 
-  static async create(opts: ExtendedWasiRuntimeOpts) {
-    const worker = await createWorker();
+  dispose() {
+    this.terminate();
+  }
 
-    const runtime = new WasiRuntime(opts, worker);
+  static async create(opts: ExtendedWasiRuntimeOpts) {
+    const [worker, terminate] = await createWorker();
+
+    const runtime = new WasiRuntime(opts, worker, terminate);
     await runtime.init();
     return runtime;
   }
