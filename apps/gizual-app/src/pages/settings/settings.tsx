@@ -1,7 +1,9 @@
 import { useMainController } from "@app/controllers";
 import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/controllers/settings.controller";
 import { IconButton } from "@app/primitives/icon-button";
-import { ColorPicker, Input, InputNumber, Select, Tooltip } from "antd";
+import { Checkbox, ColorPicker, Input, InputNumber, Select, Tooltip } from "antd";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
+import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -74,8 +76,17 @@ const SettingsEntry = observer(
     const settingsController = mainController._settingsController;
 
     const onChange = (e: any) => {
-      entry.value = e;
-      settingsController.storeSettings();
+      runInAction(() => {
+        entry.value = e;
+        settingsController.storeSettings();
+      });
+    };
+
+    const onCheckChange = (e: CheckboxChangeEvent) => {
+      runInAction(() => {
+        entry.value = e.target.checked;
+        settingsController.storeSettings();
+      });
     };
 
     const namePrefix = prefix ? `${prefix} - ` : "";
@@ -108,6 +119,13 @@ const SettingsEntry = observer(
           )}
           {entry.controlType === "number" && (
             <InputNumber defaultValue={entry.value} onChange={onChange} />
+          )}
+          {entry.controlType === "checkbox" && (
+            <Checkbox
+              className={style.Checkbox}
+              defaultChecked={entry.value}
+              onChange={onCheckChange}
+            />
           )}
         </div>
       </div>

@@ -70,3 +70,15 @@
   font-weight: 400;
   color: var(--foreground-tertiary)
 }
+
+.Checkbox {
+  /*:global(.ant-checkbox-inner) {
+    width: 30px;
+    height: 30px;
+  }
+  :global(.ant-checkbox-inner:after) {
+    inset-inline-start: 30%;
+    top: 55%;
+    transform: rotate(45deg) scale(1.8) translate(-50%, -50%);
+  }*/
+}

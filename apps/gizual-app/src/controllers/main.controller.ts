@@ -37,13 +37,14 @@ export class MainController {
   constructor() {
     this._repo = new Repository();
 
-    this._startDate = new Date("2023-01-01");
-    this._selectedStartDate = new Date("2023-01-01");
-    this._endDate = new Date("2023-07-30");
-    this._selectedEndDate = new Date("2023-07-30");
     this.setScale(1);
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
+    this._startDate = new Date("2023-01-01");
+    this._endDate = new Date("2023-07-30");
+    this._selectedStartDate = new Date("1970-01-01");
+    this._selectedEndDate = new Date("1970-01-01");
+
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
@@ -179,6 +180,7 @@ export class MainController {
   }
 
   setStartDate(date: Date) {
+    console.log("setting start date", date);
     this._startDate = date;
   }
 

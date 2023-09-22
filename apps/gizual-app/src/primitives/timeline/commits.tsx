@@ -1,8 +1,12 @@
 import { CInfo } from "@app/types";
-import { getDateFromTimestamp, getDaysBetween } from "@app/utils";
+import {
+  convertTimestampToMs,
+  getDateFromTimestamp,
+  getDaysBetween,
+  isDateBetween,
+} from "@app/utils";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
-import React from "react";
 
 import style from "./timeline.module.scss";
 import { TimelineViewModel } from "./timeline.vm";
@@ -16,20 +20,19 @@ type CommitsProps = {
   selectionEndDate: Date;
   dayWidth: number;
   yOffset: number;
-  radius?: number;
+  radius: number;
 };
 
 export const Commits = observer(
   ({
-    vm,
     commits,
     startDate,
     endDate,
-    selectionStartDate,
-    selectionEndDate,
     dayWidth,
     yOffset,
     radius,
+    selectionStartDate,
+    selectionEndDate,
   }: CommitsProps) => {
     if (!commits) return <></>;
 
@@ -39,20 +42,78 @@ export const Commits = observer(
         getDateFromTimestamp(c.timestamp) < endDate,
     );
 
-    const commitCircles = commitsInRange.map((commit, i) => {
+    // Check if some commits should be merge together because they would otherwise be obstructing
+    // each-other.
+    const commitsToDraw: {
+      commits: CInfo[];
+      x: number;
+      y: number;
+      rx: number;
+      originalPosition: number;
+      interpolatedTimestamp: number;
+    }[] = [];
+    for (const commit of commitsInRange) {
       const commitDate = getDateFromTimestamp(commit.timestamp);
       const dateOffsetFromStart = getDaysBetween(commitDate, startDate);
-      const isWithinSelection = selectionStartDate < commitDate && commitDate < selectionEndDate;
+      const commitPos = dateOffsetFromStart * dayWidth;
 
+      // Compare this commit with the last one in `commitsToDraw` and see if we need to merge them.
+      const previousCommits = commitsToDraw.at(-1);
+      if (!previousCommits) {
+        commitsToDraw.push({
+          x: commitPos,
+          y: yOffset,
+          commits: [commit],
+          rx: radius,
+          originalPosition: commitPos,
+          interpolatedTimestamp: convertTimestampToMs(commit.timestamp),
+        });
+        continue;
+      }
+
+      const previousCommitPos = previousCommits.x;
+      const diff = Math.abs(previousCommitPos - commitPos);
+      const diffToOriginal = Math.abs(previousCommits.originalPosition - previousCommitPos);
+      if (diff < radius && diffToOriginal < radius * 2) {
+        commitsToDraw.pop();
+        commitsToDraw.push({
+          x: commitPos + diff / 2,
+          y: yOffset,
+          commits: [...previousCommits.commits, commit],
+          rx: diff + radius,
+          originalPosition: previousCommits.originalPosition,
+          interpolatedTimestamp:
+            Math.abs(
+              previousCommits.interpolatedTimestamp - convertTimestampToMs(commit.timestamp),
+            ) + convertTimestampToMs(commit.timestamp),
+        });
+        continue;
+      }
+
+      commitsToDraw.push({
+        x: commitPos,
+        y: yOffset,
+        commits: [commit],
+        rx: radius,
+        originalPosition: commitPos,
+        interpolatedTimestamp: convertTimestampToMs(commit.timestamp),
+      });
+    }
+
+    const commitCircles = commitsToDraw.map((commit, i) => {
       return (
         <Commit
-          commit={commit}
           key={i}
-          x={dateOffsetFromStart * dayWidth}
-          y={yOffset}
-          r={radius}
-          vm={vm}
-          isHighlighted={isWithinSelection}
+          commits={commit.commits}
+          x={commit.x}
+          y={commit.y}
+          ry={radius}
+          rx={commit.rx}
+          isHighlighted={isDateBetween(
+            new Date(commit.interpolatedTimestamp),
+            selectionStartDate,
+            selectionEndDate,
+          )}
         />
       );
     });
@@ -62,37 +123,33 @@ export const Commits = observer(
 );
 
 type CommitProps = {
-  commit: CInfo;
-  vm: TimelineViewModel;
+  commits: CInfo[];
   x: number;
   y: number;
-  r?: number;
+  rx?: number;
+  ry?: number;
   isHighlighted?: boolean;
 };
 
-const Commit = observer(({ commit, x, y, r = 10, vm, isHighlighted = false }: CommitProps) => {
-  const [hover, setHover] = React.useState(false);
+const Commit = observer(
+  ({ commits, x, y, rx = 10, ry = 10, isHighlighted = false }: CommitProps) => {
+    const isMergedCommit = commits.length > 1; // If we had to merge commits before, this is a pseudo-commit.
 
-  return (
-    <>
-      <circle
-        cx={x}
-        cy={y}
-        r={r}
-        className={clsx(
-          style.CommitCircle,
-          hover && style.CommitCircleHover,
-          isHighlighted && style.CommitCircleHighlight,
+    return (
+      <g>
+        <ellipse
+          cx={x}
+          cy={y}
+          rx={rx}
+          ry={ry}
+          className={clsx(style.CommitCircle, isHighlighted && style.CommitCircleHighlight)}
+        />
+        {isMergedCommit && (
+          <text x={x} y={y + ry / 2} className={style.CommitCircleText}>
+            {commits.length}
+          </text>
         )}
-        onMouseEnter={() => {
-          setHover(true);
-          vm.showTooltip(commit);
-        }}
-        onMouseLeave={() => {
-          setHover(false);
-          vm.hideTooltip();
-        }}
-      />
-    </>
-  );
-});
+      </g>
+    );
+  },
+);

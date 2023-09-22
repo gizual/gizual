@@ -1,5 +1,6 @@
 import { BranchInfo } from "@app/types";
 import { NoVmError, useWindowSize } from "@app/utils";
+import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
@@ -11,8 +12,6 @@ import { RulerTicks } from "./ruler-ticks";
 import style from "./timeline.module.scss";
 import { TimelineViewModel } from "./timeline.vm";
 
-//const MOUSE_BUTTON_PRIMARY = 1;
-//const MOUSE_BUTTON_WHEEL = 4;
 const PRERENDER_MULTIPLIER = 3;
 
 export type TimelineProps = {
@@ -127,7 +126,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
           left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
           top: `0px`,
           width: `${Math.abs(vm._selectEndX - vm._selectStartX)}px`,
-          height: "100%",
+          height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
           zIndex: "150",
         }}
         className={style.SelectionBox}
@@ -136,7 +135,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
         style={{
           position: "absolute",
           left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
-          top: `${((vm.ruler.height - 8) / vm.viewBox.height) * 100}%`,
+          top: `${vm.rowHeight}px`,
           height: `${(8 / vm.viewBox.height) * 100}%`,
           width: `${Math.abs(vm._selectStartX - vm._selectEndX) + 1}px`,
           zIndex: "150",
@@ -212,6 +211,8 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
       timelineSvg.style.width = `${timelineSvgWrapperWidth * PRERENDER_MULTIPLIER}px`;
     }
     vm.setViewBoxWidth(timelineSvgWrapperWidth * PRERENDER_MULTIPLIER);
+    vm.updateStartX();
+    vm.updateEndX();
   }, [
     timelineContainerRef,
     vmController.isRepoPanelVisible,
@@ -219,19 +220,6 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     vm.selectedBranch,
     width,
   ]);
-
-  //if (!vm.branches || vm.branches.length === 0)
-  //  return (
-  //    <div
-  //      className={style.TimelineContainer}
-  //      style={{ height: "100px", display: "flex", justifyContent: "center", alignItems: "center" }}
-  //    >
-  //      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-  //        <h2>Loading branches & commits. Please wait! 🙏 </h2>
-  //        <Spin size={"large"} />
-  //      </div>
-  //    </div>
-  //  );
 
   return (
     <div className={style.TimelineComponent} id={"TimelineComponent"}>
@@ -248,8 +236,15 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
             <BaseLayer vm={vm} />
             <CommitLayer vm={vm} />
           </svg>
-
           <InteractionLayer vm={vm} />
+          {!vm.isDoneLoading && (
+            <div className={style.NotLoadedOverlay}>
+              <div className={style.NotLoadedOverlayContent}>
+                <Spin size={"large"} />
+                <h2>Loading branches & commits. Please wait! 🙏 </h2>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

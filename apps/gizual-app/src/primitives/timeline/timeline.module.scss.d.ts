@@ -2,6 +2,8 @@ declare const classNames: {
   readonly Timeline: "Timeline";
   readonly TimelineComponent: "TimelineComponent";
   readonly TimelineContainer: "TimelineContainer";
+  readonly NotLoadedOverlay: "NotLoadedOverlay";
+  readonly NotLoadedOverlayContent: "NotLoadedOverlayContent";
   readonly TimelineSvgWrapper: "TimelineSvgWrapper";
   readonly TimelineInfoColumn: "TimelineInfoColumn";
   readonly CurrentBranchInfoContainer: "CurrentBranchInfoContainer";
@@ -16,6 +18,7 @@ declare const classNames: {
   readonly RulerAnnotationLeft: "RulerAnnotationLeft";
   readonly RulerAnnotationRight: "RulerAnnotationRight";
   readonly CommitCircle: "CommitCircle";
+  readonly CommitCircleText: "CommitCircleText";
   readonly CommitCircleHover: "CommitCircleHover";
   readonly CommitCircleHighlight: "CommitCircleHighlight";
   readonly Svg: "Svg";

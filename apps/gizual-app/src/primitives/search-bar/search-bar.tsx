@@ -1,23 +1,33 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import { useMainController, useViewModelController } from "@app/controllers";
+import { DATE_FORMAT } from "@app/utils";
 import { StreamLanguage } from "@codemirror/language";
 import { simpleMode } from "@codemirror/legacy-modes/mode/simple-mode";
 import { keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { DatePicker, DatePickerProps, Tooltip } from "antd";
+import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { createPortal } from "react-dom";
 
 import { ReactComponent as TreeIcon } from "../../assets/icons/file-tree.svg";
 import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
 import { ReactComponent as SettingsIcon } from "../../assets/icons/settings.svg";
+import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
 import style from "./search-bar.module.scss";
-import { AvailableTags, SearchBarViewModel } from "./search-bar.vm";
-import { Tooltip } from "antd";
+import {
+  AvailableTagIdsForRegexp,
+  AvailableTags,
+  SearchBarViewModel,
+  SelectedTag,
+  TAG_PREFIX,
+} from "./search-bar.vm";
 
 const myTheme = createTheme({
   theme: "dark",
@@ -55,7 +65,11 @@ const myTheme = createTheme({
 const customParser = StreamLanguage.define(
   simpleMode({
     start: [
-      { regex: /\b(file|author|from|to)\b(?=:)/, token: "tag", next: "tagged" },
+      {
+        regex: new RegExp(TAG_PREFIX + "\\b(" + AvailableTagIdsForRegexp + ")\\b(?=:)"),
+        token: "tag",
+        next: "tagged",
+      },
       { regex: /\b(AND|OR|NOT)\b/, token: "operator" },
       { regex: /\b(\w+)\b(?=:)/, token: "annotation", next: "tagged" }, // mark unsupported tokens as annotations (errors)
       { regex: /./, token: "text" },
@@ -148,22 +162,39 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
         style={{ margin: "auto" }}
         theme={myTheme}
       />
-      {vm.isPopoverVisible && (
-        <div className={style.searchOverlay}>
-          <div className={style.searchOverlayContent}>
-            <h4>Refine your search</h4>
-            {AvailableTags.map((tag) => (
-              <div
-                className={style.searchOverlayHintEntry}
-                key={tag.id}
-                onClick={() => vm.appendTag(tag)}
-              >
-                <pre className={style.tag}>{tag.id}: </pre>
-                <pre>{tag.hint}</pre>
-              </div>
-            ))}
+      {vm.isPopoverOpen && (
+        <>
+          {createPortal(
+            <div
+              id={"PopoverUnderlay"}
+              className={sharedStyle.PopoverUnderlay}
+              onClick={() => vm.search()}
+            ></div>,
+            document.body,
+          )}
+          <div className={style.searchOverlay}>
+            <div className={style.searchOverlayContent}>
+              <h4>Refine your search</h4>
+              {!vm.currentPendingTag &&
+                Object.entries(AvailableTags).map(([id, tag]) => (
+                  <div
+                    className={style.searchOverlayHintEntry}
+                    key={id}
+                    onClick={() => vm.appendTag(tag)}
+                  >
+                    <pre className={style.tag}>{tag.id}: </pre>
+                    <pre>{tag.hint}</pre>
+                  </div>
+                ))}
+              {vm.currentPendingTag && vm.currentPendingTag.tag.id === "start" && (
+                <DateTimeInputAssist vm={vm} tag={vm.currentPendingTag} />
+              )}
+              {vm.currentPendingTag && vm.currentPendingTag.tag.id === "end" && (
+                <DateTimeInputAssist vm={vm} tag={vm.currentPendingTag} />
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       <IconButton
@@ -171,7 +202,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
         colored
         wide
         border="right"
-        onClick={() => vm.search}
+        onClick={() => vm.search()}
         aria-label="Search"
       >
         <SearchIcon />
@@ -179,5 +210,25 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
     </div>
   );
 });
+
+const DateTimeInputAssist = observer(
+  ({ vm, tag }: Required<SearchBarProps> & { tag: SelectedTag }) => {
+    const onChange: DatePickerProps["onChange"] = (date, dateString) => {
+      vm.updateTag(tag.tag.id, dateString);
+    };
+
+    let currentDate = dayjs(tag.value, DATE_FORMAT);
+    if (!currentDate.isValid()) currentDate = dayjs();
+    console.log("currentDate", currentDate);
+
+    return (
+      <>
+        <div className={style.searchOverlayHintEntry}>
+          <DatePicker onChange={onChange} format={DATE_FORMAT} />
+        </div>
+      </>
+    );
+  },
+);
 
 export default observer(SearchBar);

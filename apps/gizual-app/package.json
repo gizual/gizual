@@ -39,6 +39,7 @@
     "comlink": "4.4.1",
     "d3-interpolate": "3.0.1",
     "d3-scale": "4.0.2",
+    "dayjs": "^1.11.10",
     "lodash": "4.17.21",
     "mobx": "6.10.0",
     "mobx-react-lite": "4.0.3",

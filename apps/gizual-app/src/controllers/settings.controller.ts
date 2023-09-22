@@ -1,5 +1,5 @@
 import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@app/utils";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, toJS } from "mobx";
 
 type GroupEntry = {
   groupName: string;
@@ -77,6 +77,10 @@ type EditorSettings = {
   gutterStyle: SettingsEntry<GutterStyle, "select">;
 } & GroupEntry;
 
+type TimelineSettings = {
+  snap: SettingsEntry<boolean, "checkbox">;
+} & GroupEntry;
+
 export class SettingsController {
   editor: EditorSettings = {
     groupName: "Editor Settings",
@@ -87,6 +91,14 @@ export class SettingsController {
       GUTTER_STYLES.map((s) => {
         return { value: s, label: s };
       }),
+    ),
+  };
+  timelineSettings: TimelineSettings = {
+    groupName: "Timeline Settings",
+    snap: createCheckboxSetting(
+      "Snap to grid",
+      "Controls if selections on the timeline snap to the nearest grid element.",
+      false,
     ),
   };
   visualisationSettings: VisualisationSettings = {
@@ -129,6 +141,7 @@ export class SettingsController {
   get settings() {
     return {
       editor: this.editor,
+      timelineSettings: this.timelineSettings,
       visualisationSettings: this.visualisationSettings,
     };
   }
@@ -142,12 +155,17 @@ export class SettingsController {
     if (!settings) return;
 
     const parsed = JSON.parse(settings);
-    this.editor = parsed.editor;
-    this.visualisationSettings = parsed.visualisationSettings;
+    this.editor = mergeObj(toJS(this.editor), parsed.editor);
+    this.visualisationSettings = mergeObj(
+      toJS(this.visualisationSettings),
+      parsed.visualisationSettings,
+    );
+    this.timelineSettings = mergeObj(toJS(this.timelineSettings), parsed.timelineSettings);
   }
 
   storeSettings() {
-    localStorage.setItem("gizual-app.settings", JSON.stringify(this));
+    console.log(this.settings);
+    localStorage.setItem("gizual-app.settings", JSON.stringify(this.settings));
   }
 
   downloadSettingsJSON() {
@@ -181,4 +199,14 @@ export class SettingsController {
     });
     input.click();
   }
+}
+
+function mergeObj(obj1: any, obj2: any) {
+  if (!obj2) return obj1;
+  for (const key of Object.keys(obj2)) {
+    if (key in obj1) {
+      obj1[key] = obj2[key];
+    }
+  }
+  return obj1;
 }

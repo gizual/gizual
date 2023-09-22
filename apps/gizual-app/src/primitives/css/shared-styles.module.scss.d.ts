@@ -13,5 +13,6 @@ declare const classNames: {
   readonly toolbarIcon: "toolbarIcon";
   readonly flexGrow: "flexGrow";
   readonly pointer: "pointer";
+  readonly PopoverUnderlay: "PopoverUnderlay";
 };
 export = classNames;
