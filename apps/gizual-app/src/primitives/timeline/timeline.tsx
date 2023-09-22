@@ -2,6 +2,7 @@ import { BranchInfo } from "@app/types";
 import { NoVmError, useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
+import { createPortal } from "react-dom";
 
 import { useMainController, useViewModelController } from "../../controllers";
 
@@ -67,7 +68,6 @@ export const BaseLayer = observer(({ vm }: TimelineProps) => {
   const ref = useRef<SVGGElement | null>(null);
   React.useEffect(() => {
     vm.setBaseLayer(ref);
-    return vm.setBaseLayer();
   }, [ref]);
 
   return (
@@ -84,7 +84,6 @@ export const CommitLayer = observer(({ vm }: TimelineProps) => {
   const ref = useRef<SVGGElement | null>(null);
   React.useEffect(() => {
     vm.setCommitLayer(ref);
-    return vm.setCommitLayer();
   }, [ref]);
 
   return (
@@ -109,13 +108,49 @@ export const CommitLayer = observer(({ vm }: TimelineProps) => {
 export const InteractionLayer = observer(({ vm }: TimelineProps) => {
   if (!vm) throw new NoVmError("InteractionLayer");
 
-  const ref = useRef<HTMLDivElement | null>(null);
+  const interactionLayerRef = useRef<HTMLDivElement | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
-    vm.setInteractionLayer(ref);
-    return vm.setInteractionLayer();
-  }, [ref]);
+    vm.setInteractionLayer(interactionLayerRef);
+    vm.setTooltip(tooltipRef);
+  }, [interactionLayerRef, tooltipRef]);
 
-  return <div className={style.InteractionLayer} id={"TimelineInteractionLayer"} ref={ref}></div>;
+  return (
+    <div
+      className={style.InteractionLayer}
+      id={"TimelineInteractionLayer"}
+      ref={interactionLayerRef}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
+          top: `0px`,
+          width: `${Math.abs(vm._selectEndX - vm._selectStartX)}px`,
+          height: "100%",
+          zIndex: "150",
+        }}
+        className={style.SelectionBox}
+      ></div>
+      <div
+        style={{
+          position: "absolute",
+          left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
+          top: `${((vm.ruler.height - 8) / vm.viewBox.height) * 100}%`,
+          height: `${(8 / vm.viewBox.height) * 100}%`,
+          width: `${Math.abs(vm._selectStartX - vm._selectEndX) + 1}px`,
+          zIndex: "150",
+        }}
+        className={style.SelectionBoxLine}
+      />
+      {createPortal(
+        <div id={"TimelineTooltip"} className={style.Tooltip} ref={tooltipRef}>
+          <code className={style.TooltipContent}>{vm.tooltipContent}</code>
+        </div>,
+        document.body,
+      )}
+    </div>
+  );
 });
 
 export const Ruler = observer(({ vm }: TimelineProps) => {
@@ -181,7 +216,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     timelineContainerRef,
     vmController.isRepoPanelVisible,
     vmController.isSettingsPanelVisible,
-    vm.branches,
+    vm.selectedBranch,
     width,
   ]);
 

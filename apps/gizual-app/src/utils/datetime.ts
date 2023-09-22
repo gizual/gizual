@@ -27,3 +27,16 @@ export function convertDaysToMs(days: number) {
 export function getDaysBetween(start: Date, end: Date) {
   return Math.abs(convertMsToDays(start.getTime() - end.getTime()));
 }
+
+export function getDayOnScale(start: Date, end: Date, width: number, offset: number) {
+  const daysBetween = getDaysBetween(start, end);
+  return new Date(start.getTime() + convertDaysToMs((daysBetween / width) * offset));
+}
+
+// Returns the date in the format "YYYY-MM-DD"
+export function getStringDate(date: Date) {
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${year}-${month}-${day}`;
+}

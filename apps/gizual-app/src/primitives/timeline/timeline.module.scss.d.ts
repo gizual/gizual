@@ -10,11 +10,11 @@ declare const classNames: {
   readonly TimelineHeader: "TimelineHeader";
   readonly RectContainer: "RectContainer";
   readonly Tooltip: "Tooltip";
+  readonly TooltipContent: "TooltipContent";
   readonly SelectionBox: "SelectionBox";
   readonly SelectionBoxLine: "SelectionBoxLine";
   readonly RulerAnnotationLeft: "RulerAnnotationLeft";
   readonly RulerAnnotationRight: "RulerAnnotationRight";
-  readonly BranchName: "BranchName";
   readonly CommitCircle: "CommitCircle";
   readonly CommitCircleHover: "CommitCircleHover";
   readonly CommitCircleHighlight: "CommitCircleHighlight";

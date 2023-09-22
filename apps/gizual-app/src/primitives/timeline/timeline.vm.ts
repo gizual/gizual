@@ -1,11 +1,20 @@
 import { BranchInfo, CInfo } from "@app/types";
-import { convertDaysToMs, getDaysBetween } from "@app/utils";
+import {
+  convertDaysToMs,
+  getDateFromTimestamp,
+  getDayOnScale,
+  getDaysBetween,
+  getStringDate as getDateIsoString,
+} from "@app/utils";
 import { makeAutoObservable, runInAction } from "mobx";
 import { RefObject } from "react";
 
 import { MainController } from "../../controllers";
 
 export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
+
+const MOUSE_BUTTON_PRIMARY = 0;
+const MOUSE_BUTTON_WHEEL = 1;
 
 export class TimelineViewModel {
   private _mainController: MainController;
@@ -15,15 +24,23 @@ export class TimelineViewModel {
   private _commitSizeTop = 10;
   private _commitSizeModal = 5;
   private _wheelUnusedTicks = 0;
+  private _tooltipContent = "";
+
+  private _commitsPerDate = new Map<string, CInfo[]>();
 
   private _baseLayer?: RefObject<SVGGElement> = undefined;
   private _commitLayer?: RefObject<SVGGElement> = undefined;
   private _interactionLayer?: RefObject<HTMLDivElement> = undefined;
   private _timelineSvg?: RefObject<SVGSVGElement> = undefined;
+  private _tooltip?: RefObject<HTMLDivElement> = undefined;
 
   private _currentTranslationX = 0;
   private _dragStartX = 0;
   private _isDragging = false;
+  private _isSelecting = false;
+
+  _selectStartX = 0;
+  _selectEndX = 0;
 
   viewBox = {
     width: 1000,
@@ -96,28 +113,88 @@ export class TimelineViewModel {
     return this._commitLayer?.current;
   }
 
+  get interactionBoundingClientRect() {
+    return this.interactionLayer?.getBoundingClientRect();
+  }
+
+  get tooltipContent() {
+    return this._tooltipContent;
+  }
+
   mouseMove = (e: MouseEvent) => {
-    if (!this._isDragging) return;
-    this.applyTransform(this._dragStartX - e.clientX);
+    if (this.tooltip) {
+      this.tooltip.style.transform = `translate(${e.clientX + 15}px,${e.clientY + 15}px)`;
+      this.tooltip.style.visibility = "visible";
+      const date = getDateIsoString(
+        getDayOnScale(
+          this.startDate,
+          this.endDate,
+          this.viewBox.width,
+          e.clientX + this._currentTranslationX,
+        ),
+      );
+
+      let tooltipContent = date;
+      if (this._commitsPerDate.has(date)) {
+        const commits = this._commitsPerDate.get(date)!;
+        for (const commit of commits) {
+          tooltipContent += "\n" + commit.message;
+        }
+      }
+
+      runInAction(() => {
+        this._tooltipContent = tooltipContent;
+      });
+    }
+
+    if (this._isSelecting) {
+      runInAction(() => {
+        this._selectEndX = e.clientX;
+      });
+    }
+
+    if (this._isDragging) {
+      this.applyTransform(this._dragStartX - e.clientX);
+    }
   };
 
   mouseDown = (e: MouseEvent) => {
-    this._isDragging = true;
-    this._dragStartX = e.clientX + this._currentTranslationX;
+    if (e.button === MOUSE_BUTTON_PRIMARY) {
+      runInAction(() => {
+        this._isSelecting = true;
+
+        // TODO: These should snap to the grid of ticks, if set through user preferences.
+        this._selectStartX = e.clientX;
+        this._selectEndX = e.clientX;
+      });
+    }
+
+    if (e.button === MOUSE_BUTTON_WHEEL) {
+      runInAction(() => {
+        this._isDragging = true;
+        this._dragStartX = e.clientX + this._currentTranslationX;
+      });
+    }
   };
 
-  mouseUp = () => {
-    this._isDragging = false;
-    const pxOffset = this._currentTranslationX - this.viewBox.width / 3;
+  mouseUp = (e: MouseEvent) => {
+    if (e.button === MOUSE_BUTTON_PRIMARY) {
+      this._isSelecting = false;
+    }
 
-    const newStartDate = this.offsetDateByPx(this.startDate, pxOffset);
-    const newEndDate = this.offsetDateByPx(this.endDate, pxOffset);
+    if (e.button === MOUSE_BUTTON_WHEEL) {
+      this._isDragging = false;
+      const pxOffset = this._currentTranslationX - this.viewBox.width / 3;
 
-    runInAction(() => {
-      this.setStartDate(newStartDate);
-      this.setEndDate(newEndDate);
-    });
-    this.applyTransform(this.viewBox.width / 3);
+      const newStartDate = this.offsetDateByPx(this.startDate, pxOffset);
+      const newEndDate = this.offsetDateByPx(this.endDate, pxOffset);
+
+      runInAction(() => {
+        this.setStartDate(newStartDate);
+        this.setEndDate(newEndDate);
+      });
+      this.applyTransform(this.viewBox.width / 3);
+    }
   };
 
   wheel = (e: WheelEvent) => {
@@ -170,6 +247,14 @@ export class TimelineViewModel {
 
   get interactionLayer() {
     return this._interactionLayer?.current;
+  }
+
+  setTooltip(ref?: RefObject<HTMLDivElement>) {
+    this._tooltip = ref;
+  }
+
+  get tooltip() {
+    return this._tooltip?.current;
   }
 
   get mainController() {
@@ -266,21 +351,17 @@ export class TimelineViewModel {
       currentCommit = this.commits[commitIndex];
       if (!currentCommit) break;
 
+      const commitDate = getDateIsoString(getDateFromTimestamp(currentCommit.timestamp));
+      if (this._commitsPerDate.has(commitDate)) {
+        this._commitsPerDate.get(commitDate)?.push(currentCommit);
+      } else {
+        this._commitsPerDate.set(commitDate, [currentCommit]);
+      }
       parsedCommits.push(currentCommit as any);
     }
 
+    console.log(this._commitsPerDate);
     return parsedCommits;
-  }
-
-  get branches(): ParsedBranch[] | undefined {
-    if (this._mainController._repo.gitGraph.loading) return;
-
-    return this._mainController.branches.map((branch) => {
-      return {
-        ...branch,
-        commits: this.getCommitsForBranch(branch),
-      };
-    });
   }
 
   setStartDate(date: Date) {
@@ -332,7 +413,15 @@ export class TimelineViewModel {
   get selectedBranch(): ParsedBranch | undefined {
     if (this._mainController._repo.gitGraph.loading) return;
 
-    return this.branches?.find((b) => b.name === this._mainController.selectedBranch);
+    const branch = this._mainController.branches?.find(
+      (b) => b.name === this._mainController.selectedBranch,
+    );
+    if (!branch) return;
+
+    return {
+      ...branch,
+      commits: this.getCommitsForBranch(branch),
+    };
   }
 
   applyTransform(x: number) {

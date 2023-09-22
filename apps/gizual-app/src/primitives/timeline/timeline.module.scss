@@ -56,6 +56,7 @@
   left: 0;
   right: 0;
   z-index: 200;
+  pointer-events: auto;
 }
 
 .Header {
@@ -88,6 +89,16 @@
   padding: 5px;
   z-index: 1000;
   white-space: nowrap;
+  pointer-events: none;
+  
+  /* Absolutely positioned at the top left, moved exclusively with CSS transforms. */
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.TooltipContent {
+  white-space: pre;
 }
 
 .SelectionBox {
@@ -116,21 +127,12 @@
   text-anchor: end;
 }
 
-.BranchName {
-  @include text-xs;
-  font-weight: bold;
-  fill: var(--foreground-primary);
-  alignment-baseline: middle;
-  text-anchor: start;
-  text-align: left;
-  overflow: hidden;
-  word-break: break-all;
-}
-
 .CommitCircle {
   fill: var(--background-tertiary);
   stroke: var(--foreground-primary);
   stroke-width: 1px;
+  position: relative;
+  pointer-events: auto;
   z-index: 250;
 }
 
@@ -150,6 +152,7 @@
   -ms-user-select: none;
   z-index: 150;
   position: relative;
+  pointer-events: none;
 }
 
 .timelineOverlay {
