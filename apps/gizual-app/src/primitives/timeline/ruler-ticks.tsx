@@ -1,4 +1,4 @@
-import { getDaysBetween } from "@app/utils";
+import { getDaysBetweenAbs } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -24,7 +24,7 @@ export const RulerTicks = observer(
     const ticks: React.ReactElement[] = [];
 
     // Every `emphasize.distance` day from the start of the count is emphasized (01.01.1970)
-    const differenceDays = getDaysBetween(new Date("1970-01-01"), startDate);
+    const differenceDays = getDaysBetweenAbs(new Date("1970-01-01"), startDate);
 
     // This offset is added because all ticks are always placed at the 00:00 mark.
     const offsetToMidnight = differenceDays - Math.floor(differenceDays);

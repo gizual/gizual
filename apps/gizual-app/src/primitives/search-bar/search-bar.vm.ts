@@ -1,4 +1,5 @@
-import { DATE_FORMAT, getDaysBetween } from "@app/utils";
+import { DATE_FORMAT, getDaysBetweenAbs, GizDate } from "@app/utils";
+import { ViewUpdate } from "@codemirror/view";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import dayjs from "dayjs";
 import { makeAutoObservable, observable } from "mobx";
@@ -47,6 +48,7 @@ export class SearchBarViewModel {
   _searchString = "";
   _tags: SelectedTag[] = [];
   _popoverOpen = false;
+  _cursorPosition = 0;
 
   _state = observable({
     filesQuery: [] as string[],
@@ -78,50 +80,67 @@ export class SearchBarViewModel {
     return this._searchString;
   }
 
-  onSearchInput(value: string) {
+  onSearchInput(value: string, viewUpdate: ViewUpdate) {
     this._searchString = value;
+    this._cursorPosition = viewUpdate.state.selection.main.head;
   }
 
-  parseTags() {
-    const tagsWithValues = [];
-    const tagPattern = new RegExp(`(${AvailableTagIdsForRegexp}):?([^\\s]*)?`, "g");
+  onSearchUpdate(viewUpdate: ViewUpdate) {
+    this._cursorPosition = viewUpdate.state.selection.main.head;
+  }
+
+  parseTags(text: string) {
+    const tagsWithValues: SelectedTag[] = [];
+    const tagRegex = new RegExp(`${TAG_PREFIX}(${AvailableTagIdsForRegexp}):([^\\s]*)`, "g");
     let match;
-    while ((match = tagPattern.exec(this._searchString))) {
-      const [fullMatch, tagId, value = ""] = match;
+    while ((match = tagRegex.exec(text)) !== null) {
+      const [, tagId, value] = match;
       const tag = AvailableTags[tagId as AvailableTagId];
-      tagsWithValues.push({ tag, value });
+      if (tag) {
+        tagsWithValues.push({ tag, value });
+      }
     }
     return tagsWithValues;
   }
 
   evaluateTags() {
-    this._tags = this.parseTags();
+    this._tags = this.parseTags(this._searchString);
     for (const tag of this._tags) {
-      if (tag.tag.id === "start" && dayjs(tag.value, DATE_FORMAT).isValid()) {
+      if (tag.tag.id === "start") {
+        // If the user deletes the entire `start` tag from the selection, we want the default selection
+        // to apply, even if it's not explicitly specified. Thus, we need to evaluate the validity of the
+        // tags value before assigning it here.
+        const dayjsDate = dayjs(tag.value, DATE_FORMAT);
+
         this._mainController.vmController.timelineViewModel?.setSelectedStartDate(
-          dayjs(tag.value, DATE_FORMAT).toDate(),
+          dayjsDate.isValid() ? new GizDate(dayjsDate.toDate()) : undefined,
         );
       }
-      if (tag.tag.id === "end" && dayjs(tag.value, DATE_FORMAT).isValid()) {
-        const diffInDays = getDaysBetween(
+
+      if (tag.tag.id === "end") {
+        // If the user deletes the entire `end` tag from the selection, we want the default selection
+        // to apply, even if it's not explicitly specified. Thus, we need to evaluate the validity of the
+        // tags value before assigning it here.
+        const dayjsDate = dayjs(tag.value, DATE_FORMAT);
+
+        const date = dayjsDate.isValid()
+          ? new GizDate(dayjsDate.toDate())
+          : this._mainController.vmController.timelineViewModel?.defaultEndDate ?? new GizDate();
+
+        const numSelectedDays = getDaysBetweenAbs(
           this._mainController.vmController.timelineViewModel!.selectedStartDate,
-          dayjs(tag.value, DATE_FORMAT).toDate(),
+          date,
         );
+
+        // The amount of days to display at the left and right of the selection.
+        const datePadding = Math.floor(numSelectedDays / 10);
 
         this._mainController.vmController.timelineViewModel?.setStartDate(
-          dayjs(tag.value, DATE_FORMAT)
-            .subtract(diffInDays * 2 + 10, "day")
-            .toDate(),
+          date.subtractDays(numSelectedDays + datePadding),
         );
-        this._mainController.vmController.timelineViewModel?.setEndDate(
-          dayjs(tag.value, DATE_FORMAT)
-            .add(diffInDays + 10, "day")
-            .toDate(),
-        );
+        this._mainController.vmController.timelineViewModel?.setEndDate(date.addDays(datePadding));
 
-        this._mainController.vmController.timelineViewModel?.setSelectedEndDate(
-          dayjs(tag.value, DATE_FORMAT).toDate(),
-        );
+        this._mainController.vmController.timelineViewModel?.setSelectedEndDate(date);
       }
     }
   }
@@ -129,9 +148,7 @@ export class SearchBarViewModel {
   updateTag(tagId: AvailableTagId, newValue: string) {
     const tagIndex = this._tags.findIndex((tag) => tag.tag.id === tagId);
 
-    if (tagIndex === -1) {
-      console.error(`Tag with id ${tagId} not found.`);
-    } else {
+    if (tagIndex !== -1) {
       this._tags[tagIndex].value = newValue;
     }
 
@@ -147,9 +164,6 @@ export class SearchBarViewModel {
   appendTag(tag: Tag, value = "") {
     this._searchString = this._searchString.trim() + ` ${TAG_PREFIX}${tag.id}:${value}`;
     this._searchString = this._searchString.trim();
-    setTimeout(() => {
-      this._searchBarRef?.current?.editor?.focus();
-    }, 105);
     this._tags.push({ tag, value });
   }
 
@@ -163,12 +177,18 @@ export class SearchBarViewModel {
   }
 
   removeTag(tag: SelectedTag) {
-    this._tags = this._tags.filter((t) => t.tag.id !== tag.tag.id || t.value !== tag.value);
+    this._tags = this._tags.filter((t) => t.tag.id !== tag.tag.id);
+    this.syncSearchString();
   }
 
   get currentPendingTag() {
-    if (this._searchString.at(-1) === " ") return;
-    const words = this._searchString.trim().split(/\s+/);
+    const editor = this._searchBarRef?.current?.editor;
+    if (!editor) return;
+
+    const textBeforeCursor = this._searchString.slice(0, this._cursorPosition);
+
+    if (textBeforeCursor.at(-1) === " ") return;
+    const words = textBeforeCursor.trim().split(/\s+/);
 
     if (words.length === 0) {
       return;
@@ -181,10 +201,9 @@ export class SearchBarViewModel {
       return;
     }
 
-    const tagsWithValues = this.parseTags();
+    const tagsWithValues = this.parseTags(textBeforeCursor);
     return tagsWithValues.at(-1);
   }
-
   get tags() {
     return this._tags;
   }

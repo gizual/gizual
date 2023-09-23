@@ -92,10 +92,14 @@
   font-size: 1rem;
   line-height: 1rem;
   cursor: pointer;
-  font-family: monospace;
   margin: 0;
   padding: 0.25rem;
   background-color: var(--background-secondary);
+  align-items: center;
+}
+
+.removeTagEntry {
+  color: var(--accent-tertiary);
 }
 
 .searchOverlayHintEntry:hover {

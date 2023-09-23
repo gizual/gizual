@@ -79,6 +79,7 @@ type EditorSettings = {
 
 type TimelineSettings = {
   snap: SettingsEntry<boolean, "checkbox">;
+  defaultRange: SettingsEntry<number, "number">;
 } & GroupEntry;
 
 export class SettingsController {
@@ -99,6 +100,11 @@ export class SettingsController {
       "Snap to grid",
       "Controls if selections on the timeline snap to the nearest grid element.",
       false,
+    ),
+    defaultRange: createNumberSetting(
+      "Default Selection Range",
+      "Adjusts the default date range (how many days to visualise, starting from the last commit in the repository).",
+      365,
     ),
   };
   visualisationSettings: VisualisationSettings = {
@@ -164,7 +170,6 @@ export class SettingsController {
   }
 
   storeSettings() {
-    console.log(this.settings);
     localStorage.setItem("gizual-app.settings", JSON.stringify(this.settings));
   }
 

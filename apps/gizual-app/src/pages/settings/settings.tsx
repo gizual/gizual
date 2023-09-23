@@ -3,6 +3,8 @@ import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/controllers/s
 import { IconButton } from "@app/primitives/icon-button";
 import { Checkbox, ColorPicker, Input, InputNumber, Select, Tooltip } from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
+import { ArgsProps } from "antd/es/notification/interface";
+import _ from "lodash";
 import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -70,6 +72,14 @@ const SettingsGroup = observer(({ settings, prefix = "" }: { settings: any; pref
   );
 });
 
+const openNotification = _.debounce((open: (args: ArgsProps) => void) => {
+  open({
+    message: "Settings updated",
+    description: "Your settings have been updated.",
+    duration: 2,
+  });
+}, 500);
+
 const SettingsEntry = observer(
   ({ entry, prefix }: { entry: SettingsEntry<any, any>; prefix?: string }) => {
     const mainController = useMainController();
@@ -79,6 +89,7 @@ const SettingsEntry = observer(
       runInAction(() => {
         entry.value = e;
         settingsController.storeSettings();
+        openNotification(mainController.displayNotification);
       });
     };
 
@@ -86,6 +97,7 @@ const SettingsEntry = observer(
       runInAction(() => {
         entry.value = e.target.checked;
         settingsController.storeSettings();
+        openNotification(mainController.displayNotification);
       });
     };
 

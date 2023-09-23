@@ -1,5 +1,7 @@
 import { ColoringMode, FileNodeInfos } from "@app/types";
-import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
+import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
+import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
+import dayjs from "dayjs";
 import { makeAutoObservable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer";
@@ -13,6 +15,7 @@ type Page = "welcome" | "main";
 export class MainController {
   _selectedFiles: Map<string, FileNodeInfos | {}> = new Map();
   _favouriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
+  _notification?: NotificationInstance;
 
   _coloringMode: ColoringMode = "age";
   _fileTreeRoot?: FileTree;
@@ -29,10 +32,10 @@ export class MainController {
   _repo: Repository;
   _numFiles = 0;
 
-  private _startDate: Date;
-  private _selectedStartDate: Date;
-  private _endDate: Date;
-  private _selectedEndDate: Date;
+  private _startDate: GizDate;
+  private _selectedStartDate: GizDate;
+  private _endDate: GizDate;
+  private _selectedEndDate: GizDate;
 
   constructor() {
     this._repo = new Repository();
@@ -40,12 +43,22 @@ export class MainController {
     this.setScale(1);
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
-    this._startDate = new Date("2023-01-01");
-    this._endDate = new Date("2023-07-30");
-    this._selectedStartDate = new Date("1970-01-01");
-    this._selectedEndDate = new Date("1970-01-01");
+    this._startDate = new GizDate("2023-01-01");
+    this._endDate = new GizDate("2023-07-30");
+    this._selectedStartDate = new GizDate("1970-01-01");
+    this._selectedEndDate = new GizDate("1970-01-01");
 
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  attachNotificationInstance(notification: typeof this._notification) {
+    this._notification = notification;
+  }
+
+  displayNotification(args: ArgsProps) {
+    if (this._notification === undefined) return;
+
+    this._notification.open(args);
   }
 
   get backendMetrics() {
@@ -179,25 +192,26 @@ export class MainController {
     this._page = page;
   }
 
-  setStartDate(date: Date) {
-    console.log("setting start date", date);
+  setStartDate(date: GizDate) {
     this._startDate = date;
   }
 
-  setSelectedStartDate(date: Date) {
+  setSelectedStartDate(date: GizDate) {
     if (this._selectedStartDate.getTime() !== date.getTime()) this._selectedStartDate = date;
   }
 
-  setEndDate(date: Date) {
+  setEndDate(date: GizDate) {
     this._endDate = date;
   }
 
-  setSelectedEndDate(date: Date) {
+  setSelectedEndDate(date: GizDate) {
     if (this._selectedEndDate.getTime() !== date.getTime()) this._selectedEndDate = date;
   }
 
   get startDate() {
-    return this._startDate;
+    if (dayjs(this._startDate).isValid()) return this._startDate;
+
+    return new GizDate();
   }
 
   get selectedStartDate() {
@@ -207,7 +221,9 @@ export class MainController {
   }
 
   get endDate() {
-    return this._endDate;
+    if (dayjs(this._endDate).isValid()) return this._endDate;
+
+    return new GizDate();
   }
 
   get selectedEndDate() {

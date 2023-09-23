@@ -63,7 +63,6 @@ const TimelineGraph = observer(({ branch, vm, height }: TimelineGraphProps) => {
 
 export const BaseLayer = observer(({ vm }: TimelineProps) => {
   if (!vm) throw new NoVmError("BaseLayer");
-
   const ref = useRef<SVGGElement | null>(null);
   React.useEffect(() => {
     vm.setBaseLayer(ref);
@@ -89,14 +88,14 @@ export const CommitLayer = observer(({ vm }: TimelineProps) => {
     <g ref={ref}>
       <Translate x={0} y={vm.rowHeight / 2}>
         <Commits
-          startDate={vm.startDate}
-          endDate={vm.endDate}
+          startDate={vm.timelineRenderStart}
+          endDate={vm.timelineRenderEnd}
           selectionStartDate={vm.selectedStartDate}
           selectionEndDate={vm.selectedEndDate}
           dayWidth={vm.dayWidthInPx}
           commits={vm.selectedBranch?.commits}
           yOffset={0}
-          radius={vm.commitSizeTop}
+          radius={10}
           vm={vm}
         />
       </Translate>
@@ -120,28 +119,42 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
       id={"TimelineInteractionLayer"}
       ref={interactionLayerRef}
     >
-      <div
-        style={{
-          position: "absolute",
-          left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
-          top: `0px`,
-          width: `${Math.abs(vm._selectEndX - vm._selectStartX)}px`,
-          height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
-          zIndex: "150",
-        }}
-        className={style.SelectionBox}
-      ></div>
-      <div
-        style={{
-          position: "absolute",
-          left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
-          top: `${vm.rowHeight}px`,
-          height: `${(8 / vm.viewBox.height) * 100}%`,
-          width: `${Math.abs(vm._selectStartX - vm._selectEndX) + 1}px`,
-          zIndex: "150",
-        }}
-        className={style.SelectionBoxLine}
-      />
+      {vm.isDoneLoading && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
+              top: `0px`,
+              width: `${Math.abs(vm._selectEndX - vm._selectStartX)}px`,
+              height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
+              zIndex: "150",
+            }}
+            className={style.SelectionBox}
+          ></div>
+          <div
+            style={{
+              position: "absolute",
+              left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
+              top: `${vm.rowHeight}px`,
+              height: `${(8 / vm.viewBox.height) * 100}%`,
+              width: `${Math.abs(vm._selectStartX - vm._selectEndX) + 1}px`,
+              zIndex: "150",
+            }}
+            className={style.SelectionBoxLine}
+          />
+        </>
+      )}
+      {!vm.isDragging && (
+        <>
+          <p className={style.DateRangeInfoText} style={{ left: 4 }}>
+            {vm.startDate.toString()}
+          </p>
+          <p className={style.DateRangeInfoText} style={{ right: 4 }}>
+            {vm.endDate.toString()}
+          </p>
+        </>
+      )}
       {createPortal(
         <div id={"TimelineTooltip"} className={style.Tooltip} ref={tooltipRef}>
           <code className={style.TooltipContent}>{vm.tooltipContent}</code>
@@ -168,10 +181,10 @@ export const Ruler = observer(({ vm }: TimelineProps) => {
         <RulerTicks
           x={vm.ruler.ticks.pos.x}
           y={vm.ruler.ticks.pos.y}
-          amount={vm.daysFromStartToEnd}
+          amount={vm.totalRenderedDays}
           emphasize={vm.ruler.ticks.emphasisOpts}
           tickSize={vm.ruler.ticks.tickSize}
-          startDate={vm.startDate}
+          startDate={vm.timelineRenderStart}
           dayWidth={vm.dayWidthInPx}
         />
       </Translate>
@@ -211,8 +224,8 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
       timelineSvg.style.width = `${timelineSvgWrapperWidth * PRERENDER_MULTIPLIER}px`;
     }
     vm.setViewBoxWidth(timelineSvgWrapperWidth * PRERENDER_MULTIPLIER);
-    vm.updateStartX();
-    vm.updateEndX();
+    vm.updateSelectionStartCoords();
+    vm.updateSelectionEndCoords();
   }, [
     timelineContainerRef,
     vmController.isRepoPanelVisible,

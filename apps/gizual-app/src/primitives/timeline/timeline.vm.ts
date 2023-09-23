@@ -1,13 +1,18 @@
 import { BranchInfo, CInfo } from "@app/types";
 import {
+  accumulateWheelTicks,
   convertDaysToMs,
-  DAYS_MS_FACTOR,
-  discardTime,
+  estimateCoordsOnScale,
+  estimateDayOnScale,
   getDateFromTimestamp,
-  getDayForXCoord,
-  getDaysBetween,
+  getDaysBetweenAbs,
   getStringDate,
-  getXCoordsForDate,
+  GizDate,
+  MOUSE_BUTTON_PRIMARY,
+  MOUSE_BUTTON_WHEEL,
+  MOUSE_ZOOM_FACTOR,
+  MOUSE_ZOOM_FACTOR_FINE,
+  normalizeWheelEventDirection,
 } from "@app/utils";
 import { makeAutoObservable, runInAction, when } from "mobx";
 import { RefObject } from "react";
@@ -17,15 +22,13 @@ import { AvailableTags } from "../search-bar/search-bar.vm";
 
 export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
 
-const MOUSE_BUTTON_PRIMARY = 0;
-const MOUSE_BUTTON_WHEEL = 1;
+const PRERENDER_MULTIPLIER = 3; // Changes the amount of sections to render. Should not be adjusted.
+const DEFAULT_SELECTION = 365; // Default selection range - only used if the settings panel doesn't report this value.
+const MIN_DAYS = 10; // Minimum amount days (used to restrict zooming).
+const MAX_DAYS = 365 * PRERENDER_MULTIPLIER; // Maximum amount of days (used to restrict zooming).
 
 export class TimelineViewModel {
   private _mainController: MainController;
-  private _laneSpacing = 1;
-  private _commitSizeTop = 10;
-  private _commitSizeModal = 5;
-  private _wheelUnusedTicks = 0;
   private _tooltipContent = "";
   private _isTooltipShown = false;
   private _lastCommit?: CInfo;
@@ -38,10 +41,15 @@ export class TimelineViewModel {
   private _timelineSvg?: RefObject<SVGSVGElement> = undefined;
   private _tooltip?: RefObject<HTMLDivElement> = undefined;
 
+  // These dates are only used if the user explicitly does not specify a date
+  // (by deleting the tag from the search bar).
+  private _defaultStartDate?: GizDate;
+  private _defaultEndDate?: GizDate;
+
   private _currentTranslationX = 0;
   private _dragStartX = 0;
-  private _isDragging = false;
-  private _isSelecting = false;
+  _isDragging = false;
+  _isSelecting = false;
 
   _selectStartX = 0;
   _selectEndX = 0;
@@ -81,8 +89,6 @@ export class TimelineViewModel {
     };
   }
 
-  private _isModalVisible = false;
-
   constructor(mainController: MainController) {
     this._mainController = mainController;
     this._mainController.vmController.setTimelineViewModel(this);
@@ -103,36 +109,64 @@ export class TimelineViewModel {
     when(
       () => this.isDoneLoading,
       () => {
-        this.evaluatePositions();
+        this.initializePositionsFromLastCommit();
       },
     );
 
-    this.setSelectedStartDate(new Date("2023-01-01"));
-    this.setSelectedEndDate(new Date("2023-07-30"));
+    this.setSelectedStartDate(new GizDate("2023-01-01"));
+    this.setSelectedEndDate(new GizDate("2023-07-30"));
+  }
+
+  get selectionRange() {
+    return (
+      this._mainController.settingsController.settings.timelineSettings?.defaultRange?.value ??
+      DEFAULT_SELECTION
+    );
   }
 
   get isDoneLoading() {
     return this._lastCommit !== undefined;
   }
 
-  evaluatePositions() {
+  initializePositionsFromLastCommit() {
     if (!this._lastCommit) return;
 
-    const newEndDate = new Date(
-      getDateFromTimestamp(this._lastCommit.timestamp).getTime() + convertDaysToMs(365 + 10),
+    const datePadding = Math.floor(this.selectionRange / 10);
+
+    const newEndDate = getDateFromTimestamp(this._lastCommit.timestamp).addDays(datePadding);
+    const newStartDate = getDateFromTimestamp(this._lastCommit.timestamp).subtractDays(
+      datePadding + this.selectionRange,
     );
-    const newStartDate = new Date(
-      getDateFromTimestamp(this._lastCommit.timestamp).getTime() - convertDaysToMs(365 * 2 + 10),
-    );
-    const newSelectedStartDate = new Date(
-      getDateFromTimestamp(this._lastCommit.timestamp).getTime() - convertDaysToMs(365),
+
+    const newSelectedStartDate = getDateFromTimestamp(this._lastCommit.timestamp).subtractDays(
+      this.selectionRange,
     );
     const newSelectedEndDate = getDateFromTimestamp(this._lastCommit.timestamp);
 
     this.setStartDate(newStartDate);
     this.setEndDate(newEndDate);
+
     this.setSelectedStartDate(newSelectedStartDate);
     this.setSelectedEndDate(newSelectedEndDate);
+
+    this._defaultStartDate = newSelectedStartDate;
+    this._defaultEndDate = newSelectedEndDate;
+  }
+
+  get defaultStartDate() {
+    return this._defaultStartDate;
+  }
+
+  get defaultEndDate() {
+    return this._defaultEndDate;
+  }
+
+  get isDragging() {
+    return this._isDragging;
+  }
+
+  get isSelecting() {
+    return this._isSelecting;
   }
 
   setTimelineSvg(ref?: RefObject<SVGSVGElement>) {
@@ -176,9 +210,9 @@ export class TimelineViewModel {
       this.tooltip.style.transform = `translate(${e.clientX + 15}px,${e.clientY + 15}px)`;
       this.tooltip.style.visibility = "visible";
       const date = getStringDate(
-        getDayForXCoord(
-          this.startDate,
-          this.endDate,
+        estimateDayOnScale(
+          this.timelineRenderStart,
+          this.timelineRenderEnd,
           this.viewBox.width,
           e.clientX + this._currentTranslationX - this.interactionBoundingClientRect.left,
         ),
@@ -201,9 +235,9 @@ export class TimelineViewModel {
       runInAction(() => {
         this._selectEndX = e.clientX - this.interactionBoundingClientRect.left;
         this.setSelectedEndDate(
-          getDayForXCoord(
-            this.startDate,
-            this.endDate,
+          estimateDayOnScale(
+            this.timelineRenderStart,
+            this.timelineRenderEnd,
             this.viewBox.width,
             this._selectEndX + this._currentTranslationX,
           ),
@@ -213,8 +247,8 @@ export class TimelineViewModel {
 
     if (this._isDragging) {
       this.applyTransform(this._dragStartX - e.clientX);
-      this.updateStartX();
-      this.updateEndX();
+      this.updateSelectionStartCoords();
+      this.updateSelectionEndCoords();
     }
   };
 
@@ -225,24 +259,23 @@ export class TimelineViewModel {
 
         this._selectStartX = e.clientX - this.interactionBoundingClientRect.left;
         this._selectEndX = e.clientX - this.interactionBoundingClientRect.left;
-        console.log("Here's what selectStartX should be:", this._selectStartX);
 
-        let selectedStartDate = getDayForXCoord(
-          this.startDate,
-          this.endDate,
+        let selectedStartDate = estimateDayOnScale(
+          this.timelineRenderStart,
+          this.timelineRenderEnd,
           this.viewBox.width,
           this._selectStartX + this._currentTranslationX,
         );
-        let selectedEndDate = getDayForXCoord(
-          this.startDate,
-          this.endDate,
+        let selectedEndDate = estimateDayOnScale(
+          this.timelineRenderStart,
+          this.timelineRenderEnd,
           this.viewBox.width,
           this._selectEndX + this._currentTranslationX,
         );
 
         if (this.mainController.settingsController.timelineSettings.snap.value) {
-          selectedStartDate = discardTime(selectedStartDate);
-          selectedEndDate = new Date(discardTime(selectedEndDate).getTime() + DAYS_MS_FACTOR);
+          selectedStartDate = selectedStartDate.discardTimeComponent();
+          selectedEndDate = selectedEndDate.discardTimeComponent().addDays(1);
         }
 
         this.setSelectedStartDate(selectedStartDate);
@@ -260,37 +293,35 @@ export class TimelineViewModel {
 
   mouseUp = (e: MouseEvent) => {
     if (e.button === MOUSE_BUTTON_PRIMARY) {
-      this._isSelecting = false;
-
-      const selectedEndDate = getDayForXCoord(
-        this.startDate,
-        this.endDate,
-        this.viewBox.width,
-        this._selectEndX + this._currentTranslationX,
-      );
-      if (this.mainController.settingsController.timelineSettings.snap.value) {
-        this.setSelectedEndDate(new Date(discardTime(selectedEndDate).getTime() + DAYS_MS_FACTOR));
-      }
+      this.stopSelecting();
     }
 
     if (e.button === MOUSE_BUTTON_WHEEL) {
-      this._isDragging = false;
-      const pxOffset = this._currentTranslationX - this.viewBox.width / 3;
-
-      const newStartDate = this.offsetDateByPx(this.startDate, pxOffset);
-      const newEndDate = this.offsetDateByPx(this.endDate, pxOffset);
-
-      runInAction(() => {
-        this.setStartDate(newStartDate);
-        this.setEndDate(newEndDate);
-      });
-      this.applyTransform(this.viewBox.width / 3);
+      this.stopDragging();
     }
   };
 
-  wheel = (e?: WheelEvent) => {
-    const scrollFactor = 0.05;
+  stopSelecting() {
+    this._isSelecting = false;
 
+    const selectedEndDate = estimateDayOnScale(
+      this.timelineRenderStart,
+      this.timelineRenderEnd,
+      this.viewBox.width,
+      this._selectEndX + this._currentTranslationX,
+    );
+    if (this.mainController.settingsController.timelineSettings.snap.value) {
+      this.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
+    }
+  }
+
+  stopDragging() {
+    this._isDragging = false;
+    const pxOffset = this._currentTranslationX - this.viewBox.width / PRERENDER_MULTIPLIER;
+    this.move(pxOffset);
+  }
+
+  wheel = (e: WheelEvent) => {
     let ticks = 0;
     const delta = e ? normalizeWheelEventDirection(e) : 0;
     // eslint-disable-next-line unicorn/prefer-ternary
@@ -299,40 +330,69 @@ export class TimelineViewModel {
       ticks = Math.sign(delta);
     } else {
       // Probably something fine-grained (e.g. trackpad)
-      ticks = this.accumulateWheelTicks(delta * 0.005);
+      ticks = accumulateWheelTicks(delta * MOUSE_ZOOM_FACTOR_FINE);
     }
 
-    const currentRange = this.endDate.getTime() - this.startDate.getTime();
+    if (e.shiftKey || e.ctrlKey) {
+      this.zoom(ticks);
+      return;
+    }
+
+    this.move(-ticks * 20);
+    this.updateSelectionStartCoords();
+    this.updateSelectionEndCoords();
+  };
+
+  move(pxOffset: number) {
+    const newStartDate = this.offsetDateByPx(this.startDate, pxOffset);
+    const newEndDate = this.offsetDateByPx(this.endDate, pxOffset);
+
+    this.setStartDate(newStartDate);
+    this.setEndDate(newEndDate);
+
+    this.applyTransform(this.viewBox.width / PRERENDER_MULTIPLIER);
+  }
+
+  zoom(ticks: number) {
+    if (this.isZoomingOverBounds(ticks)) return;
+
+    const currentRange = this.startDate.getTime() - this.endDate.getTime();
     let newStartDate = this.startDate.getTime();
     let newEndDate = this.endDate.getTime();
     let newRange = currentRange;
 
-    newRange = currentRange * (1 + scrollFactor * -ticks);
+    newRange = currentRange * (1 + MOUSE_ZOOM_FACTOR * -ticks);
 
-    newStartDate = this.startDate.getTime() + (currentRange - newRange) / 2;
-    newEndDate = this.endDate.getTime() - (currentRange - newRange) / 2;
-    runInAction(() => {
-      this.setStartDate(new Date(newStartDate));
-      this.setEndDate(new Date(newEndDate));
-    });
-    this.updateStartX();
-    this.updateEndX();
-  };
+    newStartDate = this.startDate.getTime() - (currentRange - newRange) / 2;
+    newEndDate = this.endDate.getTime() + (currentRange - newRange) / 2;
+
+    this.setStartDate(new GizDate(newStartDate));
+    this.setEndDate(new GizDate(newEndDate));
+    this.updateSelectionStartCoords();
+    this.updateSelectionEndCoords();
+  }
+
+  isZoomingOverBounds(ticks: number) {
+    return (
+      (getDaysBetweenAbs(this.startDate, this.endDate) < MIN_DAYS && ticks > 0) ||
+      (getDaysBetweenAbs(this.startDate, this.endDate) > MAX_DAYS && ticks < 0)
+    );
+  }
 
   mouseEnter = () => {
-    console.log("mouseEnter");
-    runInAction(() => {
-      this._isTooltipShown = true;
-      if (this.tooltip) this.tooltip.style.visibility = "visible";
-    });
+    this.setTooltipShown(true);
   };
 
   mouseLeave = () => {
-    runInAction(() => {
-      this._isTooltipShown = false;
-      if (this.tooltip) this.tooltip.style.visibility = "hidden";
-    });
+    this.setTooltipShown(false);
+    if (this._isDragging) this.stopDragging();
+    if (this._isSelecting) this.stopSelecting();
   };
+
+  setTooltipShown(shown: boolean) {
+    this._isTooltipShown = shown;
+    if (this.tooltip) this.tooltip.style.visibility = shown ? "visible" : "hidden";
+  }
 
   setInteractionLayer(ref?: RefObject<HTMLDivElement>) {
     this._interactionLayer = ref;
@@ -375,27 +435,7 @@ export class TimelineViewModel {
 
   setViewBoxWidth(width: number) {
     this.viewBox.width = width;
-    this._currentTranslationX = width / 3;
-  }
-
-  get laneSpacing() {
-    return this._laneSpacing;
-  }
-
-  get commitSizeTop() {
-    return this._commitSizeTop;
-  }
-
-  setCommitSizeTop(n: number | null) {
-    this._commitSizeTop = n ?? 10;
-  }
-
-  get commitSizeModal() {
-    return this._commitSizeModal;
-  }
-
-  setCommitSizeModal(n: number | null) {
-    this._commitSizeModal = n ?? 5;
+    this._currentTranslationX = width / PRERENDER_MULTIPLIER;
   }
 
   get commitIndices() {
@@ -459,33 +499,45 @@ export class TimelineViewModel {
     return parsedCommits;
   }
 
-  setStartDate(date: Date) {
+  setStartDate(date: GizDate) {
     this.mainController.setStartDate(date);
   }
 
-  setSelectedStartDate(date: Date) {
+  setSelectedStartDate(date?: GizDate) {
+    if (date === undefined) date = this._defaultStartDate ?? new GizDate();
     this.mainController.setSelectedStartDate(date);
-    this.updateStartX();
-    this.wheel();
+    this.updateSelectionStartCoords();
+    this.zoom(0);
   }
 
-  updateStartX() {
-    this._selectStartX =
-      getXCoordsForDate(this.startDate, this.endDate, this.viewBox.width, this.selectedStartDate) -
-      this._currentTranslationX;
+  updateSelectionStartCoords() {
+    const xCoords = estimateCoordsOnScale(
+      this.timelineRenderStart,
+      this.timelineRenderEnd,
+      this.viewBox.width,
+      this.selectedStartDate,
+    );
+
+    this._selectStartX = xCoords - this._currentTranslationX;
   }
 
-  updateEndX() {
-    this._selectEndX =
-      getXCoordsForDate(this.startDate, this.endDate, this.viewBox.width, this.selectedEndDate) -
-      this._currentTranslationX;
+  updateSelectionEndCoords() {
+    const xCoords = estimateCoordsOnScale(
+      this.timelineRenderStart,
+      this.timelineRenderEnd,
+      this.viewBox.width,
+      this.selectedEndDate,
+    );
+    this._selectEndX = xCoords - this._currentTranslationX;
   }
 
-  setEndDate(date: Date) {
+  setEndDate(date: GizDate) {
     this.mainController.setEndDate(date);
   }
 
-  setSelectedEndDate(date: Date) {
+  setSelectedEndDate(date?: GizDate) {
+    if (date === undefined) date = this._defaultStartDate ?? new GizDate();
+
     this.mainController.setSelectedEndDate(date);
     this.mainController.vmController.searchBarViewModel!.clear();
     this.mainController.vmController.searchBarViewModel?.appendTag(
@@ -496,16 +548,33 @@ export class TimelineViewModel {
       AvailableTags.end,
       getStringDate(this.selectedEndDate),
     );
-    this.updateEndX();
-    this.wheel();
+    this.updateSelectionEndCoords();
+    this.zoom(0);
   }
 
-  get startDate() {
-    return this.mainController.startDate;
+  get timelineRenderStart() {
+    const daysBetween = getDaysBetweenAbs(
+      this.mainController.startDate,
+      this.mainController.endDate,
+    );
+    const newDate = this.mainController.startDate.subtractDays(daysBetween);
+    return newDate;
   }
 
   get selectedStartDate() {
     return this.mainController.selectedStartDate;
+  }
+
+  get timelineRenderEnd() {
+    const daysBetween = getDaysBetweenAbs(
+      this.mainController.startDate,
+      this.mainController.endDate,
+    );
+    return this.mainController.endDate.addDays(daysBetween);
+  }
+
+  get startDate() {
+    return this.mainController.startDate;
   }
 
   get endDate() {
@@ -516,18 +585,18 @@ export class TimelineViewModel {
     return this.mainController.selectedEndDate;
   }
 
-  get daysFromStartToEnd() {
-    return getDaysBetween(this.startDate, this.endDate);
+  get totalRenderedDays() {
+    return getDaysBetweenAbs(this.timelineRenderStart, this.timelineRenderEnd);
   }
 
   get dayWidthInPx() {
-    return this.ruler.width / this.daysFromStartToEnd;
+    return this.ruler.width / this.totalRenderedDays;
   }
 
-  offsetDateByPx(startDate: Date, px: number): Date {
+  offsetDateByPx(startDate: Date, px: number): GizDate {
     const days = px / this.dayWidthInPx;
 
-    return new Date(startDate.getTime() + convertDaysToMs(days));
+    return new GizDate(startDate.getTime() + convertDaysToMs(days));
   }
 
   get selectedBranch(): ParsedBranch | undefined {
@@ -550,26 +619,4 @@ export class TimelineViewModel {
       this.timelineSvg.style.transform = `translateX(${-x}px)`;
     }
   }
-
-  accumulateWheelTicks(ticks: number) {
-    // If the scroll direction changed, reset the accumulated wheel ticks.
-    if ((this._wheelUnusedTicks > 0 && ticks < 0) || (this._wheelUnusedTicks < 0 && ticks > 0)) {
-      this._wheelUnusedTicks = 0;
-    }
-    this._wheelUnusedTicks += ticks;
-    const wholeTicks =
-      Math.sign(this._wheelUnusedTicks) * Math.floor(Math.abs(this._wheelUnusedTicks));
-    this._wheelUnusedTicks -= wholeTicks;
-    return wholeTicks;
-  }
-}
-
-export function normalizeWheelEventDirection(evt: WheelEvent) {
-  let delta = Math.hypot(evt.deltaX, evt.deltaY);
-  const angle = Math.atan2(evt.deltaY, evt.deltaX);
-  if (-0.25 * Math.PI < angle && angle < 0.75 * Math.PI) {
-    // All that is left-up oriented has to change the sign.
-    delta = -delta;
-  }
-  return delta;
 }

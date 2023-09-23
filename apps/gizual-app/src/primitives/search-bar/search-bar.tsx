@@ -9,6 +9,7 @@ import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { DatePicker, DatePickerProps, Tooltip } from "antd";
+import clsx from "clsx";
 import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -17,6 +18,7 @@ import { createPortal } from "react-dom";
 import { ReactComponent as TreeIcon } from "../../assets/icons/file-tree.svg";
 import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
 import { ReactComponent as SettingsIcon } from "../../assets/icons/settings.svg";
+import { ReactComponent as TrashIcon } from "../../assets/icons/trash.svg";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
@@ -149,6 +151,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
         onFocus={vm.onSearchBarFocus}
         onBlur={vm.onSearchBarBlur}
         onChange={vm.onSearchInput}
+        onUpdate={vm.onSearchUpdate}
         value={vm.searchInput}
         basicSetup={{
           lineNumbers: false,
@@ -174,18 +177,21 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
           )}
           <div className={style.searchOverlay}>
             <div className={style.searchOverlayContent}>
-              <h4>Refine your search</h4>
-              {!vm.currentPendingTag &&
-                Object.entries(AvailableTags).map(([id, tag]) => (
-                  <div
-                    className={style.searchOverlayHintEntry}
-                    key={id}
-                    onClick={() => vm.appendTag(tag)}
-                  >
-                    <pre className={style.tag}>{tag.id}: </pre>
-                    <pre>{tag.hint}</pre>
-                  </div>
-                ))}
+              {!vm.currentPendingTag && (
+                <>
+                  <h4>Refine your search</h4>
+                  {Object.entries(AvailableTags).map(([id, tag]) => (
+                    <div
+                      className={style.searchOverlayHintEntry}
+                      key={id}
+                      onClick={() => vm.appendTag(tag)}
+                    >
+                      <pre className={style.tag}>{tag.id}: </pre>
+                      <pre>{tag.hint}</pre>
+                    </div>
+                  ))}
+                </>
+              )}
               {vm.currentPendingTag && vm.currentPendingTag.tag.id === "start" && (
                 <DateTimeInputAssist vm={vm} tag={vm.currentPendingTag} />
               )}
@@ -219,12 +225,48 @@ const DateTimeInputAssist = observer(
 
     let currentDate = dayjs(tag.value, DATE_FORMAT);
     if (!currentDate.isValid()) currentDate = dayjs();
-    console.log("currentDate", currentDate);
+
+    const defaultStartDate =
+      vm._mainController.vmController.timelineViewModel?.defaultStartDate?.toString();
+
+    const defaultEndDate =
+      vm._mainController.vmController.timelineViewModel?.defaultEndDate?.toString();
 
     return (
       <>
         <div className={style.searchOverlayHintEntry}>
-          <DatePicker onChange={onChange} format={DATE_FORMAT} />
+          {tag.tag.id === "start" && <p>Pick a custom start date: </p>}
+          {tag.tag.id === "end" && <p>Pick a custom end date: </p>}
+          <DatePicker onChange={onChange} format={DATE_FORMAT} size="small" />
+        </div>
+        {tag.tag.id === "start" && defaultStartDate && (
+          <div
+            className={style.searchOverlayHintEntry}
+            onClick={() => {
+              vm.updateTag(tag.tag.id, defaultStartDate);
+            }}
+          >
+            <p>{`${defaultStartDate} (default)`}</p>
+          </div>
+        )}
+        {tag.tag.id === "end" && defaultEndDate && (
+          <div
+            className={style.searchOverlayHintEntry}
+            onClick={() => {
+              vm.updateTag(tag.tag.id, defaultEndDate);
+            }}
+          >
+            <p>{`${defaultEndDate} (default)`}</p>
+          </div>
+        )}
+        <div
+          className={clsx(style.searchOverlayHintEntry, style.removeTagEntry)}
+          onClick={() => {
+            vm.removeTag(tag);
+          }}
+        >
+          <TrashIcon style={{ margin: 0 }} />
+          <p>Remove Tag</p>
         </div>
       </>
     );

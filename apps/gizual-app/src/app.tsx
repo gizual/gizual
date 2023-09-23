@@ -1,8 +1,10 @@
 import { WelcomePage } from "@app/pages/welcome";
 import { ConfigProvider, theme as AntdTheme, ThemeConfig } from "antd";
 import { App as AntdApp } from "antd";
+import { notification as antdNotification } from "antd";
 import { SeedToken } from "antd/es/theme/interface";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import style from "./app.module.scss";
 import { useMainController } from "./controllers";
@@ -37,17 +39,25 @@ function App() {
     },
     token,
   };
+  const [notification, notificationProvider] = antdNotification.useNotification();
+
+  React.useEffect(() => {
+    mainController.attachNotificationInstance(notification);
+  }, [notification]);
 
   return (
     <ConfigProvider theme={config}>
       <AntdApp>
-        <div className={style.App}>
-          <div className={style.Main}>
-            {mainController.page === "welcome" && <WelcomePage />}
-            {mainController.page === "main" && <MainPage />}
+        <>
+          {notificationProvider}
+          <div className={style.App}>
+            <div className={style.Main}>
+              {mainController.page === "welcome" && <WelcomePage />}
+              {mainController.page === "main" && <MainPage />}
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
+        </>
       </AntdApp>
     </ConfigProvider>
   );

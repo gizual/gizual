@@ -1,10 +1,5 @@
 import { CInfo } from "@app/types";
-import {
-  convertTimestampToMs,
-  getDateFromTimestamp,
-  getDaysBetween,
-  isDateBetween,
-} from "@app/utils";
+import { convertTimestampToMs, getDateFromTimestamp, getDaysBetweenAbs, GizDate } from "@app/utils";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
@@ -14,10 +9,10 @@ import { TimelineViewModel } from "./timeline.vm";
 type CommitsProps = {
   vm: TimelineViewModel;
   commits?: CInfo[];
-  startDate: Date;
-  endDate: Date;
-  selectionStartDate: Date;
-  selectionEndDate: Date;
+  startDate: GizDate;
+  endDate: GizDate;
+  selectionStartDate: GizDate;
+  selectionEndDate: GizDate;
   dayWidth: number;
   yOffset: number;
   radius: number;
@@ -54,7 +49,7 @@ export const Commits = observer(
     }[] = [];
     for (const commit of commitsInRange) {
       const commitDate = getDateFromTimestamp(commit.timestamp);
-      const dateOffsetFromStart = getDaysBetween(commitDate, startDate);
+      const dateOffsetFromStart = getDaysBetweenAbs(commitDate, startDate);
       const commitPos = dateOffsetFromStart * dayWidth;
 
       // Compare this commit with the last one in `commitsToDraw` and see if we need to merge them.
@@ -109,8 +104,7 @@ export const Commits = observer(
           y={commit.y}
           ry={radius}
           rx={commit.rx}
-          isHighlighted={isDateBetween(
-            new Date(commit.interpolatedTimestamp),
+          isHighlighted={new GizDate(commit.interpolatedTimestamp).isBetween(
             selectionStartDate,
             selectionEndDate,
           )}

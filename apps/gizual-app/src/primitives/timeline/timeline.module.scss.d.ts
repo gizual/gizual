@@ -2,6 +2,7 @@ declare const classNames: {
   readonly Timeline: "Timeline";
   readonly TimelineComponent: "TimelineComponent";
   readonly TimelineContainer: "TimelineContainer";
+  readonly DateRangeInfoText: "DateRangeInfoText";
   readonly NotLoadedOverlay: "NotLoadedOverlay";
   readonly NotLoadedOverlayContent: "NotLoadedOverlayContent";
   readonly TimelineSvgWrapper: "TimelineSvgWrapper";

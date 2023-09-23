@@ -1,3 +1,5 @@
+import { notification as antdNotification } from "antd";
+import { NotificationInstance } from "antd/es/notification/interface";
 import { useEffect, useLayoutEffect, useState } from "react";
 
 export function useWindowSize() {
@@ -46,4 +48,9 @@ export const useStyle = (key: string) => {
   }, [doc, key, theme]);
 
   return style;
+};
+
+export const useNotification = (): [NotificationInstance, React.ReactElement] => {
+  const [notification, contextHolder] = antdNotification.useNotification();
+  return [notification, contextHolder];
 };
