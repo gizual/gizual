@@ -8,7 +8,7 @@ import { keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { DatePicker, DatePickerProps, Tooltip } from "antd";
+import { DatePicker, DatePickerProps, Select, Tooltip } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
@@ -88,7 +88,7 @@ export type SearchBarProps = {
   vm?: SearchBarViewModel;
 };
 
-function SearchBar({ vm: externalVm }: SearchBarProps) {
+export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
   const mainController = useMainController();
   const vmController = useViewModelController();
 
@@ -107,6 +107,17 @@ function SearchBar({ vm: externalVm }: SearchBarProps) {
             <TreeIcon />
           </IconButton>
         </Tooltip>
+        <Select
+          value={mainController.selectedBranch}
+          style={{ width: 200, height: "100%", margin: "auto 0", paddingLeft: "1rem" }}
+          onChange={(e) => {
+            mainController.setBranchByName(e);
+          }}
+          size="large"
+          options={mainController.branchNames.map((b) => {
+            return { label: b, value: b };
+          })}
+        />
         <div id="inputWrapper" className={style.searchInputWrapper}>
           <SearchInput vm={vm} />
         </div>
@@ -121,7 +132,7 @@ function SearchBar({ vm: externalVm }: SearchBarProps) {
       </div>
     </div>
   );
-}
+});
 
 const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
   const ref = React.useRef<ReactCodeMirrorRef>(null);
@@ -186,7 +197,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
                       key={id}
                       onClick={() => vm.appendTag(tag)}
                     >
-                      <pre className={style.tag}>{tag.id}: </pre>
+                      <pre className={style.tag}>-{tag.id}: </pre>
                       <pre>{tag.hint}</pre>
                     </div>
                   ))}
@@ -259,6 +270,7 @@ const DateTimeInputAssist = observer(
             <p>{`${defaultEndDate} (default)`}</p>
           </div>
         )}
+        <hr />
         <div
           className={clsx(style.searchOverlayHintEntry, style.removeTagEntry)}
           onClick={() => {
@@ -272,5 +284,3 @@ const DateTimeInputAssist = observer(
     );
   },
 );
-
-export default observer(SearchBar);

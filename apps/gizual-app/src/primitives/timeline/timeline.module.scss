@@ -23,9 +23,20 @@
 }
 
 .DateRangeInfoText {
+  @include text-xs;
   position: absolute;
   bottom: 0;
+}
+
+.DateRangeCenterText {
   @include text-xs;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  margin: auto;
+  text-align: center;
 }
 
 .NotLoadedOverlay {

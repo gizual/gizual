@@ -14,7 +14,7 @@ import {
   MOUSE_ZOOM_FACTOR_FINE,
   normalizeWheelEventDirection,
 } from "@app/utils";
-import { makeAutoObservable, runInAction, when } from "mobx";
+import { autorun, makeAutoObservable, runInAction, when } from "mobx";
 import { RefObject } from "react";
 
 import { MainController } from "../../controllers";
@@ -31,9 +31,9 @@ export class TimelineViewModel {
   private _mainController: MainController;
   private _tooltipContent = "";
   private _isTooltipShown = false;
-  private _lastCommit?: CInfo;
 
   private _commitsPerDate = new Map<string, CInfo[]>();
+  private _commitsForBranch?: CInfo[];
 
   private _baseLayer?: RefObject<SVGGElement> = undefined;
   private _commitLayer?: RefObject<SVGGElement> = undefined;
@@ -113,6 +113,12 @@ export class TimelineViewModel {
       },
     );
 
+    this.loadCommitsForBranch();
+    autorun(() => {
+      if (this._mainController.branches.some((b) => b.name === this.selectedBranch))
+        runInAction(() => this.loadCommitsForBranch());
+    });
+
     this.setSelectedStartDate(new GizDate("2023-01-01"));
     this.setSelectedEndDate(new GizDate("2023-07-30"));
   }
@@ -125,23 +131,23 @@ export class TimelineViewModel {
   }
 
   get isDoneLoading() {
-    return this._lastCommit !== undefined;
+    return this.lastCommit !== undefined;
   }
 
   initializePositionsFromLastCommit() {
-    if (!this._lastCommit) return;
+    if (!this.lastCommit) return;
 
     const datePadding = Math.floor(this.selectionRange / 10);
 
-    const newEndDate = getDateFromTimestamp(this._lastCommit.timestamp).addDays(datePadding);
-    const newStartDate = getDateFromTimestamp(this._lastCommit.timestamp).subtractDays(
+    const newEndDate = getDateFromTimestamp(this.lastCommit.timestamp).addDays(datePadding);
+    const newStartDate = getDateFromTimestamp(this.lastCommit.timestamp).subtractDays(
       datePadding + this.selectionRange,
     );
 
-    const newSelectedStartDate = getDateFromTimestamp(this._lastCommit.timestamp).subtractDays(
+    const newSelectedStartDate = getDateFromTimestamp(this.lastCommit.timestamp).subtractDays(
       this.selectionRange,
     );
-    const newSelectedEndDate = getDateFromTimestamp(this._lastCommit.timestamp);
+    const newSelectedEndDate = getDateFromTimestamp(this.lastCommit.timestamp);
 
     this.setStartDate(newStartDate);
     this.setEndDate(newEndDate);
@@ -159,6 +165,32 @@ export class TimelineViewModel {
 
   get defaultEndDate() {
     return this._defaultEndDate;
+  }
+
+  get displayMode() {
+    return getDaysBetweenAbs(this.startDate, this.endDate) >
+      this.mainController.settingsController.settings.timelineSettings.weekModeThreshold.value
+      ? "weeks"
+      : "days";
+  }
+
+  get visibleUnitsForDisplayMode() {
+    return this.displayMode === "days"
+      ? this.totalVisibleDays
+      : Math.floor(this.totalVisibleDays / 7);
+  }
+
+  get selectedUnitsForDisplayMode() {
+    const days = Math.floor(getDaysBetweenAbs(this.selectedStartDate, this.selectedEndDate));
+    return this.displayMode === "days" ? days : Math.floor(days / 7);
+  }
+
+  get dateRangeCenterText() {
+    let str = "";
+    str += `${this.visibleUnitsForDisplayMode} ${this.displayMode} visible`;
+
+    str += ` - ${this.selectedUnitsForDisplayMode} ${this.displayMode} selected`;
+    return str;
   }
 
   get isDragging() {
@@ -450,8 +482,27 @@ export class TimelineViewModel {
     return this.mainController._repo.gitGraph.value?.commits ?? [];
   }
 
-  getCommitsForBranch(branch: BranchInfo) {
+  get lastCommit() {
+    if (this._commitsForBranch === undefined || this._commitsForBranch.length === 0) return;
+    return this._commitsForBranch?.at(0);
+  }
+
+  get selectedBranch() {
+    return this.mainController.selectedBranch;
+  }
+
+  get commitsForBranch() {
+    return this._commitsForBranch;
+  }
+
+  // TODO: This function is awkward, since it has a bunch of side effects and requires an `autorun`
+  // to properly fit in the control flow. Should be refactored, probably the set of commits has to be constructed
+  // elsewhere - maybe a separate controller that properly manages repo state.
+  loadCommitsForBranch() {
+    this._commitsForBranch = [];
     const parsedCommits: CInfo[] = [];
+    const branch = this._mainController.branches.find((b) => b.name === this.selectedBranch);
+    if (!branch) return;
     const origin = branch.last_commit_id;
 
     if (!this.commitIndices) return;
@@ -472,7 +523,7 @@ export class TimelineViewModel {
     parsedCommits.push(commit);
 
     let currentCommit = commit;
-    this._lastCommit = currentCommit;
+    this._commitsPerDate.clear();
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -496,7 +547,7 @@ export class TimelineViewModel {
       parsedCommits.push(currentCommit as any);
     }
 
-    return parsedCommits;
+    this._commitsForBranch = parsedCommits;
   }
 
   setStartDate(date: GizDate) {
@@ -589,6 +640,10 @@ export class TimelineViewModel {
     return getDaysBetweenAbs(this.timelineRenderStart, this.timelineRenderEnd);
   }
 
+  get totalVisibleDays() {
+    return Math.floor(getDaysBetweenAbs(this.startDate, this.endDate));
+  }
+
   get dayWidthInPx() {
     return this.ruler.width / this.totalRenderedDays;
   }
@@ -597,20 +652,6 @@ export class TimelineViewModel {
     const days = px / this.dayWidthInPx;
 
     return new GizDate(startDate.getTime() + convertDaysToMs(days));
-  }
-
-  get selectedBranch(): ParsedBranch | undefined {
-    if (this._mainController._repo.gitGraph.loading) return;
-
-    const branch = this._mainController.branches?.find(
-      (b) => b.name === this._mainController.selectedBranch,
-    );
-    if (!branch) return;
-
-    return {
-      ...branch,
-      commits: this.getCommitsForBranch(branch),
-    };
   }
 
   applyTransform(x: number) {

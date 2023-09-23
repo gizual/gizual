@@ -3,6 +3,7 @@ declare const classNames: {
   readonly TimelineComponent: "TimelineComponent";
   readonly TimelineContainer: "TimelineContainer";
   readonly DateRangeInfoText: "DateRangeInfoText";
+  readonly DateRangeCenterText: "DateRangeCenterText";
   readonly NotLoadedOverlay: "NotLoadedOverlay";
   readonly NotLoadedOverlayContent: "NotLoadedOverlayContent";
   readonly TimelineSvgWrapper: "TimelineSvgWrapper";

@@ -20,6 +20,7 @@ type CommitsProps = {
 
 export const Commits = observer(
   ({
+    vm,
     commits,
     startDate,
     endDate,
@@ -98,7 +99,7 @@ export const Commits = observer(
     const commitCircles = commitsToDraw.map((commit, i) => {
       return (
         <Commit
-          key={i}
+          key={`${i}`}
           commits={commit.commits}
           x={commit.x}
           y={commit.y}

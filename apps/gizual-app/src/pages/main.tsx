@@ -8,7 +8,7 @@ import { useMainController, useViewModelController } from "../controllers";
 import { TitleBar } from "../primitives";
 import { Canvas } from "../primitives/canvas";
 import { RepoPanel } from "../primitives/repo-panel";
-import SearchBar from "../primitives/search-bar/search-bar";
+import { SearchBar } from "../primitives/search-bar/search-bar";
 import { SettingsPanel } from "../primitives/settings-panel";
 
 import style from "./main.module.scss";
