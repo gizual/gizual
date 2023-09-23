@@ -7,6 +7,7 @@ declare const classNames: {
   readonly settingsEntry: "settingsEntry";
   readonly settingsEntry__label: "settingsEntry__label";
   readonly settingsEntry__description: "settingsEntry__description";
+  readonly settingsEntry__default: "settingsEntry__default";
   readonly Checkbox: "Checkbox";
 };
 export = classNames;

@@ -12,8 +12,9 @@ export type SettingsEntry<T extends SettingsValue, C extends ControlType> = {
   name: string;
   description: string;
   value: T;
-  availableValues?: { value: T; label: T }[];
   controlType: C;
+  defaultValue: T;
+  availableValues?: { value: T; label: T }[];
 };
 
 export function isSettingsEntry(obj: unknown): obj is SettingsEntry<SettingsValue, ControlType> {
@@ -36,6 +37,7 @@ function createSetting<T extends SettingsValue, C extends ControlType>(
     description,
     value,
     controlType,
+    defaultValue: value,
     availableValues,
   };
 }
@@ -80,6 +82,7 @@ type EditorSettings = {
 type TimelineSettings = {
   snap: SettingsEntry<boolean, "checkbox">;
   defaultRange: SettingsEntry<number, "number">;
+  weekModeThreshold: SettingsEntry<number, "number">;
 } & GroupEntry;
 
 export class SettingsController {
@@ -104,6 +107,11 @@ export class SettingsController {
     defaultRange: createNumberSetting(
       "Default Selection Range",
       "Adjusts the default date range (how many days to visualise, starting from the last commit in the repository).",
+      365,
+    ),
+    weekModeThreshold: createNumberSetting(
+      "Week Mode Threshold",
+      "Adjusts the threshold (in days) after which the timeline changes to display weeks instead of days.",
       365,
     ),
   };

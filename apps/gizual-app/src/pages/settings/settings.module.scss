@@ -1,3 +1,5 @@
+@use "@/mixins" as *;
+
 .settingsContainer {
   max-width: 800px;
   width: 50%;
@@ -60,15 +62,25 @@
 }
 
 .settingsEntry__label {
-  font-size: 1rem;
+  @include text-base;
   font-weight: 500;
-  color: var(--foreground-secondary)
+  color: var(--foreground-secondary);
+  display: flex;
+  justify-content: space-between;
 }
 
 .settingsEntry__description {
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: var(--foreground-tertiary)
+  @include text-sm;
+  font-weight: 300;
+  color: var(--foreground-secondary);
+}
+
+.settingsEntry__default {
+  @include text-xs;
+  font-weight: 200;
+  color: var(--foreground-disabled);
+  align-self: flex-end;
+  margin: auto 0;
 }
 
 .Checkbox {

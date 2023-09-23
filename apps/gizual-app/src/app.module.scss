@@ -51,6 +51,11 @@ code {
   color: var(--foreground-primary);
 }
 
+hr {
+  border: none;
+  border-top: 1px solid var(--border-primary);
+}
+
 .codeDark {
   background-color: var(--color-gunmetal);
   color: var(--color-lightgray);
