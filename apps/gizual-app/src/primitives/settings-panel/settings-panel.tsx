@@ -26,20 +26,13 @@ export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) =
         </div>
         <div className={sharedStyle.SectionBody}>
           <div className={sharedStyle.Block}>
-            <h3>Coloring mode</h3>
-            {/*<ToggleButton<ColoringMode>
-              ariaLabel="Coloring mode"
-              values={vm.toggleColoringValues}
-              selected={mainController.coloringMode}
-              toggleName="coloringMode"
-              onChange={(n) => vm.onColoringModeChange(n)}
-            />*/}
+            <h3>Colouring mode</h3>
             <Radio.Group
               buttonStyle={"solid"}
-              value={mainController.coloringMode}
-              onChange={(n) => vm.onColoringModeChange(n.target.value)}
+              value={mainController.colouringMode}
+              onChange={(n) => vm.onColouringModeChange(n.target.value)}
             >
-              {vm.toggleColoringValues.map((v) => (
+              {vm.toggleColouringValues.map((v) => (
                 <Radio.Button key={v.value} value={v.value}>
                   {v.label}
                 </Radio.Button>

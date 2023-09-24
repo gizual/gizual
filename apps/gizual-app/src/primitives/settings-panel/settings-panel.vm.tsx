@@ -22,11 +22,11 @@ export class SettingsPanelViewModel {
     makeAutoObservable(this);
   }
 
-  onColoringModeChange = (value: ColouringMode) => {
-    this._mainController.setColoringMode(value);
+  onColouringModeChange = (value: ColouringMode) => {
+    this._mainController.setColouringMode(value);
   };
 
-  get toggleColoringValues() {
+  get toggleColouringValues() {
     return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
@@ -55,8 +55,8 @@ export class SettingsPanelViewModel {
               display: "block",
               borderRadius: 5,
               backgroundColor:
-                this._mainController.coloringMode === "author"
-                  ? this._mainController.authorColorScale(record.id ?? "")
+                this._mainController.colouringMode === "author"
+                  ? this._mainController.authorColourScale(record.id ?? "")
                   : "transparent",
             }}
           />

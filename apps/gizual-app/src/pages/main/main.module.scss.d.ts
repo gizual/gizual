@@ -3,6 +3,6 @@ declare const classNames: {
   readonly Page: "Page";
   readonly canvas: "canvas";
   readonly TitleBarContainer: "TitleBarContainer";
-  readonly AnalyzePage: "AnalyzePage";
+  readonly AnalysePage: "AnalysePage";
 };
 export = classNames;

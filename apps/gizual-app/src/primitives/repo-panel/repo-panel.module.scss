@@ -9,3 +9,7 @@
   @include section-head;
   justify-content: space-between;
 }
+
+.SectionBody {
+  overflow-x: scroll;
+}

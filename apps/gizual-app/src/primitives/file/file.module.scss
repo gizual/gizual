@@ -25,13 +25,13 @@
 
 @mixin icon-scaled {
   @include shared.svg-icon;
-  width: 25px; //calc(32px * var(--canvas-scale-reverse));
-  height: 25px; //calc(32px * var(--canvas-scale-reverse));
+  width: 18px; //calc(32px * var(--canvas-scale-reverse));
+  height: 18px; //calc(32px * var(--canvas-scale-reverse));
 }
 
 .FileIcon {
-  width: 25px;
-  height: 25px;
+  width: 18px;
+  height: 18px;
   @include icon-scaled;
 }
 
@@ -39,6 +39,7 @@
   @include shared.card-title;
   margin: unset;
   align-self: flex-end;
+  line-height: 130%;
 }
 
 .FontIcon {
@@ -61,8 +62,8 @@
 .LoadingContainer {
   display: flex;
   align-items: center;
-  width: 25px; //calc(32px * var(--canvas-scale-reverse));
-  height: 25px; //calc(32px * var(--canvas-scale-reverse));
+  width: 18px; //calc(32px * var(--canvas-scale-reverse));
+  height: 18px; //calc(32px * var(--canvas-scale-reverse));
   padding-left: 0.5rem;
   flex-shrink: 0;
   flex-grow: 0;

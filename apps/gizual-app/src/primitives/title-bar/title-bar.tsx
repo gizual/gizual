@@ -35,11 +35,11 @@ export const TitleBar = observer(() => {
           <div
             className={clsx(
               style.MenuItem,
-              mainController._selectedPanel === "analyze" ? style.Selected : undefined,
+              mainController._selectedPanel === "analyse" ? style.Selected : undefined,
             )}
           >
-            <a className={style.MenuItemText} onClick={() => mainController.setPanel("analyze")}>
-              Analyze
+            <a className={style.MenuItemText} onClick={() => mainController.setPanel("analyse")}>
+              Analyse
             </a>
           </div>
 

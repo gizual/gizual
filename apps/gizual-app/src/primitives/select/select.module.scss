@@ -1,129 +1,23 @@
 @use "@/mixins" as *;
 
-@layer reset {
-  //button {
-  //  all: unset;
-  //}
-}
-
-.SelectTrigger {
-  @include rounded;
-  @include transition-bg;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 4px;
-  padding: 0 15px;
-  font-size: 14px;
-  line-height: 1;
-  height: 35px;
-  gap: 5px;
-  background-color: var(--background-secondary);
-  color: var(--foreground-primary);
-  flex-grow: 1;
-  font-family: monospace;
-  font-weight: bold;
-}
-.SelectTrigger:hover {
-  background-color: var(--background-tertiary);
-}
-.SelectTrigger:focus {
-  box-shadow: 0 0 0 2px black;
-}
-.SelectTrigger[data-placeholder] {
-  color: var(--foreground-primary);
-}
-.SelectTrigger > span {
-  flex-grow: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.SelectTrigger > .SelectIcon {
-  flex-grow: 0;
-}
-
-.SelectIcon {
-  color: var(--foreground-primary);
-}
-
-.SelectContent {
-  overflow: hidden;
-  background-color: var(--background-secondary);
-  border-radius: 6px;
-  display: block;
-  box-shadow:
-    0px 10px 38px -10px rgba(22, 23, 24, 0.35),
-    0px 10px 20px -15px rgba(22, 23, 24, 0.2);
-  border: 1px solid var(--border-primary);
-  z-index: 1000;
-}
-
-.SelectViewport {
-  padding: 0px;
-}
-
-.SelectItem {
-  font-size: 14px;
-  line-height: 1;
-  color: var(--foreground-primary);
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 35px 0 25px;
+.SelectWrapper {
   position: relative;
-  user-select: none;
-  font-family: monospace;
-}
-.SelectItem[data-disabled] {
-  color: var(--foreground-disabled);
-  pointer-events: none;
-}
-.SelectItem[data-highlighted] {
-  outline: none;
-  background-color: var(--accent-main);
-  color: var(--accent-main-fg);
-}
-
-.SelectItem > span {
-  max-width: 400px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.SelectLabel {
-  padding: 0 25px;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 30px;
-  color: var(--foreground-primary);
-  background-color: var(--background-tertiary);
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.SelectSeparator {
-  height: 1px;
-  background-color: var(--border-primary);
-  margin: 5px;
-}
-
-.SelectItemIndicator {
-  position: absolute;
-  left: 0;
-  width: 25px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
 }
 
-.SelectScrollButton {
+.SelectBox {
+  > * {
+    padding-left: calc(3rem - 8px) !important;
+  }
+}
+
+.SelectIconWrapper {
+  position: absolute;
+  z-index: 1;
+  width: 3rem;
+  height: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 25px;
-  background-color: var(--background-tertiary);
-  color: var(--foreground-primary);
-  cursor: default;
 }

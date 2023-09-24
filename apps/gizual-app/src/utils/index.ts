@@ -5,3 +5,4 @@ export * from "./gizdate";
 export * from "./hooks";
 export * from "./local-storage";
 export * from "./mouse";
+export * from "./text";

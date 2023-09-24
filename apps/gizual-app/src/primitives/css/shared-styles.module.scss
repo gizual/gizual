@@ -19,15 +19,17 @@
 }
 
 @mixin card-title {
+  @include text-xs;
   text-align: left;
-  font-family: monospace;
-  font-weight: bold;
+  font-family: "Iosevka Extended", monospace;
+  font-weight: 300;
   margin: 0.75rem 0 0 0;
   flex-grow: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   cursor: default;
+  line-height: 120%;
 }
 
 .CardTitle {

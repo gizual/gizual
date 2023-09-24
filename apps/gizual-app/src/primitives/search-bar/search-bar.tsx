@@ -8,7 +8,7 @@ import { keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { DatePicker, DatePickerProps, Select, Tooltip } from "antd";
+import { DatePicker, DatePickerProps, Tooltip } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
@@ -16,11 +16,13 @@ import React from "react";
 import { createPortal } from "react-dom";
 
 import { ReactComponent as TreeIcon } from "../../assets/icons/file-tree.svg";
+import { ReactComponent as GitBranchLine } from "../../assets/icons/git-branch-line.svg";
 import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
 import { ReactComponent as SettingsIcon } from "../../assets/icons/settings.svg";
 import { ReactComponent as TrashIcon } from "../../assets/icons/trash.svg";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
+import { Select } from "../select";
 
 import style from "./search-bar.module.scss";
 import {
@@ -34,6 +36,7 @@ import {
 const myTheme = createTheme({
   theme: "dark",
   settings: {
+    fontFamily: "Iosevka Extended",
     background: "var(--background-secondary)",
     foreground: "var(--text-primary)",
     caret: "var(--text-secondary)",
@@ -109,7 +112,8 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
         </Tooltip>
         <Select
           value={mainController.selectedBranch}
-          style={{ width: 200, height: "100%", margin: "auto 0", paddingLeft: "1rem" }}
+          style={{ paddingLeft: "1rem" }}
+          componentStyle={{ width: 229, height: "100%", margin: "auto 0" }}
           onChange={(e) => {
             mainController.setBranchByName(e);
           }}
@@ -117,6 +121,7 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
           options={mainController.branchNames.map((b) => {
             return { label: b, value: b };
           })}
+          icon={<GitBranchLine />}
         />
         <div id="inputWrapper" className={style.SearchInputWrapper}>
           <SearchInput vm={vm} />

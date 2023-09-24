@@ -30,6 +30,13 @@
   font-style: italic;
 }
 
+@font-face {
+  font-family: "Iosevka Extended";
+  src: url("/fonts/Iosevka-Extended.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   /* Main colors */
   --color-lightgray: #ececef;
@@ -114,6 +121,14 @@
 
   #root {
     height: 100%;
+  }
+
+  code {
+    font-family: "Iosevka Extended", monospace;
+  }
+
+  pre {
+    font-family: "Iosevka Extended", monospace;
   }
 
   /* Sane CSS defaults inspired by `preflight` */

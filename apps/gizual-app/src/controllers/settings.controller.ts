@@ -1,11 +1,11 @@
-import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@app/utils";
+import { LINEAR_COLOUR_RANGE, SPECIAL_COLOURS } from "@app/utils";
 import { makeAutoObservable, toJS } from "mobx";
 
 type GroupEntry = {
   groupName: string;
 };
 
-export type ControlType = "select" | "color" | "number" | "checkbox" | "text";
+export type ControlType = "select" | "colour" | "number" | "checkbox" | "text";
 export type SettingsValue = number | string | boolean | ViewMode;
 
 export type SettingsEntry<T extends SettingsValue, C extends ControlType> = {
@@ -43,8 +43,8 @@ function createSetting<T extends SettingsValue, C extends ControlType>(
 }
 
 // Specific factory functions for different control types:
-const createColorSetting = (name: string, description: string, value: string) =>
-  createSetting<string, "color">(name, description, value, "color");
+const createColourSetting = (name: string, description: string, value: string) =>
+  createSetting<string, "colour">(name, description, value, "colour");
 const createSelectSetting = <T extends string>(
   name: string,
   description: string,
@@ -62,10 +62,10 @@ const VIEW_MODES = ["block", "flex"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];
 
 type VisualisationSettings = {
-  colors: {
-    old: SettingsEntry<string, "color">;
-    new: SettingsEntry<string, "color">;
-    notLoaded: SettingsEntry<string, "color">;
+  colours: {
+    old: SettingsEntry<string, "colour">;
+    new: SettingsEntry<string, "colour">;
+    notLoaded: SettingsEntry<string, "colour">;
   } & GroupEntry;
   canvas: {
     viewMode: SettingsEntry<ViewMode, "select">;
@@ -117,22 +117,22 @@ export class SettingsController {
   };
   visualisationSettings: VisualisationSettings = {
     groupName: "Visualisation Settings",
-    colors: {
+    colours: {
       groupName: "Colors",
-      old: createColorSetting(
+      old: createColourSetting(
         "Old",
         "The color that visualises the most distant change.",
-        LINEAR_COLOR_RANGE[0],
+        LINEAR_COLOUR_RANGE[0],
       ),
-      new: createColorSetting(
+      new: createColourSetting(
         "New",
         "The color that visualises the most recent change.",
-        LINEAR_COLOR_RANGE[1],
+        LINEAR_COLOUR_RANGE[1],
       ),
-      notLoaded: createColorSetting(
+      notLoaded: createColourSetting(
         "Not loaded",
         "The color that visualises changes that did not load yet or are outside the range.",
-        SPECIAL_COLORS.NOT_LOADED,
+        SPECIAL_COLOURS.NOT_LOADED,
       ),
     },
     canvas: {

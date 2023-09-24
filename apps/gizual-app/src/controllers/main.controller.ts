@@ -1,5 +1,5 @@
 import { ColouringMode, FileNodeInfos } from "@app/types";
-import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
+import { BAND_COLOUR_RANGE, getBandColourScale, GizDate } from "@app/utils";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import dayjs from "dayjs";
 import { makeAutoObservable } from "mobx";
@@ -9,7 +9,7 @@ import { FileTree, Repository } from "@giz/explorer";
 import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-type Panel = "explore" | "analyze" | "settings";
+type Panel = "explore" | "analyse" | "settings";
 type Page = "welcome" | "main";
 
 export class MainController {
@@ -153,10 +153,10 @@ export class MainController {
     return this._repo.authors;
   }
 
-  get authorColorScale() {
-    return getBandColorScale(
+  get authorColourScale() {
+    return getBandColourScale(
       this.authors.map((a) => a.id),
-      BAND_COLOR_RANGE,
+      BAND_COLOUR_RANGE,
     );
   }
 
@@ -164,11 +164,11 @@ export class MainController {
     return this._repo.getAuthor(id);
   }
 
-  setColoringMode(mode: ColouringMode) {
+  setColouringMode(mode: ColouringMode) {
     this._colouringMode = mode;
   }
 
-  get coloringMode() {
+  get colouringMode() {
     return this._colouringMode;
   }
 

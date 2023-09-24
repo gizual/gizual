@@ -16,9 +16,9 @@ export type Line = {
 };
 
 export type Settings = Partial<{
-  colorOld: string;
-  colorNew: string;
-  colorNotLoaded: string;
+  colourOld: string;
+  colourNew: string;
+  colourNotLoaded: string;
   maxLineLength: number;
   lineSpacing: number;
   maxLineCount: number;
@@ -33,7 +33,7 @@ export class FileViewModel {
   _mainController: MainController;
   _isEditorOpen = false;
   _blameView: BlameView;
-  _colors: string[] = [];
+  _colours: string[] = [];
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
   _fileRef: React.ForwardedRef<HTMLDivElement> | undefined;
@@ -41,7 +41,7 @@ export class FileViewModel {
   _worker?: Worker;
   _redrawCount = 0;
   _lastDrawScale = 1;
-  _lastDrawnColorMode?: MainController["coloringMode"] = "age";
+  _lastDrawnColourMode?: MainController["colouringMode"] = "age";
 
   _fileInfo?: FileNodeInfos;
 
@@ -58,10 +58,10 @@ export class FileViewModel {
     this._mainController = mainController;
     this._isLoadIndicator = isLoadIndicator ?? false;
     this._settings = {
-      colorNew: mainController.settingsController.settings.visualisationSettings.colors.new.value,
-      colorOld: mainController.settingsController.settings.visualisationSettings.colors.old.value,
-      colorNotLoaded:
-        mainController.settingsController.settings.visualisationSettings.colors.notLoaded.value,
+      colourNew: mainController.settingsController.settings.visualisationSettings.colours.new.value,
+      colourOld: mainController.settingsController.settings.visualisationSettings.colours.old.value,
+      colourNotLoaded:
+        mainController.settingsController.settings.visualisationSettings.colours.notLoaded.value,
       maxLineLength: 120,
       lineSpacing: 0,
       maxLineCount: 60,
@@ -179,12 +179,12 @@ export class FileViewModel {
     return this._isLoadIndicator;
   }
 
-  setColors(colors: string[]) {
-    this._colors = colors;
+  setColours(colors: string[]) {
+    this._colours = colors;
   }
 
-  get colors() {
-    return this._colors;
+  get colours() {
+    return this._colours;
   }
 
   get canvasWorker() {
@@ -202,7 +202,7 @@ export class FileViewModel {
   get shouldRedraw() {
     return (
       this.lastDrawScale - this._mainController.scale < -0.25 ||
-      this.lastDrawnColorMode !== this._mainController.coloringMode
+      this.lastDrawnColourMode !== this._mainController.colouringMode
     );
   }
 
@@ -210,12 +210,12 @@ export class FileViewModel {
     this._lastDrawScale = scale;
   }
 
-  setLastDrawnColorMode(coloringMode: MainController["coloringMode"]) {
-    this._lastDrawnColorMode = coloringMode;
+  setLastDrawnColourMode(coloringMode: MainController["colouringMode"]) {
+    this._lastDrawnColourMode = coloringMode;
   }
 
-  get lastDrawnColorMode() {
-    return this._lastDrawnColorMode;
+  get lastDrawnColourMode() {
+    return this._lastDrawnColourMode;
   }
 
   get lastDrawScale() {
@@ -259,7 +259,7 @@ export class FileViewModel {
     }
 
     const scale = this._mainController.scale;
-    const coloringMode = this._mainController.coloringMode;
+    const colouringMode = this._mainController.colouringMode;
 
     // High resolution displays need different scaling to get the canvas to not appear "blurry"
     // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#scaling_for_high_resolution_displays
@@ -292,17 +292,17 @@ export class FileViewModel {
       selectedEndDate: toJS(this._mainController.selectedEndDate),
       dpr,
       rect,
-      coloringMode,
+      colouringMode,
       redrawCount: toJS(this.redrawCount),
     });
 
     drawResult.then((result) => {
       if (!result) return;
       fileContainer.style.width = result.width;
-      this.setColors(result.colors);
+      this.setColours(result.colors);
       //console.log("[gizual-app] UI thread: draw result", result);
       this.setLastDrawScale(scale);
-      this.setLastDrawnColorMode(coloringMode);
+      this.setLastDrawnColourMode(colouringMode);
       this.incrementRedrawCount();
       this._mainController.decrementNumActiveWorkers();
     });

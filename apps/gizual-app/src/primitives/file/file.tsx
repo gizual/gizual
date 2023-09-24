@@ -1,5 +1,6 @@
 import { useMainController } from "@app/controllers";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
+import { truncateSmart } from "@app/utils";
 import { Skeleton, Spin, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
@@ -102,11 +103,11 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
           <FontIcon
             className={style.FontIcon}
             name={vm.fileInfo!.fileIcon}
-            colors={vm.fileInfo!.fileIconColor!}
+            colours={vm.fileInfo!.fileIconColor!}
           />
         )}
         <p className={style.FileTitle} title={vm.fileName}>
-          {vm.fileName}
+          {truncateSmart(vm.fileName, 35)}
         </p>
       </div>
       <div className={style.FileActions}>

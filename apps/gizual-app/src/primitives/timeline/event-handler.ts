@@ -169,12 +169,18 @@ export class TimelineEventHandler {
         if (x > c.x - c.rx && x < c.x + c.rx) {
           hoveringId = id;
           tooltipContent = c.commits
-            .map(
-              (commit) =>
-                `┏━ ${getDateFromTimestamp(commit.timestamp).toDateTimeString()}\n┗━ ${
-                  commit.message
-                }`,
-            )
+            .map((commit) => {
+              let author = this.vm.mainController.getAuthorById(commit.aid)?.email ?? "";
+              if (author.length > 50) author = author.slice(0, 46) + " ...";
+              if (author) author = "<" + author + ">";
+
+              let commitMessage = commit.message;
+              if (commitMessage.length > 80) commitMessage = commitMessage.slice(0, 76) + " ...";
+
+              return `┏━ ${getDateFromTimestamp(
+                commit.timestamp,
+              ).toDateTimeString()} ${author}\n┗━ ${commitMessage}`;
+            })
             .join("\n");
         }
       }

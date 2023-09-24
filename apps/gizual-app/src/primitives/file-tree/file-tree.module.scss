@@ -34,4 +34,22 @@
   :global(.ant-tree-treenode-selected .ant-tree-title) {
     background-color: unset;
   }
+  :global(.ant-tree-treenode) {
+    width: 100%;
+  }
+}
+
+.TreeEntry {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  overflow: hidden;
+  align-items: center;
+}
+
+.TreeNode {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: break-word;
 }

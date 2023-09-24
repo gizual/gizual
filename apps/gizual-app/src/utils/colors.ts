@@ -1,7 +1,7 @@
 import { ScaleLinear, scaleLinear, ScaleOrdinal, scaleOrdinal } from "d3-scale";
 
-export const LINEAR_COLOR_RANGE: [string, string] = ["#581c87", "#f0abfc"];
-export const BAND_COLOR_RANGE: string[] = [
+export const LINEAR_COLOUR_RANGE: [string, string] = ["#581c87", "#f0abfc"];
+export const BAND_COLOUR_RANGE: string[] = [
   "#40DFEF",
   "#A760FF",
   "#E4AEC5",
@@ -38,16 +38,16 @@ export const BAND_COLOR_RANGE: string[] = [
   "#001E6C",
 ];
 
-export const SPECIAL_COLORS = {
+export const SPECIAL_COLOURS = {
   NOT_LOADED: "#232323",
 };
 
-export const getColorScale = (
+export const getColourScale = (
   domain: [number, number],
-  colorRange: [string, string] = [LINEAR_COLOR_RANGE[0], LINEAR_COLOR_RANGE[1]],
-): ScaleLinear<string, string, never> => scaleLinear<string>().range(colorRange).domain(domain);
+  colourRange: [string, string] = [LINEAR_COLOUR_RANGE[0], LINEAR_COLOUR_RANGE[1]],
+): ScaleLinear<string, string, never> => scaleLinear<string>().range(colourRange).domain(domain);
 
-export const getBandColorScale = (
+export const getBandColourScale = (
   domain: string[],
-  colorRange: string[],
-): ScaleOrdinal<string, string, never> => scaleOrdinal<string>().range(colorRange).domain(domain);
+  colourRange: string[],
+): ScaleOrdinal<string, string, never> => scaleOrdinal<string>().range(colourRange).domain(domain);
