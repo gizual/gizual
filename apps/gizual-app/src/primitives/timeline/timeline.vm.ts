@@ -1,28 +1,26 @@
 import { BranchInfo, CInfo } from "@app/types";
 import {
-  accumulateWheelTicks,
   convertDaysToMs,
+  convertTimestampToMs,
   estimateCoordsOnScale,
-  estimateDayOnScale,
   getDateFromTimestamp,
   getDaysBetweenAbs,
   getStringDate,
   GizDate,
-  MOUSE_BUTTON_PRIMARY,
-  MOUSE_BUTTON_WHEEL,
   MOUSE_ZOOM_FACTOR,
-  MOUSE_ZOOM_FACTOR_FINE,
-  normalizeWheelEventDirection,
 } from "@app/utils";
+import { MenuProps } from "antd";
 import { autorun, makeAutoObservable, runInAction, when } from "mobx";
 import { RefObject } from "react";
 
 import { MainController } from "../../controllers";
 import { AvailableTags } from "../search-bar/search-bar.vm";
 
+import { TimelineEventHandler } from "./event-handler";
+
 export type ParsedBranch = BranchInfo & { commits?: CInfo[] };
 
-const PRERENDER_MULTIPLIER = 3; // Changes the amount of sections to render. Should not be adjusted.
+export const PRERENDER_MULTIPLIER = 3; // Changes the amount of sections to render. Should not be adjusted.
 const DEFAULT_SELECTION = 365; // Default selection range - only used if the settings panel doesn't report this value.
 const MIN_DAYS = 10; // Minimum amount days (used to restrict zooming).
 const MAX_DAYS = 365 * PRERENDER_MULTIPLIER; // Maximum amount of days (used to restrict zooming).
@@ -31,28 +29,28 @@ export class TimelineViewModel {
   private _mainController: MainController;
   private _tooltipContent = "";
   private _isTooltipShown = false;
+  private _isHoveringCommitId = -1;
 
   private _commitsPerDate = new Map<string, CInfo[]>();
   private _commitsForBranch?: CInfo[];
 
-  private _baseLayer?: RefObject<SVGGElement> = undefined;
-  private _commitLayer?: RefObject<SVGGElement> = undefined;
   private _interactionLayer?: RefObject<HTMLDivElement> = undefined;
   private _timelineSvg?: RefObject<SVGSVGElement> = undefined;
   private _tooltip?: RefObject<HTMLDivElement> = undefined;
+  private _isContextMenuOpen = false;
 
-  // These dates are only used if the user explicitly does not specify a date
+  private _eventHandler: TimelineEventHandler;
+
+  // these dates are only used if the user explicitly does not specify a date
   // (by deleting the tag from the search bar).
   private _defaultStartDate?: GizDate;
   private _defaultEndDate?: GizDate;
 
   private _currentTranslationX = 0;
-  private _dragStartX = 0;
-  _isDragging = false;
-  _isSelecting = false;
 
-  _selectStartX = 0;
-  _selectEndX = 0;
+  dragStartX = 0;
+  selectStartX = 0;
+  selectEndX = 0;
 
   viewBox = {
     width: 1000,
@@ -92,20 +90,13 @@ export class TimelineViewModel {
   constructor(mainController: MainController) {
     this._mainController = mainController;
     this._mainController.vmController.setTimelineViewModel(this);
+    this._eventHandler = new TimelineEventHandler(this);
 
-    makeAutoObservable(
-      this,
-      {
-        mouseMove: false,
-        mouseDown: false,
-        mouseUp: false,
-        wheel: false,
-        mouseEnter: false,
-        mouseLeave: false,
-      },
-      { autoBind: true },
-    );
+    makeAutoObservable(this, {}, { autoBind: true });
 
+    // Since loading the repo data is asynchronous, the timeline positions are
+    // just guesses until the repo is done loading.
+    // This fires after the repo loads to properly adjust the positions.
     when(
       () => this.isDoneLoading,
       () => {
@@ -114,6 +105,11 @@ export class TimelineViewModel {
     );
 
     this.loadCommitsForBranch();
+
+    // This autorun is required because the access to the branches and commits is not
+    // properly decentralised yet.
+    // TODO: Ideally, this shouldn't be necessary when we're preparing the commits
+    // in a separate controller.
     autorun(() => {
       if (this._mainController.branches.some((b) => b.name === this.selectedBranch))
         runInAction(() => this.loadCommitsForBranch());
@@ -123,17 +119,9 @@ export class TimelineViewModel {
     this.setSelectedEndDate(new GizDate("2023-07-30"));
   }
 
-  get selectionRange() {
-    return (
-      this._mainController.settingsController.settings.timelineSettings?.defaultRange?.value ??
-      DEFAULT_SELECTION
-    );
-  }
+  // ------------------------------------------------------------------------ //
 
-  get isDoneLoading() {
-    return this.lastCommit !== undefined;
-  }
-
+  // Actions
   initializePositionsFromLastCommit() {
     if (!this.lastCommit) return;
 
@@ -158,222 +146,6 @@ export class TimelineViewModel {
     this._defaultStartDate = newSelectedStartDate;
     this._defaultEndDate = newSelectedEndDate;
   }
-
-  get defaultStartDate() {
-    return this._defaultStartDate;
-  }
-
-  get defaultEndDate() {
-    return this._defaultEndDate;
-  }
-
-  get displayMode() {
-    return getDaysBetweenAbs(this.startDate, this.endDate) >
-      this.mainController.settingsController.settings.timelineSettings.weekModeThreshold.value
-      ? "weeks"
-      : "days";
-  }
-
-  get visibleUnitsForDisplayMode() {
-    return this.displayMode === "days"
-      ? this.totalVisibleDays
-      : Math.floor(this.totalVisibleDays / 7);
-  }
-
-  get selectedUnitsForDisplayMode() {
-    const days = Math.floor(getDaysBetweenAbs(this.selectedStartDate, this.selectedEndDate));
-    return this.displayMode === "days" ? days : Math.floor(days / 7);
-  }
-
-  get dateRangeCenterText() {
-    let str = "";
-    str += `${this.visibleUnitsForDisplayMode} ${this.displayMode} visible`;
-
-    str += ` - ${this.selectedUnitsForDisplayMode} ${this.displayMode} selected`;
-    return str;
-  }
-
-  get isDragging() {
-    return this._isDragging;
-  }
-
-  get isSelecting() {
-    return this._isSelecting;
-  }
-
-  setTimelineSvg(ref?: RefObject<SVGSVGElement>) {
-    this._timelineSvg = ref;
-  }
-
-  get timelineSvg() {
-    return this._timelineSvg?.current;
-  }
-
-  setBaseLayer(ref?: RefObject<SVGGElement>) {
-    this._baseLayer = ref;
-  }
-
-  get baseLayer() {
-    return this._baseLayer?.current;
-  }
-
-  setCommitLayer(ref?: RefObject<SVGGElement>) {
-    this._commitLayer = ref;
-  }
-
-  get commitLayer() {
-    return this._commitLayer?.current;
-  }
-
-  get interactionBoundingClientRect() {
-    return this.interactionLayer?.getBoundingClientRect() ?? new DOMRect();
-  }
-
-  get tooltipContent() {
-    return this._tooltipContent;
-  }
-
-  get isTooltipShown() {
-    return this._isTooltipShown;
-  }
-
-  mouseMove = (e: MouseEvent) => {
-    if (this.tooltip) {
-      this.tooltip.style.transform = `translate(${e.clientX + 15}px,${e.clientY + 15}px)`;
-      this.tooltip.style.visibility = "visible";
-      const date = getStringDate(
-        estimateDayOnScale(
-          this.timelineRenderStart,
-          this.timelineRenderEnd,
-          this.viewBox.width,
-          e.clientX + this._currentTranslationX - this.interactionBoundingClientRect.left,
-        ),
-      );
-
-      let tooltipContent = date;
-      if (this._commitsPerDate.has(date)) {
-        const commits = this._commitsPerDate.get(date)!;
-        for (const commit of commits) {
-          tooltipContent += "\n" + commit.message;
-        }
-      }
-
-      runInAction(() => {
-        this._tooltipContent = tooltipContent;
-      });
-    }
-
-    if (this._isSelecting) {
-      runInAction(() => {
-        this._selectEndX = e.clientX - this.interactionBoundingClientRect.left;
-        this.setSelectedEndDate(
-          estimateDayOnScale(
-            this.timelineRenderStart,
-            this.timelineRenderEnd,
-            this.viewBox.width,
-            this._selectEndX + this._currentTranslationX,
-          ),
-        );
-      });
-    }
-
-    if (this._isDragging) {
-      this.applyTransform(this._dragStartX - e.clientX);
-      this.updateSelectionStartCoords();
-      this.updateSelectionEndCoords();
-    }
-  };
-
-  mouseDown = (e: MouseEvent) => {
-    if (e.button === MOUSE_BUTTON_PRIMARY) {
-      runInAction(() => {
-        this._isSelecting = true;
-
-        this._selectStartX = e.clientX - this.interactionBoundingClientRect.left;
-        this._selectEndX = e.clientX - this.interactionBoundingClientRect.left;
-
-        let selectedStartDate = estimateDayOnScale(
-          this.timelineRenderStart,
-          this.timelineRenderEnd,
-          this.viewBox.width,
-          this._selectStartX + this._currentTranslationX,
-        );
-        let selectedEndDate = estimateDayOnScale(
-          this.timelineRenderStart,
-          this.timelineRenderEnd,
-          this.viewBox.width,
-          this._selectEndX + this._currentTranslationX,
-        );
-
-        if (this.mainController.settingsController.timelineSettings.snap.value) {
-          selectedStartDate = selectedStartDate.discardTimeComponent();
-          selectedEndDate = selectedEndDate.discardTimeComponent().addDays(1);
-        }
-
-        this.setSelectedStartDate(selectedStartDate);
-        this.setSelectedEndDate(selectedEndDate);
-      });
-    }
-
-    if (e.button === MOUSE_BUTTON_WHEEL) {
-      runInAction(() => {
-        this._isDragging = true;
-        this._dragStartX = e.clientX + this._currentTranslationX;
-      });
-    }
-  };
-
-  mouseUp = (e: MouseEvent) => {
-    if (e.button === MOUSE_BUTTON_PRIMARY) {
-      this.stopSelecting();
-    }
-
-    if (e.button === MOUSE_BUTTON_WHEEL) {
-      this.stopDragging();
-    }
-  };
-
-  stopSelecting() {
-    this._isSelecting = false;
-
-    const selectedEndDate = estimateDayOnScale(
-      this.timelineRenderStart,
-      this.timelineRenderEnd,
-      this.viewBox.width,
-      this._selectEndX + this._currentTranslationX,
-    );
-    if (this.mainController.settingsController.timelineSettings.snap.value) {
-      this.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
-    }
-  }
-
-  stopDragging() {
-    this._isDragging = false;
-    const pxOffset = this._currentTranslationX - this.viewBox.width / PRERENDER_MULTIPLIER;
-    this.move(pxOffset);
-  }
-
-  wheel = (e: WheelEvent) => {
-    let ticks = 0;
-    const delta = e ? normalizeWheelEventDirection(e) : 0;
-    // eslint-disable-next-line unicorn/prefer-ternary
-    if (Math.abs(delta) > 2) {
-      // Probably a proper mouse wheel.
-      ticks = Math.sign(delta);
-    } else {
-      // Probably something fine-grained (e.g. trackpad)
-      ticks = accumulateWheelTicks(delta * MOUSE_ZOOM_FACTOR_FINE);
-    }
-
-    if (e.shiftKey || e.ctrlKey) {
-      this.zoom(ticks);
-      return;
-    }
-
-    this.move(-ticks * 20);
-    this.updateSelectionStartCoords();
-    this.updateSelectionEndCoords();
-  };
 
   move(pxOffset: number) {
     const newStartDate = this.offsetDateByPx(this.startDate, pxOffset);
@@ -409,90 +181,6 @@ export class TimelineViewModel {
       (getDaysBetweenAbs(this.startDate, this.endDate) < MIN_DAYS && ticks > 0) ||
       (getDaysBetweenAbs(this.startDate, this.endDate) > MAX_DAYS && ticks < 0)
     );
-  }
-
-  mouseEnter = () => {
-    this.setTooltipShown(true);
-  };
-
-  mouseLeave = () => {
-    this.setTooltipShown(false);
-    if (this._isDragging) this.stopDragging();
-    if (this._isSelecting) this.stopSelecting();
-  };
-
-  setTooltipShown(shown: boolean) {
-    this._isTooltipShown = shown;
-    if (this.tooltip) this.tooltip.style.visibility = shown ? "visible" : "hidden";
-  }
-
-  setInteractionLayer(ref?: RefObject<HTMLDivElement>) {
-    this._interactionLayer = ref;
-
-    if (this._interactionLayer?.current) {
-      const interactionLayer = this._interactionLayer.current;
-
-      // If we ever get here again, just remove the old listeners first for safety.
-      interactionLayer.removeEventListener("mousemove", this.mouseMove);
-      interactionLayer.removeEventListener("mousedown", this.mouseDown);
-      interactionLayer.removeEventListener("mouseup", this.mouseUp);
-      interactionLayer.removeEventListener("wheel", this.wheel);
-      interactionLayer.removeEventListener("mouseenter", this.mouseEnter);
-      interactionLayer.removeEventListener("mouseleave", this.mouseLeave);
-
-      interactionLayer.addEventListener("mousemove", this.mouseMove);
-      interactionLayer.addEventListener("mousedown", this.mouseDown);
-      interactionLayer.addEventListener("mouseup", this.mouseUp);
-      interactionLayer.addEventListener("wheel", this.wheel, { passive: true });
-      interactionLayer.addEventListener("mouseenter", this.mouseEnter);
-      interactionLayer.addEventListener("mouseleave", this.mouseLeave);
-    }
-  }
-
-  get interactionLayer() {
-    return this._interactionLayer?.current;
-  }
-
-  setTooltip(ref?: RefObject<HTMLDivElement>) {
-    this._tooltip = ref;
-  }
-
-  get tooltip() {
-    return this._tooltip?.current;
-  }
-
-  get mainController() {
-    return this._mainController;
-  }
-
-  setViewBoxWidth(width: number) {
-    this.viewBox.width = width;
-    this._currentTranslationX = width / PRERENDER_MULTIPLIER;
-  }
-
-  get commitIndices() {
-    if (this.mainController._repo.gitGraph.loading) return;
-    return new Map<string, number>(
-      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {}),
-    );
-  }
-
-  get commits() {
-    if (this.mainController._repo.gitGraph.loading) return [];
-    return this.mainController._repo.gitGraph.value?.commits ?? [];
-  }
-
-  get lastCommit() {
-    if (this._commitsForBranch === undefined || this._commitsForBranch.length === 0) return;
-    return this._commitsForBranch?.at(0);
-  }
-
-  get selectedBranch() {
-    return this.mainController.selectedBranch;
-  }
-
-  get commitsForBranch() {
-    return this._commitsForBranch;
   }
 
   // TODO: This function is awkward, since it has a bunch of side effects and requires an `autorun`
@@ -550,6 +238,86 @@ export class TimelineViewModel {
     this._commitsForBranch = parsedCommits;
   }
 
+  updateSelectionStartCoords() {
+    const xCoords = estimateCoordsOnScale(
+      this.timelineRenderStart,
+      this.timelineRenderEnd,
+      this.viewBox.width,
+      this.selectedStartDate,
+    );
+
+    this.selectStartX = xCoords - this._currentTranslationX;
+  }
+
+  updateSelectionEndCoords() {
+    const xCoords = estimateCoordsOnScale(
+      this.timelineRenderStart,
+      this.timelineRenderEnd,
+      this.viewBox.width,
+      this.selectedEndDate,
+    );
+    this.selectEndX = xCoords - this._currentTranslationX;
+  }
+
+  offsetDateByPx(startDate: Date, px: number): GizDate {
+    const days = px / this.dayWidthInPx;
+
+    return new GizDate(startDate.getTime() + convertDaysToMs(days));
+  }
+
+  applyTransform(x: number) {
+    this._currentTranslationX = x;
+    if (this.timelineSvg) {
+      this.timelineSvg.style.transform = `translateX(${-x}px)`;
+    }
+  }
+
+  triggerSearchBarUpdate() {
+    this.mainController.vmController.searchBarViewModel!.clear();
+    this.mainController.vmController.searchBarViewModel?.appendTag(
+      AvailableTags.start,
+      getStringDate(this.selectedStartDate),
+    );
+    this.mainController.vmController.searchBarViewModel?.appendTag(
+      AvailableTags.end,
+      getStringDate(this.selectedEndDate),
+    );
+  }
+
+  // -------------------------------------------------------------------------- //
+
+  // Setters
+  setTooltipContent(content: string) {
+    this._tooltipContent = content;
+  }
+
+  setTimelineSvg(ref?: RefObject<SVGSVGElement>) {
+    this._timelineSvg = ref;
+  }
+
+  setTooltipShown(shown: boolean) {
+    this._isTooltipShown = shown;
+    if (this.tooltip) this.tooltip.style.visibility = shown ? "visible" : "hidden";
+  }
+
+  setInteractionLayer(ref?: RefObject<HTMLDivElement>) {
+    this._interactionLayer = ref;
+
+    if (this._interactionLayer?.current) {
+      const interactionLayer = this._interactionLayer.current;
+      this._eventHandler.attachParent(interactionLayer);
+    }
+  }
+
+  setTooltip(ref?: RefObject<HTMLDivElement>) {
+    this._tooltip = ref;
+  }
+
+  setViewBoxWidth(width: number) {
+    this.viewBox.width = width;
+    this._currentTranslationX = width / PRERENDER_MULTIPLIER;
+  }
+
   setStartDate(date: GizDate) {
     this.mainController.setStartDate(date);
   }
@@ -561,27 +329,6 @@ export class TimelineViewModel {
     this.zoom(0);
   }
 
-  updateSelectionStartCoords() {
-    const xCoords = estimateCoordsOnScale(
-      this.timelineRenderStart,
-      this.timelineRenderEnd,
-      this.viewBox.width,
-      this.selectedStartDate,
-    );
-
-    this._selectStartX = xCoords - this._currentTranslationX;
-  }
-
-  updateSelectionEndCoords() {
-    const xCoords = estimateCoordsOnScale(
-      this.timelineRenderStart,
-      this.timelineRenderEnd,
-      this.viewBox.width,
-      this.selectedEndDate,
-    );
-    this._selectEndX = xCoords - this._currentTranslationX;
-  }
-
   setEndDate(date: GizDate) {
     this.mainController.setEndDate(date);
   }
@@ -590,17 +337,208 @@ export class TimelineViewModel {
     if (date === undefined) date = this._defaultStartDate ?? new GizDate();
 
     this.mainController.setSelectedEndDate(date);
-    this.mainController.vmController.searchBarViewModel!.clear();
-    this.mainController.vmController.searchBarViewModel?.appendTag(
-      AvailableTags.start,
-      getStringDate(this.selectedStartDate),
-    );
-    this.mainController.vmController.searchBarViewModel?.appendTag(
-      AvailableTags.end,
-      getStringDate(this.selectedEndDate),
-    );
+    this.triggerSearchBarUpdate();
     this.updateSelectionEndCoords();
     this.zoom(0);
+  }
+
+  setIsHoveringCommitId(id: number) {
+    this._isHoveringCommitId = id;
+  }
+
+  setIsContextMenuOpen(open: boolean) {
+    if (open) this.setTooltipShown(false);
+    this._isContextMenuOpen = open;
+  }
+
+  // ------------------------------------------------------------------------ //
+
+  // Computed
+  get selectionRange() {
+    return (
+      this._mainController.settingsController.settings.timelineSettings.defaultRange.value ??
+      DEFAULT_SELECTION
+    );
+  }
+
+  get isDoneLoading() {
+    return this.lastCommit !== undefined;
+  }
+
+  get defaultStartDate() {
+    return this._defaultStartDate;
+  }
+
+  get defaultEndDate() {
+    return this._defaultEndDate;
+  }
+
+  get displayMode() {
+    return getDaysBetweenAbs(this.startDate, this.endDate) >
+      this.mainController.settingsController.settings.timelineSettings.weekModeThreshold.value
+      ? "weeks"
+      : "days";
+  }
+
+  get visibleUnitsForDisplayMode() {
+    return this.displayMode === "days"
+      ? this.totalVisibleDays
+      : Math.floor(this.totalVisibleDays / 7);
+  }
+
+  get selectedUnitsForDisplayMode() {
+    const days = Math.floor(getDaysBetweenAbs(this.selectedStartDate, this.selectedEndDate));
+    return this.displayMode === "days" ? days : Math.floor(days / 7);
+  }
+
+  get dateRangeCenterText() {
+    let str = "";
+    str += `${this.visibleUnitsForDisplayMode} ${this.displayMode} visible`;
+
+    str += ` - ${this.selectedUnitsForDisplayMode} ${this.displayMode} selected`;
+    return str;
+  }
+
+  get isDragging() {
+    return this._eventHandler.isDragging;
+  }
+
+  get isSelecting() {
+    return this._eventHandler.isSelecting;
+  }
+
+  get timelineSvg() {
+    return this._timelineSvg?.current;
+  }
+
+  get tooltipContent() {
+    return this._tooltipContent;
+  }
+
+  get isTooltipShown() {
+    return this._isTooltipShown;
+  }
+
+  get currentTranslationX() {
+    return this._currentTranslationX;
+  }
+
+  get commitsPerDate() {
+    return this._commitsPerDate;
+  }
+
+  get interactionLayer() {
+    return this._interactionLayer?.current;
+  }
+
+  get tooltip() {
+    return this._tooltip?.current;
+  }
+
+  get commitIndices() {
+    if (this.mainController._repo.gitGraph.loading) return;
+    return new Map<string, number>(
+      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {}),
+    );
+  }
+
+  get isHoveringCommitId() {
+    return this._isHoveringCommitId;
+  }
+
+  get commits() {
+    if (this.mainController._repo.gitGraph.loading) return [];
+    return this.mainController._repo.gitGraph.value?.commits ?? [];
+  }
+
+  get commitsToDraw(): {
+    commits: CInfo[];
+    x: number;
+    y: number;
+    rx: number;
+    originalPosition: number;
+    interpolatedTimestamp: number;
+  }[] {
+    if (!this.commitsForBranch) return [];
+    const radius = 10;
+
+    const commitsToDraw: {
+      commits: CInfo[];
+      x: number;
+      y: number;
+      rx: number;
+      originalPosition: number;
+      interpolatedTimestamp: number;
+    }[] = [];
+
+    const commitsInRange = this.commitsForBranch!.filter(
+      (c) =>
+        getDateFromTimestamp(c.timestamp) > this.timelineRenderStart &&
+        getDateFromTimestamp(c.timestamp) < this.timelineRenderEnd,
+    );
+
+    for (const commit of commitsInRange) {
+      const commitDate = getDateFromTimestamp(commit.timestamp);
+      const dateOffsetFromStart = getDaysBetweenAbs(commitDate, this.timelineRenderStart);
+      const commitPos = dateOffsetFromStart * this.dayWidthInPx;
+
+      // Compare this commit with the last one in `commitsToDraw` and see if we need to merge them.
+      const previousCommits = commitsToDraw.at(-1);
+      if (!previousCommits) {
+        commitsToDraw.push({
+          x: commitPos,
+          y: 0,
+          commits: [commit],
+          rx: radius,
+          originalPosition: commitPos,
+          interpolatedTimestamp: convertTimestampToMs(commit.timestamp),
+        });
+        continue;
+      }
+
+      const previousCommitPos = previousCommits.x;
+      const diff = Math.abs(previousCommitPos - commitPos);
+      const diffToOriginal = Math.abs(previousCommits.originalPosition - previousCommitPos);
+      if (diff < radius && diffToOriginal < radius * 2) {
+        commitsToDraw.pop();
+        commitsToDraw.push({
+          x: commitPos + diff / 2,
+          y: 0,
+          commits: [...previousCommits.commits, commit],
+          rx: diff + radius,
+          originalPosition: previousCommits.originalPosition,
+          interpolatedTimestamp:
+            Math.abs(
+              previousCommits.interpolatedTimestamp - convertTimestampToMs(commit.timestamp),
+            ) + convertTimestampToMs(commit.timestamp),
+        });
+        continue;
+      }
+
+      commitsToDraw.push({
+        x: commitPos,
+        y: 0,
+        commits: [commit],
+        rx: radius,
+        originalPosition: commitPos,
+        interpolatedTimestamp: convertTimestampToMs(commit.timestamp),
+      });
+    }
+
+    return commitsToDraw;
+  }
+
+  get lastCommit() {
+    if (this._commitsForBranch === undefined || this._commitsForBranch.length === 0) return;
+    return this._commitsForBranch?.at(0);
+  }
+
+  get selectedBranch() {
+    return this.mainController.selectedBranch;
+  }
+
+  get commitsForBranch() {
+    return this._commitsForBranch;
   }
 
   get timelineRenderStart() {
@@ -612,28 +550,12 @@ export class TimelineViewModel {
     return newDate;
   }
 
-  get selectedStartDate() {
-    return this.mainController.selectedStartDate;
-  }
-
   get timelineRenderEnd() {
     const daysBetween = getDaysBetweenAbs(
       this.mainController.startDate,
       this.mainController.endDate,
     );
     return this.mainController.endDate.addDays(daysBetween);
-  }
-
-  get startDate() {
-    return this.mainController.startDate;
-  }
-
-  get endDate() {
-    return this.mainController.endDate;
-  }
-
-  get selectedEndDate() {
-    return this.mainController.selectedEndDate;
   }
 
   get totalRenderedDays() {
@@ -648,16 +570,79 @@ export class TimelineViewModel {
     return this.ruler.width / this.totalRenderedDays;
   }
 
-  offsetDateByPx(startDate: Date, px: number): GizDate {
-    const days = px / this.dayWidthInPx;
+  get contextItems(): MenuProps["items"] {
+    let items: MenuProps["items"] = [];
+    items.push({
+      key: "default",
+      label: "Reset to default",
+      danger: true,
+      onClick: () => {
+        this.setIsContextMenuOpen(false);
+        this.initializePositionsFromLastCommit();
+      },
+    });
 
-    return new GizDate(startDate.getTime() + convertDaysToMs(days));
+    if (this.isHoveringCommitId === -1) return items;
+
+    const earliestDate = getDateFromTimestamp(
+      this.commitsToDraw.at(this.isHoveringCommitId)!.commits.at(-1)!.timestamp,
+    ).subtractDays(1);
+
+    const latestDate = getDateFromTimestamp(
+      this.commitsToDraw.at(this.isHoveringCommitId)!.commits.at(0)!.timestamp,
+    ).addDays(1);
+
+    items = [
+      {
+        key: "start",
+        label: "Start selection here",
+        onClick: () => {
+          this.setIsContextMenuOpen(false);
+          this.setSelectedStartDate(earliestDate);
+
+          // Setting the end date is usually what triggers an update on the SearchBar.
+          // If we're in here, we want this immediately.
+          this.triggerSearchBarUpdate();
+        },
+      },
+      {
+        key: "end",
+        label: "End selection here",
+        onClick: () => {
+          this.setIsContextMenuOpen(false);
+          this.setSelectedEndDate(latestDate);
+        },
+      },
+      ...items,
+    ];
+
+    return items;
   }
 
-  applyTransform(x: number) {
-    this._currentTranslationX = x;
-    if (this.timelineSvg) {
-      this.timelineSvg.style.transform = `translateX(${-x}px)`;
-    }
+  get isContextMenuOpen() {
+    return this._isContextMenuOpen;
+  }
+
+  // ------------------------------------------------------------------------ //
+
+  // Shorthand getters for values on the MainController
+  get mainController() {
+    return this._mainController;
+  }
+
+  get startDate() {
+    return this.mainController.startDate;
+  }
+
+  get endDate() {
+    return this.mainController.endDate;
+  }
+
+  get selectedStartDate() {
+    return this.mainController.selectedStartDate;
+  }
+
+  get selectedEndDate() {
+    return this.mainController.selectedEndDate;
   }
 }

@@ -20,6 +20,7 @@ declare const classNames: {
   readonly RulerAnnotationLeft: "RulerAnnotationLeft";
   readonly RulerAnnotationRight: "RulerAnnotationRight";
   readonly CommitCircle: "CommitCircle";
+  readonly CommitLayer: "CommitLayer";
   readonly CommitCircleText: "CommitCircleText";
   readonly CommitCircleHover: "CommitCircleHover";
   readonly CommitCircleHighlight: "CommitCircleHighlight";

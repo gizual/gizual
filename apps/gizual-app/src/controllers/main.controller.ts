@@ -197,7 +197,9 @@ export class MainController {
   }
 
   setSelectedStartDate(date: GizDate) {
-    if (this._selectedStartDate.getTime() !== date.getTime()) this._selectedStartDate = date;
+    if (this._selectedStartDate.getTime() !== date.getTime()) {
+      this._selectedStartDate = date;
+    }
   }
 
   setEndDate(date: GizDate) {

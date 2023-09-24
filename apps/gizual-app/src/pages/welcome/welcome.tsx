@@ -20,7 +20,7 @@ export const WelcomePage = observer(() => {
           {isSupportedBrowser() ? (
             <>
               {mainController.isLoading ? (
-                <Spin size={"large"} style={{ margin: "auto" }}></Spin>
+                <Spin size={"large"} style={{ margin: "auto", marginBottom: "1rem" }}></Spin>
               ) : (
                 <>
                   <Button

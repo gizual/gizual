@@ -30,6 +30,14 @@ export class GizDate extends Date {
     return getStringDate(this);
   }
 
+  toDateTimeString() {
+    const hours = this.getHours().toString().padStart(2, "0");
+    const minutes = this.getMinutes().toString().padStart(2, "0");
+    const time = `${hours}:${minutes}`;
+
+    return `${this.toString()} ${time}`;
+  }
+
   isBetween(start: GizDate, end: GizDate) {
     return isDateBetween(this, start, end);
   }

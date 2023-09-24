@@ -1,5 +1,5 @@
 import { CInfo } from "@app/types";
-import { convertTimestampToMs, getDateFromTimestamp, getDaysBetweenAbs, GizDate } from "@app/utils";
+import { GizDate } from "@app/utils";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
@@ -9,92 +9,15 @@ import { TimelineViewModel } from "./timeline.vm";
 type CommitsProps = {
   vm: TimelineViewModel;
   commits?: CInfo[];
-  startDate: GizDate;
-  endDate: GizDate;
   selectionStartDate: GizDate;
   selectionEndDate: GizDate;
-  dayWidth: number;
-  yOffset: number;
   radius: number;
 };
 
 export const Commits = observer(
-  ({
-    vm,
-    commits,
-    startDate,
-    endDate,
-    dayWidth,
-    yOffset,
-    radius,
-    selectionStartDate,
-    selectionEndDate,
-  }: CommitsProps) => {
-    if (!commits) return <></>;
-
-    const commitsInRange = commits.filter(
-      (c) =>
-        getDateFromTimestamp(c.timestamp) > startDate &&
-        getDateFromTimestamp(c.timestamp) < endDate,
-    );
-
-    // Check if some commits should be merge together because they would otherwise be obstructing
-    // each-other.
-    const commitsToDraw: {
-      commits: CInfo[];
-      x: number;
-      y: number;
-      rx: number;
-      originalPosition: number;
-      interpolatedTimestamp: number;
-    }[] = [];
-    for (const commit of commitsInRange) {
-      const commitDate = getDateFromTimestamp(commit.timestamp);
-      const dateOffsetFromStart = getDaysBetweenAbs(commitDate, startDate);
-      const commitPos = dateOffsetFromStart * dayWidth;
-
-      // Compare this commit with the last one in `commitsToDraw` and see if we need to merge them.
-      const previousCommits = commitsToDraw.at(-1);
-      if (!previousCommits) {
-        commitsToDraw.push({
-          x: commitPos,
-          y: yOffset,
-          commits: [commit],
-          rx: radius,
-          originalPosition: commitPos,
-          interpolatedTimestamp: convertTimestampToMs(commit.timestamp),
-        });
-        continue;
-      }
-
-      const previousCommitPos = previousCommits.x;
-      const diff = Math.abs(previousCommitPos - commitPos);
-      const diffToOriginal = Math.abs(previousCommits.originalPosition - previousCommitPos);
-      if (diff < radius && diffToOriginal < radius * 2) {
-        commitsToDraw.pop();
-        commitsToDraw.push({
-          x: commitPos + diff / 2,
-          y: yOffset,
-          commits: [...previousCommits.commits, commit],
-          rx: diff + radius,
-          originalPosition: previousCommits.originalPosition,
-          interpolatedTimestamp:
-            Math.abs(
-              previousCommits.interpolatedTimestamp - convertTimestampToMs(commit.timestamp),
-            ) + convertTimestampToMs(commit.timestamp),
-        });
-        continue;
-      }
-
-      commitsToDraw.push({
-        x: commitPos,
-        y: yOffset,
-        commits: [commit],
-        rx: radius,
-        originalPosition: commitPos,
-        interpolatedTimestamp: convertTimestampToMs(commit.timestamp),
-      });
-    }
+  ({ vm, radius, selectionStartDate, selectionEndDate }: CommitsProps) => {
+    const commitsToDraw = vm.commitsToDraw;
+    if (commitsToDraw.length === 0) return <></>;
 
     const commitCircles = commitsToDraw.map((commit, i) => {
       return (
@@ -109,6 +32,7 @@ export const Commits = observer(
             selectionStartDate,
             selectionEndDate,
           )}
+          isHovered={vm.isHoveringCommitId === i}
         />
       );
     });
@@ -124,10 +48,11 @@ type CommitProps = {
   rx?: number;
   ry?: number;
   isHighlighted?: boolean;
+  isHovered?: boolean;
 };
 
 const Commit = observer(
-  ({ commits, x, y, rx = 10, ry = 10, isHighlighted = false }: CommitProps) => {
+  ({ commits, x, y, rx = 10, ry = 10, isHighlighted = false, isHovered = false }: CommitProps) => {
     const isMergedCommit = commits.length > 1; // If we had to merge commits before, this is a pseudo-commit.
 
     return (
@@ -137,7 +62,11 @@ const Commit = observer(
           cy={y}
           rx={rx}
           ry={ry}
-          className={clsx(style.CommitCircle, isHighlighted && style.CommitCircleHighlight)}
+          className={clsx(
+            style.CommitCircle,
+            isHighlighted && style.CommitCircleHighlight,
+            isHovered && style.CommitCircleHover,
+          )}
         />
         {isMergedCommit && (
           <text x={x} y={y + ry / 2} className={style.CommitCircleText}>

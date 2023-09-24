@@ -134,6 +134,8 @@
 
 .TooltipContent {
   white-space: pre;
+  background-color: unset;
+  line-height: 50%;
 }
 
 .SelectionBox {
@@ -169,13 +171,17 @@
   position: relative;
 }
 
+.CommitLayer {
+  pointer-events: auto;
+}
+
 .CommitCircleText {
   stroke: var(--foreground-secondary);
   text-anchor: middle;
 }
 
 .CommitCircleHover {
-  fill: var(--background-primary);
+  fill: var(--color-gold);
 }
 
 .CommitCircleHighlight {

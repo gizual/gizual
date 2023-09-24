@@ -1,5 +1,5 @@
 import { NoVmError, useWindowSize } from "@app/utils";
-import { Spin } from "antd";
+import { Dropdown, Spin } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
@@ -61,13 +61,9 @@ const TimelineGraph = observer(({ vm, height }: TimelineGraphProps) => {
 
 export const BaseLayer = observer(({ vm }: TimelineProps) => {
   if (!vm) throw new NoVmError("BaseLayer");
-  const ref = useRef<SVGGElement | null>(null);
-  React.useEffect(() => {
-    vm.setBaseLayer(ref);
-  }, [ref]);
 
   return (
-    <g ref={ref}>
+    <g>
       <Ruler vm={vm} />
       <TimelineGraph vm={vm} />
     </g>
@@ -77,22 +73,13 @@ export const BaseLayer = observer(({ vm }: TimelineProps) => {
 export const CommitLayer = observer(({ vm }: TimelineProps) => {
   if (!vm) throw new NoVmError("CommitLayer");
 
-  const ref = useRef<SVGGElement | null>(null);
-  React.useEffect(() => {
-    vm.setCommitLayer(ref);
-  }, [ref]);
-
   return (
-    <g ref={ref}>
+    <g className={style.CommitLayer}>
       <Translate x={0} y={vm.rowHeight / 2}>
         <Commits
-          startDate={vm.timelineRenderStart}
-          endDate={vm.timelineRenderEnd}
           selectionStartDate={vm.selectedStartDate}
           selectionEndDate={vm.selectedEndDate}
-          dayWidth={vm.dayWidthInPx}
           commits={vm.commitsForBranch}
-          yOffset={0}
           radius={10}
           vm={vm}
         />
@@ -112,55 +99,64 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
   }, [interactionLayerRef, tooltipRef]);
 
   return (
-    <div
-      className={style.InteractionLayer}
-      id={"TimelineInteractionLayer"}
-      ref={interactionLayerRef}
+    <Dropdown
+      menu={{ items: vm.contextItems }}
+      trigger={["contextMenu"]}
+      destroyPopupOnHide
+      onOpenChange={(open) => {
+        vm.setIsContextMenuOpen(open);
+      }}
     >
-      {vm.isDoneLoading && (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
-              top: `0px`,
-              width: `${Math.abs(vm._selectEndX - vm._selectStartX)}px`,
-              height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
-              zIndex: "150",
-            }}
-            className={style.SelectionBox}
-          ></div>
-          <div
-            style={{
-              position: "absolute",
-              left: `${Math.min(vm._selectStartX, vm._selectEndX)}px`,
-              top: `${vm.rowHeight}px`,
-              height: `${(8 / vm.viewBox.height) * 100}%`,
-              width: `${Math.abs(vm._selectStartX - vm._selectEndX) + 1}px`,
-              zIndex: "150",
-            }}
-            className={style.SelectionBoxLine}
-          />
-        </>
-      )}
-      {!vm.isDragging && (
-        <>
-          <p className={style.DateRangeInfoText} style={{ left: 4 }}>
-            {vm.startDate.toString()}
-          </p>
-          <p className={style.DateRangeCenterText}>{vm.dateRangeCenterText}</p>
-          <p className={style.DateRangeInfoText} style={{ right: 4 }}>
-            {vm.endDate.toString()}
-          </p>
-        </>
-      )}
-      {createPortal(
-        <div id={"TimelineTooltip"} className={style.Tooltip} ref={tooltipRef}>
-          <code className={style.TooltipContent}>{vm.tooltipContent}</code>
-        </div>,
-        document.body,
-      )}
-    </div>
+      <div
+        className={style.InteractionLayer}
+        id={"TimelineInteractionLayer"}
+        ref={interactionLayerRef}
+      >
+        {vm.isDoneLoading && (
+          <>
+            <div
+              style={{
+                position: "absolute",
+                left: `${Math.min(vm.selectStartX, vm.selectEndX)}px`,
+                top: `0px`,
+                width: `${Math.abs(vm.selectEndX - vm.selectStartX)}px`,
+                height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
+                zIndex: "150",
+              }}
+              className={style.SelectionBox}
+            ></div>
+            <div
+              style={{
+                position: "absolute",
+                left: `${Math.min(vm.selectStartX, vm.selectEndX)}px`,
+                top: `${vm.rowHeight}px`,
+                height: `${(8 / vm.viewBox.height) * 100}%`,
+                width: `${Math.abs(vm.selectStartX - vm.selectEndX) + 1}px`,
+                zIndex: "150",
+              }}
+              className={style.SelectionBoxLine}
+            />
+          </>
+        )}
+        {!vm.isDragging && (
+          <>
+            <p className={style.DateRangeInfoText} style={{ left: 4 }}>
+              {vm.startDate.toString()}
+            </p>
+            <p className={style.DateRangeCenterText}>{vm.dateRangeCenterText}</p>
+            <p className={style.DateRangeInfoText} style={{ right: 4 }}>
+              {vm.endDate.toString()}
+            </p>
+          </>
+        )}
+        {createPortal(
+          <div id={"TimelineTooltip"} className={style.Tooltip} ref={tooltipRef}>
+            <code className={style.TooltipContent}>{vm.tooltipContent}</code>
+          </div>,
+          document.body,
+        )}
+      </div>
+    </Dropdown>
   );
 });
 
