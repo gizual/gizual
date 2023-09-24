@@ -1,3 +1,16 @@
 export { Button } from "./button";
+export { Canvas } from "./canvas";
+export { DialogProvider } from "./dialog-provider";
+export { Editor } from "./editor";
+export { File } from "./file";
+export { FileTree } from "./file-tree";
+export { FontIcon } from "./font-icon";
 export * from "./font-icon";
+export { Footer } from "./footer";
+export { IconButton } from "./icon-button";
+export { RepoPanel } from "./repo-panel";
+export { SearchBar } from "./search-bar";
+export { Select } from "./select";
+export { SettingsPanel } from "./settings-panel";
+export { Timeline } from "./timeline";
 export { TitleBar } from "./title-bar";

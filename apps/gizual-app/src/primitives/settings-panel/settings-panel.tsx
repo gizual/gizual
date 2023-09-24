@@ -19,13 +19,13 @@ export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) =
   }, [externalVm]);
 
   return (
-    <div className={style.settingsPanel}>
-      <div className={sharedStyle.section}>
-        <div className={sharedStyle.sectionHead}>
+    <div className={style.SettingsPanel}>
+      <div className={sharedStyle.Section}>
+        <div className={sharedStyle.SectionHead}>
           <h1>Settings</h1>
         </div>
-        <div className={sharedStyle.sectionBody}>
-          <div className={sharedStyle.block}>
+        <div className={sharedStyle.SectionBody}>
+          <div className={sharedStyle.Block}>
             <h3>Coloring mode</h3>
             {/*<ToggleButton<ColoringMode>
               ariaLabel="Coloring mode"
@@ -46,7 +46,7 @@ export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) =
               ))}
             </Radio.Group>
           </div>
-          <div className={sharedStyle.block}>
+          <div className={sharedStyle.Block}>
             <h3>Authors</h3>
             {vm.authors.length > 0 ? (
               <Table

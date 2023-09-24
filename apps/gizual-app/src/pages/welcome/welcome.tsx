@@ -4,19 +4,17 @@ import { isSupportedBrowser } from "@app/utils";
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
 
-import baseStyle from "../../app.module.scss";
-
 import style from "./welcome.module.scss";
 
 export const WelcomePage = observer(() => {
   const mainController = useMainController();
   return (
-    <div className={baseStyle.App}>
-      <div className={baseStyle.container}>
-        <img className={baseStyle.img} src="./giz.png" alt="Gizual Logo" />
-        <h1 className={baseStyle.h1}>Gizual</h1>
-        <p className={style.p}>Welcome to Gizual!</p>
-        <div className={style.card}>
+    <div className={style.App}>
+      <div className={style.Container}>
+        <img className={style.WelcomeImage} src="./giz.png" alt="Gizual Logo" />
+        <h1 className={style.Header}>Gizual</h1>
+        <p className={style.WelcomeParagraph}>Welcome to Gizual!</p>
+        <div className={style.Card}>
           {isSupportedBrowser() ? (
             <>
               {mainController.isLoading ? (
@@ -26,7 +24,7 @@ export const WelcomePage = observer(() => {
                   <Button
                     variant="filled"
                     onClick={() => mainController.openRepository()}
-                    className={style.button}
+                    className={style.Button}
                   >
                     Load Repository
                   </Button>
@@ -44,8 +42,8 @@ export const WelcomePage = observer(() => {
 
 function UnsupportedBrowser() {
   return (
-    <div className={style.emphasized}>
-      <h2 className={style.emphasizedHeader}>🚫</h2>
+    <div className={style.EmphasizedContainer}>
+      <h2 className={style.EmphasizedHeader}>🚫</h2>
       <p>{"It looks like you're using an unsupported browser."}</p>
       <p>
         {"Gizual requires an implementation of "}

@@ -8,7 +8,7 @@ import React from "react";
 
 import style from "./app.module.scss";
 import { useMainController } from "./controllers";
-import MainPage from "./pages/main";
+import { MainPage } from "./pages/main";
 import { Footer } from "./primitives/footer";
 import { useStyle, useTheme } from "./utils";
 

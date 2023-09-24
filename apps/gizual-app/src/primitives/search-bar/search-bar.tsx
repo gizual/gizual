@@ -97,8 +97,8 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
   }, [externalVm]);
 
   return (
-    <div className={style.searchBar}>
-      <div className={style.content}>
+    <div className={style.SearchBar}>
+      <div className={style.Content}>
         <Tooltip title={"Toggle repository panel"}>
           <IconButton
             onClick={vmController.toggleRepoPanelVisibility}
@@ -118,7 +118,7 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
             return { label: b, value: b };
           })}
         />
-        <div id="inputWrapper" className={style.searchInputWrapper}>
+        <div id="inputWrapper" className={style.SearchInputWrapper}>
           <SearchInput vm={vm} />
         </div>
         <Tooltip title={"Toggle settings panel"}>
@@ -155,10 +155,10 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
   }, [ref]);
 
   return (
-    <div className={style.inputFieldWrapper}>
+    <div className={style.InputFieldWrapper}>
       <CodeMirror
         ref={ref}
-        className={style.searchInput}
+        className={style.SearchInput}
         onFocus={vm.onSearchBarFocus}
         onBlur={vm.onSearchBarBlur}
         onChange={vm.onSearchInput}
@@ -186,18 +186,18 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
             ></div>,
             document.body,
           )}
-          <div className={style.searchOverlay}>
-            <div className={style.searchOverlayContent}>
+          <div className={style.SearchOverlay}>
+            <div className={style.SearchOverlayContent}>
               {!vm.currentPendingTag && (
                 <>
                   <h4>Refine your search</h4>
                   {Object.entries(AvailableTags).map(([id, tag]) => (
                     <div
-                      className={style.searchOverlayHintEntry}
+                      className={style.SearchOverlayHintEntry}
                       key={id}
                       onClick={() => vm.appendTag(tag)}
                     >
-                      <pre className={style.tag}>-{tag.id}: </pre>
+                      <pre className={style.Tag}>-{tag.id}: </pre>
                       <pre>{tag.hint}</pre>
                     </div>
                   ))}
@@ -215,8 +215,8 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
       )}
 
       <IconButton
-        className={style.searchIcon}
-        colored
+        className={style.SearchIcon}
+        coloured
         wide
         border="right"
         onClick={() => vm.search()}
@@ -245,14 +245,14 @@ const DateTimeInputAssist = observer(
 
     return (
       <>
-        <div className={style.searchOverlayHintEntry}>
+        <div className={style.SearchOverlayHintEntry}>
           {tag.tag.id === "start" && <p>Pick a custom start date: </p>}
           {tag.tag.id === "end" && <p>Pick a custom end date: </p>}
           <DatePicker onChange={onChange} format={DATE_FORMAT} size="small" />
         </div>
         {tag.tag.id === "start" && defaultStartDate && (
           <div
-            className={style.searchOverlayHintEntry}
+            className={style.SearchOverlayHintEntry}
             onClick={() => {
               vm.updateTag(tag.tag.id, defaultStartDate);
             }}
@@ -262,7 +262,7 @@ const DateTimeInputAssist = observer(
         )}
         {tag.tag.id === "end" && defaultEndDate && (
           <div
-            className={style.searchOverlayHintEntry}
+            className={style.SearchOverlayHintEntry}
             onClick={() => {
               vm.updateTag(tag.tag.id, defaultEndDate);
             }}
@@ -272,7 +272,7 @@ const DateTimeInputAssist = observer(
         )}
         <hr />
         <div
-          className={clsx(style.searchOverlayHintEntry, style.removeTagEntry)}
+          className={clsx(style.SearchOverlayHintEntry, style.RemoveTagEntry)}
           onClick={() => {
             vm.removeTag(tag);
           }}

@@ -1,6 +1,6 @@
 @use "@/mixins" as *;
 
-.settingsContainer {
+.SettingsContainer {
   max-width: 800px;
   width: 50%;
   margin: 0 auto;
@@ -16,13 +16,13 @@
   overflow-x: hidden;
 }
 
-.settingsFlex {
+.SettingsFlex {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.settingsActionBar {
+.SettingsActionBar {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -30,14 +30,14 @@
   margin-bottom: 1rem;
 }
 
-.settingsGroupHeader {
+.SettingsGroupHeader {
   font-size: 1.25rem;
   font-weight: 500;
   color: var(--foreground-primary);
   margin-top: 1rem;
 }
 
-.settingsGroup {
+.SettingsGroup {
   background-color: var(--background-primary);
   padding: 0 0;
   transition: background-color 0.2s ease-in-out;
@@ -47,7 +47,7 @@
   min-height: 0;
 }
 
-.settingsEntry {
+.SettingsEntry {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -61,7 +61,7 @@
   }
 }
 
-.settingsEntry__label {
+.SettingsEntryLabel {
   @include text-base;
   font-weight: 500;
   color: var(--foreground-secondary);
@@ -69,28 +69,16 @@
   justify-content: space-between;
 }
 
-.settingsEntry__description {
+.SettingsEntryDescription {
   @include text-sm;
   font-weight: 300;
   color: var(--foreground-secondary);
 }
 
-.settingsEntry__default {
+.SettingsEntryDefault {
   @include text-xs;
   font-weight: 200;
   color: var(--foreground-disabled);
   align-self: flex-end;
   margin: auto 0;
-}
-
-.Checkbox {
-  /*:global(.ant-checkbox-inner) {
-    width: 30px;
-    height: 30px;
-  }
-  :global(.ant-checkbox-inner:after) {
-    inset-inline-start: 30%;
-    top: 55%;
-    transform: rotate(45deg) scale(1.8) translate(-50%, -50%);
-  }*/
 }

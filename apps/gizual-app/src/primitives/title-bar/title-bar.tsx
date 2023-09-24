@@ -13,20 +13,20 @@ export const TitleBar = observer(() => {
   const { modal } = App.useApp();
 
   return (
-    <div className={style.titleBar}>
-      <div className={style.branding}>
-        <img className={style.logo} src="./giz.png" alt="Gizual Logo" />
-        <h1 className={style.title}>gizual</h1>
+    <div className={style.TitleBar}>
+      <div className={style.Branding}>
+        <img className={style.Logo} src="./giz.png" alt="Gizual Logo" />
+        <h1 className={style.Title}>gizual</h1>
       </div>
-      <div className={style.menu}>
-        <div className={style.left}>
+      <div className={style.Menu}>
+        <div className={style.Left}>
           <div
             className={clsx(
-              style.menuItem,
-              mainController._selectedPanel === "explore" ? style.selected : undefined,
+              style.MenuItem,
+              mainController._selectedPanel === "explore" ? style.Selected : undefined,
             )}
           >
-            <a className={style.menuItemText} onClick={() => mainController.setPanel("explore")}>
+            <a className={style.MenuItemText} onClick={() => mainController.setPanel("explore")}>
               {" "}
               Explore
             </a>
@@ -34,28 +34,28 @@ export const TitleBar = observer(() => {
 
           <div
             className={clsx(
-              style.menuItem,
-              mainController._selectedPanel === "analyze" ? style.selected : undefined,
+              style.MenuItem,
+              mainController._selectedPanel === "analyze" ? style.Selected : undefined,
             )}
           >
-            <a className={style.menuItemText} onClick={() => mainController.setPanel("analyze")}>
+            <a className={style.MenuItemText} onClick={() => mainController.setPanel("analyze")}>
               Analyze
             </a>
           </div>
 
           <div
             className={clsx(
-              style.menuItem,
-              mainController._selectedPanel === "settings" ? style.selected : undefined,
+              style.MenuItem,
+              mainController._selectedPanel === "settings" ? style.Selected : undefined,
             )}
           >
-            <a className={style.menuItemText} onClick={() => mainController.setPanel("settings")}>
+            <a className={style.MenuItemText} onClick={() => mainController.setPanel("settings")}>
               Settings
             </a>
           </div>
         </div>
-        <div className={style.right}>
-          <h3 className={style.infoText}>Repository: {mainController.repoName}</h3>
+        <div className={style.Right}>
+          <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
           <Tooltip title="Close repository">
             <IconButton
               className={style.closeButton}

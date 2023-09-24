@@ -1,5 +1,5 @@
 declare const classNames: {
-  readonly repoPanel: "repoPanel";
-  readonly sectionHead: "sectionHead";
+  readonly RepoPanel: "RepoPanel";
+  readonly SectionHead: "SectionHead";
 };
 export = classNames;

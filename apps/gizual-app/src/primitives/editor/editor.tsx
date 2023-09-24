@@ -27,9 +27,9 @@ function Editor({ vm: externalVm, file }: EditorProps) {
   }, [editorRef]);
 
   return (
-    <div className={style.editorContainer}>
-      <h1 className={style.editorHeader}>File View</h1>
-      <div className={style.editor} ref={editorRef}></div>
+    <div className={style.EditorContainer}>
+      <h1 className={style.EditorHeader}>File View</h1>
+      <div className={style.Editor} ref={editorRef}></div>
     </div>
   );
 }

@@ -18,7 +18,7 @@ export function FontIcon({ name, className, style, colors }: FontIconProps) {
   return (
     <span
       style={style}
-      className={clsx(styles.icon, name ?? "directory-closed-icon", iconColor, className)}
+      className={clsx(styles.Icon, name ?? "directory-closed-icon", iconColor, className)}
     ></span>
   );
 }

@@ -1,6 +1,6 @@
 declare const classNames: {
-  readonly footer: "footer";
-  readonly left: "left";
-  readonly right: "right";
+  readonly Footer: "Footer";
+  readonly LeftSection: "LeftSection";
+  readonly RightSection: "RightSection";
 };
 export = classNames;

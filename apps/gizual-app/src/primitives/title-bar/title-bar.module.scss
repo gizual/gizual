@@ -1,20 +1,20 @@
 @use "@/mixins" as *;
 @use "sass:color";
 
-.titleBar {
+.TitleBar {
   display: flex;
   border-bottom: 1px solid var(--border-primary);
   width: 100vw;
   flex-direction: row;
 }
 
-.logo {
+.Logo {
   border-radius: 2rem;
   width: 2.5rem;
   height: 2.5rem;
 }
 
-.title {
+.Title {
   font-weight: semi-bold;
   color: var(--foreground-primary);
   display: inline-block;
@@ -22,7 +22,7 @@
   margin-left: 0.75rem;
 }
 
-.branding {
+.Branding {
   display: flex;
   padding-right: 1rem;
   padding: 0.5rem 1rem;
@@ -30,13 +30,13 @@
   flex-direction: row;
 }
 
-.left {
+.Left {
   display: flex;
   flex-direction: row;
   justify-self: flex-start;
 }
 
-.right {
+.Right {
   display: flex;
   flex-direction: row;
   justify-self: flex-end;
@@ -44,7 +44,7 @@
   gap: 1rem;
 }
 
-.menu {
+.Menu {
   padding: 0.5rem 0;
   display: flex;
   flex-direction: row;
@@ -52,7 +52,7 @@
   flex-grow: 1;
 }
 
-.menuItem {
+.MenuItem {
   margin: auto 0;
   margin-left: 1rem;
   width: 7rem;
@@ -60,7 +60,7 @@
   cursor: pointer;
 }
 
-.selected {
+.Selected {
   position: relative;
   ::after {
     content: "";
@@ -78,7 +78,7 @@
   }
 }
 
-.menuItemText {
+.MenuItemText {
   color: var(--foreground-primary);
   font-weight: 500;
   text-align: center;
@@ -87,11 +87,11 @@
   text-decoration: none;
 }
 
-.menuItemText:hover {
+.MenuItemText:hover {
   color: var(--accent-main);
 }
 
-.infoText {
+.InfoText {
   color: var(--foreground-primary);
   font-weight: 400;
   text-align: right;

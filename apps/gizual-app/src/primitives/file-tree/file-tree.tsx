@@ -15,7 +15,7 @@ type FileTreeProps = {
 /**
  * File Tree component, responsible for rendering the file tree and the favourite tree.
  */
-function FileTree({ mode = "tree", vm }: FileTreeProps) {
+export const FileTree = observer(({ mode = "tree", vm }: FileTreeProps) => {
   const treeData = mode === "favourite" ? vm.favouriteTreeData : vm.treeData;
   const selectedKeys = mode === "favourite" ? vm.selectedFavouriteFiles : vm.selectedFiles;
   if (vm.treeData.length < 0) return <></>;
@@ -100,6 +100,4 @@ function FileTree({ mode = "tree", vm }: FileTreeProps) {
       />
     </Dropdown>
   );
-}
-
-export default observer(FileTree);
+});

@@ -1,2 +1,3 @@
 export * from "./main";
-export * from "./main.vm";
+export * from "./settings";
+export * from "./welcome";

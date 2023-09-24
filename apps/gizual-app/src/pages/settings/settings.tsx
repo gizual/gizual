@@ -29,8 +29,8 @@ export const SettingsPage = observer(() => {
   const settings = settingsController.settings;
 
   return (
-    <div className={style.settingsContainer}>
-      <div className={style.settingsActionBar}>
+    <div className={style.SettingsContainer}>
+      <div className={style.SettingsActionBar}>
         <Tooltip title="Load settings from JSON">
           <IconButton
             onClick={() => settingsController.importSettingsJSON()}
@@ -49,11 +49,11 @@ export const SettingsPage = observer(() => {
         </Tooltip>
       </div>
 
-      <div className={style.settingsFlex}>
+      <div className={style.SettingsFlex}>
         {Object.values(settings).map((settingsGroup) => {
           return (
             <React.Fragment key={settingsGroup.groupName}>
-              <span className={style.settingsGroupHeader}>{settingsGroup.groupName}</span>
+              <span className={style.SettingsGroupHeader}>{settingsGroup.groupName}</span>
               <SettingsGroup settings={settingsGroup} />
             </React.Fragment>
           );
@@ -65,7 +65,7 @@ export const SettingsPage = observer(() => {
 
 const SettingsGroup = observer(({ settings, prefix = "" }: { settings: any; prefix?: string }) => {
   return (
-    <div className={style.settingsGroup}>
+    <div className={style.SettingsGroup}>
       {Object.values(settings).map((entry, index) => {
         if (entry && (isSettingsEntry(entry) || isGroupEntry(entry))) {
           // eslint-disable-next-line unicorn/prefer-ternary
@@ -140,15 +140,15 @@ const SettingsEntry = observer(
 
     return (
       <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
-        <div className={style.settingsEntry}>
-          <span className={style.settingsEntry__label}>
+        <div className={style.SettingsEntry}>
+          <span className={style.SettingsEntryLabel}>
             {namePrefix}
             {entry.name}
             {entry.value === entry.defaultValue && (
-              <span className={style.settingsEntry__default}>{" (Default)"}</span>
+              <span className={style.SettingsEntryDefault}>{" (Default)"}</span>
             )}
           </span>
-          <span className={style.settingsEntry__description}>{entry.description}</span>
+          <span className={style.SettingsEntryDescription}>{entry.description}</span>
           <div>
             {entry.controlType === "text" && <Input onChange={onChange} value={entry.value} />}
             {entry.controlType === "select" && (
@@ -172,7 +172,7 @@ const SettingsEntry = observer(
               <InputNumber value={entry.value} onChange={onChange} />
             )}
             {entry.controlType === "checkbox" && (
-              <Checkbox className={style.Checkbox} checked={entry.value} onChange={onCheckChange} />
+              <Checkbox checked={entry.value} onChange={onCheckChange} />
             )}
           </div>
         </div>

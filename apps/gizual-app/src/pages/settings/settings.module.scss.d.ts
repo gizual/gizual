@@ -1,13 +1,12 @@
 declare const classNames: {
-  readonly settingsContainer: "settingsContainer";
-  readonly settingsFlex: "settingsFlex";
-  readonly settingsActionBar: "settingsActionBar";
-  readonly settingsGroupHeader: "settingsGroupHeader";
-  readonly settingsGroup: "settingsGroup";
-  readonly settingsEntry: "settingsEntry";
-  readonly settingsEntry__label: "settingsEntry__label";
-  readonly settingsEntry__description: "settingsEntry__description";
-  readonly settingsEntry__default: "settingsEntry__default";
-  readonly Checkbox: "Checkbox";
+  readonly SettingsContainer: "SettingsContainer";
+  readonly SettingsFlex: "SettingsFlex";
+  readonly SettingsActionBar: "SettingsActionBar";
+  readonly SettingsGroupHeader: "SettingsGroupHeader";
+  readonly SettingsGroup: "SettingsGroup";
+  readonly SettingsEntry: "SettingsEntry";
+  readonly SettingsEntryLabel: "SettingsEntryLabel";
+  readonly SettingsEntryDescription: "SettingsEntryDescription";
+  readonly SettingsEntryDefault: "SettingsEntryDefault";
 };
 export = classNames;

@@ -6,7 +6,7 @@ import React from "react";
 
 import sharedStyle from "../css/shared-styles.module.scss";
 import { FileTreeViewModel } from "../file-tree";
-import FileTree from "../file-tree/file-tree";
+import { FileTree } from "../file-tree/file-tree";
 
 import style from "./repo-panel.module.scss";
 
@@ -18,23 +18,23 @@ export const RepoPanel = observer(() => {
   }, []);
 
   return (
-    <div className={style.repoPanel}>
+    <div className={style.RepoPanel}>
       {mainController.favouriteFiles.size > 0 && (
-        <div className={sharedStyle.section}>
-          <div className={sharedStyle.sectionHead}>
+        <div className={sharedStyle.Section}>
+          <div className={sharedStyle.SectionHead}>
             <h1>Favourites</h1>
           </div>
-          <div className={sharedStyle.sectionBody}>
+          <div className={sharedStyle.SectionBody}>
             <FileTree vm={vm} mode={"favourite"} />
           </div>
         </div>
       )}
-      <div className={clsx(sharedStyle.section, style.fileTree)}>
-        <div className={style.sectionHead}>
+      <div className={clsx(sharedStyle.Section)}>
+        <div className={style.SectionHead}>
           <h1>Files ({mainController.numFiles})</h1>
           <Spin size={"large"} spinning={mainController._repo.fileTree.loading} />
         </div>
-        <div className={sharedStyle.sectionBody}>
+        <div className={sharedStyle.SectionBody}>
           <FileTree vm={vm} />
         </div>
       </div>

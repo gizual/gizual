@@ -1,7 +1,6 @@
 @use "@/mixins" as *;
-@use "sass:color";
 
-.button {
+.Button {
   @include transition-all;
   @include shadow-lg;
   border-radius: 0.25rem;
@@ -11,7 +10,7 @@
   text-align: center;
 }
 
-.buttonFilled {
+.ButtonFilled {
   background-color: var(--accent-main);
   color: var(--accent-main-fg);
   &:hover {
@@ -21,7 +20,7 @@
   }
 }
 
-.buttonGray {
+.ButtonGray {
   background-color: var(--background-tertiary);
   color: var(--foreground-secondary);
   &:hover {
@@ -31,7 +30,7 @@
   }
 }
 
-.buttonOutline {
+.ButtonOutline {
   background-color: unset;
   color: var(--foreground-primary);
   border: 1px solid var(--accent-main);

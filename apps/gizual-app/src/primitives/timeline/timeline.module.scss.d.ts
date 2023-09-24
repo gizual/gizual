@@ -25,7 +25,5 @@ declare const classNames: {
   readonly CommitCircleHover: "CommitCircleHover";
   readonly CommitCircleHighlight: "CommitCircleHighlight";
   readonly Svg: "Svg";
-  readonly timelineOverlay: "timelineOverlay";
-  readonly timelineOverlayContent: "timelineOverlayContent";
 };
 export = classNames;

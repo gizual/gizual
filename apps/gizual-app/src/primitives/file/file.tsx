@@ -6,7 +6,6 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { ReactComponent as CloseBox } from "../../assets/icons/close-box.svg";
-import { ReactComponent as Plus } from "../../assets/icons/plus.svg";
 import { ReactComponent as Source } from "../../assets/icons/source.svg";
 import { ReactComponent as StarFilled } from "../../assets/icons/star-filled.svg";
 import { ReactComponent as StarOutline } from "../../assets/icons/star-outline.svg";
@@ -53,17 +52,7 @@ export const File = observer(
       vm.assignFileRef(fileRef);
     }, [fileRef]);
 
-    let body = (
-      <DialogProvider
-        trigger={
-          <div className={clsx(style.FileCanvas, style.EmptyCanvas)}>
-            <Plus className={style.LoadFileIcon} />
-          </div>
-        }
-      >
-        <div style={{ width: "50vw", height: "10vh" }}>File loader (Work in progress)</div>
-      </DialogProvider>
-    );
+    let body = <></>;
 
     if (!vm._isLoadIndicator) {
       if (vm.loading) {
@@ -124,7 +113,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
         {vm.isFavourite ? (
           <Tooltip title="Remove from favourites">
             <StarFilled
-              className={clsx(style.FavouriteIcon, sharedStyle.pointer)}
+              className={clsx(style.FavouriteIcon, sharedStyle.Pointer)}
               onClick={() => {
                 vm.unsetFavourite();
               }}
@@ -133,7 +122,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
         ) : (
           <Tooltip title="Add to favourites">
             <StarOutline
-              className={clsx(style.FavouriteIconUnfilled, sharedStyle.pointer)}
+              className={clsx(style.FavouriteIconUnfilled, sharedStyle.Pointer)}
               onClick={() => {
                 vm.setFavourite();
               }}
@@ -143,7 +132,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
         <DialogProvider
           trigger={
             <Tooltip title="Show file content">
-              <div className={sharedStyle.pointer}>
+              <div className={sharedStyle.Pointer}>
                 <Source className={style.FileIcon} />
               </div>
             </Tooltip>
@@ -153,7 +142,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
         </DialogProvider>
 
         <Tooltip title="Close file">
-          <div className={sharedStyle.pointer}>
+          <div className={sharedStyle.Pointer}>
             <CloseBox
               className={style.FileActionIcon}
               onClick={() => {

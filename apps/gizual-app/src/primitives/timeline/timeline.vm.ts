@@ -574,7 +574,7 @@ export class TimelineViewModel {
     let items: MenuProps["items"] = [];
     items.push({
       key: "default",
-      label: "Reset to default",
+      label: "Revert to default selection",
       danger: true,
       onClick: () => {
         this.setIsContextMenuOpen(false);
@@ -586,11 +586,11 @@ export class TimelineViewModel {
 
     const earliestDate = getDateFromTimestamp(
       this.commitsToDraw.at(this.isHoveringCommitId)!.commits.at(-1)!.timestamp,
-    ).subtractDays(1);
+    );
 
     const latestDate = getDateFromTimestamp(
       this.commitsToDraw.at(this.isHoveringCommitId)!.commits.at(0)!.timestamp,
-    ).addDays(1);
+    );
 
     items = [
       {

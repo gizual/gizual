@@ -5,9 +5,9 @@ import style from "./button.module.scss";
 type ButtonVariant = "filled" | "outline" | "gray";
 
 const buttonVariantCSSMapping: Record<ButtonVariant, string> = {
-  filled: style.buttonFilled,
-  outline: style.buttonOutline,
-  gray: style.buttonGray,
+  filled: style.ButtonFilled,
+  outline: style.ButtonOutline,
+  gray: style.ButtonGray,
 };
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -18,7 +18,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 export function Button({ className, children, variant, ...props }: ButtonProps) {
   return (
     <button
-      className={clsx(className, style.button, `${buttonVariantCSSMapping[variant]}`)}
+      className={clsx(className, style.Button, `${buttonVariantCSSMapping[variant]}`)}
       type="button"
       {...props}
     >

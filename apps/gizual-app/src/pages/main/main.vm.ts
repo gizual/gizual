@@ -1,4 +1,4 @@
-import { MainController } from "../controllers";
+import { MainController } from "@app/controllers";
 
 export class MainPageViewModel {
   private _mainController: MainController;

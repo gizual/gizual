@@ -1,4 +1,4 @@
-import { ColoringMode, FileNodeInfos } from "@app/types";
+import { ColouringMode, FileNodeInfos } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import dayjs from "dayjs";
@@ -17,7 +17,7 @@ export class MainController {
   _favouriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
   _notification?: NotificationInstance;
 
-  _coloringMode: ColoringMode = "age";
+  _colouringMode: ColouringMode = "age";
   _fileTreeRoot?: FileTree;
   _page: Page = "welcome";
   _selectedPanel: Panel = "explore";
@@ -164,12 +164,12 @@ export class MainController {
     return this._repo.getAuthor(id);
   }
 
-  setColoringMode(mode: ColoringMode) {
-    this._coloringMode = mode;
+  setColoringMode(mode: ColouringMode) {
+    this._colouringMode = mode;
   }
 
   get coloringMode() {
-    return this._coloringMode;
+    return this._colouringMode;
   }
 
   get isLoading() {

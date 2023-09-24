@@ -1,7 +1,7 @@
 declare const classNames: {
-  readonly iconButton: "iconButton";
-  readonly wide: "wide";
-  readonly borderRight: "borderRight";
-  readonly colored: "colored";
+  readonly IconButton: "IconButton";
+  readonly Wide: "Wide";
+  readonly BorderRight: "BorderRight";
+  readonly Coloured: "Coloured";
 };
 export = classNames;

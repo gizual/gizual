@@ -9,11 +9,11 @@ export const Footer = observer(() => {
   const mainController = useMainController();
 
   return (
-    <div className={style.footer}>
-      <div className={style.left}>
+    <div className={style.Footer}>
+      <div className={style.LeftSection}>
         <p>Gizual v0.2 - Build #{__COMMIT_HASH__}</p>
       </div>
-      <div className={style.right}>
+      <div className={style.RightSection}>
         <Spin spinning={mainController.isBusy} />
         <p>{mainController.selectedFiles.length} files selected</p>
         <p>

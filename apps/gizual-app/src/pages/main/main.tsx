@@ -4,22 +4,22 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
 
-import { useMainController, useViewModelController } from "../controllers";
-import { TitleBar } from "../primitives";
-import { Canvas } from "../primitives/canvas";
-import { RepoPanel } from "../primitives/repo-panel";
-import { SearchBar } from "../primitives/search-bar/search-bar";
-import { SettingsPanel } from "../primitives/settings-panel";
+import { useMainController, useViewModelController } from "../../controllers";
+import { TitleBar } from "../../primitives";
+import { Canvas } from "../../primitives/canvas";
+import { RepoPanel } from "../../primitives/repo-panel";
+import { SearchBar } from "../../primitives/search-bar/search-bar";
+import { SettingsPanel } from "../../primitives/settings-panel";
+import { SettingsPage } from "../settings";
 
 import style from "./main.module.scss";
 import { MainPageViewModel } from "./main.vm";
-import { SettingsPage } from "./settings";
 
 export type MainPageProps = {
   vm?: MainPageViewModel;
 };
 
-function MainPage({ vm: externalVm }: MainPageProps) {
+export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
   const mainController = useMainController();
 
   const vm: MainPageViewModel = React.useMemo(() => {
@@ -27,20 +27,20 @@ function MainPage({ vm: externalVm }: MainPageProps) {
   }, [externalVm]);
 
   return (
-    <div className={style.page}>
-      <div style={{ position: "relative" }}>
+    <div className={style.Page}>
+      <div className={style.TitleBarContainer}>
         <TitleBar />
         {mainController.selectedPanel === "explore" && <SearchBar />}
       </div>
 
-      <div className={style.body}>
+      <div className={style.Body}>
         {mainController.selectedPanel === "explore" && <ExplorePage vm={vm} />}
         {mainController.selectedPanel === "analyze" && <AnalyzePage vm={vm} />}
         {mainController.selectedPanel === "settings" && <SettingsPage />}
       </div>
     </div>
   );
-}
+});
 
 const ExplorePage = observer(({ vm }: MainPageProps) => {
   const vmController = useViewModelController();
@@ -75,7 +75,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
   const languageData = parseLanguages(mainController.fileTreeRoot);
 
   return (
-    <div ref={ref} style={{ width: "100%", height: "100%" }}>
+    <div ref={ref} className={style.AnalyzePage}>
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
         <div key={"a"}>
           <Container title={"Language Distribution"}>
@@ -86,5 +86,3 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
     </div>
   );
 });
-
-export default observer(MainPage);
