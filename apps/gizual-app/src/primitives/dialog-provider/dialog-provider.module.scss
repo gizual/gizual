@@ -1,9 +1,11 @@
+@use "@/mixins" as *;
+
 .DialogOverlay {
+  @include z-index-overlay;
   background-color: #00000090;
   position: fixed;
   inset: 0;
   animation: overlayShow 350ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 990;
   @keyframes overlayShow {
     from {
       opacity: 0;
@@ -15,6 +17,7 @@
 }
 
 .DialogContent {
+  @include z-index-max;
   border-radius: 4px;
   background-color: var(--background-primary);
   box-shadow:
@@ -23,7 +26,6 @@
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
-  z-index: 999;
   margin: auto auto;
   position: fixed;
   top: 50%;
@@ -66,6 +68,7 @@
   align-items: center;
   justify-content: center;
   color: var(--accent-main);
+  background-color: var(--background-primary);
   position: absolute;
   top: 5px;
   right: 5px;

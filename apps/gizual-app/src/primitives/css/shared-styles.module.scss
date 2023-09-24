@@ -160,11 +160,11 @@
 
 /* Overlay that covers things beneath a Popover */
 .PopoverUnderlay {
+  @include z-index-elevated-2;
   position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
   background-color: #00000080;
-  z-index: 200;
 }

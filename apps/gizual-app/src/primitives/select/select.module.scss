@@ -13,8 +13,8 @@
 }
 
 .SelectIconWrapper {
+  @include z-index-base-1;
   position: absolute;
-  z-index: 1;
   width: 3rem;
   height: 50%;
   display: flex;

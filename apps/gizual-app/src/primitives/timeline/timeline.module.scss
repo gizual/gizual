@@ -85,12 +85,12 @@
 }
 
 .InteractionLayer {
+  @include z-index-elevated;
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 200;
   pointer-events: auto;
 }
 
@@ -118,11 +118,11 @@
 }
 
 .Tooltip {
+  @include z-index-dialog;
   background: var(--background-secondary);
   color: var(--foreground-primary);
   border: 1px solid var(--border-primary);
   padding: 5px;
-  z-index: 1000;
   white-space: nowrap;
   pointer-events: none;
   
@@ -139,13 +139,17 @@
 }
 
 .SelectionBox {
+  @include z-index-base-3;
   background: #30308020;
   border: 1px solid var(--border-secondary);
   pointer-events: none;
+  position: absolute; // Positions are set in JS.
 }
 
 .SelectionBoxLine {
+  @include z-index-base-3;
   background-color: var(--color-gold);
+  position: absolute;
 }
 
 @mixin ruler-annotation {
@@ -190,11 +194,11 @@
 }
 
 .Svg {
+  @include z-index-base-3;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  z-index: 150;
   position: relative;
   pointer-events: none;
 }

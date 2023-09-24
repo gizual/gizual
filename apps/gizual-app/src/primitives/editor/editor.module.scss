@@ -1,3 +1,5 @@
+@use "@/mixins" as *;
+
 .EditorHeader {
   margin-bottom: 1rem;
 }
@@ -8,10 +10,10 @@
 }
 
 .Editor {
+  @include z-index-elevated-2;
   display: flex;
   flex-grow: 1;
   position: relative;
-  z-index: 500;
 }
 
 :global(.GitGutter) {

@@ -14,6 +14,7 @@
 
 .SearchInput {
   @include rounded;
+  @include z-index-dialog-2;
   width: 100%;
   height: 2.5rem;
   background-color: var(--background-secondary);
@@ -22,7 +23,6 @@
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-right: none;
-  z-index: 300;
   position: relative;
   margin-left: 0.5rem;
   color: var(--foreground-primary);
@@ -44,11 +44,11 @@
 }
 
 .InputFieldWrapper {
+  @include z-index-dialog-2;
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
-  z-index: 300;
 }
 
 .InputFieldWrapper:has(input:focus) {
@@ -56,18 +56,19 @@
 }
 
 .SearchIcon {
+  @include z-index-dialog-2;
   @include rounded;
   border-left: none;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   flex-grow: 0;
   flex-shrink: 0;
-  z-index: 300;
 }
 
 .SearchOverlay {
   @include rounded;
   @include shadow-huge;
+  @include z-index-dialog;
   border-radius: 0.5em;
   background-color: var(--background-secondary);
   position: absolute;
@@ -75,7 +76,6 @@
   left: -0.5rem;
   width: calc(100% + 5px + 0.5rem);
   min-height: 60px;
-  z-index: 200;
 }
 
 .SearchOverlayContent {

@@ -116,23 +116,19 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
           <>
             <div
               style={{
-                position: "absolute",
                 left: `${Math.min(vm.selectStartX, vm.selectEndX)}px`,
                 top: `0px`,
                 width: `${Math.abs(vm.selectEndX - vm.selectStartX)}px`,
                 height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
-                zIndex: "150",
               }}
               className={style.SelectionBox}
             ></div>
             <div
               style={{
-                position: "absolute",
                 left: `${Math.min(vm.selectStartX, vm.selectEndX)}px`,
                 top: `${vm.rowHeight}px`,
                 height: `${(8 / vm.viewBox.height) * 100}%`,
                 width: `${Math.abs(vm.selectStartX - vm.selectEndX) + 1}px`,
-                zIndex: "150",
               }}
               className={style.SelectionBoxLine}
             />
