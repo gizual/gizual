@@ -4,7 +4,7 @@ import { Extension } from "@codemirror/state";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, gutter, GutterMarker } from "@codemirror/view";
 import { basicSetup } from "codemirror";
-import { makeAutoObservable } from "mobx";
+import { autorun, makeAutoObservable } from "mobx";
 import React from "react";
 
 import { MainController } from "../../controllers";
@@ -18,9 +18,13 @@ export class EditorViewModel {
 
   constructor(file: FileViewModel, mainController: MainController) {
     this._mainController = mainController;
-
     this._file = file;
-    makeAutoObservable(this);
+
+    makeAutoObservable(this, {}, { autoBind: true });
+
+    autorun(() => {
+      if (!this._file.loading) this.setupEditor();
+    });
   }
 
   setEditorRef(editorRef: React.RefObject<HTMLDivElement>) {

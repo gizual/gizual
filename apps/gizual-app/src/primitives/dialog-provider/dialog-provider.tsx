@@ -1,43 +1,57 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import { observer } from "mobx-react-lite";
 import React from "react";
+import { createPortal } from "react-dom";
 
 import { ReactComponent as CloseIcon } from "../../assets/icons/close.svg";
+import sharedStyle from "../css/shared-styles.module.scss";
+import { IconButton } from "../icon-button";
 
 import style from "./dialog-provider.module.scss";
-import { DialogProviderViewModel } from "./dialog-provider.vm";
 
 export type PopoverProviderProps = {
+  title?: string;
   trigger: React.ReactNode | React.ReactNode[];
   children: React.ReactNode | React.ReactNode[];
-  vm?: DialogProviderViewModel;
 };
-function DialogProvider({ vm: externalVm, trigger, children }: PopoverProviderProps) {
-  const vm: DialogProviderViewModel = React.useMemo(() => {
-    return externalVm || new DialogProviderViewModel();
-  }, [externalVm]);
+
+export function DialogProvider({ trigger, children, title }: PopoverProviderProps) {
+  const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <Dialog.Root open={vm.isVisible} modal>
-      <Dialog.Trigger asChild={true} onClick={() => vm!.open()}>
+    <>
+      <div
+        className={style.Trigger}
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
         {trigger}
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className={style.DialogOverlay} onClick={() => vm.closePopover()} />
-        <Dialog.Content className={style.DialogContent}>
-          {children}
-          <Dialog.Close
-            asChild={false}
-            className={style.DialogClose}
-            aria-label="Close"
-            onClick={() => vm.closePopover()}
-          >
-            <CloseIcon />
-          </Dialog.Close>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+      </div>
+      {isOpen &&
+        createPortal(
+          <>
+            <div
+              className={sharedStyle.PopoverUnderlay}
+              onClick={() => {
+                setIsOpen(false);
+              }}
+            ></div>
+            <div className={style.Dialog}>
+              <div className={style.DialogHead}>
+                <h2 className={style.DialogTitle}>{title}</h2>
+                <IconButton
+                  className={sharedStyle.CloseButton}
+                  onClick={() => {
+                    setIsOpen(false);
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </div>
+              <div className={style.DialogBody}>{children}</div>
+            </div>
+          </>,
+          document.body,
+        )}
+    </>
   );
 }
-
-export default observer(DialogProvider);

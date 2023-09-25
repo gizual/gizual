@@ -10,5 +10,6 @@ declare const classNames: {
   readonly SearchOverlayHintEntry: "SearchOverlayHintEntry";
   readonly RemoveTagEntry: "RemoveTagEntry";
   readonly Tag: "Tag";
+  readonly SearchPopoverUnderlay: "SearchPopoverUnderlay";
 };
 export = classNames;

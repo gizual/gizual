@@ -112,3 +112,7 @@
 .Tag {
   color: var(--accent-main);
 }
+
+.SearchPopoverUnderlay {
+  @include z-index-elevated-2;
+}

@@ -246,7 +246,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
             <div className={style.NotLoadedOverlay}>
               <div className={style.NotLoadedOverlayContent}>
                 <Spin size={"large"} />
-                <h2>Loading branches & commits. Please wait! 🙏 </h2>
+                <h2>Loading branches & commits. Please wait ... </h2>
               </div>
             </div>
           )}

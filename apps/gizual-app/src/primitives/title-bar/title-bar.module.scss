@@ -99,9 +99,3 @@
   line-height: 1rem;
   margin: auto 0;
 }
-
-@layer overrides {
-  .closeButton:hover {
-    background-color: var(--color-tomato);
-  }
-}

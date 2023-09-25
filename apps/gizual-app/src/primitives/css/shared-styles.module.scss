@@ -1,4 +1,5 @@
 @use "@/mixins" as *;
+@layer reset, components, overrides;
 
 @mixin panel {
   width: 300px;
@@ -160,11 +161,21 @@
 
 /* Overlay that covers things beneath a Popover */
 .PopoverUnderlay {
-  @include z-index-elevated-2;
+  @include z-index-overlay;
   position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
   background-color: #00000080;
+}
+
+.PopoverMax {
+  @include z-index-max;
+}
+
+@layer overrides {
+  .CloseButton:hover {
+    background-color: var(--color-tomato);
+  }
 }

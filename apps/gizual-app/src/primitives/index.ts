@@ -1,3 +1,4 @@
+export { AnimatedLogo } from "./animated-logo";
 export { Button } from "./button";
 export { Canvas } from "./canvas";
 export { DialogProvider } from "./dialog-provider";

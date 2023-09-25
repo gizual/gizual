@@ -1,6 +1,6 @@
 import { useMainController } from "@app/controllers";
-import { Button } from "@app/primitives";
-import { isSupportedBrowser } from "@app/utils";
+import { AnimatedLogo, Button } from "@app/primitives";
+import { isSupportedBrowser, useWindowSize } from "@app/utils";
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
 
@@ -8,12 +8,25 @@ import style from "./welcome.module.scss";
 
 export const WelcomePage = observer(() => {
   const mainController = useMainController();
+  const [width, _] = useWindowSize();
+  const isLargeScreen = width > 1200;
+
   return (
     <div className={style.App}>
       <div className={style.Container}>
-        <img className={style.WelcomeImage} src="./giz.png" alt="Gizual Logo" />
-        <h1 className={style.Header}>Gizual</h1>
-        <p className={style.WelcomeParagraph}>Welcome to Gizual!</p>
+        {isLargeScreen && (
+          <>
+            <AnimatedLogo className={style.WelcomeAnimation} />
+            <p>Welcome to Gizual!</p>
+          </>
+        )}
+        {!isLargeScreen && (
+          <>
+            <img className={style.WelcomeImage} src="./giz.png" alt="Gizual Logo" />
+            <h1 className={style.Header}>Gizual</h1>
+            <p className={style.WelcomeParagraph}>Welcome to Gizual!</p>
+          </>
+        )}
         <div className={style.Card}>
           {isSupportedBrowser() ? (
             <>

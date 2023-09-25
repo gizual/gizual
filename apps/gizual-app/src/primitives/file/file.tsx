@@ -138,6 +138,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
               </div>
             </Tooltip>
           }
+          title={truncateSmart(vm.fileName, 80)}
         >
           <Editor file={vm} />
         </DialogProvider>

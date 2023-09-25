@@ -23,13 +23,11 @@ function Editor({ vm: externalVm, file }: EditorProps) {
 
   React.useEffect(() => {
     vm.setEditorRef(editorRef);
-    vm.setupEditor();
   }, [editorRef]);
 
   return (
     <div className={style.EditorContainer}>
-      <h1 className={style.EditorHeader}>File View</h1>
-      <div className={style.Editor} ref={editorRef}></div>
+      <div className={style.Editor} ref={editorRef}/>
     </div>
   );
 }

@@ -16,5 +16,7 @@ declare const classNames: {
   readonly FlexGrow: "FlexGrow";
   readonly Pointer: "Pointer";
   readonly PopoverUnderlay: "PopoverUnderlay";
+  readonly PopoverMax: "PopoverMax";
+  readonly CloseButton: "CloseButton";
 };
 export = classNames;

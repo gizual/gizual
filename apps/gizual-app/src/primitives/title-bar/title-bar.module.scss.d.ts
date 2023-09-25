@@ -10,6 +10,5 @@ declare const classNames: {
   readonly Selected: "Selected";
   readonly MenuItemText: "MenuItemText";
   readonly InfoText: "InfoText";
-  readonly closeButton: "closeButton";
 };
 export = classNames;

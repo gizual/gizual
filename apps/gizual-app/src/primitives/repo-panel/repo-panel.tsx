@@ -32,7 +32,7 @@ export const RepoPanel = observer(() => {
       <div className={clsx(sharedStyle.Section)}>
         <div className={style.SectionHead}>
           <h1>Files ({mainController.numFiles})</h1>
-          <Spin size={"large"} spinning={mainController._repo.fileTree.loading} />
+          <Spin size={"default"} spinning={mainController._repo.fileTree.loading} />
         </div>
         <div className={style.SectionBody}>
           <FileTree vm={vm} />

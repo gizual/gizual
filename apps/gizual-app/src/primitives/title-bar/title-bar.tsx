@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 
 import { ReactComponent as Close } from "../../assets/icons/close-box.svg";
 import { useMainController } from "../../controllers";
+import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
 import style from "./title-bar.module.scss";
@@ -58,7 +59,7 @@ export const TitleBar = observer(() => {
           <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
           <Tooltip title="Close repository">
             <IconButton
-              className={style.closeButton}
+              className={sharedStyle.CloseButton}
               onClick={() => {
                 modal.confirm({
                   content: "Do you wish to close the repository?",

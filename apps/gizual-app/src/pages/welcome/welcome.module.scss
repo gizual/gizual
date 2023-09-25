@@ -9,13 +9,13 @@
   width: 100%;
 }
 
+.WelcomeParagraph {
+  padding-top: 1rem;
+}
+
 .EmphasizedHeader {
   text-align: center;
   padding-bottom: 0.5rem;
-}
-
-.WelcomeParagraph {
-  padding-top: 1rem;
 }
 
 .Card {
@@ -59,6 +59,11 @@
   @include rounded;
   margin-top: 2rem;
   width: 25%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.WelcomeAnimation {
   margin-left: auto;
   margin-right: auto;
 }

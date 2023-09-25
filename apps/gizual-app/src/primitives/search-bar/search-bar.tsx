@@ -186,7 +186,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
           {createPortal(
             <div
               id={"PopoverUnderlay"}
-              className={sharedStyle.PopoverUnderlay}
+              className={clsx(sharedStyle.PopoverUnderlay, style.SearchPopoverUnderlay)}
               onClick={() => vm.search()}
             ></div>,
             document.body,
