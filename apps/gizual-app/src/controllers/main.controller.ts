@@ -37,6 +37,8 @@ export class MainController {
   private _endDate: GizDate;
   private _selectedEndDate: GizDate;
 
+  private _pendingTransition = false;
+
   constructor() {
     this._repo = new Repository();
 
@@ -180,16 +182,20 @@ export class MainController {
     const handle = await window.showDirectoryPicker();
     this.setRepoName(handle.name);
     await this._repo.setup(handle);
-
-    this.setPage("main");
+    this._pendingTransition = true;
   }
 
   get page() {
     return this._page;
   }
 
+  get isPendingTransition() {
+    return this._pendingTransition;
+  }
+
   setPage(page: Page) {
     this._page = page;
+    this._pendingTransition = false;
   }
 
   setStartDate(date: GizDate) {
@@ -276,6 +282,7 @@ export class MainController {
 
   closeRepository() {
     this.setPage("welcome");
+    this.setRepoName("");
     this._repo = new Repository();
   }
 

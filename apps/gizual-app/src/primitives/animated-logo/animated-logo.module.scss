@@ -1,3 +1,7 @@
+@mixin stroke-color {
+  stroke: #0c64c0;
+}
+
 .Center {
   width: 100%;
   display: flex;
@@ -15,7 +19,6 @@
 }
 
 .Container h2 {
-	color: #fff;
 	font-size: 8em;
 	position: absolute;
 	transform: translate(-50%, -50%);
@@ -25,14 +28,41 @@
   letter-spacing: -2px;
 }
 
-.Container h2:nth-child(1) {
+.TitleStroke {
 	color: transparent;
 	-webkit-text-stroke: 3px #0c64c0;
 }
 
-.Container h2:nth-child(2) {
+.TitleIdleWave {
 	color: #03a9f4;
-	animation: animate 4s ease-in-out infinite;
+	animation: animate 5s ease-in-out infinite;
+  @media (prefers-reduced-motion) {
+    animation: none;
+  }
+  z-index: 2;
+}
+
+.TitleColourBg {
+	color: #0c64c0;
+	//animation: wave2 8s ease-in-out infinite;
+  @media (prefers-reduced-motion) {
+    animation: none;
+  }
+  z-index: 1;
+}
+
+.LoadingFinishedWave {
+  color: #c7e2ff;
+  @media (prefers-color-scheme: light) {
+    color: #6f9dff;
+  }
+  z-index: 2;
+  opacity: 0;
+}
+
+.LoadingFinishedWaveAnimate {
+  animation: loading 1s ease-in-out forwards;
+  opacity: 1;
   @media (prefers-reduced-motion) {
     animation: none;
   }
@@ -69,6 +99,38 @@
 	}
 }
 
+
+@keyframes loading {
+	100% {
+		clip-path: polygon(
+			0% 5%,
+			16% 10%,
+			33% 0%,
+			54% 12%,
+			70% 7%,
+			84% 5%,
+			100% 15%,
+			100% 100%,
+			0% 100%
+		);
+	}
+
+	0% {
+		clip-path: polygon(
+			0% 120%,
+			15% 110%,
+			34% 130%,
+			51% 100%,
+			67% 108%,
+			84% 115%,
+			100% 100%,
+			100% 100%,
+			0% 100%
+		);
+	}
+}
+
+
 @keyframes fade-in {
   to {
     opacity: 1;
@@ -87,10 +149,10 @@
 }
 
 .GitLineMain {
+  @include stroke-color;
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: draw 2s ease-in-out forwards;
-  stroke: var(--foreground-primary);
   @media (prefers-reduced-motion) {
     animation: none;
     stroke-dashoffset: 0;
@@ -98,11 +160,11 @@
 }
 
 .GitLineBranch {
+  @include stroke-color;
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: draw 3s ease-in-out forwards;
   animation-delay: 1.5s;
-  stroke: var(--foreground-primary);
   @media (prefers-reduced-motion) {
     animation: none;
     stroke-dashoffset: 0;

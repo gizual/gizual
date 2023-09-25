@@ -97,7 +97,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
       <div className={style.FileHeadLeft}>
         {vm._blameView.isPreview ? (
           <div className={style.LoadingContainer}>
-            <Spin size={"default"} />
+            <Spin size={"small"} />
           </div>
         ) : (
           <FontIcon
