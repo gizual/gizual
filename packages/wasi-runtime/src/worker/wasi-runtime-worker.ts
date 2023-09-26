@@ -32,7 +32,7 @@ export class WasiRuntimeWorker {
     this.folderMappings[path] = handle;
   }
 
-  async init(opts: WasiRuntimeOpts): Promise<void> {
+  async init(opts: WasiRuntimeOpts, wasmBytes: Uint8Array): Promise<void> {
     if (!hasBeenInitialized) {
       hasBeenInitialized = true;
       await wasmer.init();
@@ -51,12 +51,10 @@ export class WasiRuntimeWorker {
       {
         ...this.folderMappings,
       },
-      this.logger
+      this.logger,
     );
 
-    const wasmBytes = await fetch(this.opts.moduleUrl).then((res) => res.arrayBuffer());
-    const loweredWasmBytes = await lowerI64Imports(new Uint8Array(wasmBytes));
-    const wasmModule = await WebAssembly.compile(loweredWasmBytes);
+    const wasmModule = await WebAssembly.compile(wasmBytes);
     this.module = wasmModule;
     this.logger.info("successfully compiled wasm module");
   }
@@ -96,8 +94,8 @@ export class WasiRuntimeWorker {
               finished: () => resolve(),
             },
           },
-          this.logger
-        ) as any
+          this.logger,
+        ) as any,
       );
 
       this.asyncFS.setMemory(instance.exports.memory as any);

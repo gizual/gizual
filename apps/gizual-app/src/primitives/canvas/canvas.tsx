@@ -27,6 +27,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
   }, [externalVm]);
 
   const ref = React.useRef<ReactZoomPanPinchRef>(null);
+  const canvasRef = React.useRef<HTMLDivElement>(null);
   const fileRefs = React.useRef([]);
 
   React.useEffect(() => {
@@ -86,7 +87,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         </div>
       </div>
       <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
-        <div className={style.Canvas}>
+        <div className={style.Canvas} ref={canvasRef}>
           <TransformWrapper
             initialScale={1}
             minScale={MIN_ZOOM}
@@ -120,9 +121,18 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                 height: "100%",
               }}
             >
-              {vm.selectedFiles.map((file, _index) => (
-                <File ref={vm.getFileRef(file.fileName)} vm={file} key={file.fileName} />
-              ))}
+              {vm.selectedFiles.map((file, _index) => {
+                if (!ref.current?.instance.wrapperComponent) return <></>;
+
+                return (
+                  <File
+                    ref={vm.getFileRef(file.fileName)}
+                    vm={file}
+                    key={file.fileName}
+                    parentContainer={ref.current?.instance.wrapperComponent}
+                  />
+                );
+              })}
             </TransformComponent>
           </TransformWrapper>
         </div>

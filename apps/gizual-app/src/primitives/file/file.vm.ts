@@ -15,7 +15,7 @@ export type Line = {
   color?: string;
 };
 
-export type Settings = Partial<{
+export type RenderConfiguration = Partial<{
   colourOld: string;
   colourNew: string;
   colourNotLoaded: string;
@@ -29,11 +29,12 @@ export class FileViewModel {
   _fileExtension!: string;
   _isFavourite!: boolean;
   _isLoadIndicator!: boolean;
-  _settings: Required<Settings>;
+  _renderConfiguration: Required<RenderConfiguration>;
   _mainController: MainController;
   _isEditorOpen = false;
   _blameView: BlameView;
   _colours: string[] = [];
+  _renderPriority = 0;
 
   _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
   _fileRef: React.ForwardedRef<HTMLDivElement> | undefined;
@@ -48,7 +49,7 @@ export class FileViewModel {
   constructor(
     mainController: MainController,
     path: string,
-    settings: Settings,
+    settings: RenderConfiguration,
     fileInfo?: FileNodeInfos,
     isFavourite?: boolean,
     isLoadIndicator?: boolean,
@@ -57,7 +58,7 @@ export class FileViewModel {
     this._isFavourite = isFavourite ?? false;
     this._mainController = mainController;
     this._isLoadIndicator = isLoadIndicator ?? false;
-    this._settings = {
+    this._renderConfiguration = {
       colourNew: mainController.settingsController.settings.visualisationSettings.colours.new.value,
       colourOld: mainController.settingsController.settings.visualisationSettings.colours.old.value,
       colourNotLoaded:
@@ -226,6 +227,19 @@ export class FileViewModel {
     return this._redrawCount;
   }
 
+  setRenderPriority(priority: number) {
+    this._blameView.setPriority(priority);
+    this._renderPriority = priority;
+  }
+
+  get shouldRender() {
+    return this._renderPriority > 0;
+  }
+
+  get renderPriority() {
+    return this._renderPriority;
+  }
+
   incrementRedrawCount() {
     this._redrawCount++;
   }
@@ -252,6 +266,8 @@ export class FileViewModel {
     if (!this._canvasRef || !this._canvasRef.current || !this._fileRef) {
       return;
     }
+
+    if (this.renderPriority <= 0) return;
 
     const fileContainer = (this._fileRef as any).current;
     if (!fileContainer) {
@@ -286,7 +302,7 @@ export class FileViewModel {
       fileContent: toJS(this.fileContent),
       earliestTimestamp: toJS(this.earliestTimestamp),
       latestTimestamp: toJS(this.latestTimestamp),
-      settings: toJS(this._settings),
+      renderConfiguration: toJS(this._renderConfiguration),
       lineLengthMax: toJS(this.lineLengthMax),
       selectedStartDate: toJS(this._mainController.selectedStartDate),
       selectedEndDate: toJS(this._mainController.selectedEndDate),
