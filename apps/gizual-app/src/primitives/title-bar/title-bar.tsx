@@ -68,7 +68,8 @@ export const TitleBar = observer(() => {
                   cancelText: "Cancel",
                   onCancel: () => {},
                   onOk: () => {
-                    mainController.closeRepository();
+                    window.location.reload();
+                    //mainController.closeRepository();
                   },
                 });
               }}

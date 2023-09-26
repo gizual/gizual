@@ -29,7 +29,7 @@ export class BlameView {
       onReceivePreviewBlame: action.bound,
     });
 
-    this._refresh();
+    this._refreshPreviewBlame();
   }
 
   get isPreview() {
@@ -101,7 +101,7 @@ export class BlameView {
     });
   }
 
-  _refresh() {
+  _refreshPreviewBlame() {
     if (this.preview_blame_job) {
       this.preview_blame_job.cancel();
 
@@ -123,7 +123,10 @@ export class BlameView {
       onEnd: this.onReceivePreviewBlame,
       onErr: (err) => console.info(err),
     });
+  }
 
+  _refresh() {
+    this._refreshPreviewBlame();
     this._refreshFullBlame();
   }
 
