@@ -1,6 +1,30 @@
 @use "@/mixins" as *;
 @layer reset, components, overrides;
 
+p {
+  text-align: center;
+}
+
+code {
+  background-color: var(--background-tertiary);
+  color: var(--foreground-primary);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-primary);
+}
+
+a {
+  text-decoration: underline;
+  color: var(--foreground-link);
+}
+
+a:hover {
+  text-decoration: none;
+  color: var(--foreground-link);
+}
+
 .App {
   background-color: var(--background-primary);
   height: 100dvh;
@@ -15,53 +39,4 @@
   position: relative;
   display: block;
   min-height: 0;
-}
-
-.container {
-  @include shadow-2xl;
-  @include rounded;
-  background-color: var(--background-secondary);
-  width: 70%;
-  position: relative;
-  margin: auto auto;
-  max-width: 800px;
-}
-
-.img {
-  @include rounded;
-  margin-top: 2rem;
-  width: 25%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.h1 {
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  padding-top: 1rem;
-}
-
-p {
-  text-align: center;
-}
-
-code {
-  background-color: var(--background-tertiary);
-  color: var(--foreground-primary);
-}
-
-.codeDark {
-  background-color: var(--color-gunmetal);
-  color: var(--color-lightgray);
-}
-
-a {
-  text-decoration: underline;
-  color: var(--foreground-link);
-}
-
-a:hover {
-  text-decoration: none;
-  color: var(--foreground-link);
 }

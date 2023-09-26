@@ -1,32 +1,52 @@
 import { useMainController } from "@app/controllers";
-import { Button } from "@app/primitives";
-import { isSupportedBrowser } from "@app/utils";
+import { AnimatedLogo, Button } from "@app/primitives";
+import { isSupportedBrowser, useWindowSize } from "@app/utils";
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
-
-import baseStyle from "../../app.module.scss";
+import React from "react";
 
 import style from "./welcome.module.scss";
 
 export const WelcomePage = observer(() => {
   const mainController = useMainController();
+  const [width, _] = useWindowSize();
+  const isLargeScreen = width > 1200;
+
+  React.useEffect(() => {
+    if (!mainController.isLoading && mainController.repoName !== "") {
+      setTimeout(() => {
+        mainController.setPage("main");
+      }, 800);
+    }
+  }, [mainController.isLoading]);
+
   return (
-    <div className={baseStyle.App}>
-      <div className={baseStyle.container}>
-        <img className={baseStyle.img} src="./giz.png" alt="Gizual Logo" />
-        <h1 className={baseStyle.h1}>Gizual</h1>
-        <p className={style.p}>Welcome to Gizual!</p>
-        <div className={style.card}>
+    <div className={style.App}>
+      <div className={style.Container}>
+        {isLargeScreen && (
+          <>
+            <AnimatedLogo className={style.WelcomeAnimation} />
+            <p>Welcome to Gizual!</p>
+          </>
+        )}
+        {!isLargeScreen && (
+          <>
+            <img className={style.WelcomeImage} src="./giz.png" alt="Gizual Logo" />
+            <h1 className={style.Header}>Gizual</h1>
+            <p className={style.WelcomeParagraph}>Welcome to Gizual!</p>
+          </>
+        )}
+        <div className={style.Card}>
           {isSupportedBrowser() ? (
             <>
-              {mainController.isLoading ? (
-                <Spin size={"large"} style={{ margin: "auto" }}></Spin>
+              {mainController.isLoading || mainController.isPendingTransition ? (
+                <Spin size={"large"} style={{ margin: "auto", marginBottom: "1rem" }}></Spin>
               ) : (
                 <>
                   <Button
                     variant="filled"
                     onClick={() => mainController.openRepository()}
-                    className={style.button}
+                    className={style.Button}
                   >
                     Load Repository
                   </Button>
@@ -44,8 +64,8 @@ export const WelcomePage = observer(() => {
 
 function UnsupportedBrowser() {
   return (
-    <div className={style.emphasized}>
-      <h2 className={style.emphasizedHeader}>🚫</h2>
+    <div className={style.EmphasizedContainer}>
+      <h2 className={style.EmphasizedHeader}>🚫</h2>
       <p>{"It looks like you're using an unsupported browser."}</p>
       <p>
         {"Gizual requires an implementation of "}

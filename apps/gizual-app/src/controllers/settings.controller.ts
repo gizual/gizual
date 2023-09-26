@@ -1,19 +1,20 @@
-import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@app/utils";
-import { makeAutoObservable } from "mobx";
+import { LINEAR_COLOUR_RANGE, SPECIAL_COLOURS } from "@app/utils";
+import { makeAutoObservable, toJS } from "mobx";
 
 type GroupEntry = {
   groupName: string;
 };
 
-export type ControlType = "select" | "color" | "number" | "checkbox" | "text";
+export type ControlType = "select" | "colour" | "number" | "checkbox" | "text";
 export type SettingsValue = number | string | boolean | ViewMode;
 
 export type SettingsEntry<T extends SettingsValue, C extends ControlType> = {
   name: string;
   description: string;
   value: T;
-  availableValues?: { value: T; label: T }[];
   controlType: C;
+  defaultValue: T;
+  availableValues?: { value: T; label: T }[];
 };
 
 export function isSettingsEntry(obj: unknown): obj is SettingsEntry<SettingsValue, ControlType> {
@@ -36,13 +37,14 @@ function createSetting<T extends SettingsValue, C extends ControlType>(
     description,
     value,
     controlType,
+    defaultValue: value,
     availableValues,
   };
 }
 
 // Specific factory functions for different control types:
-const createColorSetting = (name: string, description: string, value: string) =>
-  createSetting<string, "color">(name, description, value, "color");
+const createColourSetting = (name: string, description: string, value: string) =>
+  createSetting<string, "colour">(name, description, value, "colour");
 const createSelectSetting = <T extends string>(
   name: string,
   description: string,
@@ -60,10 +62,10 @@ const VIEW_MODES = ["block", "flex"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];
 
 type VisualisationSettings = {
-  colors: {
-    old: SettingsEntry<string, "color">;
-    new: SettingsEntry<string, "color">;
-    notLoaded: SettingsEntry<string, "color">;
+  colours: {
+    old: SettingsEntry<string, "colour">;
+    new: SettingsEntry<string, "colour">;
+    notLoaded: SettingsEntry<string, "colour">;
   } & GroupEntry;
   canvas: {
     viewMode: SettingsEntry<ViewMode, "select">;
@@ -75,6 +77,12 @@ type GutterStyle = (typeof GUTTER_STYLES)[number];
 
 type EditorSettings = {
   gutterStyle: SettingsEntry<GutterStyle, "select">;
+} & GroupEntry;
+
+type TimelineSettings = {
+  snap: SettingsEntry<boolean, "checkbox">;
+  defaultRange: SettingsEntry<number, "number">;
+  weekModeThreshold: SettingsEntry<number, "number">;
 } & GroupEntry;
 
 export class SettingsController {
@@ -89,24 +97,42 @@ export class SettingsController {
       }),
     ),
   };
+  timelineSettings: TimelineSettings = {
+    groupName: "Timeline Settings",
+    snap: createCheckboxSetting(
+      "Snap to grid",
+      "Controls if selections on the timeline snap to the nearest grid element.",
+      false,
+    ),
+    defaultRange: createNumberSetting(
+      "Default Selection Range",
+      "Adjusts the default date range (how many days to visualise, starting from the last commit in the repository).",
+      365,
+    ),
+    weekModeThreshold: createNumberSetting(
+      "Week Mode Threshold",
+      "Adjusts the threshold (in days) after which the timeline changes to display weeks instead of days.",
+      365,
+    ),
+  };
   visualisationSettings: VisualisationSettings = {
     groupName: "Visualisation Settings",
-    colors: {
+    colours: {
       groupName: "Colors",
-      old: createColorSetting(
+      old: createColourSetting(
         "Old",
         "The color that visualises the most distant change.",
-        LINEAR_COLOR_RANGE[0],
+        LINEAR_COLOUR_RANGE[0],
       ),
-      new: createColorSetting(
+      new: createColourSetting(
         "New",
         "The color that visualises the most recent change.",
-        LINEAR_COLOR_RANGE[1],
+        LINEAR_COLOUR_RANGE[1],
       ),
-      notLoaded: createColorSetting(
+      notLoaded: createColourSetting(
         "Not loaded",
         "The color that visualises changes that did not load yet or are outside the range.",
-        SPECIAL_COLORS.NOT_LOADED,
+        SPECIAL_COLOURS.NOT_LOADED,
       ),
     },
     canvas: {
@@ -129,6 +155,7 @@ export class SettingsController {
   get settings() {
     return {
       editor: this.editor,
+      timelineSettings: this.timelineSettings,
       visualisationSettings: this.visualisationSettings,
     };
   }
@@ -142,12 +169,16 @@ export class SettingsController {
     if (!settings) return;
 
     const parsed = JSON.parse(settings);
-    this.editor = parsed.editor;
-    this.visualisationSettings = parsed.visualisationSettings;
+    this.editor = mergeObj(toJS(this.editor), parsed.editor);
+    this.visualisationSettings = mergeObj(
+      toJS(this.visualisationSettings),
+      parsed.visualisationSettings,
+    );
+    this.timelineSettings = mergeObj(toJS(this.timelineSettings), parsed.timelineSettings);
   }
 
   storeSettings() {
-    localStorage.setItem("gizual-app.settings", JSON.stringify(this));
+    localStorage.setItem("gizual-app.settings", JSON.stringify(this.settings));
   }
 
   downloadSettingsJSON() {
@@ -181,4 +212,14 @@ export class SettingsController {
     });
     input.click();
   }
+}
+
+function mergeObj(obj1: any, obj2: any) {
+  if (!obj2) return obj1;
+  for (const key of Object.keys(obj2)) {
+    if (key in obj1) {
+      obj1[key] = obj2[key];
+    }
+  }
+  return obj1;
 }

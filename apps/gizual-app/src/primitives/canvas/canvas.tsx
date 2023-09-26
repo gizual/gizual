@@ -60,10 +60,10 @@ function Canvas({ vm: externalVm }: CanvasProps) {
     <div className={style.Stage}>
       <Timeline />
       <div className={style.Toolbar}>
-        <div className={sharedStyle.inlineRow}>
+        <div className={sharedStyle.InlineRow}>
           <Tooltip title={"Zoom out"}>
             <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
-              <MagnifyMinus className={sharedStyle.toolbarIcon} />
+              <MagnifyMinus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <InputNumber
@@ -75,12 +75,12 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           />
           <Tooltip title={"Zoom in"}>
             <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
-              <MagnifyPlus className={sharedStyle.toolbarIcon} />
+              <MagnifyPlus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <Tooltip title={"Center"}>
             <IconButton onClick={() => vm.center(1)} aria-label="Center">
-              <Center className={sharedStyle.toolbarIcon} />
+              <Center className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
         </div>

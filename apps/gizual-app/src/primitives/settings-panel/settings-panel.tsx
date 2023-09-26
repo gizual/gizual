@@ -19,34 +19,27 @@ export const SettingsPanel = observer(({ vm: externalVm }: SettingsPanelProps) =
   }, [externalVm]);
 
   return (
-    <div className={style.settingsPanel}>
-      <div className={sharedStyle.section}>
-        <div className={sharedStyle.sectionHead}>
+    <div className={style.SettingsPanel}>
+      <div className={sharedStyle.Section}>
+        <div className={sharedStyle.SectionHead}>
           <h1>Settings</h1>
         </div>
-        <div className={sharedStyle.sectionBody}>
-          <div className={sharedStyle.block}>
-            <h3>Coloring mode</h3>
-            {/*<ToggleButton<ColoringMode>
-              ariaLabel="Coloring mode"
-              values={vm.toggleColoringValues}
-              selected={mainController.coloringMode}
-              toggleName="coloringMode"
-              onChange={(n) => vm.onColoringModeChange(n)}
-            />*/}
+        <div className={sharedStyle.SectionBody}>
+          <div className={sharedStyle.Block}>
+            <h3>Colouring mode</h3>
             <Radio.Group
               buttonStyle={"solid"}
-              value={mainController.coloringMode}
-              onChange={(n) => vm.onColoringModeChange(n.target.value)}
+              value={mainController.colouringMode}
+              onChange={(n) => vm.onColouringModeChange(n.target.value)}
             >
-              {vm.toggleColoringValues.map((v) => (
+              {vm.toggleColouringValues.map((v) => (
                 <Radio.Button key={v.value} value={v.value}>
                   {v.label}
                 </Radio.Button>
               ))}
             </Radio.Group>
           </div>
-          <div className={sharedStyle.block}>
+          <div className={sharedStyle.Block}>
             <h3>Authors</h3>
             {vm.authors.length > 0 ? (
               <Table

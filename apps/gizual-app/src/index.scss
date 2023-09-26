@@ -30,6 +30,13 @@
   font-style: italic;
 }
 
+@font-face {
+  font-family: "Iosevka Extended";
+  src: url("/fonts/Iosevka-Extended.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   /* Main colors */
   --color-lightgray: #ececef;
@@ -59,6 +66,7 @@
     --background-red: var(--color-peach);
     --foreground-primary: var(--color-darkgray);
     --foreground-secondary: var(--color-black);
+    --foreground-tertiary: var(--color-gunmetal);
     --foreground-disabled: var(--color-disabled);
     --foreground-link: #0069c2;
 
@@ -80,6 +88,7 @@
     --background-red: var(--color-darkred);
     --foreground-primary: var(--color-lightgray);
     --foreground-secondary: var(--color-white);
+    --foreground-tertiary: var(--color-zinc);
     --foreground-disabled: var(--color-disabled);
     --foreground-link: #8cb4ff;
 
@@ -112,6 +121,14 @@
 
   #root {
     height: 100%;
+  }
+
+  code {
+    font-family: "Iosevka Extended", monospace;
+  }
+
+  pre {
+    font-family: "Iosevka Extended", monospace;
   }
 
   /* Sane CSS defaults inspired by `preflight` */

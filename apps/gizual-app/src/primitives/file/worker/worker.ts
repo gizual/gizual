@@ -1,11 +1,11 @@
 import { MainController } from "@app/controllers";
-import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SPECIAL_COLORS } from "@app/utils";
+import { BAND_COLOUR_RANGE, getBandColourScale, getColourScale, SPECIAL_COLOURS } from "@app/utils";
 import { expose } from "comlink";
 
 import { FileViewModel, Line } from "../file.vm";
 
 export type FileContext = {
-  coloringMode: MainController["_coloringMode"];
+  colouringMode: MainController["_colouringMode"];
   fileContent: FileViewModel["fileContent"];
   settings: FileViewModel["_settings"];
   lineLengthMax: FileViewModel["lineLengthMax"];
@@ -32,7 +32,7 @@ export class CanvasWorker {
     if (!this._offscreen) return;
 
     const canvas = this._offscreen;
-    const colors: string[] = [];
+    const colours: string[] = [];
 
     const ctx = canvas.getContext("2d");
     if (!ctx) {
@@ -70,19 +70,19 @@ export class CanvasWorker {
       const rectWidth = ((lineLength - lineOffsetUnscaled) / fileCtx.lineLengthMax) * columnWidth;
 
       const rectHeight = lineHeight;
-      const color = line.commit
-        ? this.interpolateColor(line, fileCtx)
-        : fileCtx.settings.colorNotLoaded;
+      const colour = line.commit
+        ? this.interpolateColour(line, fileCtx)
+        : fileCtx.settings.colourNotLoaded;
 
-      ctx.fillStyle = color;
-      line.color = color;
-      colors.push(line.color);
+      ctx.fillStyle = colour;
+      line.color = colour;
+      colours.push(line.color);
       ctx.fillRect(currentX + lineOffsetScaled, currentY, rectWidth, rectHeight);
       currentY += lineHeight + fileCtx.settings.lineSpacing;
       lineIndex++;
 
       if (lineIndex > fileCtx.settings.maxLineCount) {
-        ctx.fillStyle = SPECIAL_COLORS.NOT_LOADED;
+        ctx.fillStyle = SPECIAL_COLOURS.NOT_LOADED;
         currentY = 0;
         currentX += columnWidth;
         ctx.fillRect(currentX - 1, currentY, 1, canvas.height);
@@ -101,10 +101,10 @@ export class CanvasWorker {
     );
 
     const blob = await canvas.convertToBlob();
-    return { img: blob, width: `${nc * 300}px`, colors };
+    return { img: blob, width: `${nc * 300}px`, colors: colours };
   }
 
-  interpolateColor(line: Line, fileContext: FileContext) {
+  interpolateColour(line: Line, fileContext: FileContext) {
     const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
 
     // If the line was updated before the start or after the end date, grey it out.
@@ -112,26 +112,26 @@ export class CanvasWorker {
       updatedAtSeconds * 1000 < fileContext.selectedStartDate.getTime() ||
       updatedAtSeconds * 1000 > fileContext.selectedEndDate.getTime()
     )
-      return fileContext.settings.colorNotLoaded;
+      return fileContext.settings.colourNotLoaded;
 
-    if (fileContext.coloringMode === "age") {
+    if (fileContext.colouringMode === "age") {
       const timeRange: [number, number] = [
         fileContext.earliestTimestamp,
         fileContext.latestTimestamp,
       ];
       const colorRange: [string, string] = [
-        fileContext.settings.colorOld,
-        fileContext.settings.colorNew,
+        fileContext.settings.colourOld,
+        fileContext.settings.colourNew,
       ];
 
       return updatedAtSeconds
-        ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
-        : fileContext.settings.colorNotLoaded;
+        ? getColourScale(timeRange, colorRange)(updatedAtSeconds)
+        : fileContext.settings.colourNotLoaded;
     } else {
       const author = fileContext.authors.find((a) => a.id === line.commit?.authorId);
-      return getBandColorScale(
+      return getBandColourScale(
         fileContext.authors.map((a) => a.id),
-        BAND_COLOR_RANGE,
+        BAND_COLOUR_RANGE,
       )(author?.id ?? "");
     }
   }

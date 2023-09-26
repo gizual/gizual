@@ -1,5 +1,5 @@
 export type VisualizationConfig = {
-  colors: {
+  colours: {
     oldest: string;
     newest: string;
   };

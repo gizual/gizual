@@ -1,10 +1,10 @@
+import { getDaysBetweenAbs, GizDate } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 export type RulerTicksProps = {
   x: number;
   y: number;
-  width: number;
   amount: number;
   tickSize: {
     width: number;
@@ -15,61 +15,39 @@ export type RulerTicksProps = {
     width: number;
     height: number;
   };
-  tickJiggle: number;
-  startDate: Date;
+  startDate: GizDate;
+  dayWidth: number;
+  displayMode: "days" | "weeks";
 };
 
 export const RulerTicks = observer(
-  ({ x, y, width, amount, emphasize, tickSize, tickJiggle, startDate }: RulerTicksProps) => {
+  ({ x, y, amount, emphasize, tickSize, startDate, dayWidth, displayMode }: RulerTicksProps) => {
     const ticks: React.ReactElement[] = [];
-    const ticksPerSide = Math.floor(amount / 2);
-    const tickSpacing = width / amount;
 
     // Every `emphasize.distance` day from the start of the count is emphasized (01.01.1970)
-    const ONE_DAY = 1000 * 60 * 60 * 24;
-    const differenceMs = Math.abs(new Date("1970-01-01").getTime() - startDate.getTime());
-    const differenceDays = Math.round(differenceMs / ONE_DAY);
+    const differenceDays = getDaysBetweenAbs(new GizDate("1970-01-01"), startDate);
 
-    // Alternate between one tick on the left and right of the centre-point, as this helps with
-    // visual congruency when zooming in and out of the ruler.
-    for (let i = 0; i < ticksPerSide; i++) {
-      const offset = i * tickSpacing;
-      const isEmphasized = Math.round(differenceDays + ticksPerSide - i) % emphasize.distance === 0;
+    // This offset is added because all ticks are always placed at the 00:00 mark.
+    const offsetToMidnight = differenceDays - Math.floor(differenceDays);
 
-      ticks.push(
-        <React.Fragment key={`tickFragment-${i}`}>
-          <line
-            key={`tick-${i}`}
-            x1={x - offset + width / 2 + tickJiggle}
-            y1={y}
-            x2={x - offset + width / 2 + tickJiggle}
-            y2={y + (isEmphasized ? emphasize.height : tickSize.height)}
-            stroke="var(--foreground-primary)"
-            strokeWidth={isEmphasized ? emphasize.width : tickSize.width}
-          />
-        </React.Fragment>,
-      );
-    }
+    for (let i = -offsetToMidnight; i < amount; i++) {
+      const offset = i * dayWidth;
+      const isWeekMarker = Math.round(differenceDays + i) % emphasize.distance === 0;
 
-    for (let i = 0; i < ticksPerSide; i++) {
-      const offset = i * tickSpacing;
-      const isEmphasized = Math.round(differenceDays + ticksPerSide + i) % emphasize.distance === 0;
+      if (displayMode === "weeks" && !isWeekMarker) continue;
 
       ticks.push(
-        <React.Fragment key={`tickFragment+${i}`}>
-          <line
-            key={`tick+${i}`}
-            x1={x + offset + width / 2 + tickJiggle}
-            y1={y}
-            x2={x + offset + width / 2 + tickJiggle}
-            y2={y + (isEmphasized ? emphasize.height : tickSize.height)}
-            stroke="var(--foreground-primary)"
-            strokeWidth={isEmphasized ? emphasize.width : tickSize.width}
-          />
-        </React.Fragment>,
+        <line
+          key={`tick-${i}`}
+          x1={x + offset}
+          y1={y}
+          x2={x + offset}
+          y2={y + (isWeekMarker && displayMode === "days" ? emphasize.height : tickSize.height)}
+          stroke="var(--foreground-primary)"
+          strokeWidth={isWeekMarker && displayMode === "days" ? emphasize.width : tickSize.width}
+        />,
       );
     }
-
     return <React.Fragment>{ticks}</React.Fragment>;
   },
 );

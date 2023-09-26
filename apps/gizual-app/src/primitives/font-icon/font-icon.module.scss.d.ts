@@ -1,4 +1,4 @@
 declare const classNames: {
-  readonly icon: "icon";
+  readonly Icon: "Icon";
 };
 export = classNames;

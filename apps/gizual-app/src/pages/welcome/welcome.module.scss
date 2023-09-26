@@ -1,4 +1,6 @@
-.emphasized {
+@use "@/mixins" as *;
+
+.EmphasizedContainer {
   background-color: var(--background-red);
   color: var(--foreground-primary);
   font-weight: medium;
@@ -7,22 +9,68 @@
   width: 100%;
 }
 
-.emphasizedHeader {
+.WelcomeParagraph {
+  padding-top: 1rem;
+}
+
+.EmphasizedHeader {
   text-align: center;
   padding-bottom: 0.5rem;
 }
 
-.p {
-  padding-top: 1rem;
-}
-
-.card {
+.Card {
   width: 100%;
   padding-top: 2rem;
   display: flex;
 }
 
-.button {
+.Button {
   margin: 0 auto;
   margin-bottom: 2rem;
+}
+
+.Container {
+  @include shadow-2xl;
+  @include rounded;
+  background-color: var(--background-secondary);
+  width: 70%;
+  position: relative;
+  margin: auto auto;
+  max-width: 800px;
+}
+
+.App {
+  background-color: var(--background-primary);
+  height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.Main {
+  flex-grow: 1;
+  position: relative;
+  display: block;
+  min-height: 0;
+}
+
+.WelcomeImage {
+  @include rounded;
+  margin-top: 2rem;
+  width: 25%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.WelcomeAnimation {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.Header {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding-top: 1rem;
 }

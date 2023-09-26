@@ -3,5 +3,10 @@ declare const classNames: {
   readonly DialogContent: "DialogContent";
   readonly DialogArrow: "DialogArrow";
   readonly DialogClose: "DialogClose";
+  readonly Trigger: "Trigger";
+  readonly Dialog: "Dialog";
+  readonly DialogHead: "DialogHead";
+  readonly DialogBody: "DialogBody";
+  readonly DialogTitle: "DialogTitle";
 };
 export = classNames;

@@ -11,16 +11,19 @@ export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
 
 export class CanvasViewModel {
-  _mainController: MainController;
-  _selectedFileVms: Record<string, FileViewModel> = {};
-  _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
+  private _mainController: MainController;
+  private _selectedFileVms: Record<string, FileViewModel> = {};
+  private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
     this._mainController.vmController.setCanvasViewModel(this);
 
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
 
+    // Synchronizes the selected files with the mainController.
+    // TODO: Should be changed to a purely reactive context with a
+    // central repository controller.
     autorun(() => {
       this.loadSelectedFiles();
     });

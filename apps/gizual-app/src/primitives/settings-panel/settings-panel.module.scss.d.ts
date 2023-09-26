@@ -1,4 +1,4 @@
 declare const classNames: {
-  readonly settingsPanel: "settingsPanel";
+  readonly SettingsPanel: "SettingsPanel";
 };
 export = classNames;

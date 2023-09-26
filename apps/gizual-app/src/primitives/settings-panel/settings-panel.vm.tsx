@@ -1,4 +1,4 @@
-import { ColoringMode, ColoringModeLabels } from "@app/types";
+import { ColouringMode, ColouringModeLabels } from "@app/types";
 import { Avatar } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { makeAutoObservable } from "mobx";
@@ -22,12 +22,12 @@ export class SettingsPanelViewModel {
     makeAutoObservable(this);
   }
 
-  onColoringModeChange = (value: ColoringMode) => {
-    this._mainController.setColoringMode(value);
+  onColouringModeChange = (value: ColouringMode) => {
+    this._mainController.setColouringMode(value);
   };
 
-  get toggleColoringValues() {
-    return Object.entries(ColoringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
+  get toggleColouringValues() {
+    return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
   get authors(): AuthorType[] {
@@ -55,8 +55,8 @@ export class SettingsPanelViewModel {
               display: "block",
               borderRadius: 5,
               backgroundColor:
-                this._mainController.coloringMode === "author"
-                  ? this._mainController.authorColorScale(record.id ?? "")
+                this._mainController.colouringMode === "author"
+                  ? this._mainController.authorColourScale(record.id ?? "")
                   : "transparent",
             }}
           />

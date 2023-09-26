@@ -1,9 +1,11 @@
+@use "@/mixins" as *;
+
 .DialogOverlay {
+  @include z-index-overlay;
   background-color: #00000090;
   position: fixed;
   inset: 0;
   animation: overlayShow 350ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 990;
   @keyframes overlayShow {
     from {
       opacity: 0;
@@ -15,6 +17,7 @@
 }
 
 .DialogContent {
+  @include z-index-max;
   border-radius: 4px;
   background-color: var(--background-primary);
   box-shadow:
@@ -23,7 +26,6 @@
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
-  z-index: 999;
   margin: auto auto;
   position: fixed;
   top: 50%;
@@ -66,6 +68,7 @@
   align-items: center;
   justify-content: center;
   color: var(--accent-main);
+  background-color: var(--background-primary);
   position: absolute;
   top: 5px;
   right: 5px;
@@ -75,4 +78,46 @@
 }
 .DialogClose:focus {
   box-shadow: 0 0 0 2px var(--accent-main);
+}
+
+
+.Trigger {
+  cursor: pointer;
+}
+
+.Dialog {
+  @include z-index-max;
+  @include rounded;
+
+  position: fixed;
+  max-width: 80%;
+  max-width: 80%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-secondary);
+  padding: 1rem;
+  border: 1px solid var(--border-primary);
+  gap: 1rem;
+}
+
+.DialogHead {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 0;
+  flex-shrink: 0;
+  justify-content: space-between;
+}
+
+.DialogBody {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.DialogTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
 }

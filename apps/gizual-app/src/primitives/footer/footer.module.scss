@@ -1,7 +1,7 @@
 @use "@/mixins" as *;
 @use "sass:color";
 
-.footer {
+.Footer {
   @include z-index-base-3;
   @include text-base;
   min-height: 24px;
@@ -16,7 +16,7 @@
   border-top: 1px solid var(--border-primary);
 }
 
-@mixin footerContainer {
+@mixin footer-container {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -24,8 +24,8 @@
   flex-shrink: 0;
 }
 
-.left {
-  @include footerContainer;
+.LeftSection {
+  @include footer-container;
   justify-content: flex-start;
 
   // border-right on all child elements
@@ -35,8 +35,8 @@
   }
 }
 
-.right {
-  @include footerContainer;
+.RightSection {
+  @include footer-container;
   justify-content: flex-end;
   text-align: right;
 

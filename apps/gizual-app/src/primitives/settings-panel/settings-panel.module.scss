@@ -1,6 +1,6 @@
 @use "@/shared" as *;
 
-.settingsPanel {
+.SettingsPanel {
   @include panel;
   border-left: 1px solid var(--border-primary);
 }

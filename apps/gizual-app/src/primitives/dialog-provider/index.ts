@@ -1,1 +1,1 @@
-export { default as DialogProvider } from "./dialog-provider";
+export * from "./dialog-provider";

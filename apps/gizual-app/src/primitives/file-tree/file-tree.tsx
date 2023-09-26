@@ -4,7 +4,7 @@ import React from "react";
 
 import { FontIcon } from "../font-icon/font-icon";
 
-import styles from "./file-tree.module.scss";
+import style from "./file-tree.module.scss";
 import { FileTreeDataNode, FileTreeViewModel } from "./file-tree.vm";
 
 type FileTreeProps = {
@@ -15,7 +15,7 @@ type FileTreeProps = {
 /**
  * File Tree component, responsible for rendering the file tree and the favourite tree.
  */
-function FileTree({ mode = "tree", vm }: FileTreeProps) {
+export const FileTree = observer(({ mode = "tree", vm }: FileTreeProps) => {
   const treeData = mode === "favourite" ? vm.favouriteTreeData : vm.treeData;
   const selectedKeys = mode === "favourite" ? vm.selectedFavouriteFiles : vm.selectedFiles;
   if (vm.treeData.length < 0) return <></>;
@@ -63,10 +63,9 @@ function FileTree({ mode = "tree", vm }: FileTreeProps) {
         multiple
         defaultExpandAll
         showIcon
-        showLine
         treeData={treeData}
-        className={styles.Tree}
-        rootClassName={styles.Tree}
+        className={style.Tree}
+        rootClassName={style.Tree}
         selectedKeys={vm.selectedFiles}
         onExpand={(k) => vm.onFileTreeExpand(k)}
         expandedKeys={vm.expandedKeys}
@@ -83,23 +82,15 @@ function FileTree({ mode = "tree", vm }: FileTreeProps) {
           }
 
           return (
-            <div
-              key={node.key}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                gap: "0.5rem",
-              }}
-            >
-              <FontIcon name={icon} colors={node.fileIconColor} />
-              <div onClick={() => vm.onFileTreeSelect(node)}>{node.title}</div>
+            <div key={node.key} className={style.TreeEntry}>
+              <FontIcon name={icon} colours={node.fileIconColor} />
+              <div className={style.TreeNode} onClick={() => vm.onFileTreeSelect(node)}>
+                {node.title}
+              </div>
             </div>
           );
         }}
       />
     </Dropdown>
   );
-}
-
-export default observer(FileTree);
+});

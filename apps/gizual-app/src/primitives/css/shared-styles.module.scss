@@ -1,4 +1,5 @@
 @use "@/mixins" as *;
+@layer reset, components, overrides;
 
 @mixin panel {
   width: 300px;
@@ -19,22 +20,24 @@
 }
 
 @mixin card-title {
+  @include text-xs;
   text-align: left;
-  font-family: monospace;
-  font-weight: bold;
+  font-family: "Iosevka Extended", monospace;
+  font-weight: 300;
   margin: 0.75rem 0 0 0;
   flex-grow: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   cursor: default;
+  line-height: 120%;
 }
 
-.cardTitle {
+.CardTitle {
   @include card-title;
 }
 
-.card {
+.Card {
   @include card;
 }
 
@@ -47,7 +50,7 @@
   margin-bottom: 0.5rem;
 }
 
-.cardHead {
+.CardHead {
   @include card-head;
 }
 
@@ -61,7 +64,7 @@
   flex-shrink: 0;
 }
 
-.right-aligned-group {
+.RightAlignedGroup{
   @include right-aligned-group;
 }
 
@@ -72,14 +75,15 @@
   flex-shrink: 0;
 }
 
-.panel {
+.Panel {
   @include panel;
 }
 
 @mixin section {
   @include rounded;
 }
-.section {
+
+.Section {
   @include section;
 }
 
@@ -95,7 +99,7 @@
   }
 }
 
-.sectionHead {
+.SectionHead {
   @include section-head;
 }
 
@@ -103,7 +107,7 @@
   padding: 0.5rem 1rem;
 }
 
-.sectionBody > * {
+.SectionBody > * {
   @include section-body;
 }
 
@@ -115,7 +119,7 @@
   padding-bottom: 1rem;
 }
 
-.block {
+.Block {
   @include block;
 }
 
@@ -131,19 +135,19 @@
   flex: 0 0;
 }
 
-.inlineRow {
+.InlineRow {
   @include inline-row;
 }
 
-.fullWidth {
+.FullWidth {
   width: 100%;
 }
 
-.toolbarIcon {
+.ToolbarIcon {
   @include svg-icon;
 }
 
-.flexGrow {
+.FlexGrow {
   position: relative;
   flex-grow: 1;
   flex-shrink: 0;
@@ -151,6 +155,27 @@
   height: 100%;
 }
 
-.pointer {
+.Pointer {
   cursor: pointer;
+}
+
+/* Overlay that covers things beneath a Popover */
+.PopoverUnderlay {
+  @include z-index-overlay;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #00000080;
+}
+
+.PopoverMax {
+  @include z-index-max;
+}
+
+@layer overrides {
+  .CloseButton:hover {
+    background-color: var(--color-tomato);
+  }
 }

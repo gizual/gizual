@@ -7,18 +7,18 @@ export type FontIconProps = {
   name?: string;
   className?: string;
   style?: React.CSSProperties;
-  colors?: [string | null, string | null] | undefined;
+  colours?: [string | null, string | null] | undefined;
 };
 
-export function FontIcon({ name, className, style, colors }: FontIconProps) {
+export function FontIcon({ name, className, style, colours }: FontIconProps) {
   const theme = useTheme();
   const themeIndex = theme === "light" ? 0 : 1;
-  const iconColor = colors ?? colors?.[themeIndex] ?? "var(--foreground-primary)";
+  const iconColour = colours ?? colours?.[themeIndex] ?? "var(--foreground-primary)";
 
   return (
     <span
       style={style}
-      className={clsx(styles.icon, name ?? "directory-closed-icon", iconColor, className)}
+      className={clsx(styles.Icon, name ?? "directory-closed-icon", iconColour, className)}
     ></span>
   );
 }

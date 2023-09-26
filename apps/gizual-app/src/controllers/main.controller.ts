@@ -1,5 +1,7 @@
-import { ColoringMode, FileNodeInfos } from "@app/types";
-import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
+import { ColouringMode, FileNodeInfos } from "@app/types";
+import { BAND_COLOUR_RANGE, getBandColourScale, GizDate } from "@app/utils";
+import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
+import dayjs from "dayjs";
 import { makeAutoObservable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer";
@@ -7,14 +9,15 @@ import { FileTree, Repository } from "@giz/explorer";
 import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-type Panel = "explore" | "analyze" | "settings";
+type Panel = "explore" | "analyse" | "settings";
 type Page = "welcome" | "main";
 
 export class MainController {
   _selectedFiles: Map<string, FileNodeInfos | {}> = new Map();
   _favouriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
+  _notification?: NotificationInstance;
 
-  _coloringMode: ColoringMode = "age";
+  _colouringMode: ColouringMode = "age";
   _fileTreeRoot?: FileTree;
   _page: Page = "welcome";
   _selectedPanel: Panel = "explore";
@@ -29,22 +32,35 @@ export class MainController {
   _repo: Repository;
   _numFiles = 0;
 
-  private _startDate: Date;
-  private _selectedStartDate: Date;
-  private _endDate: Date;
-  private _selectedEndDate: Date;
+  private _startDate: GizDate;
+  private _selectedStartDate: GizDate;
+  private _endDate: GizDate;
+  private _selectedEndDate: GizDate;
+
+  private _pendingTransition = false;
 
   constructor() {
     this._repo = new Repository();
 
-    this._startDate = new Date("2023-01-01");
-    this._selectedStartDate = new Date("2023-01-01");
-    this._endDate = new Date("2023-07-30");
-    this._selectedEndDate = new Date("2023-07-30");
     this.setScale(1);
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
+    this._startDate = new GizDate("2023-01-01");
+    this._endDate = new GizDate("2023-07-30");
+    this._selectedStartDate = new GizDate("1970-01-01");
+    this._selectedEndDate = new GizDate("1970-01-01");
+
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  attachNotificationInstance(notification: typeof this._notification) {
+    this._notification = notification;
+  }
+
+  displayNotification(args: ArgsProps) {
+    if (this._notification === undefined) return;
+
+    this._notification.open(args);
   }
 
   get backendMetrics() {
@@ -139,10 +155,10 @@ export class MainController {
     return this._repo.authors;
   }
 
-  get authorColorScale() {
-    return getBandColorScale(
+  get authorColourScale() {
+    return getBandColourScale(
       this.authors.map((a) => a.id),
-      BAND_COLOR_RANGE,
+      BAND_COLOUR_RANGE,
     );
   }
 
@@ -150,12 +166,12 @@ export class MainController {
     return this._repo.getAuthor(id);
   }
 
-  setColoringMode(mode: ColoringMode) {
-    this._coloringMode = mode;
+  setColouringMode(mode: ColouringMode) {
+    this._colouringMode = mode;
   }
 
-  get coloringMode() {
-    return this._coloringMode;
+  get colouringMode() {
+    return this._colouringMode;
   }
 
   get isLoading() {
@@ -166,36 +182,44 @@ export class MainController {
     const handle = await window.showDirectoryPicker();
     this.setRepoName(handle.name);
     await this._repo.setup(handle);
-
-    this.setPage("main");
+    this._pendingTransition = true;
   }
 
   get page() {
     return this._page;
   }
 
-  setPage(page: Page) {
-    this._page = page;
+  get isPendingTransition() {
+    return this._pendingTransition;
   }
 
-  setStartDate(date: Date) {
+  setPage(page: Page) {
+    this._page = page;
+    this._pendingTransition = false;
+  }
+
+  setStartDate(date: GizDate) {
     this._startDate = date;
   }
 
-  setSelectedStartDate(date: Date) {
-    if (this._selectedStartDate.getTime() !== date.getTime()) this._selectedStartDate = date;
+  setSelectedStartDate(date: GizDate) {
+    if (this._selectedStartDate.getTime() !== date.getTime()) {
+      this._selectedStartDate = date;
+    }
   }
 
-  setEndDate(date: Date) {
+  setEndDate(date: GizDate) {
     this._endDate = date;
   }
 
-  setSelectedEndDate(date: Date) {
+  setSelectedEndDate(date: GizDate) {
     if (this._selectedEndDate.getTime() !== date.getTime()) this._selectedEndDate = date;
   }
 
   get startDate() {
-    return this._startDate;
+    if (dayjs(this._startDate).isValid()) return this._startDate;
+
+    return new GizDate();
   }
 
   get selectedStartDate() {
@@ -205,7 +229,9 @@ export class MainController {
   }
 
   get endDate() {
-    return this._endDate;
+    if (dayjs(this._endDate).isValid()) return this._endDate;
+
+    return new GizDate();
   }
 
   get selectedEndDate() {
@@ -256,6 +282,7 @@ export class MainController {
 
   closeRepository() {
     this.setPage("welcome");
+    this.setRepoName("");
     this._repo = new Repository();
   }
 

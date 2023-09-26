@@ -16,7 +16,6 @@ type LanguageInfo = {
 
 type LanguagesProps = {
   languages?: LanguageInfo[];
-  chartType?: "pie" | "bar";
 };
 
 export function parseLanguages(fileTree: FileTree) {

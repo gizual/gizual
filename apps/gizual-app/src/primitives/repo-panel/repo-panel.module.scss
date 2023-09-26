@@ -1,14 +1,15 @@
 @use "@/shared" as *;
 
-.repoPanel {
+.RepoPanel {
   @include panel;
   border-right: 1px solid var(--border-primary);
 }
 
-.fileTree {
-}
-
-.sectionHead {
+.SectionHead {
   @include section-head;
   justify-content: space-between;
+}
+
+.SectionBody {
+  overflow-x: scroll;
 }

@@ -1,7 +1,9 @@
 @use "@/mixins" as *;
 
+@layer reset, components, overrides;
+
 @layer components {
-  .iconButton {
+  .IconButton {
     @include rounded;
     @include transition-bg;
     padding: 0.25rem;
@@ -16,11 +18,11 @@
     flex-grow: 0;
   }
 
-  .wide {
+  .Wide {
     width: 5rem;
   }
 
-  .borderRight {
+  .BorderRight {
     @include rounded-right;
   }
 
@@ -34,7 +36,7 @@
     fill: var(--foreground-primary);
   }
 
-  .colored {
+  .Coloured {
     background-color: var(--accent-main);
     color: #fff;
     svg > path {
