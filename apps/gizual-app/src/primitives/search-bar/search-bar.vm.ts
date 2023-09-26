@@ -148,7 +148,9 @@ export class SearchBarViewModel {
   updateTag(tagId: AvailableTagId, newValue: string) {
     const tagIndex = this._tags.findIndex((tag) => tag.tag.id === tagId);
 
-    if (tagIndex !== -1) {
+    if (tagIndex === -1) {
+      this.appendTag(AvailableTags[tagId], newValue);
+    } else {
       this._tags[tagIndex].value = newValue;
     }
 
