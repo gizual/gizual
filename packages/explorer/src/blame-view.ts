@@ -1,86 +1,146 @@
-import { computed, makeObservable, observable } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 
-import { PromiseObserver } from "./promise-observer";
+import { JobRef } from "./explorer-pool";
 import { Repository } from "./repository";
 import { Blame } from "./types";
 
 export class BlameView {
   private repo: Repository;
   private path: string;
+  private priority = 1;
 
-  observer_preview: PromiseObserver<Blame>;
-  observer_full?: PromiseObserver<Blame>;
+  preview_blame?: Blame;
+  preview_blame_job: JobRef<Blame> | undefined;
 
-  constructor(repo: Repository, path: string) {
+  full_blame?: Blame;
+  full_blame_job: JobRef<Blame> | undefined;
+
+  constructor(repo: Repository, path: string, priority = 1) {
     this.repo = repo;
     this.path = path;
-
-    this.observer_preview = new PromiseObserver<Blame>({
-      name: `BlameViewPreview-${this.path}`,
-      initialPromise: {
-        create: (b, p) => this.repo.backend!.getBlame(b, p, true),
-        args: [this.repo.selectedBranch, this.path],
-      },
-    });
-
-    setTimeout(() => {
-      this.observer_full = new PromiseObserver<Blame>({
-        name: `BlameViewFull-${this.path}`,
-        initialPromise: {
-          create: (b, p) => this.repo.backend!.getBlame(b, p, false),
-          args: [this.repo.selectedBranch, this.path],
-        },
-      });
-    }, 100);
+    this.priority = priority;
 
     makeObservable(this, {
       loading: computed,
       blame: computed,
-      observer_full: observable,
+      full_blame: observable.shallow,
+      preview_blame: observable.shallow,
+      onReceiveFullBlame: action.bound,
+      onReceivePreviewBlame: action.bound,
     });
+
+    this._refreshPreviewBlame();
   }
 
   get isPreview() {
-    return !this.observer_full || this.observer_full.loading === true;
+    return !this.full_blame;
   }
 
   get loading() {
-    return this.observer_preview.loading;
+    return !this.full_blame && !this.preview_blame;
   }
 
   get blame() {
-    if (this.observer_full && this.observer_full.loading === false && this.observer_full.value) {
-      return this.observer_full.value!;
+    if (this.full_blame) {
+      return this.full_blame;
     }
 
-    return this.observer_preview.value!;
+    return this.preview_blame;
+  }
+
+  setPriority(priority: number) {
+    this.priority = priority;
+
+    if (this.preview_blame_job) {
+      this.preview_blame_job.setPriority(100 + priority);
+    }
+
+    if (this.full_blame_job) {
+      if (priority === 0) {
+        this.full_blame_job.cancel();
+        this.full_blame_job = undefined;
+        return;
+      }
+      this.full_blame_job.setPriority(priority);
+    } else if (!this.full_blame) {
+      this._refreshFullBlame();
+    }
+  }
+
+  onReceiveFullBlame(blame: Blame) {
+    this.full_blame = blame;
+    this.full_blame_job = undefined;
+  }
+
+  onReceivePreviewBlame(blame: Blame) {
+    this.preview_blame = blame;
+    this.preview_blame_job = undefined;
+  }
+
+  _refreshFullBlame() {
+    if (this.full_blame_job) {
+      this.full_blame_job.cancel();
+
+      this.full_blame_job = undefined;
+    }
+
+    this.full_blame = undefined;
+
+    this.full_blame_job = this.repo.backend?._enqueueJob({
+      method: "blame",
+      params: [
+        {
+          branch: this.repo.selectedBranch,
+          path: this.path,
+          preview: false,
+        },
+      ],
+      priority: this.priority,
+      onEnd: this.onReceiveFullBlame,
+      onErr: (err) => console.info(err),
+    });
+  }
+
+  _refreshPreviewBlame() {
+    if (this.preview_blame_job) {
+      this.preview_blame_job.cancel();
+
+      this.preview_blame_job = undefined;
+    }
+
+    this.preview_blame = undefined;
+
+    this.preview_blame_job = this.repo.backend?._enqueueJob({
+      method: "blame",
+      params: [
+        {
+          branch: this.repo.selectedBranch,
+          path: this.path,
+          preview: true,
+        },
+      ],
+      priority: 100 + this.priority,
+      onEnd: this.onReceivePreviewBlame,
+      onErr: (err) => console.info(err),
+    });
   }
 
   _refresh() {
-    const preview = this.observer_preview.update(
-      (b, p) => this.repo.backend!.getBlame(b, p, true),
-      this.repo.selectedBranch,
-      this.path,
-    );
-
-    const full = new Promise((resolve) => {
-      if (this.observer_full) {
-        setTimeout(() => {
-          this.observer_full!.update(
-            (b, p) => this.repo.backend!.getBlame(b, p, false),
-            this.repo.selectedBranch,
-            this.path,
-          ).then(resolve);
-        }, 100);
-      } else {
-        resolve(undefined);
-      }
-    });
-
-    return Promise.all([preview, full]);
+    this._refreshPreviewBlame();
+    this._refreshFullBlame();
   }
 
   dispose() {
+    if (this.full_blame_job) {
+      this.full_blame_job.cancel();
+      this.full_blame_job = undefined;
+    }
+
+    if (this.preview_blame_job) {
+      this.preview_blame_job.cancel();
+      this.preview_blame_job = undefined;
+    }
+
     this.repo._removeBlame(this);
   }
 }

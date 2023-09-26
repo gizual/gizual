@@ -42,14 +42,13 @@ export class Repository {
   }
 
   get metrics() {
-
     if (!this.backend) throw new Error("No backend");
 
     return {
       numWorkers: this.backend.numWorkers,
       numJobsInQueue: this.backend.numJobsInQueue,
       numBusyWorkers: this.backend.numBusyWorkers,
-    }
+    };
   }
 
   get authors() {
@@ -92,13 +91,13 @@ export class Repository {
 
     const { startCommitId, endCommitId } = await backend.execute("get_commits_for_branch", [
       defaultBranch,
-    ]);
+    ]).promise;
 
     this._gitGraph = new PromiseObserver<GitGraph>({
       name: `GitGraph`,
       initialPromise: {
         create: async () => {
-          const data = await backend.execute("git_graph");
+          const data = await backend.execute("git_graph").promise;
           return data.graph;
         },
         args: [],
