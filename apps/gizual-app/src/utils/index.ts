@@ -1,5 +1,6 @@
 export * from "./browsers";
 export * from "./colors";
+export * from "./decorators";
 export * from "./errors";
 export * from "./gizdate";
 export * from "./hooks";

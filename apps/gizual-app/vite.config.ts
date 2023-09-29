@@ -25,7 +25,9 @@ export default defineConfig({
   },
   plugins: [
     svgr(),
-    react(),
+    react({
+      tsDecorators: true,
+    }),
     wasm(),
     topLevelAwait(),
     sassDts({
