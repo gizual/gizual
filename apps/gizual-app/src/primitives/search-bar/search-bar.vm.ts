@@ -1,5 +1,6 @@
-import { DATE_FORMAT, getDaysBetweenAbs, GizDate } from "@app/utils";
-import { ViewUpdate } from "@codemirror/view";
+import { DATE_FORMAT, getDaysBetweenAbs, GizDate, logAllMethods } from "@app/utils";
+import { EditorState } from "@codemirror/state";
+import { EditorView, ViewUpdate } from "@codemirror/view";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import dayjs from "dayjs";
 import { makeAutoObservable, observable } from "mobx";
@@ -42,8 +43,11 @@ export const AvailableTags: Record<AvailableTagId, Tag> = {
   },
 };
 
+@logAllMethods("SearchBar", "#a5cdd8")
 export class SearchBarViewModel {
   _searchBarRef: React.RefObject<ReactCodeMirrorRef> | undefined;
+  _editorView?: EditorView;
+  _editorState?: EditorState;
   _mainController: MainController;
   _searchString = "";
   _tags: SelectedTag[] = [];
@@ -70,11 +74,12 @@ export class SearchBarViewModel {
     this._popoverOpen = true;
   }
 
-  onSearchBarBlur() {
-    //setTimeout(() => {
-    //  runInAction(() => (this._state.popoverOpen = false));
-    //}, 100);
+  onCreateEditor(view: EditorView, state: EditorState) {
+    this._editorView = view;
+    this._editorState = state;
   }
+
+  onSearchBarBlur(e: React.FocusEvent<HTMLDivElement, Element>): void {}
 
   get searchInput() {
     return this._searchString;
@@ -87,6 +92,8 @@ export class SearchBarViewModel {
 
   onSearchUpdate(viewUpdate: ViewUpdate) {
     this._cursorPosition = viewUpdate.state.selection.main.head;
+    //this._editorState = viewUpdate.state;
+    //if (this._queuedFocusEnd) this.focusEnd();
   }
 
   parseTags(text: string) {
@@ -166,7 +173,18 @@ export class SearchBarViewModel {
   appendTag(tag: Tag, value = "") {
     this._searchString = this._searchString.trim() + ` ${TAG_PREFIX}${tag.id}:${value}`;
     this._searchString = this._searchString.trim();
+    this._cursorPosition = this._searchString.length;
     this._tags.push({ tag, value });
+  }
+
+  focusEnd() {
+    this._editorView?.focus();
+    this._editorView?.dispatch({
+      selection: {
+        anchor: this._editorState?.doc.length ?? 0,
+        head: this._editorState?.doc.length ?? 0,
+      },
+    });
   }
 
   appendText(text: string) {

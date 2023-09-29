@@ -2,6 +2,7 @@ declare const classNames: {
   readonly SearchBar: "SearchBar";
   readonly Content: "Content";
   readonly SearchInput: "SearchInput";
+  readonly "cm-focused": "cm-focused";
   readonly SearchInputWrapper: "SearchInputWrapper";
   readonly InputFieldWrapper: "InputFieldWrapper";
   readonly SearchIcon: "SearchIcon";
@@ -10,6 +11,10 @@ declare const classNames: {
   readonly SearchOverlayHintEntry: "SearchOverlayHintEntry";
   readonly RemoveTagEntry: "RemoveTagEntry";
   readonly Tag: "Tag";
+  readonly Hint: "Hint";
   readonly SearchPopoverUnderlay: "SearchPopoverUnderlay";
+  readonly "cm-selectionLayer": "cm-selectionLayer";
+  readonly "cm-selectionBackground": "cm-selectionBackground";
+  readonly "cm-editor": "cm-editor";
 };
 export = classNames;

@@ -40,8 +40,8 @@ const myTheme = createTheme({
     background: "var(--background-secondary)",
     foreground: "var(--text-primary)",
     caret: "var(--text-secondary)",
-    selection: "var(--border-primary)",
-    selectionMatch: "var(--border-primary)",
+    selection: "var(--background-tertiary)",
+    selectionMatch: "var(--background-tertiary)",
     lineHighlight: "transparent",
     gutterBackground: "transparent",
     gutterForeground: "transparent",
@@ -50,15 +50,15 @@ const myTheme = createTheme({
     {
       tag: t.tagName,
       color: "var(--accent-main)",
-      backgroundColor: "var(--background-tertiary)",
-      padding: "0.125rem 0 0.125rem 0.25rem",
+      backgroundColor: "#9898a940",
+      padding: "0.125rem 0 0.125rem 0",
       borderTopLeftRadius: "0.25rem",
       borderBottomLeftRadius: "0.25rem",
     },
     {
       tag: t.emphasis,
-      backgroundColor: "var(--background-tertiary)",
-      padding: "0.125rem 0.25rem 0.125rem 0",
+      backgroundColor: "#9898a940",
+      padding: "0.125rem 0 0.125rem 0",
       borderTopRightRadius: "0.25rem",
       borderBottomRightRadius: "0.25rem",
     },
@@ -168,6 +168,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
         onBlur={vm.onSearchBarBlur}
         onChange={vm.onSearchInput}
         onUpdate={vm.onSearchUpdate}
+        onCreateEditor={vm.onCreateEditor}
         value={vm.searchInput}
         basicSetup={{
           lineNumbers: false,
@@ -203,7 +204,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
                       onClick={() => vm.appendTag(tag)}
                     >
                       <pre className={style.Tag}>-{tag.id}: </pre>
-                      <pre>{tag.hint}</pre>
+                      <pre className={style.Hint}>{tag.hint}</pre>
                     </div>
                   ))}
                 </>
