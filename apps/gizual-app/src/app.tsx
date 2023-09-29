@@ -23,6 +23,7 @@ function App() {
     colorBgBase: useStyle("--background-primary"),
     colorTextBase: useStyle("--foreground-primary"),
     borderRadius: 4,
+    fontFamily: "FiraGO",
   };
 
   const token =

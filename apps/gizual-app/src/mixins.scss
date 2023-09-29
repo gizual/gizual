@@ -22,8 +22,17 @@
 @mixin transition-all {
   transition-property: all;
   transition-delay: 0s;
-  transition-duration: 0.25s;
-  transition-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+  transition-duration: 0.15s;
+  transition-timing-function: ease-in-out;
+  //transition-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@mixin font-code {
+  font-family: "Iosevka Extended";
+}
+
+@mixin font-base {
+  font-family: "FiraGO";
 }
 
 @mixin shadow-sm {

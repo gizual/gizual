@@ -1,5 +1,7 @@
+@use "@/mixins" as *;
+
 @mixin stroke-color {
-  stroke: #0c64c0;
+  stroke: var(--color-gizblue);
 }
 
 .Center {
@@ -18,19 +20,24 @@
   z-index: 0;
 }
 
-.Container h2 {
-	font-size: 8em;
-	position: absolute;
-	transform: translate(-50%, -50%);
-  line-height: unset;
-  font-weight: 600;
-  font-family: "Noto Sans";
-  letter-spacing: -2px;
+.Container {
+  h2, span {
+    font-size: 8em;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    line-height: unset;
+    font-weight: 600;
+    font-family: "Noto Sans";
+    letter-spacing: -2px;
+  }
+  span {
+    user-select: none;
+  }
 }
 
 .TitleStroke {
 	color: transparent;
-	-webkit-text-stroke: 3px #0c64c0;
+	-webkit-text-stroke: 3px var(--color-gizblue)
 }
 
 .TitleIdleWave {
@@ -43,7 +50,7 @@
 }
 
 .TitleColourBg {
-	color: #0c64c0;
+	color: var(--color-gizblue);
 	//animation: wave2 8s ease-in-out infinite;
   @media (prefers-reduced-motion) {
     animation: none;

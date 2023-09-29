@@ -159,7 +159,7 @@ const SettingsEntry = observer(
                 options={entry.availableValues}
               />
             )}
-            {entry.controlType === "color" && (
+            {entry.controlType === "colour" && (
               <ColorPicker
                 showText
                 value={entry.value}
