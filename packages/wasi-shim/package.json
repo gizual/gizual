@@ -1,0 +1,16 @@
+{
+  "name": "@giz/filesystem",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "type-check": "tsc",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "fflate": "0.8.1"
+  },
+  "devDependencies": {
+    "eslint": "8.45.0"
+  }
+}

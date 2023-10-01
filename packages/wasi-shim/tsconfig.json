@@ -1,0 +1,9 @@
+{
+  "extends": "@giz/tsconfig/tsconfig.web.json",
+  "include": ["src/**/*.ts", "tests/_mocks/mock-types.ts", "tests/_mocks/fsa-mock.ts"],
+  "references": [
+    {
+      "path": "tsconfig.test.json"
+    }
+  ]
+}
