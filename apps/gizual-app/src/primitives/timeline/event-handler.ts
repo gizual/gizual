@@ -277,6 +277,7 @@ export class TimelineEventHandler {
       this.vm.viewBox.width,
       this.vm.selectEndX + this.vm.currentTranslationX,
     );
+    this.vm.triggerSearchBarUpdate();
     if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
       this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
     }

@@ -7,6 +7,7 @@ import {
   getDaysBetweenAbs,
   getStringDate,
   GizDate,
+  logAllMethods,
   MOUSE_ZOOM_FACTOR,
 } from "@app/utils";
 import { MenuProps } from "antd";
@@ -14,7 +15,7 @@ import { autorun, makeAutoObservable, runInAction, when } from "mobx";
 import { RefObject } from "react";
 
 import { MainController } from "../../controllers";
-import { AvailableTags } from "../search-bar/search-bar.vm";
+import { AvailableTags } from "../search-bar/search-tags";
 
 import { TimelineEventHandler } from "./event-handler";
 
@@ -25,6 +26,7 @@ const DEFAULT_SELECTION = 365; // Default selection range - only used if the set
 const MIN_DAYS = 10; // Minimum amount days (used to restrict zooming).
 const MAX_DAYS = 365 * PRERENDER_MULTIPLIER; // Maximum amount of days (used to restrict zooming).
 
+@logAllMethods("Timeline", "#e7bbf1")
 export class TimelineViewModel {
   private _mainController: MainController;
   private _tooltipContent = "";
@@ -273,15 +275,19 @@ export class TimelineViewModel {
   }
 
   triggerSearchBarUpdate() {
-    this.mainController.vmController.searchBarViewModel!.clear();
-    this.mainController.vmController.searchBarViewModel?.appendTag(
-      AvailableTags.start,
+    //this.mainController.vmController.searchBarViewModel!.clear();
+    this.mainController.vmController.searchBarViewModel?.updateTag(
+      AvailableTags.start.id,
       getStringDate(this.selectedStartDate),
+      true,
     );
-    this.mainController.vmController.searchBarViewModel?.appendTag(
-      AvailableTags.end,
+    this.mainController.vmController.searchBarViewModel?.updateTag(
+      AvailableTags.end.id,
       getStringDate(this.selectedEndDate),
+      true,
     );
+
+    //this.mainController.vmController.searchBarViewModel!._isSyntheticEvent = false;
   }
 
   // -------------------------------------------------------------------------- //
@@ -337,7 +343,6 @@ export class TimelineViewModel {
     if (date === undefined) date = this._defaultStartDate ?? new GizDate();
 
     this.mainController.setSelectedEndDate(date);
-    this.triggerSearchBarUpdate();
     this.updateSelectionEndCoords();
     this.zoom(0);
   }
