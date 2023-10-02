@@ -1,5 +1,3 @@
-// write a function witch wraps an object of functions and exposes the same functions, but with logs for each call , arguments and return values, also promises
-
 export function trace<T extends object>(obj: T): T {
   const proxy = new Proxy(obj, {
     get(target, propKey, receiver) {

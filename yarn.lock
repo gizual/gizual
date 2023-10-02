@@ -779,15 +779,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@giz/filesystem@workspace:packages/wasi-shim":
-  version: 0.0.0-use.local
-  resolution: "@giz/filesystem@workspace:packages/wasi-shim"
-  dependencies:
-    eslint: 8.45.0
-    fflate: 0.8.1
-  languageName: unknown
-  linkType: soft
-
 "@giz/gizual-app@workspace:apps/gizual-app":
   version: 0.0.0-use.local
   resolution: "@giz/gizual-app@workspace:apps/gizual-app"
@@ -904,6 +895,15 @@ __metadata:
     tsup: 7.1.0
     turbowatch: 2.29.4
     typescript: 5.0.4
+  languageName: unknown
+  linkType: soft
+
+"@giz/wasi-shim@workspace:packages/wasi-shim":
+  version: 0.0.0-use.local
+  resolution: "@giz/wasi-shim@workspace:packages/wasi-shim"
+  dependencies:
+    eslint: 8.45.0
+    fflate: 0.8.1
   languageName: unknown
   linkType: soft
 
