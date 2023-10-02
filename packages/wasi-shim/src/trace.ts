@@ -1,4 +1,5 @@
 export function trace<T extends object>(obj: T): T {
+  console.debug(`trace`, obj);
   const proxy = new Proxy(obj, {
     get(target, propKey, receiver) {
       const origMethod = target[propKey];

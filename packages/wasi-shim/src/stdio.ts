@@ -96,11 +96,14 @@ export class StdIoPipe extends Fd {
 
   fd_write(view8: Uint8Array, iovs: Iovec[]): RetVal_nwritten {
     let nwritten = 0;
+    let output = "";
     for (const iovec of iovs) {
       const part = iovec.to_string(view8.buffer);
-      this.write(part);
-      nwritten += part.length;
+      output += part;
+      nwritten += iovec.buf_len;
     }
+    this.write(output);
+
     return { ret: 0, nwritten };
   }
 

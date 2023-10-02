@@ -78,9 +78,7 @@ export async function buildRust(opts) {
     cmd += ` --bin=${bin}`;
     name = bin;
   }
-  console.log(await $`cargo --version`);
 
-  console.log(await $`pwd`);
   await $([cmd]);
 
   const wasmFileSrc = `${rootPath}/target/${TARGET}/${flavourFolder}/${name}.wasm`;

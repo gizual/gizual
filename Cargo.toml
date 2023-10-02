@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "packages/wasi-shim/tests",
     "packages/asyncify_exports",
     "packages/explorer-backend-libgit2",
 ]

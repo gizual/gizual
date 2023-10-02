@@ -69,6 +69,8 @@ export class WASI {
     this.env = env;
 
     this.setupFS(fs);
+
+    console.log("WASI created", this.trace);
   }
 
   get memory() {
@@ -113,7 +115,7 @@ export class WASI {
 
   setupFS(preopenDirs: Fd | Fd[]) {
     this.stdin = new StdIoPipe();
-    this.stdout = new StdIoPipe();
+    this.stdout = new StdIoPipe("stdout");
     this.stderr = new ConsolePipe("stderr");
 
     this.fdMap.set(wasi.FD_STDIN, this.stdin);
@@ -123,7 +125,9 @@ export class WASI {
     const dirs = Array.isArray(preopenDirs) ? preopenDirs : [preopenDirs];
 
     for (const fd of dirs) {
-      this.fdMap.set(this.getNextFd(), fd);
+      const fdId = this.getNextFd();
+      this.fdMap.set(fdId, fd);
+      console.log("add folder mapping", fdId, fd);
     }
   }
 
@@ -443,6 +447,34 @@ export class WASI {
           : self.getFd(fd).fd_advise(offset, len, advice);
       },
 
+      path_create_directory(fd: number, path_ptr: number, path_len: number): number {
+        return -1;
+      },
+
+      path_filestat_set_times() {
+        return -1;
+      },
+
+      path_link() {
+        return -1;
+      },
+
+      path_readlink() {
+        return -1;
+      },
+
+      path_remove_directory() {
+        return -1;
+      },
+
+      path_rename() {
+        return -1;
+      },
+
+      path_unlink_file() {
+        return -1;
+      },
+
       path_open(
         fd: number,
         dirflags: number,
@@ -553,6 +585,9 @@ export class WASI {
       },
 
       fd_seek(fd: number, offset: bigint, whence: number, newoffset_ptr: number): number {
+        return -1;
+      },
+      fd_sync(fd: number): number {
         return -1;
       },
       sock_recv(fd: number, ri_data: number, ri_flags: number) {

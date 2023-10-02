@@ -1,4 +1,4 @@
-import { Fd } from "../file-descriptor";
+import { Fd, RetVal_nread } from "../file-descriptor";
 import * as wasi from "../wasi-defs";
 
 export class MemoryFile {
@@ -72,6 +72,30 @@ export class MemoryOpenFile extends Fd {
         view8.set(slice, iovec.buf);
 
         this.filePos += BigInt(slice.length);
+        nread += slice.length;
+      } else {
+        break;
+      }
+    }
+    return { ret: 0, nread };
+  }
+
+  fd_pread(view8: Uint8Array, iovs: wasi.Iovec[], offset: bigint): RetVal_nread {
+    if (offset < 0n) {
+      return { ret: wasi.ERRNO_INVAL, nread: 0 };
+    }
+
+    let nread = 0;
+    for (const iovec of iovs) {
+      if (offset < this.file.data.byteLength) {
+        const slice = this.file.data.slice(
+          Number(offset),
+
+          Number(offset + BigInt(iovec.buf_len)),
+        );
+        view8.set(slice, iovec.buf);
+
+        offset += BigInt(slice.length);
         nread += slice.length;
       } else {
         break;

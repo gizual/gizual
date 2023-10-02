@@ -1,4 +1,5 @@
-import { Fd, RetVal_dirent, RetVal_fd_obj } from "../file-descriptor";
+import { Fd, RetVal_dirent, RetVal_fd_obj, RetVal_filestat } from "../file-descriptor";
+import { isPromise } from "../utils";
 import * as wasi from "../wasi-defs";
 
 import { FSAFile } from "./fsa-file";
@@ -10,6 +11,10 @@ export class FSADirectory {
 
   constructor(handle: FileSystemDirectoryHandle) {
     this.handle = handle;
+  }
+
+  stat(): wasi.Filestat {
+    return new wasi.Filestat(wasi.FILETYPE_DIRECTORY, 0n);
   }
 
   open(fd_flags: number): OpenFSADirectory {
@@ -57,6 +62,24 @@ export class FSADirectory {
 export class OpenFSADirectory extends Fd {
   constructor(private dir: FSADirectory) {
     super();
+  }
+
+  path_filestat_get(flags: number, path: string): RetVal_filestat | Promise<RetVal_filestat> {
+    return this.dir.get_entry_for_path(path).then((entry) => {
+      if (!entry) {
+        return { ret: wasi.ERRNO_NOENT, filestat: null };
+      }
+
+      const stat = entry.stat();
+
+      if (isPromise(stat)) {
+        return stat.then((stat) => {
+          return { ret: 0, filestat: stat };
+        });
+      }
+
+      return { ret: 0, filestat: stat };
+    });
   }
 
   fd_fdstat_get(): { ret: number; fdstat: wasi.Fdstat | null } {
