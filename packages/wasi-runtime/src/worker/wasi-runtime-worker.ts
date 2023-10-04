@@ -32,17 +32,16 @@ export class WasiRuntimeWorker {
   async run(opts: WasiRunOpts) {
     const start = performance.now();
 
-    const { args, env } = opts;
+    const { args } = opts;
 
     const fds: Fd[] = [];
 
     for (const [path, handle] of Object.entries(this.folderMappings)) {
       fds.push(await FsaFS.fromDirectoryHandle(path, handle));
-      console.log("add folder mapping", path, handle);
     }
 
     this.wasi = await WASI.create(this.module, {
-      // TODO add support for env
+      // no support for env vars yet
       args,
       fs: fds,
       trace: false,

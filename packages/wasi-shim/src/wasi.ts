@@ -1,3 +1,8 @@
+/**
+ * Inspired by https://github.com/bjorn3/browser_wasi_shim but with support for
+ * asyncify and promise-based filesystems.
+ */
+
 import * as Asyncify from "@xtuc/asyncify-wasm";
 
 import { Fd, RetVal_dirent, RetVal_fd_obj, RetVal_filestat, RetVal_nread } from "./file-descriptor";
@@ -69,8 +74,6 @@ export class WASI {
     this.env = env;
 
     this.setupFS(fs);
-
-    console.log("WASI created", this.trace);
   }
 
   get memory() {
@@ -127,7 +130,6 @@ export class WASI {
     for (const fd of dirs) {
       const fdId = this.getNextFd();
       this.fdMap.set(fdId, fd);
-      console.log("add folder mapping", fdId, fd);
     }
   }
 

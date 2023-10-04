@@ -1,5 +1,4 @@
 // Based on https://github.com/bytecodealliance/wasi/tree/d3c7a34193cb33d994b11104b22d234530232b5f
-// from https://github.com/bjorn3/browser_wasi_shim
 
 export const FD_STDIN = 0;
 export const FD_STDOUT = 1;
