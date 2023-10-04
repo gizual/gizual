@@ -75,6 +75,8 @@ async function createWorker(handle: FileSystemDirectoryHandle) {
 
 const MAX_CONCURRENCY = (navigator.hardwareConcurrency || 4) * 2;
 
+//const MAX_CONCURRENCY = 1;
+
 export class JobRef<T = any> {
   private id_: number;
   private priority_: number;
@@ -259,7 +261,15 @@ export class ExplorerPool {
 
     while (worker.busy) {
       const stdout = await worker.handle.readStdout();
-      const data = JSON.parse(stdout);
+
+      let data;
+      try {
+        data = JSON.parse(stdout);
+      } catch (error) {
+        job.onErr(error);
+        console.error("error parsing stdout", stdout, error);
+        break;
+      }
 
       const isIntermediateResponse = !isString(data?.jsonrpc);
       //this.logger.trace("stdout", stdout);

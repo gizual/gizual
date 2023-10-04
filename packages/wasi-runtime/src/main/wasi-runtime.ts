@@ -30,10 +30,8 @@ export class WasiRuntime {
 
   async init() {
     for (const [key, value] of Object.entries(this.opts.folderMappings)) {
-      this.logger.trace("add folder mapping", key, value);
       await this.worker.addFolderMapping(key, value);
     }
-    console.log("init");
 
     let bytes: Uint8Array;
     if (WASM_CACHE[this.opts.moduleUrl]) {
