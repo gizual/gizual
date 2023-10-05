@@ -53,6 +53,9 @@ export class TimelineViewModel {
   dragStartX = 0;
   selectStartX = 0;
   selectEndX = 0;
+  moveBoxStartX = 0;
+  resizeBoxStartLeft = 0;
+  resizeBoxStartRight = 0;
 
   viewBox = {
     width: 1000,
@@ -62,6 +65,10 @@ export class TimelineViewModel {
   textColumnWidth = 120;
   rowHeight = 60;
   paddingY = 10;
+  selectionBoxHandle = {
+    width: 15,
+    height: 35,
+  };
 
   get ruler() {
     return {
@@ -147,6 +154,7 @@ export class TimelineViewModel {
 
     this._defaultStartDate = newSelectedStartDate;
     this._defaultEndDate = newSelectedEndDate;
+    this.triggerSearchBarUpdate();
   }
 
   move(pxOffset: number) {
@@ -410,6 +418,26 @@ export class TimelineViewModel {
 
   get isSelecting() {
     return this._eventHandler.isSelecting;
+  }
+
+  get isMovingSelectionBox() {
+    return this._eventHandler.isMovingSelectionBox;
+  }
+
+  get isResizingSelectionBoxLeft() {
+    return this._eventHandler.isResizingSelectionBox === "left";
+  }
+
+  get isResizingSelectionBoxRight() {
+    return this._eventHandler.isResizingSelectionBox === "right";
+  }
+
+  get canResizeSelectionBoxLeft() {
+    return this._eventHandler.canResizeSelectionBox === "left";
+  }
+
+  get canResizeSelectionBoxRight() {
+    return this._eventHandler.canResizeSelectionBox === "right";
   }
 
   get timelineSvg() {

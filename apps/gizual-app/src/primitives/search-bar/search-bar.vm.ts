@@ -35,6 +35,9 @@ export class SearchBarViewModel {
   // able to keep typing without issues.
   @observable _isSyntheticBlur = false;
 
+  // Synthetic events identify adjustments to the search-bar that are not
+  // directly fired by means of a user-event, so they originate from within
+  // another component and require a different focus behaviour.
   @observable _isSyntheticEvent = false;
 
   constructor(mainController: MainController) {
@@ -85,15 +88,6 @@ export class SearchBarViewModel {
     }
 
     if (viewUpdate.selectionSet) this._popoverOpen = true;
-
-    // If we're dealing with a `viewUpdate` that adds text (but does not update the cursor),
-    // we do that manually here.
-
-    //if (this._shouldFocusEol && this._cursorPosition !== this._searchString.length)
-    //  this.focusEnd(viewUpdate);
-    //else this._shouldFocusEol = false;
-    //this._editorState = viewUpdate.state;
-    //if (this._queuedFocusEnd) this.focusEnd();
   }
 
   @action.bound
@@ -156,7 +150,6 @@ export class SearchBarViewModel {
 
   @action.bound
   updateTag(tagId: AvailableTagId, newValue: string, syntheticEvent = false) {
-    this._isSyntheticBlur = !syntheticEvent;
     this._isSyntheticEvent = syntheticEvent;
     const tagIndex = this._tags.findIndex((tag) => tag.tag.id === tagId);
 
@@ -172,10 +165,6 @@ export class SearchBarViewModel {
 
   @action.bound
   rebuildSearchString() {
-    // Rebuild this._searchString based on this._tags
-    //this._searchString =
-
-    console.log("tags", this._tags);
     const content =
       this._tags.map((tag) => `${TAG_PREFIX}${tag.tag.id}:${tag.value}`).join(" ") + " ";
 
@@ -195,8 +184,6 @@ export class SearchBarViewModel {
 
   @action.bound
   appendTag(tag: Tag, value = "") {
-    //this._searchString = this._searchString.trim() + ` ${TAG_PREFIX}${tag.id}:${value}`;
-    //this._searchString = this._searchString.trim();
     this._isSyntheticBlur = true;
     if (this._tags.some((t) => t.tag.id === tag.id)) {
       this.updateTag(tag.id, value);
