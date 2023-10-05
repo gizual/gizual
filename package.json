@@ -11,6 +11,7 @@
     "./apps/gizual-app/src/*"
   ],
   "devDependencies": {
+    "@giz/build-tools": "workspace:*",
     "husky": "8.0.3",
     "lint-staged": "13.2.3",
     "prettier": "3.0.0",
@@ -19,7 +20,8 @@
     "typescript": "5.0.4"
   },
   "scripts": {
-    "dev": "turbo run dev --parallel --concurrency 20 --scope gizual-app --include-dependencies",
+    "dev": "yarn workspace @giz/gizual-app start",
+    "dev:old": "turbo run dev --parallel --concurrency 20 --scope gizual-app --include-dependencies",
     "playground": "yarn turbo run dev --scope @giz/wasi-playground-app  --include-dependencies",
     "build": "turbo run build --scope gizual-app --include-dependencies",
     "lint": "turbo run lint",
