@@ -1,4 +1,4 @@
-import { DATE_FORMAT, getDaysBetweenAbs, GizDate, logAllMethods } from "@app/utils";
+import { DATE_FORMAT, getDaysBetweenAbs, getStringDate, GizDate, logAllMethods } from "@app/utils";
 import { EditorState } from "@codemirror/state";
 import { EditorView, ViewUpdate } from "@codemirror/view";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
@@ -65,7 +65,7 @@ export class SearchBarViewModel {
 
   @action.bound
   onSearchBarBlur(): void {
-    if (!this._isSyntheticBlur) this.evaluateTags();
+    //if (!this._isSyntheticBlur) this.evaluateTags();
   }
 
   @computed
@@ -109,25 +109,24 @@ export class SearchBarViewModel {
   evaluateTags() {
     this._tags = this.parseTags(this._searchString);
     for (const tag of this._tags) {
-      if (tag.tag.id === "start") {
-        // If the user deletes the entire `start` tag from the selection, we want the default selection
+      if (tag.tag.id === "range") {
+        // If the user deletes the entire `range` tag from the selection, we want the default selection
         // to apply, even if it's not explicitly specified. Thus, we need to evaluate the validity of the
         // tags value before assigning it here.
-        const dayjsDate = dayjs(tag.value, DATE_FORMAT);
+
+        const start = tag.value.split("-")[0];
+        const startDate = dayjs(start, DATE_FORMAT);
 
         this._mainController.vmController.timelineViewModel?.setSelectedStartDate(
-          dayjsDate.isValid() ? new GizDate(dayjsDate.toDate()) : undefined,
+          startDate.isValid() ? new GizDate(startDate.toDate()) : undefined,
         );
-      }
 
-      if (tag.tag.id === "end") {
-        // If the user deletes the entire `end` tag from the selection, we want the default selection
-        // to apply, even if it's not explicitly specified. Thus, we need to evaluate the validity of the
-        // tags value before assigning it here.
-        const dayjsDate = dayjs(tag.value, DATE_FORMAT);
+        const end = tag.value.split("-")[1];
 
-        const date = dayjsDate.isValid()
-          ? new GizDate(dayjsDate.toDate())
+        const endDate = dayjs(end, DATE_FORMAT);
+
+        const date = endDate.isValid()
+          ? new GizDate(endDate.toDate())
           : this._mainController.vmController.timelineViewModel?.defaultEndDate ?? new GizDate();
 
         const numSelectedDays = getDaysBetweenAbs(
@@ -164,9 +163,28 @@ export class SearchBarViewModel {
   }
 
   @action.bound
+  updateTagWithCallback(
+    tagId: AvailableTagId,
+    cb: (value?: string) => string,
+    syntheticEvent = false,
+  ) {
+    this._isSyntheticEvent = syntheticEvent;
+    const tagIndex = this._tags.findIndex((tag) => tag.tag.id === tagId);
+
+    if (tagIndex === -1) {
+      this.appendTag(AvailableTags[tagId], cb());
+    } else {
+      this._tags[tagIndex].value = cb(this._tags[tagIndex].value);
+    }
+
+    this.rebuildSearchString();
+    this._isSyntheticEvent = false;
+  }
+
+  @action.bound
   rebuildSearchString() {
     const content =
-      this._tags.map((tag) => `${TAG_PREFIX}${tag.tag.id}:${tag.value}`).join(" ") + " ";
+      this._tags.map((tag) => `${TAG_PREFIX}${tag.tag.id}:${tag.value}`).join(" ") + "";
 
     this._editorView?.dispatch({
       changes: {
@@ -212,6 +230,7 @@ export class SearchBarViewModel {
 
   @action.bound
   focusEnd(length: number) {
+    console.log("focusEnd", "synthetic?", this._isSyntheticEvent);
     // If we're dealing with a synthetic event, we don't want to artificially
     // set the focus here, otherwise we would unintentionally remove focus from
     // another element or open the popover erroneously.
@@ -308,5 +327,29 @@ export class SearchBarViewModel {
     //this._searchString = this._searchString.trim();
     //this.evaluateTags();
     //this.closePopover();
+  }
+
+  @action.bound
+  triggerDateTimeUpdate(force = false) {
+    const isCollapsed =
+      this._mainController.settingsController.settings.timelineSettings.displayMode.value ===
+      "collapsed";
+    // If we're in collapsed mode, we want to ignore most of the "update" calls as they would
+    // be distracting for the user within the search-bar.
+    if (isCollapsed && !force) return;
+
+    const date =
+      getStringDate(this._mainController.selectedStartDate) +
+      "-" +
+      getStringDate(this._mainController.selectedEndDate);
+
+    this.updateTag(AvailableTags.range.id, date, !isCollapsed);
+
+    //this.updateTag(
+    //  AvailableTags.start.id,
+    //  getStringDate(this._mainController.selectedStartDate),
+    //  true,
+    //);
+    //this.updateTag(AvailableTags.end.id, getStringDate(this._mainController.selectedEndDate), true);
   }
 }

@@ -12,6 +12,6 @@ export { IconButton } from "./icon-button";
 export { RepoPanel } from "./repo-panel";
 export { SearchBar } from "./search-bar";
 export { Select } from "./select";
-export { SettingsPanel } from "./settings-panel";
+export { AuthorPanel as SettingsPanel } from "./author-panel";
 export { Timeline } from "./timeline";
 export { TitleBar } from "./title-bar";

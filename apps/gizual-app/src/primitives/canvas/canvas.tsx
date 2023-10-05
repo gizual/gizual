@@ -63,7 +63,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
     <div className={style.Stage}>
       {visibleTimeline && (
         <>
-          <Timeline />
+          <Timeline vm={mainController.vmController.timelineViewModel} />
           <hr />
         </>
       )}

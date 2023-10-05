@@ -2,7 +2,7 @@ import { DateTimeInputAssist } from "./panels";
 
 export const TAG_PREFIX = "-";
 
-export const AvailableTagIds = ["file", "author", "start", "end"] as const;
+export const AvailableTagIds = ["file", "author", "range"] as const;
 export type AvailableTagId = (typeof AvailableTagIds)[number];
 export const AvailableTagIdsForRegexp = AvailableTagIds.join("|");
 
@@ -28,14 +28,9 @@ export const AvailableTags: Record<AvailableTagId, Tag> = {
     textHint: "Apply the search to a specific author.",
     inputAssist: <p>Not yet implemented.</p>,
   },
-  start: {
-    id: "start",
-    textHint: "Start searching from a specific date.",
-    inputAssist: <DateTimeInputAssist tagId={"start"} />,
-  },
-  end: {
-    id: "end",
-    textHint: "Stop searching at a specific commit.",
-    inputAssist: <DateTimeInputAssist tagId={"end"} />,
+  range: {
+    id: "range",
+    textHint: "Constrain the visualisation to a specific time-range.",
+    inputAssist: <DateTimeInputAssist tagId="range" />,
   },
 };

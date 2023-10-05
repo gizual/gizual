@@ -1,4 +1,5 @@
 import { Container, Languages, parseLanguages } from "@app/charts";
+import { AuthorPanel } from "@app/primitives/author-panel";
 import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -9,7 +10,6 @@ import { TitleBar } from "../../primitives";
 import { Canvas } from "../../primitives/canvas";
 import { RepoPanel } from "../../primitives/repo-panel";
 import { SearchBar } from "../../primitives/search-bar/search-bar";
-import { SettingsPanel } from "../../primitives/settings-panel";
 import { SettingsPage } from "../settings";
 
 import style from "./main.module.scss";
@@ -30,7 +30,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
     <div className={style.Page}>
       <div className={style.TitleBarContainer}>
         <TitleBar />
-        {mainController.selectedPanel === "explore" && <SearchBar />}
+        <SearchBar />
       </div>
 
       <div className={style.Body}>
@@ -50,7 +50,7 @@ const ExplorePage = observer(({ vm }: MainPageProps) => {
     <>
       {vmController.isRepoPanelVisible && <RepoPanel />}
       <Canvas />
-      {vmController.isSettingsPanelVisible && <SettingsPanel />}
+      {vmController.isAuthorPanelVisible && <AuthorPanel />}
     </>
   );
 });

@@ -1,15 +1,14 @@
 import { useMainController } from "@app/controllers";
-import { Button } from "@app/primitives";
 import { DATE_FORMAT } from "@app/utils";
-import { DatePicker, DatePickerProps } from "antd";
+import { DatePicker } from "antd";
 import clsx from "clsx";
-import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import { ReactComponent as TrashIcon } from "../../../assets/icons/trash.svg";
 import { Timeline } from "../../timeline";
 import style from "../search-bar.module.scss";
-import { AvailableTagId, AvailableTags } from "../search-tags";
+import { AvailableTagId } from "../search-tags";
 
 export type DateTimeInputAssist = {
   tagId: AvailableTagId;
@@ -19,7 +18,6 @@ export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => 
   const mainController = useMainController();
   const timelineVisible =
     mainController.settingsController.settings.timelineSettings.displayMode.value === "collapsed";
-  const tag = AvailableTags[tagId];
 
   const vm = mainController.vmController.searchBarViewModel;
   if (!vm) return <></>;
@@ -27,12 +25,19 @@ export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => 
   const selectedTag = vm.tags.find((t) => t.tag.id === tagId);
   if (!selectedTag) return <></>;
 
-  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    vm.updateTag(tag.id, dateString);
+  const onChange = (dateString: string, type: "start" | "end") => {
+    vm.updateTagWithCallback(tagId, (value) => {
+      if (value) {
+        const dates = value.split("-");
+        let start = dates[0];
+        let end = dates[1];
+        if (type === "start") start = dateString;
+        if (type === "end") end = dateString;
+        return start + "-" + end;
+      }
+      return dateString;
+    });
   };
-
-  let currentDate = dayjs(selectedTag.value, DATE_FORMAT);
-  if (!currentDate.isValid()) currentDate = dayjs();
 
   const defaultStartDate =
     vm._mainController.vmController.timelineViewModel?.defaultStartDate?.toString();
@@ -44,44 +49,54 @@ export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => 
     <>
       {timelineVisible && (
         <>
-          <Timeline />
-          <Button
-            variant="filled"
-            onClick={() => {
-              mainController.vmController.timelineViewModel?.triggerSearchBarUpdate(true);
-            }}
-          >
-            Set Range
-          </Button>
+          <Timeline vm={mainController.vmController.timelineViewModel} />
           <hr />
         </>
       )}
       <div className={style.SearchOverlayHintEntry}>
-        {tag.id === "start" && <p>Pick a custom start date: </p>}
-        {tag.id === "end" && <p>Pick a custom end date: </p>}
-        <DatePicker onChange={onChange} format={DATE_FORMAT} size="small" />
+        <p>Pick a custom start date: </p>
+        <DatePicker
+          onChange={(_, dateString) => onChange(dateString, "start")}
+          format={DATE_FORMAT}
+          size="small"
+        />
       </div>
-      {tag.id === "start" && defaultStartDate && (
+
+      {defaultStartDate && (
         <div
           className={style.SearchOverlayHintEntry}
           onClick={() => {
-            vm.updateTag(tagId, defaultStartDate);
+            onChange(defaultStartDate, "start");
           }}
         >
           <p>{`${defaultStartDate} (default)`}</p>
         </div>
       )}
-      {tag.id === "end" && defaultEndDate && (
+
+      <hr />
+
+      <div className={style.SearchOverlayHintEntry}>
+        <p>Pick a custom end date: </p>
+        <DatePicker
+          onChange={(_, dateString) => onChange(dateString, "end")}
+          format={DATE_FORMAT}
+          size="small"
+        />
+      </div>
+
+      {defaultEndDate && (
         <div
           className={style.SearchOverlayHintEntry}
           onClick={() => {
-            vm.updateTag(tagId, defaultEndDate);
+            onChange(defaultEndDate, "end");
           }}
         >
           <p>{`${defaultEndDate} (default)`}</p>
         </div>
       )}
+
       <hr />
+
       <div
         className={clsx(style.SearchOverlayHintEntry, style.RemoveTagEntry)}
         onClick={() => {

@@ -248,7 +248,9 @@ export class TimelineEventHandler {
       return;
     }
 
-    this.canResizeSelectionBox = this.evaluateCanResize(e);
+    runInAction(() => {
+      this.canResizeSelectionBox = this.evaluateCanResize(e);
+    });
   };
 
   evaluateCanResize(e: MouseEvent) {

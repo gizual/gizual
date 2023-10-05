@@ -1,22 +1,19 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import { useMainController, useViewModelController } from "@app/controllers";
+import { useMainController } from "@app/controllers";
 import { StreamLanguage } from "@codemirror/language";
 import { simpleMode } from "@codemirror/legacy-modes/mode/simple-mode";
 import { keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { createPortal } from "react-dom";
 
-import { ReactComponent as TreeIcon } from "../../assets/icons/file-tree.svg";
 import { ReactComponent as GitBranchLine } from "../../assets/icons/git-branch-line.svg";
 import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
-import { ReactComponent as SettingsIcon } from "../../assets/icons/settings.svg";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 import { Select } from "../select";
@@ -85,7 +82,6 @@ export type SearchBarProps = {
 
 export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
   const mainController = useMainController();
-  const vmController = useViewModelController();
 
   const vm: SearchBarViewModel = React.useMemo(() => {
     return externalVm || new SearchBarViewModel(mainController);
@@ -94,14 +90,6 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
   return (
     <div className={style.SearchBar}>
       <div className={style.Content}>
-        <Tooltip title={"Toggle repository panel"}>
-          <IconButton
-            onClick={vmController.toggleRepoPanelVisibility}
-            aria-label="Toggle repository panel"
-          >
-            <TreeIcon />
-          </IconButton>
-        </Tooltip>
         <Select
           value={mainController.selectedBranch}
           style={{ paddingLeft: "1rem" }}
@@ -118,14 +106,6 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
         <div id="inputWrapper" className={style.SearchInputWrapper}>
           <SearchInput vm={vm} />
         </div>
-        <Tooltip title={"Toggle settings panel"}>
-          <IconButton
-            onClick={vmController.toggleSettingsPanelVisibility}
-            aria-label="Toggle settings panel"
-          >
-            <SettingsIcon />
-          </IconButton>
-        </Tooltip>
       </div>
     </div>
   );
@@ -189,16 +169,21 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
               {!vm.currentPendingTag && (
                 <>
                   <h4>Refine your search</h4>
-                  {Object.entries(AvailableTags).map(([id, tag]) => (
-                    <div
-                      className={style.SearchOverlayHintEntry}
-                      key={id}
-                      onClick={() => vm.appendTag(tag)}
-                    >
-                      <pre className={style.Tag}>-{tag.id}: </pre>
-                      <pre className={style.Hint}>{tag.textHint}</pre>
-                    </div>
-                  ))}
+                  {Object.entries(AvailableTags).map(([id, tag]) => {
+                    if (vm.tags.some((t) => t.tag.id === id))
+                      return <React.Fragment key={id}></React.Fragment>;
+
+                    return (
+                      <div
+                        className={style.SearchOverlayHintEntry}
+                        key={id}
+                        onClick={() => vm.appendTag(tag)}
+                      >
+                        <pre className={style.Tag}>-{tag.id}: </pre>
+                        <pre className={style.Hint}>{tag.textHint}</pre>
+                      </div>
+                    );
+                  })}
                 </>
               )}
               {vm.currentPendingTag && vm.currentPendingTag.tag.inputAssist}

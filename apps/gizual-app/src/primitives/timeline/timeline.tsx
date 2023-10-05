@@ -259,7 +259,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   }, [
     timelineContainerRef,
     vmController.isRepoPanelVisible,
-    vmController.isSettingsPanelVisible,
+    vmController.isAuthorPanelVisible,
     vm.commitsForBranch,
     width,
   ]);

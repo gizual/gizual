@@ -109,11 +109,11 @@
 }
 
 .InteractionLayer--isResizingLeft {
-  cursor: w-resize;
+  cursor: col-resize;
 }
 
 .InteractionLayer--isResizingRight {
-  cursor: e-resize;
+  cursor: col-resize;
 }
 
 .Header {
@@ -140,7 +140,7 @@
 }
 
 .Tooltip {
-  @include z-index-dialog;
+  @include z-index-max;
   background: var(--background-secondary);
   color: var(--foreground-primary);
   border: 1px solid var(--border-primary);
@@ -162,7 +162,7 @@
 
 .SelectionBox {
   @include z-index-base-3;
-  background: #30308020;
+  background: #5a9ac827;
   border: 1px solid var(--border-secondary);
   pointer-events: none;
   position: absolute; // Positions are set in JS.

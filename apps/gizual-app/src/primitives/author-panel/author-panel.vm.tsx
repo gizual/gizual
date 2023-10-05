@@ -1,9 +1,8 @@
+import { MainController } from "@app/controllers";
 import { ColouringMode, ColouringModeLabels } from "@app/types";
 import { Avatar } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { makeAutoObservable } from "mobx";
-
-import { MainController } from "../../controllers";
 
 interface AuthorType {
   key: React.Key;
@@ -13,7 +12,7 @@ interface AuthorType {
   avatar: string;
 }
 
-export class SettingsPanelViewModel {
+export class AuthorPanelViewModel {
   private _mainController: MainController;
 
   constructor(mainController: MainController) {

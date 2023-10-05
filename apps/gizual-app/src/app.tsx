@@ -37,6 +37,21 @@ function App() {
         gradientFromColor: "var(--background-secondary)",
         gradientToColor: "var(--background-tertiary)",
       },
+      Select: {
+        colorBorder: "var(--border-primary)",
+        colorBgContainer: "var(--background-tertiary)",
+      },
+      Input: {
+        colorBorder: "var(--border-primary)",
+        colorBgContainer: "var(--background-tertiary)",
+      },
+      InputNumber: {
+        colorBorder: "var(--border-primary)",
+        colorBgContainer: "var(--background-tertiary)",
+      },
+      Table: {
+        colorBgContainer: "var(--background-primary)",
+      },
     },
     token,
   };
