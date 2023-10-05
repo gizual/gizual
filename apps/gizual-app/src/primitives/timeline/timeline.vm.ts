@@ -282,8 +282,16 @@ export class TimelineViewModel {
     }
   }
 
-  triggerSearchBarUpdate() {
-    //this.mainController.vmController.searchBarViewModel!.clear();
+  triggerSearchBarUpdate(force = false) {
+    // If we're in collapsed mode, we want to ignore most of the "update" calls as they would
+    // be distracting for the user within the search-bar.
+    if (
+      this.mainController.settingsController.settings.timelineSettings.displayMode.value ===
+        "collapsed" &&
+      !force
+    )
+      return;
+
     this.mainController.vmController.searchBarViewModel?.updateTag(
       AvailableTags.start.id,
       getStringDate(this.selectedStartDate),

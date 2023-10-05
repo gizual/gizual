@@ -61,6 +61,9 @@ const createTextSetting = (name: string, description: string, value: string) =>
 const VIEW_MODES = ["block", "flex"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];
 
+const TIMELINE_MODES = ["visible", "collapsed"] as const;
+type TimelineMode = (typeof TIMELINE_MODES)[number];
+
 type VisualisationSettings = {
   colours: {
     old: SettingsEntry<string, "colour">;
@@ -81,6 +84,7 @@ type EditorSettings = {
 } & GroupEntry;
 
 type TimelineSettings = {
+  displayMode: SettingsEntry<TimelineMode, "select">;
   snap: SettingsEntry<boolean, "checkbox">;
   defaultRange: SettingsEntry<number, "number">;
   weekModeThreshold: SettingsEntry<number, "number">;
@@ -100,6 +104,14 @@ export class SettingsController {
   };
   timelineSettings: TimelineSettings = {
     groupName: "Timeline Settings",
+    displayMode: createSelectSetting(
+      "Display Mode",
+      "Controls if the timeline should be always visible or collapsed into the search bar.",
+      "visible",
+      TIMELINE_MODES.map((m) => {
+        return { value: m, label: m };
+      }),
+    ),
     snap: createCheckboxSetting(
       "Snap to grid",
       "Controls if selections on the timeline snap to the nearest grid element.",

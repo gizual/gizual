@@ -1,4 +1,5 @@
 import { useMainController } from "@app/controllers";
+import { Button } from "@app/primitives";
 import { DATE_FORMAT } from "@app/utils";
 import { DatePicker, DatePickerProps } from "antd";
 import clsx from "clsx";
@@ -6,6 +7,7 @@ import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 
 import { ReactComponent as TrashIcon } from "../../../assets/icons/trash.svg";
+import { Timeline } from "../../timeline";
 import style from "../search-bar.module.scss";
 import { AvailableTagId, AvailableTags } from "../search-tags";
 
@@ -15,6 +17,8 @@ export type DateTimeInputAssist = {
 
 export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => {
   const mainController = useMainController();
+  const timelineVisible =
+    mainController.settingsController.settings.timelineSettings.displayMode.value === "collapsed";
   const tag = AvailableTags[tagId];
 
   const vm = mainController.vmController.searchBarViewModel;
@@ -38,6 +42,20 @@ export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => 
 
   return (
     <>
+      {timelineVisible && (
+        <>
+          <Timeline />
+          <Button
+            variant="filled"
+            onClick={() => {
+              mainController.vmController.timelineViewModel?.triggerSearchBarUpdate(true);
+            }}
+          >
+            Set Range
+          </Button>
+          <hr />
+        </>
+      )}
       <div className={style.SearchOverlayHintEntry}>
         {tag.id === "start" && <p>Pick a custom start date: </p>}
         {tag.id === "end" && <p>Pick a custom end date: </p>}

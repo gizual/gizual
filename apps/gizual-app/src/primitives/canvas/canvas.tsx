@@ -21,6 +21,8 @@ export type CanvasProps = {
 
 function Canvas({ vm: externalVm }: CanvasProps) {
   const mainController = useMainController();
+  const visibleTimeline =
+    mainController.settingsController.settings.timelineSettings.displayMode.value === "visible";
 
   const vm: CanvasViewModel = React.useMemo(() => {
     return externalVm || new CanvasViewModel(mainController);
@@ -59,7 +61,12 @@ function Canvas({ vm: externalVm }: CanvasProps) {
 
   return (
     <div className={style.Stage}>
-      <Timeline />
+      {visibleTimeline && (
+        <>
+          <Timeline />
+          <hr />
+        </>
+      )}
       <div className={style.Toolbar}>
         <div className={sharedStyle.InlineRow}>
           <Tooltip title={"Zoom out"}>
