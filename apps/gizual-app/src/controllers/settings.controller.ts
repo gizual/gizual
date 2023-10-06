@@ -55,7 +55,7 @@ const createNumberSetting = (name: string, description: string, value: number) =
   createSetting<number, "number">(name, description, value, "number");
 const createCheckboxSetting = (name: string, description: string, value: boolean) =>
   createSetting<boolean, "checkbox">(name, description, value, "checkbox");
-const createTextSetting = (name: string, description: string, value: string) =>
+const _createTextSetting = (name: string, description: string, value: string) =>
   createSetting<string, "text">(name, description, value, "text");
 
 const VIEW_MODES = ["block", "flex"] as const;

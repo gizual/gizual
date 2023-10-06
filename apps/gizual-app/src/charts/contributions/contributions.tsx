@@ -37,7 +37,7 @@ const mockContributions: ContributionEntry[] = [
 export function AllContributions({ contributions }: AllContributionsProps) {
   if (!contributions) contributions = mockContributions;
 
-  const data = prepareData(contributions);
+  const _data = prepareData(contributions);
 
   return <></>;
 }

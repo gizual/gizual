@@ -21,7 +21,8 @@
 }
 
 .Container {
-  h2, span {
+  h2,
+  span {
     font-size: 8em;
     position: absolute;
     transform: translate(-50%, -50%);
@@ -36,13 +37,13 @@
 }
 
 .TitleStroke {
-	color: transparent;
-	-webkit-text-stroke: 3px var(--color-gizblue)
+  color: transparent;
+  -webkit-text-stroke: 3px var(--color-gizblue);
 }
 
 .TitleIdleWave {
-	color: #03a9f4;
-	animation: animate 5s ease-in-out infinite;
+  color: #03a9f4;
+  animation: animate 5s ease-in-out infinite;
   @media (prefers-reduced-motion) {
     animation: none;
   }
@@ -50,8 +51,8 @@
 }
 
 .TitleColourBg {
-	color: var(--color-gizblue);
-	//animation: wave2 8s ease-in-out infinite;
+  color: var(--color-gizblue);
+  //animation: wave2 8s ease-in-out infinite;
   @media (prefers-reduced-motion) {
     animation: none;
   }
@@ -76,67 +77,65 @@
 }
 
 @keyframes animate {
-	0%,
-	100% {
-		clip-path: polygon(
-			0% 45%,
-			16% 44%,
-			33% 50%,
-			54% 60%,
-			70% 61%,
-			84% 59%,
-			100% 52%,
-			100% 100%,
-			0% 100%
-		);
-	}
+  0%,
+  100% {
+    clip-path: polygon(
+      0% 45%,
+      16% 44%,
+      33% 50%,
+      54% 60%,
+      70% 61%,
+      84% 59%,
+      100% 52%,
+      100% 100%,
+      0% 100%
+    );
+  }
 
-	50% {
-		clip-path: polygon(
-			0% 60%,
-			15% 65%,
-			34% 66%,
-			51% 62%,
-			67% 50%,
-			84% 45%,
-			100% 46%,
-			100% 100%,
-			0% 100%
-		);
-	}
+  50% {
+    clip-path: polygon(
+      0% 60%,
+      15% 65%,
+      34% 66%,
+      51% 62%,
+      67% 50%,
+      84% 45%,
+      100% 46%,
+      100% 100%,
+      0% 100%
+    );
+  }
 }
-
 
 @keyframes loading {
-	100% {
-		clip-path: polygon(
-			0% 5%,
-			16% 10%,
-			33% 0%,
-			54% 12%,
-			70% 7%,
-			84% 5%,
-			100% 15%,
-			100% 100%,
-			0% 100%
-		);
-	}
+  100% {
+    clip-path: polygon(
+      0% 5%,
+      16% 10%,
+      33% 0%,
+      54% 12%,
+      70% 7%,
+      84% 5%,
+      100% 15%,
+      100% 100%,
+      0% 100%
+    );
+  }
 
-	0% {
-		clip-path: polygon(
-			0% 120%,
-			15% 110%,
-			34% 130%,
-			51% 100%,
-			67% 108%,
-			84% 115%,
-			100% 100%,
-			100% 100%,
-			0% 100%
-		);
-	}
+  0% {
+    clip-path: polygon(
+      0% 120%,
+      15% 110%,
+      34% 130%,
+      51% 100%,
+      67% 108%,
+      84% 115%,
+      100% 100%,
+      100% 100%,
+      0% 100%
+    );
+  }
 }
-
 
 @keyframes fade-in {
   to {

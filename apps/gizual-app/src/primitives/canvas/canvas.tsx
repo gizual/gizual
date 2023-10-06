@@ -20,7 +20,6 @@ import { Timeline } from "../timeline";
 
 import style from "./canvas.module.scss";
 import { CanvasViewModel, MAX_ZOOM, MIN_ZOOM } from "./canvas.vm";
-import { Select } from "../select";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;

@@ -1,4 +1,4 @@
-import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
+import { useMainController, useSettingsController } from "@app/controllers";
 import { DATE_FORMAT } from "@app/utils";
 import { DatePicker } from "antd";
 import { observer } from "mobx-react-lite";
@@ -16,7 +16,6 @@ export type DateTimeInputAssist = {
 export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => {
   const mainController = useMainController();
   const settingsController = useSettingsController();
-  const vmController = useViewModelController();
 
   const timelineVisible =
     settingsController.settings.timelineSettings.displayMode.value === "collapsed";

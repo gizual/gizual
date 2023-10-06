@@ -1,11 +1,10 @@
 import { Container, Languages, parseLanguages } from "@app/charts";
-import { AuthorPanel } from "@app/primitives/author-panel";
 import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
 
-import { useMainController, useViewModelController } from "../../controllers";
+import { useMainController } from "../../controllers";
 import { TitleBar } from "../../primitives";
 import { Canvas } from "../../primitives/canvas";
 import { SearchBar } from "../../primitives/search-bar/search-bar";
