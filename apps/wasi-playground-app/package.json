@@ -29,5 +29,17 @@
     "preview": "vite preview",
     "clean": "rimraf dist",
     "type-check": "tsc"
+  },
+  "please": {
+    "dev": {
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "build": {
+      "dependsOn": [
+        "build"
+      ]
+    }
   }
 }

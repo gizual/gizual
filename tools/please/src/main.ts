@@ -10,7 +10,7 @@ import concurrently from "concurrently";
 import { debounce } from "debounce";
 
 function log(...args: any[]) {
-  console.log(chalk.red("build:"), ...args);
+  console.log(chalk.red("LOG:"), ...args);
 }
 
 async function fspExists(path: string): Promise<boolean> {
@@ -80,7 +80,7 @@ class DependencyGraph {
     const id = `${packageJSON.name}#${taskName}`;
 
     const script = packageJSON.scripts?.[taskName];
-    const infoDTO: TaskConfig = packageJSON.giz?.[taskName];
+    const infoDTO: TaskConfig = packageJSON.please?.[taskName];
 
     if (!script && !infoDTO) {
       return undefined;
@@ -112,7 +112,7 @@ class DependencyGraph {
 
     const workspaceDependencies = Object.entries(dependencies)
       .filter(([_, value]) => value.startsWith("workspace:"))
-      .filter(([key, _]) => key !== "@giz/build-tools");
+      .filter(([key, _]) => key !== "@giz/please");
 
     const dependencyPackages: Package[] = [];
 
@@ -165,10 +165,10 @@ class DependencyGraph {
     this.tasks = sortedTasks;
   }
 
-  async execute(originalTask: string) {
+  async execute(originalTaskId: string) {
     const tasks = this.tasks
       .filter((task) => !task.transparent)
-      .filter((task) => task.id !== originalTask);
+      .filter((task) => task.id !== originalTaskId);
 
     for (const task of tasks) {
       await this.runTask(task);
@@ -180,16 +180,16 @@ class DependencyGraph {
       this.setupWatchTask(task);
     }
 
-    const t = this.tasks.find((task) => task.id === originalTask);
+    const t = this.tasks.find((task) => task.id === originalTaskId);
 
     if (!t) {
-      throw new Error(`Task ${originalTask} not found`);
+      throw new Error(`Task ${originalTaskId} not found`);
     }
 
-    this.runTask(t, true);
+    return this.runTask(t, "green");
   }
 
-  async runTask(task: Task, async = false) {
+  async runTask(task: Task, prefixColor = "gray") {
     const prettyTaskId = `${chalk.blue(task.pkg.packageJson.name)}#${chalk.yellow(task.taskName)}`;
     const { pkg, taskName } = task;
     const packageJSON: any = pkg.packageJson;
@@ -207,7 +207,7 @@ class DependencyGraph {
           command: `yarn run ${taskName}`,
           name: `${pkg.packageJson.name}#${taskName}`,
           cwd: pkg.dir,
-          prefixColor: async ? "green" : "gray",
+          prefixColor,
         },
       ],
       {
@@ -215,10 +215,6 @@ class DependencyGraph {
         restartTries: 0,
       },
     );
-
-    if (async) {
-      return res;
-    }
 
     await res.result;
     log(`Finished task ${chalk.blue(prettyTaskId)}`);
@@ -267,14 +263,24 @@ class DependencyGraph {
 }
 
 const main = async () => {
-  const taskName = process.argv[2];
-
-  if (!taskName) {
-    throw new Error("No task name provided");
-  }
   const graph = await DependencyGraph.create(process.cwd());
 
-  const pkg = await findNearestPackage(process.cwd());
+  const arg2 = process.argv[2];
+
+  if (!arg2) {
+    throw new Error("No task name provided");
+  }
+
+  let pkg: Package | undefined;
+  let taskName: string | undefined;
+  if (arg2.includes("#")) {
+    const [pkgName, tName] = arg2.split("#");
+    taskName = tName;
+    pkg = graph.getPackage(pkgName);
+  } else {
+    pkg = await findNearestPackage(process.cwd());
+    taskName = arg2;
+  }
 
   const id = await graph.addTask(pkg, taskName);
 
@@ -292,7 +298,10 @@ const main = async () => {
     graph.dispose();
   });
 
-  graph.execute(id!);
+  graph.execute(id!).then(() => {
+    log("All tasks are done 🔥");
+    graph.dispose();
+  });
 };
 
 await main();

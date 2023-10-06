@@ -20,5 +20,10 @@
     "clean": "rimraf dist",
     "lint": "eslint .",
     "type-check": "tsc"
+  },
+  "please": {
+    "build": {
+      "input": "src/*"
+    }
   }
 }

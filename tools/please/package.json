@@ -1,12 +1,10 @@
 {
-  "name": "@giz/build-tools",
+  "name": "@giz/please",
   "main": "./src/main.ts",
   "exports": {
     ".": "./src/main.ts"
   },
-  "bin": {
-    "giz": "./cli.js"
-  },
+  "bin": "./cli.js",
   "devDependencies": {
     "@manypkg/find-root": "2.2.1",
     "@manypkg/get-packages": "2.2.0",

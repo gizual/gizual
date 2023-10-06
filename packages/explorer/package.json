@@ -16,7 +16,7 @@
     "lodash": "4.17.21",
     "mobx": "6.10.0"
   },
-  "giz": {
+  "please": {
     "build": {
       "dependsOn": [
         "build"

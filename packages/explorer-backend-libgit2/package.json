@@ -13,10 +13,9 @@
     "turbowatch": "2.29.4",
     "zx": "7.2.3"
   },
-  "giz": {
+  "please": {
     "build": {
-      "input": "src/*",
-      "output": "dist/explorer-backend-libgit2.wasm"
+      "input": "src/*"
     }
   }
 }

@@ -895,22 +895,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@giz/build-tools@workspace:*, @giz/build-tools@workspace:tools/build-tools":
-  version: 0.0.0-use.local
-  resolution: "@giz/build-tools@workspace:tools/build-tools"
-  dependencies:
-    "@manypkg/find-root": 2.2.1
-    "@manypkg/get-packages": 2.2.0
-    chalk: 5.3.0
-    chokidar: 3.5.3
-    concurrently: 8.2.1
-    debounce: 1.2.1
-    vite-node: 0.34.6
-  bin:
-    giz: ./cli.js
-  languageName: unknown
-  linkType: soft
-
 "@giz/eslint-config@workspace:*, @giz/eslint-config@workspace:tools/eslint-config":
   version: 0.0.0-use.local
   resolution: "@giz/eslint-config@workspace:tools/eslint-config"
@@ -959,7 +943,6 @@ __metadata:
     "@codemirror/state": ^6.2.0
     "@codemirror/theme-one-dark": ^6.1.2
     "@codemirror/view": ^6.11.2
-    "@giz/build-tools": "workspace:*"
     "@giz/eslint-config": "workspace:*"
     "@giz/explorer": "workspace:*"
     "@lezer/highlight": ^1.1.6
@@ -1017,6 +1000,22 @@ __metadata:
   resolution: "@giz/logger@workspace:packages/logger"
   dependencies:
     tslog: 4.8.2
+  languageName: unknown
+  linkType: soft
+
+"@giz/please@workspace:*, @giz/please@workspace:tools/please":
+  version: 0.0.0-use.local
+  resolution: "@giz/please@workspace:tools/please"
+  dependencies:
+    "@manypkg/find-root": 2.2.1
+    "@manypkg/get-packages": 2.2.0
+    chalk: 5.3.0
+    chokidar: 3.5.3
+    concurrently: 8.2.1
+    debounce: 1.2.1
+    vite-node: 0.34.6
+  bin:
+    please: ./cli.js
   languageName: unknown
   linkType: soft
 
@@ -5244,7 +5243,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "gizual@workspace:."
   dependencies:
-    "@giz/build-tools": "workspace:*"
+    "@giz/please": "workspace:*"
     husky: 8.0.3
     lint-staged: 13.2.3
     prettier: 3.0.0
