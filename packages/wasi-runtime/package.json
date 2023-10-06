@@ -11,6 +11,7 @@
     "tsup": "7.1.0"
   },
   "devDependencies": {
+    "eslint": "8.45.0",
     "turbowatch": "2.29.4",
     "typescript": "5.0.4"
   },
@@ -20,5 +21,10 @@
     "clean": "rimraf dist",
     "lint": "eslint .",
     "type-check": "tsc"
+  },
+  "please": {
+    "build": {
+      "input": "src/*"
+    }
   }
 }

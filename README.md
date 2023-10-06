@@ -2,12 +2,11 @@
 
 A live demo can be found at [gizual.com](https://www.gizual.com).
 
-
 ## How to build?
 
- ⚠️  Ensure the required dependencies are installed. (Git, Rust, Node.js v18, yarn). For Windows, check the [docs](./docs/dep-install-windows.md).
+⚠️ Ensure the required dependencies are installed. (Git, Rust, Node.js v18, yarn). For Windows, check the [docs](./docs/dep-install-windows.md).
 
- ```bash
+```bash
 git clone https://github.com/gizual/gizual.git
 cd gizual
 

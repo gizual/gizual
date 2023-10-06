@@ -1,21 +1,21 @@
 import "zx/globals";
+import { mkdirp } from "mkdirp";
+import download from "download";
 
 const BINARYEN_URL_BASE = "https://github.com/WebAssembly/binaryen/releases/download/version_114";
 const BINARYEN_URL = {
   darwin: `${BINARYEN_URL_BASE}/binaryen-version_114-arm64-macos.tar.gz`,
   win32: `${BINARYEN_URL_BASE}/binaryen-version_114-x86_64-windows.tar.gz`,
+  linux: `${BINARYEN_URL_BASE}/binaryen-version_114-x86_64-linux.tar.gz`,
 };
 
-
-
 /**
- * 
+ *
  * @param {string | undefined} rootPath
  * @returns {string}
  */
 export async function installBinaryen(rootPath) {
-
-  rootPath = rootPath  ?? (await $`git rev-parse --show-toplevel`).stdout.trim();
+  rootPath = rootPath ?? (await $`git rev-parse --show-toplevel`).stdout.trim();
 
   const binaryenPath = `${rootPath}/.cache/tools/binaryen`;
   const binaryenBinPath = `${binaryenPath}/bin`;
@@ -38,7 +38,6 @@ export async function installBinaryen(rootPath) {
   return binaryenBinPath;
 }
 
-
 async function isBinaryenInstalled() {
   try {
     const result = await which("wasm-opt");
@@ -50,7 +49,6 @@ async function isBinaryenInstalled() {
   }
   return false;
 }
-
 
 /**
  * @param {string | undefined} rootPath

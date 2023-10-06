@@ -1,16 +1,21 @@
+import "zx/globals";
+import { mkdirp } from "mkdirp";
+import download from "download";
+
 const WASI_SDK_URL_BASE = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-20/";
 const WASI_SDK_URL = {
   darwin: `${WASI_SDK_URL_BASE}/wasi-sdk-20.0-macos.tar.gz`,
   win32: `${WASI_SDK_URL_BASE}/wasi-sdk-20.0.m-mingw.tar.gz`,
+  linux: `${WASI_SDK_URL_BASE}/wasi-sdk-20.0-linux.tar.gz`,
 };
 
 /**
- * 
- * @param {string | undefined} rootPath 
+ *
+ * @param {string | undefined} rootPath
  * @returns {string}
  */
 export async function getWasiSdkPath(rootPath) {
-    rootPath = rootPath  ?? (await $`git rev-parse --show-toplevel`).stdout.trim();
+  rootPath = rootPath ?? (await $`git rev-parse --show-toplevel`).stdout.trim();
 
   if (process.env["WASI_SDK_PATH"]) {
     return process.env["WASI_SDK_PATH"];

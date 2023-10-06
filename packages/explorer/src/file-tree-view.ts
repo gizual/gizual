@@ -38,7 +38,6 @@ export class FileTreeView {
   }
 
   _onData(data: FileTreeNode) {
-
     const path = data.path;
     const kind = data.kind;
 

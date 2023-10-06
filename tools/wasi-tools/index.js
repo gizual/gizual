@@ -178,6 +178,7 @@ async function getEnv(rootPath) {
 export async function lintRust(name) {
   const rootPath = (await $`git rev-parse --show-toplevel`).stdout.trim();
 
+  await prepareRustOnPlatform();
   const env = await getEnv(rootPath);
   $.env = env;
   await $`cargo clippy --target=${env.TARGET} --package=${name} --no-deps`;

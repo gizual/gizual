@@ -12,5 +12,10 @@
     "@giz/wasi-tools": "workspace:*",
     "turbowatch": "2.29.4",
     "zx": "7.2.3"
+  },
+  "please": {
+    "build": {
+      "input": "src/*"
+    }
   }
 }

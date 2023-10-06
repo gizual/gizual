@@ -11,17 +11,19 @@
     "./apps/gizual-app/src/*"
   ],
   "devDependencies": {
+    "@giz/please": "workspace:*",
     "husky": "8.0.3",
     "lint-staged": "13.2.3",
     "prettier": "3.0.0",
-    "prettier-plugin-toml": "0.3.1",
+    "prettier-plugin-toml": "1.0.0",
     "turbo": "1.10.9",
     "typescript": "5.0.4"
   },
   "scripts": {
-    "dev": "turbo run dev --parallel --concurrency 20 --scope gizual-app --include-dependencies",
-    "playground": "yarn turbo run dev --scope @giz/wasi-playground-app  --include-dependencies",
-    "build": "turbo run build --scope gizual-app --include-dependencies",
+    "dev": "yarn please @giz/gizual-app#dev",
+    "build": "yarn please @giz/gizual-app#build",
+    "preview": "yarn please @giz/gizual-app#preview",
+    "playground": "yarn please @giz/wasi-playground-app#dev",
     "lint": "turbo run lint",
     "format": "yarn prettier:fix && turbo run format",
     "test": "turbo run test",

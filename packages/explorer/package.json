@@ -15,5 +15,12 @@
     "@giz/wasi-runtime": "workspace:*",
     "lodash": "4.17.21",
     "mobx": "6.10.0"
+  },
+  "please": {
+    "build": {
+      "dependsOn": [
+        "build"
+      ]
+    }
   }
 }

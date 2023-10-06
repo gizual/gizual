@@ -1,4 +1,4 @@
-import { describe,expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 
 import { Fd, MemoryFS, WASI } from "../src";
 import { FsaFS } from "../src/fsa-fs";
