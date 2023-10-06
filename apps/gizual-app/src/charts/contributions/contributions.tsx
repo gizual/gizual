@@ -1,8 +1,3 @@
-import { VictoryChart } from "victory-chart";
-import { VictoryLine } from "victory-line";
-
-import { victoryTheme } from "../theme";
-
 type ContributionEntry = {
   author: string;
   contributions: string[];
@@ -44,11 +39,7 @@ export function AllContributions({ contributions }: AllContributionsProps) {
 
   const data = prepareData(contributions);
 
-  return (
-    <VictoryChart theme={victoryTheme}>
-      <VictoryLine data={data} />
-    </VictoryChart>
-  );
+  return <></>;
 }
 
 type AuthorContributionsProps = ContributionEntry & {};

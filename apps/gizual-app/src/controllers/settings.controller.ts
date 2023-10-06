@@ -107,7 +107,7 @@ export class SettingsController {
     displayMode: createSelectSetting(
       "Display Mode",
       "Controls if the timeline should be always visible or collapsed into the search bar.",
-      "visible",
+      "collapsed",
       TIMELINE_MODES.map((m) => {
         return { value: m, label: m };
       }),
