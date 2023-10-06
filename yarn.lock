@@ -999,6 +999,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@giz/logger@workspace:packages/logger"
   dependencies:
+    eslint: 8.45.0
     tslog: 4.8.2
   languageName: unknown
   linkType: soft
@@ -1040,6 +1041,7 @@ __metadata:
     "@wasmer/wasm-transformer": 0.12.0
     "@wasmer/wasmfs": 0.12.0
     asyncify-wasm: 1.2.1
+    eslint: 8.45.0
     normalize.css: 8.0.1
     react: 18.2.0
     react-dom: 18.2.0
@@ -1059,6 +1061,7 @@ __metadata:
     "@giz/logger": "workspace:*"
     "@xtuc/asyncify-wasm": 2.0.0
     comlink: 4.4.1
+    eslint: 8.45.0
     tsup: 7.1.0
     turbowatch: 2.29.4
     typescript: 5.0.4

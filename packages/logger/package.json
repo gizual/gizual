@@ -8,5 +8,8 @@
   },
   "dependencies": {
     "tslog": "4.8.2"
+  },
+  "devDependencies": {
+    "eslint": "8.45.0"
   }
 }
