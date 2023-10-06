@@ -1,29 +1,27 @@
-
-
 export type FileIcon = {
-    icon: string;
-    color: [string | null, string | null];
-}
+  icon: string;
+  color: [string | null, string | null];
+};
 
 export function getFileIcon(kind: number): FileIcon | undefined {
-    if (kind < 0) throw new Error("Invalid file.kind");
+  if (kind < 0) throw new Error("Invalid file.kind");
 
-    const entry = FILE_ICON_DB[kind];
+  const entry = FILE_ICON_DB[kind];
 
-    if (!entry) {
-        return undefined;
-    }
-    return {
-        icon: entry[0],
-        color: entry[1],
-    };
+  if (!entry) {
+    return undefined;
+  }
+  return {
+    icon: entry[0],
+    color: entry[1],
+  };
 }
 
 /**
- * This list represents the first 2 columns of the file-icons table available at 
+ * This list represents the first 2 columns of the file-icons table available at
  * https://github.com/file-icons/atom/blob/master/lib/icons/.icondb.js
- * 
- * The regex matching is done in the rust explorer-backend-libgit2 package 
+ *
+ * The regex matching is done in the rust explorer-backend-libgit2 package
  * (packages/explorer-backend-libgit2/src/file_types_db.rs)
  */
 const FILE_ICON_DB: [string, [string | null, string | null]][] = [

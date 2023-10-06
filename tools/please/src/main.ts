@@ -76,7 +76,6 @@ class DependencyGraph {
   }
 
   async addTask(pkg: Package, taskName: string): Promise<string | undefined> {
-
     const packageJSON: any = pkg.packageJson;
     const id = `${packageJSON.name}#${taskName}`;
 

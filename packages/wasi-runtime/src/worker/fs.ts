@@ -187,7 +187,7 @@ export class AsyncFS {
 
   async getFSHandle(
     path: string,
-    directoryHandle: FileSystemDirectoryHandle
+    directoryHandle: FileSystemDirectoryHandle,
   ): Promise<FileSystemFileHandle | FileSystemDirectoryHandle | undefined> {
     const parts = path.split("/");
     let currentHandle: FileSystemDirectoryHandle | FileSystemFileHandle = directoryHandle;
@@ -220,7 +220,7 @@ export class AsyncFS {
 
   async open(
     path: string,
-    directoryHandle: FileSystemDirectoryHandle
+    directoryHandle: FileSystemDirectoryHandle,
   ): Promise<Handle | undefined> {
     const handle = await this.getFSHandle(path, directoryHandle);
     if (!handle) {
@@ -254,7 +254,7 @@ export class AsyncFS {
     iovsPtr: number,
     iovsLen: number,
     finishedPtr: number,
-    cb: (buf: Uint8Array) => Promise<number>
+    cb: (buf: Uint8Array) => Promise<number>,
   ) {
     const iovecs = this.parseIovecArray(iovsPtr, iovsLen);
 
@@ -319,7 +319,7 @@ export class AsyncFS {
               fdNum,
               iovecPtr,
               len,
-              nreadPtr
+              nreadPtr,
             );
           }
           let offset = fd.offset;
@@ -344,7 +344,7 @@ export class AsyncFS {
           iovecPtr: number,
           len: number,
           offset: bigint,
-          nreadPtr: number
+          nreadPtr: number,
         ) => {
           this.refreshMemory();
           const fd = await this.getFileHandleFromFd(fdNum);
@@ -354,7 +354,7 @@ export class AsyncFS {
               iovecPtr,
               len,
               offset,
-              nreadPtr
+              nreadPtr,
             );
           }
           let offsetNum = Number(offset);
@@ -459,7 +459,7 @@ export class AsyncFS {
           bufPtr: number,
           bufLen: number,
           cookie: bigint,
-          bufUsedPtr: number
+          bufUsedPtr: number,
         ): Promise<number> => {
           this.refreshMemory();
           const handle = await this.getDirectoryHandleFromFd(fd);
@@ -469,7 +469,7 @@ export class AsyncFS {
               bufPtr,
               bufLen,
               cookie,
-              bufUsedPtr
+              bufUsedPtr,
             );
           }
           const startPtr = bufPtr;
@@ -531,7 +531,7 @@ export class AsyncFS {
           flags: number,
           pathPtr: number,
           pathLen: number,
-          bufPtr: number
+          bufPtr: number,
         ) => {
           this.refreshMemory();
 
@@ -558,7 +558,7 @@ export class AsyncFS {
                 flags,
                 pathPtr,
                 pathLen,
-                bufPtr
+                bufPtr,
               );
             }
           }
@@ -608,7 +608,7 @@ export class AsyncFS {
           fsRightsBase: number,
           fsRightsInheriting: number,
           fdflags: number,
-          fdPtr: number
+          fdPtr: number,
         ): Promise<number> => {
           this.refreshMemory();
 
@@ -639,7 +639,7 @@ export class AsyncFS {
             fsRightsBase,
             fsRightsInheriting,
             fdflags,
-            fdPtr
+            fdPtr,
           );
         },
       },

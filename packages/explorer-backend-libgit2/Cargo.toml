@@ -22,7 +22,6 @@ git2 = { git = "https://github.com/gizual/git2-rs", default-features = false, br
 #git2 = { path = "../../../git2-rs", default-features = false,  features = [
 #  "vendored-zlib"
 #] }
-
 [target.'cfg(not(target_os = "wasm"))'.dependencies]
 petgraph = "0.6.3"
 

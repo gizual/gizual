@@ -89,13 +89,11 @@ export function isFileTree(obj: any): obj is FileTree {
   );
 }
 
-
 export type FileTreeNode = {
   path: string[];
   kind?: number | "folder";
   loading?: boolean;
-}
-
+};
 
 export type Oid = string;
 export type Aid = string;

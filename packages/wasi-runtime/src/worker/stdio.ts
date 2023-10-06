@@ -5,7 +5,10 @@ export class StdIoPipe {
   private listener: ((data: string) => void) | undefined = undefined;
   private logger: Logger;
 
-  constructor(public identifier: string = "", parentLogger?: Logger) {
+  constructor(
+    public identifier: string = "",
+    parentLogger?: Logger,
+  ) {
     this.logger = (parentLogger ?? LOG).getSubLogger({ name: identifier });
   }
 

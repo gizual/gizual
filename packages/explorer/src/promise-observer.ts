@@ -106,7 +106,7 @@ export class PromiseObserver<T> {
         if (status !== undefined) {
           this.status = status;
         }
-      }
+      },
     )(loading, status);
   }
 

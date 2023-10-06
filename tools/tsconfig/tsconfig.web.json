@@ -15,6 +15,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "wicg-file-system-access"],
+    "types": ["vite/client", "wicg-file-system-access"]
   }
 }
