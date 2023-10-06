@@ -369,6 +369,48 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@chevrotain/cst-dts-gen@npm:11.0.3":
+  version: 11.0.3
+  resolution: "@chevrotain/cst-dts-gen@npm:11.0.3"
+  dependencies:
+    "@chevrotain/gast": 11.0.3
+    "@chevrotain/types": 11.0.3
+    lodash-es: 4.17.21
+  checksum: 414229a827e06b4564e271ca3a02ed6f475d400a184dc5ae05308bbc6e966959b84a40a063dacf7debd8f9a1dba5bf8785a891e7b588eafd9f821b43ec16b109
+  languageName: node
+  linkType: hard
+
+"@chevrotain/gast@npm:11.0.3":
+  version: 11.0.3
+  resolution: "@chevrotain/gast@npm:11.0.3"
+  dependencies:
+    "@chevrotain/types": 11.0.3
+    lodash-es: 4.17.21
+  checksum: 5190ba3a3f03f6f58331dbd108c36172b90314f60675b88dfefca25f704549164577796a1127fa407dd546aefa9f221d6c043e5b95298a0852ffd060b4fff117
+  languageName: node
+  linkType: hard
+
+"@chevrotain/regexp-to-ast@npm:11.0.3":
+  version: 11.0.3
+  resolution: "@chevrotain/regexp-to-ast@npm:11.0.3"
+  checksum: 5d665b3340493e302f245c9bbcd73de9b973ca79d0e59c4fbed6cc733b665998b41a2b8a5963bc2e90c763c8b4ba30f6e53736325c40f3fccef0ad3de2095ff2
+  languageName: node
+  linkType: hard
+
+"@chevrotain/types@npm:11.0.3":
+  version: 11.0.3
+  resolution: "@chevrotain/types@npm:11.0.3"
+  checksum: 4496bf1955f1db2b08c188f508db23d9f1cbecdf0bfa7f23f8d8dcd3f9ca450529b71acc83a941c59c0f8188b54c0f5687f6e203dcd7dca622ac4ea6291df316
+  languageName: node
+  linkType: hard
+
+"@chevrotain/utils@npm:11.0.3":
+  version: 11.0.3
+  resolution: "@chevrotain/utils@npm:11.0.3"
+  checksum: 099f0aa65ff82a7d49ffefd7a90182efcc1518b89b88d516d2125ca730eaa38d61e36ee40fad6c21f7896b6e8393b1e6810b6a69122fabff283f0522ee49eaa5
+  languageName: node
+  linkType: hard
+
 "@codemirror/autocomplete@npm:^6.0.0":
   version: 6.7.1
   resolution: "@codemirror/autocomplete@npm:6.7.1"
@@ -2067,22 +2109,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@toml-tools/lexer@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@toml-tools/lexer@npm:0.3.1"
+"@toml-tools/lexer@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@toml-tools/lexer@npm:1.0.0"
   dependencies:
-    chevrotain: 4.1.1
-  checksum: 3fef79ce28cacb4196c088946c25ceff4527660a7cd75000a06526481b9255d42e5592f6d9120143a34f2bfba16b902c042258aa439c23fb62985f0c8f2a5f70
+    chevrotain: ^11.0.1
+  checksum: 9a0915903a56dc865a363843f4a8e5ea8ba5e33d7ab7483646fa8b5c9cc8bedd1ee26b2200fde752e824989c0d02adde80a58d424b0adc0ba87f92c0508a1572
   languageName: node
   linkType: hard
 
-"@toml-tools/parser@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@toml-tools/parser@npm:0.3.1"
+"@toml-tools/parser@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@toml-tools/parser@npm:1.0.0"
   dependencies:
-    "@toml-tools/lexer": ^0.3.1
-    chevrotain: 4.1.1
-  checksum: c94918cf9f5205d5f0c6b05370e1c236ac8dc2eb4606e6448e542d85a54be73df509e94132ad6c09c02c4a04b58f4e390446854c13260f5189551dde130af8f8
+    "@toml-tools/lexer": ^1.0.0
+    chevrotain: ^11.0.1
+  checksum: 3846d9dd7b96622dc363bb73f1b746ea4a04eb1f099f087cb0668f58d471853c94833e2781bd700a464d20a3b2451e408af10b6ec49648901e4cc99e02ef2033
   languageName: node
   linkType: hard
 
@@ -3378,12 +3420,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chevrotain@npm:4.1.1":
-  version: 4.1.1
-  resolution: "chevrotain@npm:4.1.1"
+"chevrotain@npm:^11.0.1":
+  version: 11.0.3
+  resolution: "chevrotain@npm:11.0.3"
   dependencies:
-    regexp-to-ast: 0.3.5
-  checksum: 209229115f4e6610238008282afe13b67f57edfd9bc2514371e4e1349c32bd6cf2792088e125e1c19c2d8343611ef89f54747ac97b4f641dba5f2a74f5235a45
+    "@chevrotain/cst-dts-gen": 11.0.3
+    "@chevrotain/gast": 11.0.3
+    "@chevrotain/regexp-to-ast": 11.0.3
+    "@chevrotain/types": 11.0.3
+    "@chevrotain/utils": 11.0.3
+    lodash-es: 4.17.21
+  checksum: 43abce4ef2be2ae499027066ad5bfb2dd6b838423108adc69839133655b925a4d86212b97125d8deef9f84dc173b34457eedf59a2d178b6d0b2a0d2e2a7762a4
   languageName: node
   linkType: hard
 
@@ -5250,7 +5297,7 @@ __metadata:
     husky: 8.0.3
     lint-staged: 13.2.3
     prettier: 3.0.0
-    prettier-plugin-toml: 0.3.1
+    prettier-plugin-toml: 1.0.0
     turbo: 1.10.9
     typescript: 5.0.4
   languageName: unknown
@@ -6296,6 +6343,13 @@ __metadata:
   dependencies:
     p-locate: ^5.0.0
   checksum: 72eb661788a0368c099a184c59d2fee760b3831c9c1c33955e8a19ae4a21b4116e53fa736dc086cdeb9fce9f7cc508f2f92d2d3aae516f133e16a2bb59a39f5a
+  languageName: node
+  linkType: hard
+
+"lodash-es@npm:4.17.21":
+  version: 4.17.21
+  resolution: "lodash-es@npm:4.17.21"
+  checksum: 05cbffad6e2adbb331a4e16fbd826e7faee403a1a04873b82b42c0f22090f280839f85b95393f487c1303c8a3d2a010048bf06151a6cbe03eee4d388fb0a12d2
   languageName: node
   linkType: hard
 
@@ -7356,13 +7410,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-toml@npm:0.3.1":
-  version: 0.3.1
-  resolution: "prettier-plugin-toml@npm:0.3.1"
+"prettier-plugin-toml@npm:1.0.0":
+  version: 1.0.0
+  resolution: "prettier-plugin-toml@npm:1.0.0"
   dependencies:
-    "@toml-tools/parser": ^0.3.1
-    prettier: ^1.16.0
-  checksum: 9c34cc4a3566f1e23186861a1c141c1a320552dd836fbf3e3742c7d123006ac302fbc1aabb3606f6ee1dfc393c840df1c7d47efb597f6aefebba354a8cdccaca
+    "@toml-tools/lexer": ^1.0.0
+    "@toml-tools/parser": ^1.0.0
+  peerDependencies:
+    prettier: ^3.0.0
+  checksum: 6c883670611831df2f86f3f638d4e3f2079d26942c89484ece2d9821d90ee2cd6019fd96d0f8b52e59d48ec9e171b37077ef581d3fe18a8db7305002ce240402
   languageName: node
   linkType: hard
 
@@ -7372,15 +7428,6 @@ __metadata:
   bin:
     prettier: bin/prettier.cjs
   checksum: 6a832876a1552dc58330d2467874e5a0b46b9ccbfc5d3531eb69d15684743e7f83dc9fbd202db6270446deba9c82b79d24383d09924c462b457136a759425e33
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^1.16.0":
-  version: 1.19.1
-  resolution: "prettier@npm:1.19.1"
-  bin:
-    prettier: ./bin-prettier.js
-  checksum: bc78219e0f8173a808f4c6c8e0a137dd8ebd4fbe013e63fe1a37a82b48612f17b8ae8e18a992adf802ee2cf7428f14f084e7c2846ca5759cf4013c6e54810e1f
   languageName: node
   linkType: hard
 
@@ -8260,13 +8307,6 @@ __metadata:
   version: 0.13.11
   resolution: "regenerator-runtime@npm:0.13.11"
   checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
-  languageName: node
-  linkType: hard
-
-"regexp-to-ast@npm:0.3.5":
-  version: 0.3.5
-  resolution: "regexp-to-ast@npm:0.3.5"
-  checksum: 8b738a6da564ea0816c61bfd26243e4313346a09d7a1d63ec505002e99a82cce12dde50e7b7a98f179cd0782ee652e99a7b2a9e83b53cf9497b8a5fbb4bf652e
   languageName: node
   linkType: hard
 
