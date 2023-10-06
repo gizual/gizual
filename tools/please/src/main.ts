@@ -168,7 +168,7 @@ class DependencyGraph {
       }
     }
 
-    if (MAX_ITERATIONS <= 0) {
+    if (MAX_ITERATIONS <= 0 && tasks.length > 0) {
       log("Problematic tasks:", tasks);
       throw new Error("Circular dependency detected");
     }

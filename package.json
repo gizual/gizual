@@ -22,6 +22,7 @@
   "scripts": {
     "dev": "yarn please @giz/gizual-app#dev",
     "build": "yarn please @giz/gizual-app#build",
+    "preview": "yarn please @giz/gizual-app#preview",
     "playground": "yarn please @giz/wasi-playground-app#dev",
     "lint": "turbo run lint",
     "format": "yarn prettier:fix && turbo run format",
