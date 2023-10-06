@@ -1,3 +1,4 @@
+import { useMainController } from "@app/controllers";
 import { Dropdown, MenuProps, Tree } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -8,14 +9,19 @@ import style from "./file-tree.module.scss";
 import { FileTreeDataNode, FileTreeViewModel } from "./file-tree.vm";
 
 type FileTreeProps = {
-  vm: FileTreeViewModel;
+  vm?: FileTreeViewModel;
   mode?: "favourite" | "tree";
 };
 
 /**
  * File Tree component, responsible for rendering the file tree and the favourite tree.
  */
-export const FileTree = observer(({ mode = "tree", vm }: FileTreeProps) => {
+export const FileTree = observer(({ mode = "tree", vm: externalVm }: FileTreeProps) => {
+  const mainController = useMainController();
+  const vm: FileTreeViewModel = React.useMemo(() => {
+    return externalVm || new FileTreeViewModel(mainController);
+  }, []);
+
   const treeData = mode === "favourite" ? vm.favouriteTreeData : vm.treeData;
   const selectedKeys = mode === "favourite" ? vm.selectedFavouriteFiles : vm.selectedFiles;
   if (vm.treeData.length < 0) return <></>;

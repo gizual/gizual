@@ -1,4 +1,5 @@
 import { DateTimeInputAssist } from "./panels";
+import { FileInputAssist } from "./panels/file";
 
 export const TAG_PREFIX = "-";
 
@@ -21,7 +22,7 @@ export const AvailableTags: Record<AvailableTagId, Tag> = {
   file: {
     id: "file",
     textHint: "Apply the search to a specific file.",
-    inputAssist: <p>Not yet implemented.</p>,
+    inputAssist: <FileInputAssist tagId="file" />,
   },
   author: {
     id: "author",

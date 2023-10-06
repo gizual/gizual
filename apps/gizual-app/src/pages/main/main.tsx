@@ -48,7 +48,7 @@ const ExplorePage = observer(({ vm }: MainPageProps) => {
 
   return (
     <>
-      {vmController.isRepoPanelVisible && <RepoPanel />}
+      {/*vmController.isRepoPanelVisible && <RepoPanel />*/}
       <Canvas />
       {vmController.isAuthorPanelVisible && <AuthorPanel />}
     </>

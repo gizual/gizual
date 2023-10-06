@@ -5,17 +5,12 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import sharedStyle from "../css/shared-styles.module.scss";
-import { FileTreeViewModel } from "../file-tree";
 import { FileTree } from "../file-tree/file-tree";
 
 import style from "./repo-panel.module.scss";
 
 export const RepoPanel = observer(() => {
   const mainController = useMainController();
-
-  const vm: FileTreeViewModel = React.useMemo(() => {
-    return new FileTreeViewModel(mainController);
-  }, []);
 
   return (
     <div className={style.RepoPanel}>
@@ -25,7 +20,7 @@ export const RepoPanel = observer(() => {
             <h1>Favourites</h1>
           </div>
           <div className={sharedStyle.SectionBody}>
-            <FileTree vm={vm} mode={"favourite"} />
+            <FileTree mode={"favourite"} />
           </div>
         </div>
       )}
@@ -35,7 +30,7 @@ export const RepoPanel = observer(() => {
           <Spin size={"default"} spinning={mainController._repo.fileTree.loading} />
         </div>
         <div className={style.SectionBody}>
-          <FileTree vm={vm} />
+          <FileTree />
         </div>
       </div>
     </div>

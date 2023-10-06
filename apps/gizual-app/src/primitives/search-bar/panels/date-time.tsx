@@ -1,11 +1,8 @@
 import { useMainController } from "@app/controllers";
 import { DATE_FORMAT } from "@app/utils";
 import { DatePicker } from "antd";
-import clsx from "clsx";
 import { observer } from "mobx-react-lite";
-import React from "react";
 
-import { ReactComponent as TrashIcon } from "../../../assets/icons/trash.svg";
 import { Timeline } from "../../timeline";
 import style from "../search-bar.module.scss";
 import { AvailableTagId } from "../search-tags";
@@ -94,18 +91,6 @@ export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => 
           <p>{`${defaultEndDate} (default)`}</p>
         </div>
       )}
-
-      <hr />
-
-      <div
-        className={clsx(style.SearchOverlayHintEntry, style.RemoveTagEntry)}
-        onClick={() => {
-          vm.removeTag(selectedTag);
-        }}
-      >
-        <TrashIcon style={{ margin: 0 }} />
-        <p>Remove Tag</p>
-      </div>
     </>
   );
 });

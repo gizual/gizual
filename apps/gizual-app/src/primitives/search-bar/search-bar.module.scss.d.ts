@@ -8,6 +8,7 @@ declare const classNames: {
   readonly SearchIcon: "SearchIcon";
   readonly SearchOverlay: "SearchOverlay";
   readonly SearchOverlayContent: "SearchOverlayContent";
+  readonly SearchOverlayContentBox: "SearchOverlayContentBox";
   readonly SearchOverlayHintEntry: "SearchOverlayHintEntry";
   readonly RemoveTagEntry: "RemoveTagEntry";
   readonly Tag: "Tag";

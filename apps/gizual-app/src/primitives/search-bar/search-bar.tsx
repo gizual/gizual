@@ -166,27 +166,29 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
           )}
           <div className={style.SearchOverlay}>
             <div className={style.SearchOverlayContent}>
-              {!vm.currentPendingTag && (
-                <>
-                  <h4>Refine your search</h4>
-                  {Object.entries(AvailableTags).map(([id, tag]) => {
-                    if (vm.tags.some((t) => t.tag.id === id))
-                      return <React.Fragment key={id}></React.Fragment>;
+              <div className={style.SearchOverlayContentBox}>
+                {!vm.currentPendingTag && (
+                  <>
+                    <h4>Refine your search</h4>
+                    {Object.entries(AvailableTags).map(([id, tag]) => {
+                      if (vm.tags.some((t) => t.tag.id === id))
+                        return <React.Fragment key={id}></React.Fragment>;
 
-                    return (
-                      <div
-                        className={style.SearchOverlayHintEntry}
-                        key={id}
-                        onClick={() => vm.appendTag(tag)}
-                      >
-                        <pre className={style.Tag}>-{tag.id}: </pre>
-                        <pre className={style.Hint}>{tag.textHint}</pre>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
-              {vm.currentPendingTag && vm.currentPendingTag.tag.inputAssist}
+                      return (
+                        <div
+                          className={style.SearchOverlayHintEntry}
+                          key={id}
+                          onClick={() => vm.appendTag(tag)}
+                        >
+                          <pre className={style.Tag}>-{tag.id}: </pre>
+                          <pre className={style.Hint}>{tag.textHint}</pre>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+                {vm.currentPendingTag && vm.currentPendingTag.tag.inputAssist}
+              </div>
             </div>
           </div>
         </>

@@ -84,6 +84,9 @@ export class MainController {
     if (this._selectedFiles.has(name)) {
       this._selectedFiles.delete(name);
     } else this._selectedFiles.set(name, info ?? {});
+
+    const numSelFiles = this._selectedFiles.size;
+    this.vmController.searchBarViewModel?.updateTag("file", numSelFiles > 0 ? '"..."' : "", true);
   }
 
   get selectedFiles(): string[] {
