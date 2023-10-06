@@ -1,9 +1,13 @@
 import "zx/globals";
+import { mkdirp } from "mkdirp";
+import download from "download";
+
 
 const BINARYEN_URL_BASE = "https://github.com/WebAssembly/binaryen/releases/download/version_114";
 const BINARYEN_URL = {
   darwin: `${BINARYEN_URL_BASE}/binaryen-version_114-arm64-macos.tar.gz`,
   win32: `${BINARYEN_URL_BASE}/binaryen-version_114-x86_64-windows.tar.gz`,
+  linux: `${BINARYEN_URL_BASE}/binaryen-version_114-x86_64-linux.tar.gz`,
 };
 
 
