@@ -76,8 +76,13 @@ class DependencyGraph {
   }
 
   async addTask(pkg: Package, taskName: string): Promise<string | undefined> {
+
     const packageJSON: any = pkg.packageJson;
     const id = `${packageJSON.name}#${taskName}`;
+
+    if (this.tasks.some((t) => t.id === id)) {
+      return id;
+    }
 
     const script = packageJSON.scripts?.[taskName];
     const infoDTO: TaskConfig = packageJSON.please?.[taskName];
@@ -92,6 +97,7 @@ class DependencyGraph {
       taskName,
       dependsOn: [],
     };
+    this.tasks.push(task);
 
     if (!script) {
       task.transparent = true;
@@ -143,7 +149,6 @@ class DependencyGraph {
       if (subtaskId) task.dependsOn.push(subtaskId);
     }
 
-    this.tasks.push(task);
     return id;
   }
 
@@ -152,7 +157,9 @@ class DependencyGraph {
 
     const tasks = [...this.tasks];
 
-    while (tasks.length > 0) {
+    let MAX_ITERATIONS = Math.pow(tasks.length, 2);
+
+    while (tasks.length > 0 && MAX_ITERATIONS-- > 0) {
       const task = tasks.shift()!;
 
       if (task.dependsOn.every((id) => sortedTasks.some((t) => t.id === id))) {
@@ -160,6 +167,11 @@ class DependencyGraph {
       } else {
         tasks.push(task);
       }
+    }
+
+    if (MAX_ITERATIONS <= 0) {
+      log("Problematic tasks:", tasks);
+      throw new Error("Circular dependency detected");
     }
 
     this.tasks = sortedTasks;
