@@ -1,4 +1,5 @@
 import { FileNodeInfos } from "@app/types";
+import { ColouringMode, ColouringModeLabels } from "@app/types";
 import _ from "lodash";
 import { autorun, makeAutoObservable } from "mobx";
 import React, { RefObject } from "react";
@@ -110,5 +111,19 @@ export class CanvasViewModel {
       this._mainController.toggleFile(file);
       delete this._selectedFileVms[file];
     }
+  }
+
+  onColouringModeChange = (value: ColouringMode) => {
+    this._mainController.setColouringMode(value);
+
+    if (value !== "author" && this._mainController.vmController.isAuthorPanelVisible)
+      this._mainController.vmController.setAuthorPanelVisibility(false);
+
+    if (value === "author" && !this._mainController.vmController.isAuthorPanelVisible)
+      this._mainController.vmController.setAuthorPanelVisibility(true);
+  };
+
+  get toggleColouringValues() {
+    return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 }

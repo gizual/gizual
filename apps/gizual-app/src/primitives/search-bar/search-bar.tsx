@@ -18,19 +18,20 @@ import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 import { Select } from "../select";
 
+import { CommonInputAssist } from "./panels/common-footer";
 import style from "./search-bar.module.scss";
 import { SearchBarViewModel } from "./search-bar.vm";
-import { AvailableTagIdsForRegexp, AvailableTags, TAG_PREFIX } from "./search-tags";
+import { AvailableTagIdsForRegexp, TAG_PREFIX } from "./search-tags";
 
 const myTheme = createTheme({
   theme: "dark",
   settings: {
     fontFamily: "Iosevka Extended",
-    background: "var(--background-secondary)",
+    background: "var(--background-tertiary)",
     foreground: "var(--text-primary)",
     caret: "var(--text-secondary)",
-    selection: "var(--background-tertiary)",
-    selectionMatch: "var(--background-tertiary)",
+    selection: "var(--background-primary)",
+    selectionMatch: "var(--background-primary)",
     lineHighlight: "transparent",
     gutterBackground: "transparent",
     gutterForeground: "transparent",
@@ -39,14 +40,14 @@ const myTheme = createTheme({
     {
       tag: t.tagName,
       color: "var(--accent-main)",
-      backgroundColor: "#9898a940",
+      backgroundColor: "#0c0c0d75",
       padding: "0.125rem 0 0.125rem 0",
       borderTopLeftRadius: "0.25rem",
       borderBottomLeftRadius: "0.25rem",
     },
     {
       tag: t.emphasis,
-      backgroundColor: "#9898a940",
+      backgroundColor: "#0c0c0d75",
       padding: "0.125rem 0 0.125rem 0",
       borderTopRightRadius: "0.25rem",
       borderBottomRightRadius: "0.25rem",
@@ -123,6 +124,14 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
         return true;
       },
     },
+    {
+      key: "Escape",
+      run: (view) => {
+        view.contentDOM.blur();
+        vm.closePopover();
+        return true;
+      },
+    },
   ]);
 
   React.useEffect(() => {
@@ -170,24 +179,24 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
                 {!vm.currentPendingTag && (
                   <>
                     <h4>Refine your search</h4>
-                    {Object.entries(AvailableTags).map(([id, tag]) => {
-                      if (vm.tags.some((t) => t.tag.id === id))
-                        return <React.Fragment key={id}></React.Fragment>;
-
-                      return (
-                        <div
-                          className={style.SearchOverlayHintEntry}
-                          key={id}
-                          onClick={() => vm.appendTag(tag)}
-                        >
-                          <pre className={style.Tag}>-{tag.id}: </pre>
-                          <pre className={style.Hint}>{tag.textHint}</pre>
-                        </div>
-                      );
-                    })}
+                    {vm.unusedTags.map((tag) => (
+                      <div
+                        className={style.SearchOverlayHintEntry}
+                        key={tag.id}
+                        onClick={() => vm.appendTag(tag)}
+                      >
+                        <pre className={style.Tag}>-{tag.id}: </pre>
+                        <pre className={style.Hint}>{tag.textHint}</pre>
+                      </div>
+                    ))}
                   </>
                 )}
-                {vm.currentPendingTag && vm.currentPendingTag.tag.inputAssist}
+                {vm.currentPendingTag && (
+                  <React.Fragment key={vm.currentPendingTag.tag.id}>
+                    {vm.currentPendingTag.tag.inputAssist}
+                    <CommonInputAssist tagId={vm.currentPendingTag.tag.id} />
+                  </React.Fragment>
+                )}
               </div>
             </div>
           </div>

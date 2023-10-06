@@ -1,6 +1,7 @@
 import { useMainController } from "@app/controllers";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import { ReactComponent as TrashIcon } from "../../../assets/icons/trash.svg";
 import style from "../search-bar.module.scss";
@@ -20,7 +21,7 @@ export const CommonInputAssist = observer(({ tagId }: CommonInputAssistProps) =>
   if (!selectedTag) return <></>;
 
   return (
-    <>
+    <React.Fragment key={tagId}>
       <hr />
       <div
         className={clsx(style.SearchOverlayHintEntry, style.RemoveTagEntry)}
@@ -31,6 +32,6 @@ export const CommonInputAssist = observer(({ tagId }: CommonInputAssistProps) =>
         <TrashIcon style={{ margin: 0 }} />
         <p>Remove Tag</p>
       </div>
-    </>
+    </React.Fragment>
   );
 });

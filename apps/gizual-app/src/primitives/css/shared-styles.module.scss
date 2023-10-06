@@ -127,6 +127,10 @@
   border-bottom: none;
 }
 
+.colorPicker {
+  font-family: "Iosevka Extended" !important;
+}
+
 @mixin inline-row {
   display: inline-flex;
   flex-direction: row;

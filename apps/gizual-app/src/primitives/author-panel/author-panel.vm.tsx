@@ -1,5 +1,4 @@
 import { MainController } from "@app/controllers";
-import { ColouringMode, ColouringModeLabels } from "@app/types";
 import { Avatar } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { makeAutoObservable } from "mobx";
@@ -19,14 +18,6 @@ export class AuthorPanelViewModel {
     this._mainController = mainController;
 
     makeAutoObservable(this);
-  }
-
-  onColouringModeChange = (value: ColouringMode) => {
-    this._mainController.setColouringMode(value);
-  };
-
-  get toggleColouringValues() {
-    return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
   get authors(): AuthorType[] {

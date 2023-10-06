@@ -6,7 +6,6 @@ import {
   getDateFromTimestamp,
   getDaysBetweenAbs,
   GizDate,
-  logAllMethods,
   MOUSE_ZOOM_FACTOR,
 } from "@app/utils";
 import { MenuProps } from "antd";
@@ -24,7 +23,6 @@ const DEFAULT_SELECTION = 365; // Default selection range - only used if the set
 const MIN_DAYS = 10; // Minimum amount days (used to restrict zooming).
 const MAX_DAYS = 365 * PRERENDER_MULTIPLIER; // Maximum amount of days (used to restrict zooming).
 
-@logAllMethods("Timeline", "#e7bbf1")
 export class TimelineViewModel {
   private _mainController: MainController;
   private _tooltipContent = "";

@@ -20,7 +20,7 @@ export class ViewModelController {
 
   constructor(mainController: MainController) {
     this._isRepoPanelVisible = !LocalStorage.getBoolean("hideRepoPanel") ?? true;
-    this._isAuthorPanelVisible = !LocalStorage.getBoolean("hideSettingsPanel") ?? true;
+    this._isAuthorPanelVisible = !LocalStorage.getBoolean("hideAuthorPanel") ?? true;
     this._mainController = mainController;
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -75,7 +75,7 @@ export class ViewModelController {
     this.setRepoPanelVisibility(!this._isRepoPanelVisible);
   }
 
-  setSettingsPanelVisibility(visible: boolean) {
+  setAuthorPanelVisibility(visible: boolean) {
     this._isAuthorPanelVisible = visible;
     LocalStorage.setItem("hideAuthorPanel", (!this._isAuthorPanelVisible).toString());
   }
@@ -84,7 +84,7 @@ export class ViewModelController {
     return this._isAuthorPanelVisible;
   }
 
-  toggleSettingsPanelVisibility() {
-    this.setSettingsPanelVisibility(!this._isAuthorPanelVisible);
+  toggleAuthorPanelVisibility() {
+    this.setAuthorPanelVisibility(!this._isAuthorPanelVisible);
   }
 }

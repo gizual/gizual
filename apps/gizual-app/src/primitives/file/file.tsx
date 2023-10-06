@@ -54,6 +54,9 @@ export const File = observer(
       mainController.selectedStartDate,
       mainController.selectedEndDate,
       vm.shouldRender,
+      settingsController.settings.visualisationSettings.colours.new.value,
+      settingsController.settings.visualisationSettings.colours.old.value,
+      settingsController.settings.visualisationSettings.colours.notLoaded.value,
     ]);
 
     // Attach IntersectionObserver on load, detach on dispose.

@@ -10,6 +10,7 @@ declare const classNames: {
   readonly Block: "Block";
   readonly sectionBody: "sectionBody";
   readonly block: "block";
+  readonly colorPicker: "colorPicker";
   readonly InlineRow: "InlineRow";
   readonly FullWidth: "FullWidth";
   readonly ToolbarIcon: "ToolbarIcon";

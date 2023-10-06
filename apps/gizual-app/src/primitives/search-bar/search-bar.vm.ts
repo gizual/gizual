@@ -1,4 +1,4 @@
-import { DATE_FORMAT, getDaysBetweenAbs, getStringDate, GizDate, logAllMethods } from "@app/utils";
+import { DATE_FORMAT, getDaysBetweenAbs, getStringDate, GizDate } from "@app/utils";
 import { EditorState } from "@codemirror/state";
 import { EditorView, ViewUpdate } from "@codemirror/view";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
@@ -17,7 +17,6 @@ import {
   TAG_PREFIX,
 } from "./search-tags";
 
-@logAllMethods("SearchBar", "#a5cdd8")
 export class SearchBarViewModel {
   @observable _searchBarRef: React.RefObject<ReactCodeMirrorRef> | undefined;
   @observable _editorView?: EditorView;
@@ -28,6 +27,7 @@ export class SearchBarViewModel {
   @observable _popoverOpen = false;
   @observable _cursorPosition = 0;
   @observable _shouldFocusEol = false;
+  @observable _usedTags: Tag[] = [];
 
   // A synthetic blur occurs when the user blurs the search bar by clicking on
   // any of the helper tags / buttons within the popover. On synthetic blurs,
@@ -54,6 +54,7 @@ export class SearchBarViewModel {
 
   @action.bound
   onSearchBarFocus() {
+    if (this._isSyntheticEvent) return;
     this._popoverOpen = true;
   }
 
@@ -69,6 +70,18 @@ export class SearchBarViewModel {
   }
 
   @computed
+  get unusedTags() {
+    const unusedTags: Tag[] = [];
+    for (const tag of Object.values(AvailableTags)) {
+      if (this._usedTags.some((t) => t.id === tag.id)) continue;
+
+      unusedTags.push(tag);
+    }
+
+    return unusedTags;
+  }
+
+  @computed
   get searchInput() {
     return this._searchString;
   }
@@ -77,6 +90,15 @@ export class SearchBarViewModel {
   onSearchInput(value: string, viewUpdate: ViewUpdate) {
     this._searchString = value;
     this._cursorPosition = viewUpdate.state.selection.main.head;
+
+    this.updateUnusedTags();
+    if (value === "") this._tags = [];
+    if (
+      this.currentPendingTag &&
+      !this.tags.some((t) => t.tag.id === this.currentPendingTag!.tag.id)
+    ) {
+      this._tags.push({ tag: this.currentPendingTag.tag, value: "" });
+    }
   }
 
   @action.bound
@@ -87,7 +109,23 @@ export class SearchBarViewModel {
       this._isSyntheticBlur = false;
     }
 
-    if (viewUpdate.selectionSet) this._popoverOpen = true;
+    if (viewUpdate.selectionSet) {
+      this._popoverOpen = true;
+    }
+  }
+
+  @action.bound
+  updateUnusedTags() {
+    this._usedTags.length = 0;
+    const tagRegex = new RegExp(`${TAG_PREFIX}(${AvailableTagIdsForRegexp}):([^\\s]*)`, "g");
+    let match;
+    while ((match = tagRegex.exec(this.searchInput)) !== null) {
+      const [, tagId] = match;
+      const tag = AvailableTags[tagId as AvailableTagId];
+      if (tag) {
+        this._usedTags.push(tag);
+      }
+    }
   }
 
   @action.bound
@@ -158,7 +196,7 @@ export class SearchBarViewModel {
       this._tags[tagIndex].value = newValue;
     }
 
-    this.rebuildSearchString();
+    this.rebuildSearchString(true);
     this._isSyntheticEvent = false;
   }
 
@@ -177,14 +215,15 @@ export class SearchBarViewModel {
       this._tags[tagIndex].value = cb(this._tags[tagIndex].value);
     }
 
-    this.rebuildSearchString();
+    this.rebuildSearchString(true);
     this._isSyntheticEvent = false;
   }
 
   @action.bound
-  rebuildSearchString() {
+  rebuildSearchString(retainCursorPos = true) {
+    const previousCursorPos = this._cursorPosition;
     const content =
-      this._tags.map((tag) => `${TAG_PREFIX}${tag.tag.id}:${tag.value}`).join(" ") + "";
+      this._tags.map((tag) => `${TAG_PREFIX}${tag.tag.id}:${tag.value}`).join(" ") + " ";
 
     this._editorView?.dispatch({
       changes: {
@@ -193,11 +232,12 @@ export class SearchBarViewModel {
         insert: content,
       },
       selection: {
-        anchor: content.length,
+        anchor: retainCursorPos ? previousCursorPos : content.length,
       },
     });
 
-    this.focusEnd(content.length);
+    if (retainCursorPos) this._editorView?.focus();
+    else this.focusEnd(content.length);
   }
 
   @action.bound
@@ -230,7 +270,6 @@ export class SearchBarViewModel {
 
   @action.bound
   focusEnd(length: number) {
-    console.log("focusEnd", "synthetic?", this._isSyntheticEvent);
     // If we're dealing with a synthetic event, we don't want to artificially
     // set the focus here, otherwise we would unintentionally remove focus from
     // another element or open the popover erroneously.
@@ -278,7 +317,7 @@ export class SearchBarViewModel {
   @action.bound
   removeTag(tag: SelectedTag) {
     this._tags = this._tags.filter((t) => t.tag.id !== tag.tag.id);
-    this.rebuildSearchString();
+    this.rebuildSearchString(false);
   }
 
   @computed
@@ -287,6 +326,7 @@ export class SearchBarViewModel {
     if (!editor) return;
 
     const textBeforeCursor = this._searchString.slice(0, this._cursorPosition);
+    console.log("textBeforeCursor", textBeforeCursor);
 
     if (textBeforeCursor.at(-1) === " ") return;
     const words = textBeforeCursor.trim().split(/\s+/);
@@ -303,6 +343,7 @@ export class SearchBarViewModel {
     }
 
     const tagsWithValues = this.parseTags(textBeforeCursor);
+
     return tagsWithValues.at(-1);
   }
 
@@ -344,12 +385,5 @@ export class SearchBarViewModel {
       getStringDate(this._mainController.selectedEndDate);
 
     this.updateTag(AvailableTags.range.id, date, !isCollapsed);
-
-    //this.updateTag(
-    //  AvailableTags.start.id,
-    //  getStringDate(this._mainController.selectedStartDate),
-    //  true,
-    //);
-    //this.updateTag(AvailableTags.end.id, getStringDate(this._mainController.selectedEndDate), true);
   }
 }

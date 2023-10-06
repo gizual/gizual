@@ -2,6 +2,7 @@ import { useMainController } from "@app/controllers";
 import { DATE_FORMAT } from "@app/utils";
 import { DatePicker } from "antd";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import { Timeline } from "../../timeline";
 import style from "../search-bar.module.scss";
@@ -43,7 +44,7 @@ export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => 
     vm._mainController.vmController.timelineViewModel?.defaultEndDate?.toString();
 
   return (
-    <>
+    <React.Fragment key={tagId}>
       {timelineVisible && (
         <>
           <Timeline vm={mainController.vmController.timelineViewModel} />
@@ -91,6 +92,6 @@ export const DateTimeInputAssist = observer(({ tagId }: DateTimeInputAssist) => 
           <p>{`${defaultEndDate} (default)`}</p>
         </div>
       )}
-    </>
+    </React.Fragment>
   );
 });

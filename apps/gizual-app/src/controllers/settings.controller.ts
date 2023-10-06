@@ -178,6 +178,11 @@ export class SettingsController {
     };
   }
 
+  updateValue(entry: SettingsEntry<any, any>, newValue: any) {
+    entry.value = newValue;
+    this.storeSettings();
+  }
+
   applySettings(settings: Partial<SettingsController>) {
     Object.assign(this, settings);
   }

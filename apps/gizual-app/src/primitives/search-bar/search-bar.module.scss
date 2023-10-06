@@ -18,7 +18,7 @@
   @include z-index-dialog-2;
   width: 100%;
   height: 38px;
-  background-color: var(--background-secondary);
+  background-color: var(--background-tertiary);
   display: flex;
   align-items: center;
   border-top-right-radius: 0;
@@ -148,7 +148,7 @@
 }
 
 :global .cm-selectionLayer .cm-selectionBackground {
-  background-color: var(--background-tertiary) !important;
+  background-color: var(--background-secondary) !important;
 }
 
 :global .cm-editor .cm-focused {

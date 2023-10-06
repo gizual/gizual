@@ -8,7 +8,6 @@ import ReactGridLayout from "react-grid-layout";
 import { useMainController, useViewModelController } from "../../controllers";
 import { TitleBar } from "../../primitives";
 import { Canvas } from "../../primitives/canvas";
-import { RepoPanel } from "../../primitives/repo-panel";
 import { SearchBar } from "../../primitives/search-bar/search-bar";
 import { SettingsPage } from "../settings";
 
@@ -43,14 +42,13 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
 });
 
 const ExplorePage = observer(({ vm }: MainPageProps) => {
-  const vmController = useViewModelController();
   if (!vm) return <div />;
 
   return (
     <>
       {/*vmController.isRepoPanelVisible && <RepoPanel />*/}
       <Canvas />
-      {vmController.isAuthorPanelVisible && <AuthorPanel />}
+      {/*vmController.isAuthorPanelVisible && <AuthorPanel />*/}
     </>
   );
 });

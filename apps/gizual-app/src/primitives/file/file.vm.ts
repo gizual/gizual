@@ -29,7 +29,7 @@ export class FileViewModel {
   _fileExtension!: string;
   _isFavourite!: boolean;
   _isLoadIndicator!: boolean;
-  _renderConfiguration: Required<RenderConfiguration>;
+  _settings: RenderConfiguration;
   _mainController: MainController;
   _isEditorOpen = false;
   _blameView: BlameView;
@@ -58,20 +58,27 @@ export class FileViewModel {
     this._isFavourite = isFavourite ?? false;
     this._mainController = mainController;
     this._isLoadIndicator = isLoadIndicator ?? false;
-    this._renderConfiguration = {
-      colourNew: mainController.settingsController.settings.visualisationSettings.colours.new.value,
-      colourOld: mainController.settingsController.settings.visualisationSettings.colours.old.value,
-      colourNotLoaded:
-        mainController.settingsController.settings.visualisationSettings.colours.notLoaded.value,
-      maxLineLength: 120,
-      lineSpacing: 0,
-      maxLineCount: 60,
-      ...settings,
-    };
+    this._settings = settings;
     this._blameView = this._mainController._repo.getBlame(path);
     this._fileInfo = fileInfo;
 
     makeAutoObservable(this);
+  }
+
+  get renderConfiguration() {
+    return {
+      colourNew:
+        this._mainController.settingsController.settings.visualisationSettings.colours.new.value,
+      colourOld:
+        this._mainController.settingsController.settings.visualisationSettings.colours.old.value,
+      colourNotLoaded:
+        this._mainController.settingsController.settings.visualisationSettings.colours.notLoaded
+          .value,
+      maxLineLength: 120,
+      lineSpacing: 0,
+      maxLineCount: 60,
+      ...this._settings,
+    };
   }
 
   get fileInfo() {
@@ -107,6 +114,7 @@ export class FileViewModel {
 
   get blameInfo() {
     const blame = this._blameView.blame;
+    if (!blame) throw new Error("BlameView returned an empty blame");
 
     let lenMax = 0;
 
@@ -302,7 +310,7 @@ export class FileViewModel {
       fileContent: toJS(this.fileContent),
       earliestTimestamp: toJS(this.earliestTimestamp),
       latestTimestamp: toJS(this.latestTimestamp),
-      renderConfiguration: toJS(this._renderConfiguration),
+      renderConfiguration: toJS(this.renderConfiguration),
       lineLengthMax: toJS(this.lineLengthMax),
       selectedStartDate: toJS(this._mainController.selectedStartDate),
       selectedEndDate: toJS(this._mainController.selectedEndDate),
