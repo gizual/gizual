@@ -101,10 +101,10 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               <Center className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <div className={style.Separator}></div>
 
           {mainController._colouringMode === "age" && (
             <>
+              <div className={style.Separator}></div>
               <div className={style.ControlWithLabel}>
                 <p className={style["ControlWithLabel__Label"]}>Old changes:</p>
                 <ColorPicker
@@ -138,11 +138,8 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               </div>
             </>
           )}
-
-          <div className={style.Separator}></div>
         </div>
         <div className={sharedStyle.InlineRow}>
-          <div className={style.Separator}></div>
           <div className={style.ControlWithLabel}>
             <p className={style["ControlWithLabel__Label"]}>Colouring mode:</p>
             <Radio.Group
