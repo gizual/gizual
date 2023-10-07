@@ -7,3 +7,4 @@ export * from "./hooks";
 export * from "./local-storage";
 export * from "./mouse";
 export * from "./text";
+export * from "./tsutils";
