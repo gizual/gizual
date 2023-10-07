@@ -1,47 +1,37 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import { useMainController, useViewModelController } from "@app/controllers";
-import { DATE_FORMAT } from "@app/utils";
+import { useMainController } from "@app/controllers";
 import { StreamLanguage } from "@codemirror/language";
 import { simpleMode } from "@codemirror/legacy-modes/mode/simple-mode";
 import { keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { DatePicker, DatePickerProps, Tooltip } from "antd";
 import clsx from "clsx";
-import dayjs from "dayjs";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { createPortal } from "react-dom";
 
-import { ReactComponent as TreeIcon } from "../../assets/icons/file-tree.svg";
 import { ReactComponent as GitBranchLine } from "../../assets/icons/git-branch-line.svg";
 import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
-import { ReactComponent as SettingsIcon } from "../../assets/icons/settings.svg";
-import { ReactComponent as TrashIcon } from "../../assets/icons/trash.svg";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 import { Select } from "../select";
 
+import { CommonInputAssist } from "./panels/common-footer";
 import style from "./search-bar.module.scss";
-import {
-  AvailableTagIdsForRegexp,
-  AvailableTags,
-  SearchBarViewModel,
-  SelectedTag,
-  TAG_PREFIX,
-} from "./search-bar.vm";
+import { SearchBarViewModel } from "./search-bar.vm";
+import { AvailableTagIdsForRegexp, TAG_PREFIX } from "./search-tags";
 
 const myTheme = createTheme({
   theme: "dark",
   settings: {
     fontFamily: "Iosevka Extended",
-    background: "var(--background-secondary)",
+    background: "var(--background-tertiary)",
     foreground: "var(--text-primary)",
     caret: "var(--text-secondary)",
-    selection: "var(--border-primary)",
-    selectionMatch: "var(--border-primary)",
+    selection: "var(--background-primary)",
+    selectionMatch: "var(--background-primary)",
     lineHighlight: "transparent",
     gutterBackground: "transparent",
     gutterForeground: "transparent",
@@ -50,15 +40,15 @@ const myTheme = createTheme({
     {
       tag: t.tagName,
       color: "var(--accent-main)",
-      backgroundColor: "var(--background-tertiary)",
-      padding: "0.125rem 0 0.125rem 0.25rem",
+      backgroundColor: "#0c0c0d40",
+      padding: "0.125rem 0 0.125rem 0",
       borderTopLeftRadius: "0.25rem",
       borderBottomLeftRadius: "0.25rem",
     },
     {
       tag: t.emphasis,
-      backgroundColor: "var(--background-tertiary)",
-      padding: "0.125rem 0.25rem 0.125rem 0",
+      backgroundColor: "#0c0c0d40",
+      padding: "0.125rem 0 0.125rem 0",
       borderTopRightRadius: "0.25rem",
       borderBottomRightRadius: "0.25rem",
     },
@@ -93,7 +83,6 @@ export type SearchBarProps = {
 
 export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
   const mainController = useMainController();
-  const vmController = useViewModelController();
 
   const vm: SearchBarViewModel = React.useMemo(() => {
     return externalVm || new SearchBarViewModel(mainController);
@@ -102,14 +91,6 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
   return (
     <div className={style.SearchBar}>
       <div className={style.Content}>
-        <Tooltip title={"Toggle repository panel"}>
-          <IconButton
-            onClick={vmController.toggleRepoPanelVisibility}
-            aria-label="Toggle repository panel"
-          >
-            <TreeIcon />
-          </IconButton>
-        </Tooltip>
         <Select
           value={mainController.selectedBranch}
           style={{ paddingLeft: "1rem" }}
@@ -126,14 +107,6 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
         <div id="inputWrapper" className={style.SearchInputWrapper}>
           <SearchInput vm={vm} />
         </div>
-        <Tooltip title={"Toggle settings panel"}>
-          <IconButton
-            onClick={vmController.toggleSettingsPanelVisibility}
-            aria-label="Toggle settings panel"
-          >
-            <SettingsIcon />
-          </IconButton>
-        </Tooltip>
       </div>
     </div>
   );
@@ -148,6 +121,14 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
       run: (view) => {
         vm.search();
         view.contentDOM.blur();
+        return true;
+      },
+    },
+    {
+      key: "Escape",
+      run: (view) => {
+        view.contentDOM.blur();
+        vm.closePopover();
         return true;
       },
     },
@@ -168,6 +149,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
         onBlur={vm.onSearchBarBlur}
         onChange={vm.onSearchInput}
         onUpdate={vm.onSearchUpdate}
+        onCreateEditor={vm.onCreateEditor}
         value={vm.searchInput}
         basicSetup={{
           lineNumbers: false,
@@ -193,27 +175,29 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
           )}
           <div className={style.SearchOverlay}>
             <div className={style.SearchOverlayContent}>
-              {!vm.currentPendingTag && (
-                <>
-                  <h4>Refine your search</h4>
-                  {Object.entries(AvailableTags).map(([id, tag]) => (
-                    <div
-                      className={style.SearchOverlayHintEntry}
-                      key={id}
-                      onClick={() => vm.appendTag(tag)}
-                    >
-                      <pre className={style.Tag}>-{tag.id}: </pre>
-                      <pre>{tag.hint}</pre>
-                    </div>
-                  ))}
-                </>
-              )}
-              {vm.currentPendingTag && vm.currentPendingTag.tag.id === "start" && (
-                <DateTimeInputAssist vm={vm} tag={vm.currentPendingTag} />
-              )}
-              {vm.currentPendingTag && vm.currentPendingTag.tag.id === "end" && (
-                <DateTimeInputAssist vm={vm} tag={vm.currentPendingTag} />
-              )}
+              <div className={style.SearchOverlayContentBox}>
+                {!vm.currentPendingTag && (
+                  <>
+                    <h4>Refine your search</h4>
+                    {vm.unusedTags.map((tag) => (
+                      <div
+                        className={style.SearchOverlayHintEntry}
+                        key={tag.id}
+                        onClick={() => vm.appendTag(tag)}
+                      >
+                        <pre className={style.Tag}>-{tag.id}: </pre>
+                        <pre className={style.Hint}>{tag.textHint}</pre>
+                      </div>
+                    ))}
+                  </>
+                )}
+                {vm.currentPendingTag && (
+                  <React.Fragment key={vm.currentPendingTag.tag.id}>
+                    {vm.currentPendingTag.tag.inputAssist}
+                    <CommonInputAssist tagId={vm.currentPendingTag.tag.id} />
+                  </React.Fragment>
+                )}
+              </div>
             </div>
           </div>
         </>
@@ -232,60 +216,3 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
     </div>
   );
 });
-
-const DateTimeInputAssist = observer(
-  ({ vm, tag }: Required<SearchBarProps> & { tag: SelectedTag }) => {
-    const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-      vm.updateTag(tag.tag.id, dateString);
-    };
-
-    let currentDate = dayjs(tag.value, DATE_FORMAT);
-    if (!currentDate.isValid()) currentDate = dayjs();
-
-    const defaultStartDate =
-      vm._mainController.vmController.timelineViewModel?.defaultStartDate?.toString();
-
-    const defaultEndDate =
-      vm._mainController.vmController.timelineViewModel?.defaultEndDate?.toString();
-
-    return (
-      <>
-        <div className={style.SearchOverlayHintEntry}>
-          {tag.tag.id === "start" && <p>Pick a custom start date: </p>}
-          {tag.tag.id === "end" && <p>Pick a custom end date: </p>}
-          <DatePicker onChange={onChange} format={DATE_FORMAT} size="small" />
-        </div>
-        {tag.tag.id === "start" && defaultStartDate && (
-          <div
-            className={style.SearchOverlayHintEntry}
-            onClick={() => {
-              vm.updateTag(tag.tag.id, defaultStartDate);
-            }}
-          >
-            <p>{`${defaultStartDate} (default)`}</p>
-          </div>
-        )}
-        {tag.tag.id === "end" && defaultEndDate && (
-          <div
-            className={style.SearchOverlayHintEntry}
-            onClick={() => {
-              vm.updateTag(tag.tag.id, defaultEndDate);
-            }}
-          >
-            <p>{`${defaultEndDate} (default)`}</p>
-          </div>
-        )}
-        <hr />
-        <div
-          className={clsx(style.SearchOverlayHintEntry, style.RemoveTagEntry)}
-          onClick={() => {
-            vm.removeTag(tag);
-          }}
-        >
-          <TrashIcon style={{ margin: 0 }} />
-          <p>Remove Tag</p>
-        </div>
-      </>
-    );
-  },
-);

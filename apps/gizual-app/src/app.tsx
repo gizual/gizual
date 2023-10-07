@@ -23,6 +23,7 @@ function App() {
     colorBgBase: useStyle("--background-primary"),
     colorTextBase: useStyle("--foreground-primary"),
     borderRadius: 4,
+    fontFamily: "FiraGO",
   };
 
   const token =
@@ -35,6 +36,21 @@ function App() {
       Skeleton: {
         gradientFromColor: "var(--background-secondary)",
         gradientToColor: "var(--background-tertiary)",
+      },
+      Select: {
+        colorBorder: "var(--border-primary)",
+        colorBgContainer: "var(--background-tertiary)",
+      },
+      Input: {
+        colorBorder: "var(--border-primary)",
+        colorBgContainer: "var(--background-tertiary)",
+      },
+      InputNumber: {
+        colorBorder: "var(--border-primary)",
+        colorBgContainer: "var(--background-tertiary)",
+      },
+      Table: {
+        colorBgContainer: "var(--background-primary)",
       },
     },
     token,

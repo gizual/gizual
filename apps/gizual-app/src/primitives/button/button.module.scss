@@ -14,8 +14,8 @@
   background-color: var(--accent-main);
   color: var(--accent-main-fg);
   &:hover {
-    background-color: var(--accent-secondary);
-    color: var(--accent-secondary-fg);
+    background-color: var(--accent-main-dark);
+    color: var(--accent-main-fg);
     cursor: pointer;
   }
 }

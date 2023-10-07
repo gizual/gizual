@@ -1,8 +1,3 @@
-import { VictoryChart } from "victory-chart";
-import { VictoryLine } from "victory-line";
-
-import { victoryTheme } from "../theme";
-
 type ContributionEntry = {
   author: string;
   contributions: string[];
@@ -42,13 +37,9 @@ const mockContributions: ContributionEntry[] = [
 export function AllContributions({ contributions }: AllContributionsProps) {
   if (!contributions) contributions = mockContributions;
 
-  const data = prepareData(contributions);
+  const _data = prepareData(contributions);
 
-  return (
-    <VictoryChart theme={victoryTheme}>
-      <VictoryLine data={data} />
-    </VictoryChart>
-  );
+  return <></>;
 }
 
 type AuthorContributionsProps = ContributionEntry & {};

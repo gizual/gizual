@@ -4,9 +4,9 @@ import App from "./app";
 import { MainContext, MainController } from "./controllers";
 
 import "./index.scss";
-import "../public/icons/fonts.css";
-import "../public/icons/icons.css";
-import "../public/icons/colors.css";
+import "./icons/fonts.css";
+import "./icons/icons.css";
+import "./icons/colors.css";
 
 const mainController = new MainController();
 

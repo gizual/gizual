@@ -1,4 +1,5 @@
 export { AnimatedLogo } from "./animated-logo";
+export { AuthorPanel as SettingsPanel } from "./author-panel";
 export { Button } from "./button";
 export { Canvas } from "./canvas";
 export { DialogProvider } from "./dialog-provider";
@@ -12,6 +13,5 @@ export { IconButton } from "./icon-button";
 export { RepoPanel } from "./repo-panel";
 export { SearchBar } from "./search-bar";
 export { Select } from "./select";
-export { SettingsPanel } from "./settings-panel";
 export { Timeline } from "./timeline";
 export { TitleBar } from "./title-bar";

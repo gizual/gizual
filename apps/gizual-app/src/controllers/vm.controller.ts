@@ -1,24 +1,27 @@
-import type { MainPageViewModel } from "@app/pages";
 import type { CanvasViewModel } from "@app/primitives/canvas";
 import type { FileTreeViewModel } from "@app/primitives/file-tree";
 import { SearchBarViewModel } from "@app/primitives/search-bar/search-bar.vm";
 import { TimelineViewModel } from "@app/primitives/timeline/timeline.vm";
 import { LocalStorage } from "@app/utils";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
+
+import type { MainController } from "./main.controller";
 
 export class ViewModelController {
   _canvasViewModel?: CanvasViewModel;
   _fileTreeViewModel?: FileTreeViewModel;
-  _mainPageViewModel?: MainPageViewModel;
   _searchBarViewModel?: SearchBarViewModel;
   _timelineViewModel?: TimelineViewModel;
 
-  _isRepoPanelVisible = true;
-  _isSettingsPanelVisible = true;
+  _mainController: MainController;
 
-  constructor() {
+  _isRepoPanelVisible = true;
+  _isAuthorPanelVisible = true;
+
+  constructor(mainController: MainController) {
     this._isRepoPanelVisible = !LocalStorage.getBoolean("hideRepoPanel") ?? true;
-    this._isSettingsPanelVisible = !LocalStorage.getBoolean("hideSettingsPanel") ?? true;
+    this._isAuthorPanelVisible = !LocalStorage.getBoolean("hideAuthorPanel") ?? true;
+    this._mainController = mainController;
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
@@ -27,6 +30,11 @@ export class ViewModelController {
   }
 
   get timelineViewModel(): TimelineViewModel | undefined {
+    if (!this._timelineViewModel) {
+      runInAction(() => {
+        this._timelineViewModel = new TimelineViewModel(this._mainController);
+      });
+    }
     return this._timelineViewModel;
   }
 
@@ -54,14 +62,6 @@ export class ViewModelController {
     return this._fileTreeViewModel;
   }
 
-  setMainPaveViewModel(vm: MainPageViewModel) {
-    this._mainPageViewModel = vm;
-  }
-
-  get mainPageViewModel(): MainPageViewModel | undefined {
-    return this._mainPageViewModel;
-  }
-
   setRepoPanelVisibility(visible: boolean) {
     this._isRepoPanelVisible = visible;
     LocalStorage.setItem("hideRepoPanel", (!this._isRepoPanelVisible).toString());
@@ -75,16 +75,16 @@ export class ViewModelController {
     this.setRepoPanelVisibility(!this._isRepoPanelVisible);
   }
 
-  setSettingsPanelVisibility(visible: boolean) {
-    this._isSettingsPanelVisible = visible;
-    LocalStorage.setItem("hideSettingsPanel", (!this._isSettingsPanelVisible).toString());
+  setAuthorPanelVisibility(visible: boolean) {
+    this._isAuthorPanelVisible = visible;
+    LocalStorage.setItem("hideAuthorPanel", (!this._isAuthorPanelVisible).toString());
   }
 
-  get isSettingsPanelVisible() {
-    return this._isSettingsPanelVisible;
+  get isAuthorPanelVisible() {
+    return this._isAuthorPanelVisible;
   }
 
-  toggleSettingsPanelVisibility() {
-    this.setSettingsPanelVisibility(!this._isSettingsPanelVisible);
+  toggleAuthorPanelVisibility() {
+    this.setAuthorPanelVisibility(!this._isAuthorPanelVisible);
   }
 }

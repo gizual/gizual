@@ -5,16 +5,14 @@ import {
   estimateCoordsOnScale,
   getDateFromTimestamp,
   getDaysBetweenAbs,
-  getStringDate,
   GizDate,
   MOUSE_ZOOM_FACTOR,
 } from "@app/utils";
 import { MenuProps } from "antd";
-import { autorun, makeAutoObservable, runInAction, when } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { RefObject } from "react";
 
 import { MainController } from "../../controllers";
-import { AvailableTags } from "../search-bar/search-bar.vm";
 
 import { TimelineEventHandler } from "./event-handler";
 
@@ -31,9 +29,6 @@ export class TimelineViewModel {
   private _isTooltipShown = false;
   private _isHoveringCommitId = -1;
 
-  private _commitsPerDate = new Map<string, CInfo[]>();
-  private _commitsForBranch?: CInfo[];
-
   private _interactionLayer?: RefObject<HTMLDivElement> = undefined;
   private _timelineSvg?: RefObject<SVGSVGElement> = undefined;
   private _tooltip?: RefObject<HTMLDivElement> = undefined;
@@ -41,16 +36,14 @@ export class TimelineViewModel {
 
   private _eventHandler: TimelineEventHandler;
 
-  // these dates are only used if the user explicitly does not specify a date
-  // (by deleting the tag from the search bar).
-  private _defaultStartDate?: GizDate;
-  private _defaultEndDate?: GizDate;
-
   private _currentTranslationX = 0;
 
   dragStartX = 0;
   selectStartX = 0;
   selectEndX = 0;
+  moveBoxStartX = 0;
+  resizeBoxStartLeft = 0;
+  resizeBoxStartRight = 0;
 
   viewBox = {
     width: 1000,
@@ -60,6 +53,10 @@ export class TimelineViewModel {
   textColumnWidth = 120;
   rowHeight = 60;
   paddingY = 10;
+  selectionBoxHandle = {
+    width: 15,
+    height: 35,
+  };
 
   get ruler() {
     return {
@@ -93,60 +90,13 @@ export class TimelineViewModel {
     this._eventHandler = new TimelineEventHandler(this);
 
     makeAutoObservable(this, {}, { autoBind: true });
-
-    // Since loading the repo data is asynchronous, the timeline positions are
-    // just guesses until the repo is done loading.
-    // This fires after the repo loads to properly adjust the positions.
-    when(
-      () => this.isDoneLoading,
-      () => {
-        this.initializePositionsFromLastCommit();
-      },
-    );
-
-    this.loadCommitsForBranch();
-
-    // This autorun is required because the access to the branches and commits is not
-    // properly decentralised yet.
-    // TODO: Ideally, this shouldn't be necessary when we're preparing the commits
-    // in a separate controller.
-    autorun(() => {
-      if (this._mainController.branches.some((b) => b.name === this.selectedBranch))
-        runInAction(() => this.loadCommitsForBranch());
-    });
-
-    this.setSelectedStartDate(new GizDate("2023-01-01"));
-    this.setSelectedEndDate(new GizDate("2023-07-30"));
+    //this.setSelectedStartDate(new GizDate("2023-01-01"));
+    //this.setSelectedEndDate(new GizDate("2023-07-30"));
   }
 
   // ------------------------------------------------------------------------ //
 
   // Actions
-  initializePositionsFromLastCommit() {
-    if (!this.lastCommit) return;
-
-    const datePadding = Math.floor(this.selectionRange / 10);
-
-    const newEndDate = getDateFromTimestamp(this.lastCommit.timestamp).addDays(datePadding);
-    const newStartDate = getDateFromTimestamp(this.lastCommit.timestamp).subtractDays(
-      datePadding + this.selectionRange,
-    );
-
-    const newSelectedStartDate = getDateFromTimestamp(this.lastCommit.timestamp).subtractDays(
-      this.selectionRange,
-    );
-    const newSelectedEndDate = getDateFromTimestamp(this.lastCommit.timestamp);
-
-    this.setStartDate(newStartDate);
-    this.setEndDate(newEndDate);
-
-    this.setSelectedStartDate(newSelectedStartDate);
-    this.setSelectedEndDate(newSelectedEndDate);
-
-    this._defaultStartDate = newSelectedStartDate;
-    this._defaultEndDate = newSelectedEndDate;
-  }
-
   move(pxOffset: number) {
     const newStartDate = this.offsetDateByPx(this.startDate, pxOffset);
     const newEndDate = this.offsetDateByPx(this.endDate, pxOffset);
@@ -183,61 +133,6 @@ export class TimelineViewModel {
     );
   }
 
-  // TODO: This function is awkward, since it has a bunch of side effects and requires an `autorun`
-  // to properly fit in the control flow. Should be refactored, probably the set of commits has to be constructed
-  // elsewhere - maybe a separate controller that properly manages repo state.
-  loadCommitsForBranch() {
-    this._commitsForBranch = [];
-    const parsedCommits: CInfo[] = [];
-    const branch = this._mainController.branches.find((b) => b.name === this.selectedBranch);
-    if (!branch) return;
-    const origin = branch.last_commit_id;
-
-    if (!this.commitIndices) return;
-
-    const originIndex = this.commitIndices.get(origin);
-
-    if (originIndex === undefined) {
-      console.log(
-        "Aborting, cannot find origin in indices, origin:",
-        origin,
-        "indices:",
-        this.commitIndices,
-      );
-      return parsedCommits;
-    } //throw new Error(`Could not find commit index for commit ${origin}`);
-
-    const commit = this.commits[originIndex];
-    parsedCommits.push(commit);
-
-    let currentCommit = commit;
-    this._commitsPerDate.clear();
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      if (!currentCommit.parents) break;
-
-      const parentId = currentCommit.parents[0];
-      if (parentId === null) break;
-
-      const commitIndex = this.commitIndices.get(parentId!);
-      if (!commitIndex) break;
-
-      currentCommit = this.commits[commitIndex];
-      if (!currentCommit) break;
-
-      const commitDate = getStringDate(getDateFromTimestamp(currentCommit.timestamp));
-      if (this._commitsPerDate.has(commitDate)) {
-        this._commitsPerDate.get(commitDate)?.push(currentCommit);
-      } else {
-        this._commitsPerDate.set(commitDate, [currentCommit]);
-      }
-      parsedCommits.push(currentCommit as any);
-    }
-
-    this._commitsForBranch = parsedCommits;
-  }
-
   updateSelectionStartCoords() {
     const xCoords = estimateCoordsOnScale(
       this.timelineRenderStart,
@@ -272,16 +167,8 @@ export class TimelineViewModel {
     }
   }
 
-  triggerSearchBarUpdate() {
-    this.mainController.vmController.searchBarViewModel!.clear();
-    this.mainController.vmController.searchBarViewModel?.appendTag(
-      AvailableTags.start,
-      getStringDate(this.selectedStartDate),
-    );
-    this.mainController.vmController.searchBarViewModel?.appendTag(
-      AvailableTags.end,
-      getStringDate(this.selectedEndDate),
-    );
+  triggerSearchBarUpdate(force = true) {
+    this.mainController.triggerSearchBarUpdate(force);
   }
 
   // -------------------------------------------------------------------------- //
@@ -311,6 +198,7 @@ export class TimelineViewModel {
 
   setTooltip(ref?: RefObject<HTMLDivElement>) {
     this._tooltip = ref;
+    if (ref?.current) ref.current.style.visibility = "hidden";
   }
 
   setViewBoxWidth(width: number) {
@@ -323,7 +211,7 @@ export class TimelineViewModel {
   }
 
   setSelectedStartDate(date?: GizDate) {
-    if (date === undefined) date = this._defaultStartDate ?? new GizDate();
+    if (date === undefined) date = this.defaultStartDate ?? new GizDate();
     this.mainController.setSelectedStartDate(date);
     this.updateSelectionStartCoords();
     this.zoom(0);
@@ -334,10 +222,9 @@ export class TimelineViewModel {
   }
 
   setSelectedEndDate(date?: GizDate) {
-    if (date === undefined) date = this._defaultStartDate ?? new GizDate();
+    if (date === undefined) date = this.defaultStartDate ?? new GizDate();
 
     this.mainController.setSelectedEndDate(date);
-    this.triggerSearchBarUpdate();
     this.updateSelectionEndCoords();
     this.zoom(0);
   }
@@ -351,6 +238,19 @@ export class TimelineViewModel {
     this._isContextMenuOpen = open;
   }
 
+  initializePositionsFromSelection() {
+    console.log("initializePositionsFromSelection");
+    const range = getDaysBetweenAbs(this.selectedEndDate, this.selectedStartDate);
+
+    const datePadding = Math.floor(range / 10);
+
+    const newStartDate = this.selectedStartDate.subtractDays(datePadding);
+    const newEndDate = this.selectedEndDate.addDays(datePadding);
+
+    this.setStartDate(newStartDate);
+    this.setEndDate(newEndDate);
+  }
+
   // ------------------------------------------------------------------------ //
 
   // Computed
@@ -362,15 +262,15 @@ export class TimelineViewModel {
   }
 
   get isDoneLoading() {
-    return this.lastCommit !== undefined;
+    return this.mainController.repoController.isDoneLoading;
   }
 
   get defaultStartDate() {
-    return this._defaultStartDate;
+    return this.mainController.repoController.defaultStartDate;
   }
 
   get defaultEndDate() {
-    return this._defaultEndDate;
+    return this.mainController.repoController.defaultEndDate;
   }
 
   get displayMode() {
@@ -407,6 +307,26 @@ export class TimelineViewModel {
     return this._eventHandler.isSelecting;
   }
 
+  get isMovingSelectionBox() {
+    return this._eventHandler.isMovingSelectionBox;
+  }
+
+  get isResizingSelectionBoxLeft() {
+    return this._eventHandler.isResizingSelectionBox === "left";
+  }
+
+  get isResizingSelectionBoxRight() {
+    return this._eventHandler.isResizingSelectionBox === "right";
+  }
+
+  get canResizeSelectionBoxLeft() {
+    return this._eventHandler.canResizeSelectionBox === "left";
+  }
+
+  get canResizeSelectionBoxRight() {
+    return this._eventHandler.canResizeSelectionBox === "right";
+  }
+
   get timelineSvg() {
     return this._timelineSvg?.current;
   }
@@ -424,7 +344,7 @@ export class TimelineViewModel {
   }
 
   get commitsPerDate() {
-    return this._commitsPerDate;
+    return this.mainController.repoController.commitsPerDate;
   }
 
   get interactionLayer() {
@@ -436,10 +356,7 @@ export class TimelineViewModel {
   }
 
   get commitIndices() {
-    if (this.mainController._repo.gitGraph.loading) return;
-    return new Map<string, number>(
-      Object.entries(this.mainController._repo.gitGraph.value?.commit_indices ?? {}),
-    );
+    return this.mainController.repoController.commitIndices;
   }
 
   get isHoveringCommitId() {
@@ -447,8 +364,7 @@ export class TimelineViewModel {
   }
 
   get commits() {
-    if (this.mainController._repo.gitGraph.loading) return [];
-    return this.mainController._repo.gitGraph.value?.commits ?? [];
+    return this.mainController.repoController.commits;
   }
 
   get commitsToDraw(): {
@@ -528,17 +444,12 @@ export class TimelineViewModel {
     return commitsToDraw;
   }
 
-  get lastCommit() {
-    if (this._commitsForBranch === undefined || this._commitsForBranch.length === 0) return;
-    return this._commitsForBranch?.at(0);
-  }
-
   get selectedBranch() {
     return this.mainController.selectedBranch;
   }
 
   get commitsForBranch() {
-    return this._commitsForBranch;
+    return this.mainController.repoController.commitsForBranch;
   }
 
   get timelineRenderStart() {
@@ -578,7 +489,7 @@ export class TimelineViewModel {
       danger: true,
       onClick: () => {
         this.setIsContextMenuOpen(false);
-        this.initializePositionsFromLastCommit();
+        this.mainController.repoController.initializePositionsFromLastCommit();
       },
     });
 

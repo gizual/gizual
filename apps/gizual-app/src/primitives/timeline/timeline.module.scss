@@ -26,6 +26,7 @@
   @include text-xs;
   position: absolute;
   bottom: 0;
+  user-select: none;
 }
 
 .DateRangeCenterText {
@@ -37,6 +38,7 @@
   width: 100%;
   margin: auto;
   text-align: center;
+  user-select: none;
 }
 
 .NotLoadedOverlay {
@@ -94,6 +96,26 @@
   pointer-events: auto;
 }
 
+.InteractionLayer--isDragging {
+  cursor: grabbing;
+}
+
+.InteractionLayer--canDrag {
+  cursor: grab;
+}
+
+.InteractionLayer--isSelecting {
+  cursor: col-resize;
+}
+
+.InteractionLayer--isResizingLeft {
+  cursor: col-resize;
+}
+
+.InteractionLayer--isResizingRight {
+  cursor: col-resize;
+}
+
 .Header {
   @include text-xl;
   margin-right: 1rem;
@@ -118,14 +140,14 @@
 }
 
 .Tooltip {
-  @include z-index-dialog;
+  @include z-index-max;
   background: var(--background-secondary);
   color: var(--foreground-primary);
   border: 1px solid var(--border-primary);
   padding: 5px;
   white-space: nowrap;
   pointer-events: none;
-  
+
   /* Absolutely positioned at the top left, moved exclusively with CSS transforms. */
   position: absolute;
   top: 0;
@@ -140,14 +162,32 @@
 
 .SelectionBox {
   @include z-index-base-3;
-  background: #30308020;
+  background: #5a9ac827;
   border: 1px solid var(--border-secondary);
   pointer-events: none;
   position: absolute; // Positions are set in JS.
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.SelectionBoxDragHandle {
+  @include z-index-base-3;
+  background: var(--border-primary);
+  width: 8px;
+  height: 30%;
+  position: absolute; // Positions are set in JS.
+  border: 1px solid var(--border-secondary);
+}
+
+.SelectionBoxDragHandleIcon {
+  width: 200%;
+  transform: translateX(-25%);
 }
 
 .SelectionBoxLine {
-  @include z-index-base-3;
+  @include z-index-base-2;
   background-color: var(--color-gold);
   position: absolute;
 }

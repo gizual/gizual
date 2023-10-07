@@ -25,28 +25,21 @@ type Receiver = { element: HTMLElement | SVGElement; events: EventCode[] };
 export class TimelineEventHandler {
   vm: TimelineViewModel;
 
-  isDragging = false;
-  isSelecting = false;
+  @observable isDragging = false;
+  @observable isSelecting = false;
+  @observable isMovingSelectionBox = false;
+  @observable isResizingSelectionBox: "left" | "right" | false = false;
+  @observable canResizeSelectionBox: "left" | "right" | false = false;
 
-  _parent?: HTMLElement;
+  @observable _parent?: HTMLElement;
   _receivers?: Map<string, Receiver>;
 
   constructor(vm: TimelineViewModel) {
     this.vm = vm;
-
-    makeObservable(this, {
-      isDragging: observable,
-      isSelecting: observable,
-      _parent: observable,
-
-      attachParent: action,
-      stopDragging: action,
-      stopSelecting: action,
-
-      parentBBox: computed,
-    });
+    makeObservable(this, undefined, { autoBind: true });
   }
 
+  @action.bound
   attachParent(element: HTMLElement) {
     this._parent = element;
 
@@ -94,6 +87,7 @@ export class TimelineEventHandler {
     }
   }, 50).bind(this);
 
+  @computed
   get parentBBox() {
     if (!this._parent) {
       return new DOMRect();
@@ -112,17 +106,16 @@ export class TimelineEventHandler {
     this.vm.setTooltipShown(false);
     if (this.isDragging) this.stopDragging();
     if (this.isSelecting) this.stopSelecting();
+    if (this.isMovingSelectionBox) this.stopMovingSelection();
+    if (this.isResizingSelectionBox) this.stopResizingSelectionBox();
   };
 
   mouseUp = (e: MouseEvent) => {
     this._forwardEvent("mouseup", e);
-    if (e.button === MOUSE_BUTTON_PRIMARY) {
-      this.stopSelecting();
-    }
-
-    if (e.button === MOUSE_BUTTON_WHEEL) {
-      this.stopDragging();
-    }
+    if (this.isSelecting) this.stopSelecting();
+    if (this.isDragging) this.stopDragging();
+    if (this.isMovingSelectionBox) this.stopMovingSelection();
+    if (this.isResizingSelectionBox) this.stopResizingSelectionBox();
   };
 
   wheel = (e: WheelEvent) => {
@@ -213,48 +206,114 @@ export class TimelineEventHandler {
           ),
         );
       });
+      return;
     }
 
     if (this.isDragging) {
       this.vm.applyTransform(this.vm.dragStartX - e.clientX);
       this.vm.updateSelectionStartCoords();
       this.vm.updateSelectionEndCoords();
+      return;
     }
+
+    if (this.isMovingSelectionBox) {
+      const range = this.vm.selectEndX - this.vm.selectStartX;
+      const dist = this.vm.moveBoxStartX - e.clientX;
+
+      runInAction(() => {
+        this.vm.selectStartX = this.vm.selectStartX - dist;
+        this.vm.selectEndX = this.vm.selectStartX + range;
+        this.vm.moveBoxStartX = this.vm.moveBoxStartX - dist;
+      });
+      return;
+    }
+
+    if (this.isResizingSelectionBox === "left") {
+      const dist = this.vm.resizeBoxStartLeft - e.clientX;
+
+      runInAction(() => {
+        this.vm.selectStartX = this.vm.selectStartX - dist;
+        this.vm.resizeBoxStartLeft = this.vm.resizeBoxStartLeft - dist;
+      });
+      return;
+    }
+
+    if (this.isResizingSelectionBox === "right") {
+      const dist = this.vm.resizeBoxStartRight - e.clientX;
+
+      runInAction(() => {
+        this.vm.selectEndX = this.vm.selectEndX - dist;
+        this.vm.resizeBoxStartRight = this.vm.resizeBoxStartRight - dist;
+      });
+      return;
+    }
+
+    runInAction(() => {
+      this.canResizeSelectionBox = this.evaluateCanResize(e);
+    });
   };
+
+  evaluateCanResize(e: MouseEvent) {
+    const posX = e.clientX - this.parentBBox.left;
+    const posY = e.clientY - this.parentBBox.top;
+
+    if (
+      posY < this.vm.viewBox.height / 2 - this.vm.selectionBoxHandle.height / 2 ||
+      posY > this.vm.viewBox.height / 2 + this.vm.selectionBoxHandle.height / 2
+    )
+      return false;
+
+    if (
+      posX > this.vm.selectStartX - this.vm.selectionBoxHandle.width &&
+      posX < this.vm.selectStartX + this.vm.selectionBoxHandle.width
+    )
+      return "left";
+
+    if (
+      posX > this.vm.selectEndX - this.vm.selectionBoxHandle.width &&
+      posX < this.vm.selectEndX + this.vm.selectionBoxHandle.width
+    )
+      return "right";
+
+    return false;
+  }
 
   mouseDown = (e: MouseEvent) => {
     this._forwardEvent("mousedown", e);
-    if (e.button === MOUSE_BUTTON_PRIMARY) {
+    if (e.button === MOUSE_BUTTON_PRIMARY && !e.altKey) {
+      const mousePos = e.clientX - this.parentBBox.left;
+
+      if (this.canResizeSelectionBox === "left") {
+        this.isResizingSelectionBox = "left";
+        this.vm.resizeBoxStartLeft = e.clientX;
+        return;
+      }
+
+      if (this.canResizeSelectionBox === "right") {
+        this.isResizingSelectionBox = "right";
+        this.vm.resizeBoxStartRight = e.clientX;
+        return;
+      }
+
+      if (mousePos > this.vm.selectStartX && mousePos < this.vm.selectEndX) {
+        runInAction(() => {
+          this.isMovingSelectionBox = true;
+          this.vm.moveBoxStartX = e.clientX;
+        });
+        return;
+      }
+
       runInAction(() => {
         this.isSelecting = true;
 
         this.vm.selectStartX = e.clientX - this.parentBBox.left;
         this.vm.selectEndX = e.clientX - this.parentBBox.left;
 
-        let selectedStartDate = estimateDayOnScale(
-          this.vm.timelineRenderStart,
-          this.vm.timelineRenderEnd,
-          this.vm.viewBox.width,
-          this.vm.selectStartX + this.vm.currentTranslationX,
-        );
-        let selectedEndDate = estimateDayOnScale(
-          this.vm.timelineRenderStart,
-          this.vm.timelineRenderEnd,
-          this.vm.viewBox.width,
-          this.vm.selectEndX + this.vm.currentTranslationX,
-        );
-
-        if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
-          selectedStartDate = selectedStartDate.discardTimeComponent();
-          selectedEndDate = selectedEndDate.discardTimeComponent().addDays(1);
-        }
-
-        this.vm.setSelectedStartDate(selectedStartDate);
-        this.vm.setSelectedEndDate(selectedEndDate);
+        this.setDatesFromSelectionCoordinates();
       });
     }
 
-    if (e.button === MOUSE_BUTTON_WHEEL) {
+    if (e.button === MOUSE_BUTTON_WHEEL || (e.button === MOUSE_BUTTON_PRIMARY && e.altKey)) {
       runInAction(() => {
         this.isDragging = true;
         this.vm.dragStartX = e.clientX + this.vm.currentTranslationX;
@@ -262,12 +321,14 @@ export class TimelineEventHandler {
     }
   };
 
+  @action.bound
   stopDragging() {
     this.isDragging = false;
     const pxOffset = this.vm.currentTranslationX - this.vm.viewBox.width / PRERENDER_MULTIPLIER;
     this.vm.move(pxOffset);
   }
 
+  @action.bound
   stopSelecting() {
     this.isSelecting = false;
 
@@ -277,8 +338,47 @@ export class TimelineEventHandler {
       this.vm.viewBox.width,
       this.vm.selectEndX + this.vm.currentTranslationX,
     );
+    this.vm.triggerSearchBarUpdate();
     if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
       this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
     }
+  }
+
+  @action.bound
+  stopMovingSelection() {
+    this.isMovingSelectionBox = false;
+    this.setDatesFromSelectionCoordinates();
+    this.vm.triggerSearchBarUpdate();
+  }
+
+  @action.bound
+  setDatesFromSelectionCoordinates() {
+    let selectedStartDate = estimateDayOnScale(
+      this.vm.timelineRenderStart,
+      this.vm.timelineRenderEnd,
+      this.vm.viewBox.width,
+      this.vm.selectStartX + this.vm.currentTranslationX,
+    );
+    let selectedEndDate = estimateDayOnScale(
+      this.vm.timelineRenderStart,
+      this.vm.timelineRenderEnd,
+      this.vm.viewBox.width,
+      this.vm.selectEndX + this.vm.currentTranslationX,
+    );
+
+    if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
+      selectedStartDate = selectedStartDate.discardTimeComponent();
+      selectedEndDate = selectedEndDate.discardTimeComponent().addDays(1);
+    }
+
+    this.vm.setSelectedStartDate(selectedStartDate);
+    this.vm.setSelectedEndDate(selectedEndDate);
+  }
+
+  @action.bound
+  stopResizingSelectionBox() {
+    this.isResizingSelectionBox = false;
+    this.setDatesFromSelectionCoordinates();
+    this.vm.triggerSearchBarUpdate();
   }
 }

@@ -8,7 +8,8 @@
 }
 
 .Content {
-  padding: 0.5rem 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   display: flex;
 }
 
@@ -16,8 +17,8 @@
   @include rounded;
   @include z-index-dialog-2;
   width: 100%;
-  height: 2.5rem;
-  background-color: var(--background-secondary);
+  height: 38px;
+  background-color: var(--background-tertiary);
   display: flex;
   align-items: center;
   border-top-right-radius: 0;
@@ -30,6 +31,10 @@
   line-height: 1rem;
   justify-content: center;
   font-family: "Iosevka Extended", monospace !important;
+
+  :global .cm-focused {
+    outline: none !important;
+  }
 }
 
 .SearchInput:focus {
@@ -49,6 +54,10 @@
   width: 100%;
   height: 100%;
   display: flex;
+
+  :has(.cm-focused) {
+    outline: 1px solid pink !important;
+  }
 }
 
 .InputFieldWrapper:has(input:focus) {
@@ -63,6 +72,12 @@
   border-bottom-left-radius: 0;
   flex-grow: 0;
   flex-shrink: 0;
+}
+
+@layer overrides {
+  .SearchIcon:hover {
+    background-color: var(--accent-main-dark);
+  }
 }
 
 .SearchOverlay {
@@ -84,6 +99,17 @@
   flex-direction: column;
   gap: 0.5rem;
   color: var(--foreground-primary);
+  position: relative;
+}
+
+.SearchOverlayContentBox {
+  width: 100%;
+  height: 100%;
+  max-height: 90vh;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .SearchOverlayHintEntry {
@@ -113,6 +139,18 @@
   color: var(--accent-main);
 }
 
+.Hint {
+  @include font-base;
+}
+
 .SearchPopoverUnderlay {
   @include z-index-elevated-2;
+}
+
+:global .cm-selectionLayer .cm-selectionBackground {
+  background-color: var(--background-secondary) !important;
+}
+
+:global .cm-editor .cm-focused {
+  outline: none !important;
 }

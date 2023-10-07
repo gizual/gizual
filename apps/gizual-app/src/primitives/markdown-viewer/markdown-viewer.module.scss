@@ -1,0 +1,27 @@
+@use "@/mixins" as *;
+
+.markdownContent {
+  @include text-sm;
+  font-family: "FiraGO";
+  min-width: 50vw;
+
+  h2 {
+    @include text-lg;
+    font-family: "FiraGO";
+    :not(:first-of-type) {
+      padding-top: 1rem;
+    }
+  }
+  h3 {
+    @include text-base;
+    font-family: "FiraGO";
+    padding-top: 0.5rem;
+  }
+  strong {
+    font-weight: 600;
+    color: var(--accent-main);
+  }
+  em {
+    color: var(--accent-tertiary);
+  }
+}

@@ -159,10 +159,11 @@ const SettingsEntry = observer(
                 options={entry.availableValues}
               />
             )}
-            {entry.controlType === "color" && (
+            {entry.controlType === "colour" && (
               <ColorPicker
                 showText
                 value={entry.value}
+                format="hex"
                 onChange={(e) => {
                   onChange(`#${e.toHex(false)}`);
                 }}

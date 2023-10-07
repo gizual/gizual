@@ -4,12 +4,10 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
 
-import { useMainController, useViewModelController } from "../../controllers";
+import { useMainController } from "../../controllers";
 import { TitleBar } from "../../primitives";
 import { Canvas } from "../../primitives/canvas";
-import { RepoPanel } from "../../primitives/repo-panel";
 import { SearchBar } from "../../primitives/search-bar/search-bar";
-import { SettingsPanel } from "../../primitives/settings-panel";
 import { SettingsPage } from "../settings";
 
 import style from "./main.module.scss";
@@ -30,7 +28,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
     <div className={style.Page}>
       <div className={style.TitleBarContainer}>
         <TitleBar />
-        {mainController.selectedPanel === "explore" && <SearchBar />}
+        <SearchBar />
       </div>
 
       <div className={style.Body}>
@@ -43,14 +41,13 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
 });
 
 const ExplorePage = observer(({ vm }: MainPageProps) => {
-  const vmController = useViewModelController();
   if (!vm) return <div />;
 
   return (
     <>
-      {vmController.isRepoPanelVisible && <RepoPanel />}
+      {/*vmController.isRepoPanelVisible && <RepoPanel />*/}
       <Canvas />
-      {vmController.isSettingsPanelVisible && <SettingsPanel />}
+      {/*vmController.isAuthorPanelVisible && <AuthorPanel />*/}
     </>
   );
 });

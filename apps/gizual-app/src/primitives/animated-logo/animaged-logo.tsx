@@ -17,7 +17,7 @@ export function AnimatedLogo({ className }: AnimatedLogoProps) {
       </svg>
 
       <div className={clsx(style.Container, className)}>
-        <h2 className={style.TitleStroke}>Gizual</h2>
+        <span className={style.TitleStroke}>Gizual</span>
         <h2
           className={style.TitleIdleWave}
           style={{
@@ -27,7 +27,7 @@ export function AnimatedLogo({ className }: AnimatedLogoProps) {
         >
           Gizual
         </h2>
-        <h2
+        <span
           className={clsx(
             style.LoadingFinishedWave,
             !mainController.isLoading &&
@@ -36,8 +36,8 @@ export function AnimatedLogo({ className }: AnimatedLogoProps) {
           )}
         >
           Gizual
-        </h2>
-        <h2 className={style.TitleColourBg}>Gizual</h2>
+        </span>
+        <span className={style.TitleColourBg}>Gizual</span>
       </div>
     </div>
   );

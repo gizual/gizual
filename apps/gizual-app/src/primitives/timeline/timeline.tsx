@@ -1,9 +1,11 @@
 import { NoVmError, useWindowSize } from "@app/utils";
 import { Dropdown, Spin } from "antd";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
 
+import { ReactComponent as DragVertical } from "../../assets/icons/drag-vertical.svg";
 import { useMainController, useViewModelController } from "../../controllers";
 
 import { Commits } from "./commits";
@@ -98,6 +100,9 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
     vm.setTooltip(tooltipRef);
   }, [interactionLayerRef, tooltipRef]);
 
+  const startPosX = `${Math.min(vm.selectStartX, vm.selectEndX)}px`;
+  const width = `${Math.abs(vm.selectEndX - vm.selectStartX)}px`;
+
   return (
     <Dropdown
       menu={{ items: vm.contextItems }}
@@ -106,9 +111,19 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
       onOpenChange={(open) => {
         vm.setIsContextMenuOpen(open);
       }}
+      className={clsx(
+        vm.isDragging && style["InteractionLayer--isDragging"],
+        vm.isSelecting && style["InteractionLayer--isSelecting"],
+        vm.isMovingSelectionBox && style["InteractionLayer--isDragging"],
+        vm.canResizeSelectionBoxLeft && style["InteractionLayer--isResizingLeft"],
+        vm.canResizeSelectionBoxRight && style["InteractionLayer--isResizingRight"],
+      )}
     >
       <div
-        className={style.InteractionLayer}
+        className={clsx(
+          style.InteractionLayer,
+          vm.isDragging && style["InteractionLayer--isDragging"],
+        )}
         id={"TimelineInteractionLayer"}
         ref={interactionLayerRef}
       >
@@ -116,16 +131,39 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
           <>
             <div
               style={{
-                left: `${Math.min(vm.selectStartX, vm.selectEndX)}px`,
+                left: startPosX,
                 top: `0px`,
-                width: `${Math.abs(vm.selectEndX - vm.selectStartX)}px`,
+                width,
                 height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
               }}
               className={style.SelectionBox}
-            ></div>
+            >
+              <div
+                className={style.SelectionBoxDragHandle}
+                style={{
+                  left: `-${vm.selectionBoxHandle.width / 2}px`,
+                  top: `${vm.viewBox.height / 2 - vm.selectionBoxHandle.height / 2}px`,
+                  width: vm.selectionBoxHandle.width,
+                  height: vm.selectionBoxHandle.height,
+                }}
+              >
+                <DragVertical className={style.SelectionBoxDragHandleIcon} />
+              </div>
+              <div
+                className={style.SelectionBoxDragHandle}
+                style={{
+                  right: `-${vm.selectionBoxHandle.width / 2}px`,
+                  top: `${vm.viewBox.height / 2 - vm.selectionBoxHandle.height / 2}px`,
+                  width: vm.selectionBoxHandle.width,
+                  height: vm.selectionBoxHandle.height,
+                }}
+              >
+                <DragVertical className={style.SelectionBoxDragHandleIcon} />
+              </div>
+            </div>
             <div
               style={{
-                left: `${Math.min(vm.selectStartX, vm.selectEndX)}px`,
+                left: startPosX,
                 top: `${vm.rowHeight}px`,
                 height: `${(8 / vm.viewBox.height) * 100}%`,
                 width: `${Math.abs(vm.selectStartX - vm.selectEndX) + 1}px`,
@@ -221,7 +259,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   }, [
     timelineContainerRef,
     vmController.isRepoPanelVisible,
-    vmController.isSettingsPanelVisible,
+    vmController.isAuthorPanelVisible,
     vm.commitsForBranch,
     width,
   ]);

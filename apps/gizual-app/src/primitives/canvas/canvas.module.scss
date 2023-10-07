@@ -1,4 +1,5 @@
 @use "@/shared" as shared;
+@use "@/mixins" as *;
 
 .Canvas {
   display: flex;
@@ -11,6 +12,14 @@
   position: relative;
 }
 
+.CanvasWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
 .Stage {
   display: flex;
   flex-direction: column;
@@ -21,7 +30,26 @@
 }
 
 .Toolbar {
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-primary);
-  border-top: 2px solid var(--border-primary);
+  justify-content: space-between;
+  display: flex;
+}
+
+.Separator {
+  width: 1px;
+  border-right: 1px solid var(--border-primary);
+}
+
+.ControlWithLabel {
+  display: flex;
+  flex-direction: column;
+  margin: auto 0;
+  gap: 0.125rem;
+}
+
+.ControlWithLabel__Label {
+  @include text-xs;
+  white-space: nowrap;
+  text-align: left;
 }

@@ -2,7 +2,7 @@
 
 // Date format for `dayjs` for interoperability with `GizDate`.
 // All displayed and parsed dates must be in this format, or stuff will inevitably break.
-export const DATE_FORMAT = "YYYY-MM-DD";
+export const DATE_FORMAT = "YYYY/MM/DD";
 
 export const DAYS_MS_FACTOR = 1000 * 60 * 60 * 24;
 
@@ -89,7 +89,7 @@ export function getStringDate(date: GizDate) {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
   const year = date.getFullYear();
-  return `${year}-${month}-${day}`;
+  return `${year}/${month}/${day}`;
 }
 
 function isDateBetween(date: GizDate, start: GizDate, end: GizDate) {

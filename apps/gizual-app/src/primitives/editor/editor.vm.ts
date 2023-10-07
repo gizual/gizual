@@ -51,7 +51,7 @@ export class EditorViewModel {
         minWidth: "10vw",
         minHeight: "10vh",
       },
-      ".cm-scroller": { overflow: "auto" },
+      ".cm-scroller": { overflow: "auto", fontFamily: "Iosevka Extended" },
       //".cm-blame-gutter": { color: "gray" },
     });
 
