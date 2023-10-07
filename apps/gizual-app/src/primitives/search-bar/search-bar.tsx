@@ -40,14 +40,14 @@ const myTheme = createTheme({
     {
       tag: t.tagName,
       color: "var(--accent-main)",
-      backgroundColor: "#0c0c0d75",
+      backgroundColor: "#0c0c0d40",
       padding: "0.125rem 0 0.125rem 0",
       borderTopLeftRadius: "0.25rem",
       borderBottomLeftRadius: "0.25rem",
     },
     {
       tag: t.emphasis,
-      backgroundColor: "#0c0c0d75",
+      backgroundColor: "#0c0c0d40",
       padding: "0.125rem 0 0.125rem 0",
       borderTopRightRadius: "0.25rem",
       borderBottomRightRadius: "0.25rem",

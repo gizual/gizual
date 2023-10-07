@@ -296,8 +296,10 @@ export class TimelineEventHandler {
       }
 
       if (mousePos > this.vm.selectStartX && mousePos < this.vm.selectEndX) {
-        this.isMovingSelectionBox = true;
-        this.vm.moveBoxStartX = e.clientX;
+        runInAction(() => {
+          this.isMovingSelectionBox = true;
+          this.vm.moveBoxStartX = e.clientX;
+        });
         return;
       }
 

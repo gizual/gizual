@@ -163,6 +163,7 @@ const SettingsEntry = observer(
               <ColorPicker
                 showText
                 value={entry.value}
+                format="hex"
                 onChange={(e) => {
                   onChange(`#${e.toHex(false)}`);
                 }}

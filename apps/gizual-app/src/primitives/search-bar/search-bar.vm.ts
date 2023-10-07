@@ -326,7 +326,6 @@ export class SearchBarViewModel {
     if (!editor) return;
 
     const textBeforeCursor = this._searchString.slice(0, this._cursorPosition);
-    console.log("textBeforeCursor", textBeforeCursor);
 
     if (textBeforeCursor.at(-1) === " ") return;
     const words = textBeforeCursor.trim().split(/\s+/);

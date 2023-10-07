@@ -14,7 +14,10 @@ export const Footer = observer(() => {
   return (
     <div className={style.Footer}>
       <div className={style.LeftSection}>
-        <DialogProvider title="Changelog" trigger={<a>Gizual v0.3 - Build #{__COMMIT_HASH__}</a>}>
+        <DialogProvider
+          title="Changelog"
+          trigger={<p>Gizual v3.0.0-alpha.1 - Build #{__COMMIT_HASH__}</p>}
+        >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>
       </div>

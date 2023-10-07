@@ -110,6 +110,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   value={settingsController.settings.visualisationSettings.colours.old.value}
                   showText
                   size="small"
+                  format="hex"
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
                       settingsController.settings.visualisationSettings.colours.old,
@@ -126,6 +127,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   value={settingsController.settings.visualisationSettings.colours.new.value}
                   showText
                   size="small"
+                  format="hex"
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
                       settingsController.settings.visualisationSettings.colours.new,
@@ -198,7 +200,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   flexFlow: "row wrap",
                   alignItems: "flex-start",
                   justifyContent: "center",
-                  gap: "calc(1rem * var(--canvas-scale-reverse)",
+                  gap: "1rem",
                   width: "100%",
                   height: "100%",
                 }}

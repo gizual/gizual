@@ -3,14 +3,11 @@ import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import { truncateSmart } from "@app/utils";
 import { isRef } from "@app/utils/tsutils";
 import { Skeleton, Spin, Tooltip } from "antd";
-import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { ReactComponent as CloseBox } from "../../assets/icons/close-box.svg";
 import { ReactComponent as Source } from "../../assets/icons/source.svg";
-import { ReactComponent as StarFilled } from "../../assets/icons/star-filled.svg";
-import { ReactComponent as StarOutline } from "../../assets/icons/star-outline.svg";
 import { DialogProvider } from "../dialog-provider";
 import { Editor } from "../editor";
 import { FontIcon } from "../font-icon/font-icon";
@@ -146,7 +143,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
         </p>
       </div>
       <div className={style.FileActions}>
-        {vm.isFavourite ? (
+        {/*vm.isFavourite ? (
           <Tooltip title="Remove from favourites">
             <StarFilled
               className={clsx(style.FavouriteIcon, sharedStyle.Pointer)}
@@ -164,7 +161,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
               }}
             />
           </Tooltip>
-        )}
+            )*/}
         <DialogProvider
           trigger={
             <Tooltip title="Show file content">
