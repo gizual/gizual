@@ -320,6 +320,11 @@ export class ExplorerPool {
       return;
     }
 
+    if (job.priority === 0) {
+      this._jobQueue.push(job);
+      return;
+    }
+
     const worker = this.getAvailableWorker();
 
     if (worker) {
