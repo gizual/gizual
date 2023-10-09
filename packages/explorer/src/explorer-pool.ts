@@ -64,7 +64,16 @@ async function createWorker(handle: FileSystemDirectoryHandle) {
     env: {},
     args: [],
   });
-  const stdout = await runtime.readStdout();
+
+  let stdout = "";
+  while (!stdout) {
+    stdout = await runtime.readStdout();
+
+    if (!stdout) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+
   const data = JSON.parse(stdout);
   if (!data?.ready) {
     throw new Error(data.error);

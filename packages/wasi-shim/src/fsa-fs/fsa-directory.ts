@@ -2,16 +2,16 @@ import { Fd, RetVal_dirent, RetVal_fd_obj, RetVal_filestat } from "../file-descr
 import { isPromise } from "../utils";
 import * as wasi from "../wasi-defs";
 
+import { CacheHandlerI } from "./cache-handle";
 import { FSAFile } from "./fsa-file";
 
 type FileOrDirectory = FSADirectory | FSAFile;
 
 export class FSADirectory {
-  handle: FileSystemDirectoryHandle;
-
-  constructor(handle: FileSystemDirectoryHandle) {
-    this.handle = handle;
-  }
+  constructor(
+    public handle: FileSystemDirectoryHandle,
+    public cache: CacheHandlerI,
+  ) {}
 
   stat(): wasi.Filestat {
     return new wasi.Filestat(wasi.FILETYPE_DIRECTORY, 0n);
@@ -22,45 +22,24 @@ export class FSADirectory {
   }
 
   async get_entry_for_path(path: string): Promise<FileOrDirectory | null> {
-    let currentHandle: FileSystemDirectoryHandle | FileSystemFileHandle = this.handle;
+    if (path === ".") return this;
 
-    for (const part of path.split("/")) {
-      if (part == "") break;
-      if (part == ".") continue;
+    const cacheResult = this.cache.lookup(path);
 
-      if (currentHandle.kind !== "directory") {
-        return null;
-      }
-
-      let childHandle: FileSystemFileHandle | FileSystemDirectoryHandle | undefined;
-      let childName: string | undefined;
-      for await (const [name, handle] of currentHandle.entries()) {
-        if (name === part) {
-          childHandle = handle;
-          childName = name;
-        }
-      }
-      if (!childHandle || !childName) {
-        return null;
-      }
-
-      currentHandle = childHandle;
+    if (!cacheResult) {
+      return null;
     }
 
-    if (this.handle === currentHandle) {
-      return this;
+    if (cacheResult.kind === "file") {
+      return new FSAFile(cacheResult);
     }
 
-    if (currentHandle.kind === "file") {
-      return new FSAFile(currentHandle);
-    }
-
-    return new FSADirectory(currentHandle);
+    return new FSADirectory(cacheResult, this.cache.create(path));
   }
 }
 
 export class OpenFSADirectory extends Fd {
-  constructor(private dir: FSADirectory) {
+  constructor(public dir: FSADirectory) {
     super();
   }
 
