@@ -255,7 +255,7 @@ export class ExplorerPool {
   }
 
   private async executeOnWorker(worker: WorkerWithState, job: Job): Promise<any> {
-    const { method, params, id } = job;
+    const { method, params, id, priority } = job;
 
     const payload = {
       jsonrpc: "2.0",
@@ -264,7 +264,7 @@ export class ExplorerPool {
       params,
     };
 
-    this.logger.trace("running cmd", payload);
+    this.logger.trace("running cmd", payload, priority);
     const payloadString = JSON.stringify(payload) + "\n";
     worker.handle.writeStdin(payloadString);
 
@@ -312,7 +312,7 @@ export class ExplorerPool {
       return;
     }
 
-    this._jobQueue = this._jobQueue.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    this._jobQueue = this._jobQueue.sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
     const job = this._jobQueue.shift();
 
