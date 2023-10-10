@@ -147,9 +147,8 @@ export class FileTreeViewModel {
       for (const child of children) {
         this._mainController.repoController.selectedFiles.set(child.path, child);
       }
+      this._mainController.repoController.updateFileTag();
     }
-
-    //toggleChildren(node);
   }
 
   onFileTreeExpand(expandedKeys: React.Key[]) {

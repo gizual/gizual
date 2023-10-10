@@ -255,6 +255,11 @@ export class RepoController {
       this._selectedFiles.delete(name);
     } else this._selectedFiles.set(name, info);
 
+    this.updateFileTag();
+  }
+
+  @action.bound
+  updateFileTag() {
     // TODO: Cleanup the tag and file synchronisation issues.
     const numSelFiles = this._selectedFiles.size;
     this.mainController.vmController.searchBarViewModel?.updateTag(

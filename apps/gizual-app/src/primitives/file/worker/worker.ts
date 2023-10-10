@@ -81,7 +81,7 @@ export class CanvasWorker {
       colours.push(line.color);
 
       ctx.fillRect(currentX + lineOffsetScaled, currentY, rectWidth, rectHeight);
-      ctx.font = `${4 * fileCtx.dpr}px Iosevka Extended`;
+      ctx.font = `${4 * fileCtx.dpr}px monospace`;
       ctx.fillStyle = "white";
       ctx.fillText(line.content, currentX, currentY + rectHeight / 1.5);
 
