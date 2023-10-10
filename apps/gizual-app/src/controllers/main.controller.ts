@@ -1,4 +1,4 @@
-import { ColouringMode, FileNodeInfos } from "@app/types";
+import { ColouringMode, FileNodeInfos, VisualisationConfig } from "@app/types";
 import { BAND_COLOUR_RANGE, getBandColourScale, GizDate } from "@app/utils";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import dayjs from "dayjs";
@@ -14,7 +14,6 @@ type Panel = "explore" | "analyse" | "settings";
 type Page = "welcome" | "main";
 
 export class MainController {
-  @observable _selectedFiles: Map<string, FileNodeInfos | {}> = new Map();
   @observable _favouriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
   @observable _notification?: NotificationInstance;
 
@@ -26,7 +25,7 @@ export class MainController {
   @observable _vmController = new ViewModelController(this);
   @observable _settingsController: SettingsController;
   @observable _repoController: RepoController;
-  @observable _numActiveWorkers = 0;
+  @observable _activeRenderWorkers = new Set<string>();
   @observable _isBusy = false;
   @observable _repoName = "";
 
@@ -79,26 +78,17 @@ export class MainController {
     return this._repo.metrics;
   }
 
-  @action.bound
-  toggleFile(name: string, info?: FileNodeInfos) {
-    if (this._selectedFiles.has(name)) {
-      this._selectedFiles.delete(name);
-    } else this._selectedFiles.set(name, info ?? {});
-
-    const numSelFiles = this._selectedFiles.size;
-    this.vmController.searchBarViewModel?.updateTag("file", numSelFiles > 0 ? '"..."' : "", true);
-  }
-
+  @computed
   get selectedFiles(): string[] {
-    return [...this._selectedFiles.keys()];
+    return this.repoController.selectedFilesKeys;
   }
 
   isFileSelected(f: string) {
-    return this._selectedFiles.has(f);
+    return this.repoController.selectedFiles.has(f);
   }
 
   getSelectedFileNodeInfo(key: string) {
-    return this._selectedFiles.get(key);
+    return this.repoController.selectedFiles.get(key);
   }
 
   @computed
@@ -276,6 +266,17 @@ export class MainController {
       : this._selectedStartDate;
   }
 
+  @computed
+  get visualisationConfig(): VisualisationConfig {
+    return {
+      colours: {
+        newest: this.settingsController.settings.visualisationSettings.colours.new.value,
+        oldest: this.settingsController.settings.visualisationSettings.colours.old.value,
+        notLoaded: this.settingsController.settings.visualisationSettings.colours.notLoaded.value,
+      },
+    };
+  }
+
   @action.bound
   setScale(scale: number) {
     const root = document.documentElement;
@@ -302,23 +303,20 @@ export class MainController {
   }
 
   get numActiveWorkers() {
-    return this._numActiveWorkers;
+    return this._activeRenderWorkers.size;
   }
 
   @action.bound
-  setNumActiveWorkers(n: number) {
-    this._numActiveWorkers = n;
+  unregisterWorker(file: string) {
+    this._activeRenderWorkers.delete(file);
+  }
+  registerWorker(file: string) {
+    this._activeRenderWorkers.add(file);
   }
 
-  @action.bound
-  decrementNumActiveWorkers() {
-    this._numActiveWorkers--;
-    if (this.numActiveWorkers < 0) this._numActiveWorkers = 0;
-  }
-
-  @action.bound
-  incrementNumActiveWorkers() {
-    this._numActiveWorkers++;
+  @computed
+  get activeRenderWorkers() {
+    return [...this._activeRenderWorkers.keys()];
   }
 
   @action.bound

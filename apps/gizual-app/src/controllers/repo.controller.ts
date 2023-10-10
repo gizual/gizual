@@ -1,19 +1,41 @@
-import { CInfo } from "@app/types";
-import { getDateFromTimestamp, getStringDate, GizDate, logAllMethods } from "@app/utils";
-import { action, autorun, computed, makeObservable, observable, when } from "mobx";
+/* eslint-disable unicorn/no-array-push-push */
+
+import { CInfo, FileNodeInfos } from "@app/types";
+import { getDateFromTimestamp, getStringDate, GizDate } from "@app/utils";
+import _ from "lodash";
+import {
+  action,
+  autorun,
+  computed,
+  IReactionDisposer,
+  makeObservable,
+  observable,
+  reaction,
+  toJS,
+  when,
+} from "mobx";
+
+import { Blame, CommitInfo } from "@giz/explorer";
+import { BlameView } from "@giz/explorer";
 
 import type { MainController } from "./main.controller";
 
-@logAllMethods("RepoController", "#fffdd8")
 export class RepoController {
   @observable private _mainController: MainController;
   @observable private _commitsForBranch?: CInfo[];
   @observable private _commitsPerDate = new Map<string, CInfo[]>();
 
+  @observable private _selectedFiles = new Map<string, FileNodeInfos>();
+  @observable private _loadedFiles = new Map<string, FileModel>();
+  @observable private _selectedFilesKeys: string[] = [];
+  @observable private _loadedFilesArray: FileModel[] = [];
+
   // these dates are only used if the user explicitly does not specify a date
   // (by deleting the tag from the search bar).
   @observable private _defaultStartDate?: GizDate;
   @observable private _defaultEndDate?: GizDate;
+
+  @observable private _disposers: IReactionDisposer[] = [];
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
@@ -21,21 +43,67 @@ export class RepoController {
 
     // Since loading the repo data is asynchronous, the timeline positions are
     // just guesses until the repo is done loading.
-    when(
-      () => this.isDoneLoading,
-      () => {
-        this.initializePositionsFromLastCommit();
-      },
+    this._disposers.push(
+      when(
+        () => this.isDoneLoading,
+        () => {
+          this.initializePositionsFromLastCommit();
+        },
+      ),
     );
 
     this.loadCommitsForBranch();
 
     // This autorun is required because the access to the branches and commits is not
     // properly decentralised yet.
-    autorun(() => {
-      if (this._mainController.branches.some((b) => b.name === this.selectedBranch))
-        this.loadCommitsForBranch();
-    });
+    this._disposers.push(
+      autorun(() => {
+        if (this._mainController.branches.some((b) => b.name === this.selectedBranch))
+          this.loadCommitsForBranch();
+      }),
+    );
+
+    // As soon as we detect changes in the selected files, we want to start populating
+    // these changes to the loaded files. `selectedFiles` and `loadedFiles` are distinctly
+    // different to reduce UI lag when selecting a large quantity of files at once.
+    this._disposers.push(
+      reaction(
+        () => toJS(this._selectedFiles),
+        () => {
+          const selectedFiles = [...this._selectedFiles.keys()];
+          const loadedFiles = [...this._loadedFiles.keys()];
+
+          const filesToLoad = _.difference(selectedFiles, loadedFiles);
+          const filesToUnload = _.difference(loadedFiles, selectedFiles);
+          console.log("Reaction! Should load:", filesToLoad, "Should unload:", filesToUnload);
+
+          for (const file of filesToLoad) {
+            const blameView = this.mainController._repo.getBlame(file);
+            const model = new FileModel({
+              blameView,
+              name: file,
+              infos: this._selectedFiles.get(file)!,
+            });
+
+            this._loadedFiles.set(file, model);
+          }
+
+          for (const file of filesToUnload) {
+            this._loadedFiles.get(file)!.dispose();
+            this._loadedFiles.delete(file);
+          }
+          this._loadedFilesArray = [...this._loadedFiles.values()];
+          this._selectedFilesKeys = [...selectedFiles];
+        },
+        { delay: 200 },
+      ),
+    );
+  }
+
+  dispose() {
+    for (const disposer of this._disposers) {
+      disposer();
+    }
   }
 
   private get mainController() {
@@ -64,6 +132,23 @@ export class RepoController {
 
   get defaultEndDate() {
     return this._defaultEndDate;
+  }
+
+  get selectedFiles() {
+    return this._selectedFiles;
+  }
+
+  get selectedFilesKeys() {
+    return this._selectedFilesKeys;
+  }
+
+  get loadedFiles() {
+    return this._loadedFilesArray;
+  }
+
+  @computed
+  get isDoneEstimatingSize() {
+    return !this._loadedFilesArray.some((lf) => lf.isLoading);
   }
 
   @computed
@@ -143,6 +228,7 @@ export class RepoController {
     this._commitsForBranch = parsedCommits;
   }
 
+  @action.bound
   initializePositionsFromLastCommit() {
     if (!this.lastCommit) return;
     const defaultSelectionRange =
@@ -162,4 +248,165 @@ export class RepoController {
     this.mainController.vmController.timelineViewModel?.initializePositionsFromSelection();
     this.mainController.triggerSearchBarUpdate(true);
   }
+
+  @action.bound
+  toggleFile(name: string, info: FileNodeInfos) {
+    if (this._selectedFiles.has(name)) {
+      this._selectedFiles.delete(name);
+    } else this._selectedFiles.set(name, info);
+
+    this.updateFileTag();
+  }
+
+  @action.bound
+  updateFileTag() {
+    // TODO: Cleanup the tag and file synchronisation issues.
+    const numSelFiles = this._selectedFiles.size;
+    this.mainController.vmController.searchBarViewModel?.updateTag(
+      "file",
+      numSelFiles > 0 ? '"..."' : "",
+      true,
+    );
+  }
+
+  @action.bound
+  unloadAllFiles() {
+    // Unloading the `selectedFiles` is enough, the reaction will propagate through
+    // the list of `loadedFiles` and dispose them properly.
+    this._selectedFiles.clear();
+  }
+
+  @action.bound
+  unloadFiles(files: string[] | string) {
+    for (const file of files) {
+      this._selectedFiles.delete(file);
+    }
+  }
+}
+
+export const VisualisationDefaults = {
+  maxLineLength: 120,
+  lineSpacing: 0,
+  maxLineCount: 60,
+};
+
+export type Line = {
+  content: string;
+  commit?: CommitInfo;
+  color?: string;
+};
+
+export class FileModel {
+  @observable private _blameView: BlameView;
+  @observable private _name: string;
+  @observable private _infos: FileNodeInfos;
+  @observable private _colours: string[] = [];
+
+  @observable private _priority = 0;
+
+  constructor(props: { blameView: BlameView; name: string; infos: FileNodeInfos }) {
+    this._blameView = props.blameView;
+    this._name = props.name;
+    this._infos = props.infos;
+
+    makeObservable(this, undefined, { autoBind: true });
+  }
+
+  @action.bound
+  dispose() {
+    this._blameView.dispose();
+  }
+
+  @computed
+  get isValid() {
+    return (
+      this._blameView.blame && this._blameView.blame.lines && this._blameView.blame.lines.length > 0
+    );
+  }
+
+  @computed
+  get isLoading() {
+    return this._blameView.loading;
+  }
+
+  @computed
+  get isPreview() {
+    return this._blameView.isPreview;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  get renderPriority() {
+    return this._priority;
+  }
+
+  get colours() {
+    return this._colours;
+  }
+
+  get infos() {
+    return this._infos;
+  }
+
+  @computed
+  get calculatedHeight() {
+    return Math.floor(this.data.lines.length / VisualisationDefaults.maxLineCount) + 1 > 1
+      ? VisualisationDefaults.maxLineCount * 10
+      : this.data.lines.length * 10;
+  }
+
+  @computed
+  get data() {
+    const blame = this._blameView.blame;
+    if (!blame) return { lines: [], maxLineLength: 0, earliestTimestamp: 0, latestTimestamp: 0 };
+
+    const { lines, maxLineLength } = parseLines(blame);
+    const { earliestTimestamp, latestTimestamp } = parseCommitTimestamps(blame);
+
+    return { lines, maxLineLength, earliestTimestamp, latestTimestamp, isPreview: this.isPreview };
+  }
+
+  @action.bound
+  setRenderPriority(newPriority: number) {
+    this._blameView.setPriority(newPriority);
+    this._priority = newPriority;
+  }
+
+  @action.bound
+  setColours(colours: string[]) {
+    this._colours = colours;
+  }
+}
+
+function parseLines(blame: Blame) {
+  let lenMax = 0;
+  const lines: Line[] = blame.lines.map((l) => {
+    const commit = toJS(blame.commits[l.commitId]);
+
+    lenMax = Math.max(l.content.length, lenMax);
+    return {
+      content: l.content,
+      commit,
+    };
+  });
+  const maxLineLength = Math.min(lenMax, VisualisationDefaults.maxLineLength);
+
+  return { lines, maxLineLength };
+}
+
+function parseCommitTimestamps(blame: Blame): {
+  earliestTimestamp: number;
+  latestTimestamp: number;
+} {
+  let earliestTimestamp = Number.MAX_SAFE_INTEGER;
+  let latestTimestamp = Number.MIN_SAFE_INTEGER;
+
+  for (const commit of Object.values(blame.commits)) {
+    earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
+    latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
+  }
+
+  return { earliestTimestamp, latestTimestamp };
 }

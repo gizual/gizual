@@ -1,9 +1,11 @@
-import { ColorPicker, Dropdown, InputNumber, MenuProps, Radio, Tooltip } from "antd";
+import { ColorPicker, Dropdown, InputNumber, MenuProps, Radio, Spin, Tooltip } from "antd";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { ReactComponent as Center } from "../../assets/icons/center-focus.svg";
+import { ReactComponent as Layout } from "../../assets/icons/layout.svg";
 import { ReactComponent as MagnifyMinus } from "../../assets/icons/magnify-minus-outline.svg";
 import { ReactComponent as MagnifyPlus } from "../../assets/icons/magnify-plus-outline.svg";
 import { ReactComponent as People } from "../../assets/icons/people.svg";
@@ -25,6 +27,61 @@ export type CanvasProps = {
   vm?: CanvasViewModel;
 };
 
+type MasonryGridProps = {
+  children: React.ReactElement[];
+  heights: number[];
+  width: number;
+  css?: React.CSSProperties;
+  className?: string;
+};
+
+type Column = {
+  elements: React.ReactElement[];
+  height: number;
+  index: number;
+};
+
+function sortChildrenToColumns(
+  children: React.ReactElement[],
+  heights: number[],
+  columns: Column[],
+) {
+  const sortedColumns = [...columns];
+  for (const [index, child] of children.entries()) {
+    sortedColumns.sort((a, b) => a.height - b.height);
+    const smallestColumn = sortedColumns.at(0);
+    if (smallestColumn === undefined) return;
+    smallestColumn.elements.push(child);
+    smallestColumn.height += heights[index];
+  }
+  return sortedColumns;
+}
+
+const MasonryGrid = observer(({ children, css, className, width, heights }: MasonryGridProps) => {
+  const sortedColumns = React.useMemo(() => {
+    const cols: Column[] = [];
+    for (let i = 0; i < width; i += 350) {
+      cols.push({ index: i, elements: [], height: 0 });
+    }
+    return sortChildrenToColumns(children, heights, cols);
+  }, [children, heights]);
+
+  return (
+    <div className={clsx(style.Row, className)}>
+      {sortedColumns &&
+        sortedColumns.map((c) => {
+          return (
+            <div className={style.Column} key={c.index}>
+              {c.elements.map((e, index) => (
+                <React.Fragment key={index}>{e}</React.Fragment>
+              ))}
+            </div>
+          );
+        })}
+    </div>
+  );
+});
+
 function Canvas({ vm: externalVm }: CanvasProps) {
   const mainController = useMainController();
   const vmController = useViewModelController();
@@ -39,11 +96,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
 
   const ref = React.useRef<ReactZoomPanPinchRef>(null);
   const canvasRef = React.useRef<HTMLDivElement>(null);
-  const fileRefs = React.useRef([]);
-
-  React.useEffect(() => {
-    fileRefs.current = vm.selectedFiles.map((_, i) => fileRefs.current[i] ?? React.createRef());
-  }, [vm.selectedFiles]);
 
   React.useEffect(() => {
     vm.setCanvasContainerRef(ref);
@@ -98,6 +150,18 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           <Tooltip title={"Center"}>
             <IconButton onClick={() => vm.center(1)} aria-label="Center">
               <Center className={sharedStyle.ToolbarIcon} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={"Reflow"}>
+            <IconButton
+              onClick={() => {
+                //vm.reflow();
+                vm.reflow();
+                vm.reflow();
+              }}
+              aria-label="Reflow"
+            >
+              <Layout className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
 
@@ -189,7 +253,9 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   positionX: number;
                   positionY: number;
                 },
-              ) => mainController.setScale(state.scale)}
+              ) => {
+                mainController.setScale(state.scale);
+              }}
             >
               <TransformComponent
                 wrapperStyle={{
@@ -205,18 +271,38 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   height: "100%",
                 }}
               >
-                {vm.selectedFiles.map((file, _index) => {
-                  if (!ref.current?.instance.wrapperComponent) return <></>;
+                {!vm.hasLoadedFiles && (
+                  <h2>No files loaded. Use the search bar to select something.</h2>
+                )}
+                {vm.hasLoadedFiles && (
+                  <>
+                    {!mainController.repoController.isDoneEstimatingSize && (
+                      <>
+                        <h2>Estimating size - please wait.</h2>
+                        <Spin size={"large"} />
+                      </>
+                    )}
+                    {mainController.repoController.isDoneEstimatingSize && (
+                      <MasonryGrid
+                        width={vm.canvasWidth}
+                        heights={vm.loadedFiles.map((f) => f.calculatedHeight)}
+                      >
+                        {vm.loadedFiles.map((file, index) => {
+                          if (!ref.current?.instance.wrapperComponent || !file.isValid)
+                            return <React.Fragment key={index}></React.Fragment>;
 
-                  return (
-                    <File
-                      ref={vm.getFileRef(file.fileName)}
-                      vm={file}
-                      key={file.fileName}
-                      parentContainer={ref.current?.instance.wrapperComponent}
-                    />
-                  );
-                })}
+                          return (
+                            <File
+                              file={file}
+                              key={index}
+                              parentContainer={ref.current?.instance.wrapperComponent}
+                            />
+                          );
+                        })}
+                      </MasonryGrid>
+                    )}
+                  </>
+                )}
               </TransformComponent>
             </TransformWrapper>
           </div>

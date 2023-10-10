@@ -16,7 +16,7 @@ export const Footer = observer(() => {
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.2 - Build #{__COMMIT_HASH__}</p>}
+          trigger={<p>Gizual v3.0.0-alpha.3 - Build #{__COMMIT_HASH__}</p>}
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>
@@ -29,7 +29,11 @@ export const Footer = observer(() => {
           backend workers
         </p>
         <p>{mainController.backendMetrics.numJobsInQueue} pending backend jobs</p>
-        <p>{mainController.numActiveWorkers} render jobs</p>
+        <p
+          onClick={() => console.log("Active Render Workers:", mainController.activeRenderWorkers)}
+        >
+          {mainController.numActiveWorkers} render jobs
+        </p>
       </div>
     </div>
   );

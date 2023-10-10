@@ -1,6 +1,7 @@
 import { FileNodeInfos } from "@app/types";
 import type { DataNode } from "antd/es/tree";
 import { isNumber } from "lodash";
+import _ from "lodash";
 import { makeAutoObservable, runInAction } from "mobx";
 import React from "react";
 
@@ -24,7 +25,7 @@ export class FileTreeViewModel {
   }
 
   toggleFile(name: string, info: FileNodeInfos) {
-    this._mainController.toggleFile(name, info);
+    this._mainController.repoController.toggleFile(name, info);
   }
 
   get selectedFiles(): string[] {
@@ -111,24 +112,43 @@ export class FileTreeViewModel {
       return;
     }
 
-    const toggleChildren = (currentNode: FileTreeDataNode) => {
-      if (!currentNode.children) return;
+    //const toggleChildren = (currentNode: FileTreeDataNode) => {
+    //  if (!currentNode.children) return;
 
-      for (const child of currentNode.children) {
-        if (check) {
-          if (child.isLeaf) {
-            this.toggleFile(child.path, child);
-            this.zoomToFile(node.path);
-          } else {
-            toggleChildren(child);
-          }
-        }
-      }
+    //  for (const child of currentNode.children) {
+    //    if (check) {
+    //      if (child.isLeaf) {
+    //        this.toggleFile(child.path, child);
+    //      } else {
+    //        toggleChildren(child);
+    //      }
+    //    }
+    //  }
 
-      this._expandedKeys.add(currentNode.key);
+    //  this._expandedKeys.add(currentNode.key);
+    //};
+
+    const getChildrenFlat = (currentNode: FileTreeDataNode): FileTreeDataNode[] => {
+      if (currentNode.isLeaf) return [currentNode];
+      if (!currentNode.children) return [];
+
+      // eslint-disable-next-line unicorn/prefer-array-flat
+      return _.flatten(
+        currentNode.children.map((element: FileTreeDataNode) => getChildrenFlat(element)),
+      );
     };
 
-    toggleChildren(node);
+    const children = getChildrenFlat(node);
+    if (children?.every((c) => this.selectedFiles.includes(c.path))) {
+      for (const child of children) {
+        this._mainController.repoController.selectedFiles.delete(child.path);
+      }
+    } else {
+      for (const child of children) {
+        this._mainController.repoController.selectedFiles.set(child.path, child);
+      }
+      this._mainController.repoController.updateFileTag();
+    }
   }
 
   onFileTreeExpand(expandedKeys: React.Key[]) {
