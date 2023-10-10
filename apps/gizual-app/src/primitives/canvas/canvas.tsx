@@ -1,4 +1,5 @@
 import { ColorPicker, Dropdown, InputNumber, MenuProps, Radio, Spin, Tooltip } from "antd";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -39,33 +40,43 @@ type Column = {
   index: number;
 };
 
-const MasonryGrid = observer(({ children, css, className, width, heights }: MasonryGridProps) => {
-  const columns: Column[] = [];
-
-  // Create n columns that fit within our canvas.
-  for (let i = 0; i < width; i += 350) {
-    columns.push({ index: i, elements: [], height: 0 });
-  }
-
-  children.map((c, index) => {
-    columns.sort((a, b) => a.height - b.height);
-    const smallestColumn = columns.at(0);
+function sortChildrenToColumns(
+  children: React.ReactElement[],
+  heights: number[],
+  columns: Column[],
+) {
+  const sortedColumns = [...columns];
+  for (const [index, child] of children.entries()) {
+    sortedColumns.sort((a, b) => a.height - b.height);
+    const smallestColumn = sortedColumns.at(0);
     if (smallestColumn === undefined) return;
-    smallestColumn.elements.push(c);
+    smallestColumn.elements.push(child);
     smallestColumn.height += heights[index];
-  });
+  }
+  return sortedColumns;
+}
+
+const MasonryGrid = observer(({ children, css, className, width, heights }: MasonryGridProps) => {
+  const sortedColumns = React.useMemo(() => {
+    const cols: Column[] = [];
+    for (let i = 0; i < width; i += 350) {
+      cols.push({ index: i, elements: [], height: 0 });
+    }
+    return sortChildrenToColumns(children, heights, cols);
+  }, [children, heights]);
 
   return (
-    <div className={style.Row}>
-      {columns.map((c) => {
-        return (
-          <div className={style.Column} key={c.index}>
-            {c.elements.map((e, index) => (
-              <React.Fragment key={index}>{e}</React.Fragment>
-            ))}
-          </div>
-        );
-      })}
+    <div className={clsx(style.Row, className)}>
+      {sortedColumns &&
+        sortedColumns.map((c) => {
+          return (
+            <div className={style.Column} key={c.index}>
+              {c.elements.map((e, index) => (
+                <React.Fragment key={index}>{e}</React.Fragment>
+              ))}
+            </div>
+          );
+        })}
     </div>
   );
 });
@@ -137,6 +148,17 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           </Tooltip>
           <Tooltip title={"Center"}>
             <IconButton onClick={() => vm.center(1)} aria-label="Center">
+              <Center className={sharedStyle.ToolbarIcon} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={"Reflow"}>
+            <IconButton
+              onClick={() => {
+                vm.reflow();
+                vm.reflow();
+              }}
+              aria-label="Reflow"
+            >
               <Center className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
@@ -229,7 +251,9 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   positionX: number;
                   positionY: number;
                 },
-              ) => mainController.setScale(state.scale)}
+              ) => {
+                mainController.setScale(state.scale);
+              }}
             >
               <TransformComponent
                 wrapperStyle={{
@@ -245,27 +269,37 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   height: "100%",
                 }}
               >
-                {!mainController.repoController.isDoneEstimatingSize && (
-                  <>
-                    <h2>Estimating size - please wait.</h2>
-                    <Spin size={"large"} />
-                  </>
+                {!vm.hasLoadedFiles && (
+                  <h2>No files loaded. Use the search bar to select something.</h2>
                 )}
-                {mainController.repoController.isDoneEstimatingSize && (
-                  <MasonryGrid width={1800} heights={vm.loadedFiles.map((f) => f.calculatedHeight)}>
-                    {vm.loadedFiles.map((file, index) => {
-                      if (!ref.current?.instance.wrapperComponent || !file.isValid)
-                        return <React.Fragment key={index}></React.Fragment>;
+                {vm.hasLoadedFiles && (
+                  <>
+                    {!mainController.repoController.isDoneEstimatingSize && (
+                      <>
+                        <h2>Estimating size - please wait.</h2>
+                        <Spin size={"large"} />
+                      </>
+                    )}
+                    {mainController.repoController.isDoneEstimatingSize && (
+                      <MasonryGrid
+                        width={vm.canvasWidth}
+                        heights={vm.loadedFiles.map((f) => f.calculatedHeight)}
+                      >
+                        {vm.loadedFiles.map((file, index) => {
+                          if (!ref.current?.instance.wrapperComponent || !file.isValid)
+                            return <React.Fragment key={index}></React.Fragment>;
 
-                      return (
-                        <File
-                          file={file}
-                          key={index}
-                          parentContainer={ref.current?.instance.wrapperComponent}
-                        />
-                      );
-                    })}
-                  </MasonryGrid>
+                          return (
+                            <File
+                              file={file}
+                              key={index}
+                              parentContainer={ref.current?.instance.wrapperComponent}
+                            />
+                          );
+                        })}
+                      </MasonryGrid>
+                    )}
+                  </>
                 )}
               </TransformComponent>
             </TransformWrapper>

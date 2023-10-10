@@ -56,16 +56,18 @@ export class CanvasWorker {
 
     let currentX = 0;
     let lineIndex = 0;
+    let currentColumn = 0;
+
+    const columnWidth = canvas.width / fileCtx.nColumns - (fileCtx.nColumns - 1) * columnSpacing;
+    const widthPerCharacter = columnWidth / VisualisationDefaults.maxLineLength;
+
     for (const line of fileCtx.fileContent) {
-      const columnWidth = canvas.width / fileCtx.nColumns - (fileCtx.nColumns - 1) * columnSpacing;
       const lineLength = line.content.length;
 
-      const lineOffsetUnscaled =
-        (line.content.length - line.content.trimStart().length) / fileCtx.lineLengthMax;
+      const lineOffsetScaled =
+        (line.content.trimStart().length - line.content.length) * widthPerCharacter;
 
-      const lineOffsetScaled = lineOffsetUnscaled * columnWidth;
-
-      const rectWidth = ((lineLength - lineOffsetUnscaled) / fileCtx.lineLengthMax) * columnWidth;
+      const rectWidth = lineLength * widthPerCharacter - lineOffsetScaled;
 
       const rectHeight = lineHeight;
       const colour =
@@ -76,16 +78,22 @@ export class CanvasWorker {
       ctx.fillStyle = colour;
       line.color = colour;
       colours.push(line.color);
+
       ctx.fillRect(currentX + lineOffsetScaled, currentY, rectWidth, rectHeight);
+      ctx.font = `${4 * fileCtx.dpr}px Iosevka Extended`;
+      ctx.fillStyle = "white";
+      ctx.fillText(line.content, currentX, currentY + rectHeight / 1.5);
+
       currentY += lineHeight + VisualisationDefaults.lineSpacing;
       lineIndex++;
 
-      if (lineIndex > VisualisationDefaults.maxLineCount) {
+      if (lineIndex > VisualisationDefaults.maxLineCount && currentColumn < fileCtx.nColumns - 1) {
         ctx.fillStyle = SPECIAL_COLOURS.NOT_LOADED;
         currentY = 0;
         currentX += columnWidth;
         ctx.fillRect(currentX - 1, currentY, 1, canvas.height);
         lineIndex = 0;
+        currentColumn++;
       }
     }
 

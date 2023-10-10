@@ -178,6 +178,10 @@ export class FileViewModel {
     return this.renderPriority > 0;
   }
 
+  get fileHeight() {
+    return this._file.calculatedHeight + 26;
+  }
+
   @action.bound
   incrementRedrawCount() {
     this._redrawCount++;
@@ -204,6 +208,7 @@ export class FileViewModel {
 
   @action.bound
   draw() {
+    console.log("Calling draw for file", this.fileName, this.renderPriority);
     if (!this._canvasRef || !this._canvasRef.current || !this._fileRef) {
       return;
     }
@@ -225,13 +230,15 @@ export class FileViewModel {
     const rect = this._canvasRef.current.getBoundingClientRect();
     rect.width = rect.width * (1 / scale);
 
-    let nColumns = 1;
-    if (this.fileContent.length > VisualisationDefaults.maxLineCount) {
-      nColumns = Math.floor(this.fileContent.length / VisualisationDefaults.maxLineCount) + 1;
-    }
+    const nColumns = 1;
+    //if (this.fileContent.length > VisualisationDefaults.maxLineCount) {
+    //  nColumns = Math.floor(this.fileContent.length / VisualisationDefaults.maxLineCount) + 1;
+    //}
 
-    rect.height =
-      nColumns > 1 ? VisualisationDefaults.maxLineCount * 10 : this.fileContent.length * 10;
+    rect.height = Math.min(
+      nColumns > 1 ? VisualisationDefaults.maxLineCount * 10 : this.fileContent.length * 10,
+      VisualisationDefaults.maxLineCount * 10,
+    );
 
     if (this._canvasRef?.current) {
       this._canvasRef.current.style.width = `${rect.width}px`;
@@ -265,6 +272,7 @@ export class FileViewModel {
 
     if (!needsToRender(ctx, this._lastDrawnContext)) return;
 
+    console.log("Actually drawing file:", this.fileName);
     const drawResult = CanvasWorkerProxy.draw(ctx);
 
     drawResult.then((result) => {

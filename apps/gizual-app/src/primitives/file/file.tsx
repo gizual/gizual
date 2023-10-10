@@ -50,6 +50,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
     settingsController.settings.visualisationSettings.colours.new.value,
     settingsController.settings.visualisationSettings.colours.old.value,
     settingsController.settings.visualisationSettings.colours.notLoaded.value,
+    mainController.vmController.canvasViewModel?.lastReflowScale,
   ]);
 
   // Attach IntersectionObserver on load, detach on dispose.
@@ -70,6 +71,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
     const ioObserver = new IntersectionObserver(ioCallback, ioOptions);
     ioObserver.observe(ref.current);
     return () => {
+      console.log("Disposing file.tsx for:", vm.fileName);
       ioObserver.disconnect();
       //ioObserver.unobserve(ref.current);
       vm.dispose();
@@ -102,7 +104,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
 
   return (
     <>
-      <div className={style.File} ref={ref}>
+      <div className={style.File} ref={ref} style={{ height: vm.fileHeight }}>
         <FileHeader vm={vm} />
         <div className={style.FileBody}>{body}</div>
       </div>

@@ -75,7 +75,6 @@ export class RepoController {
         () => {
           const selectedFiles = [...this._selectedFiles.keys()];
           const loadedFiles = [...this._loadedFiles.keys()];
-          const loadedFilesArray: FileModel[] = [];
 
           const filesToLoad = _.difference(selectedFiles, loadedFiles);
           const filesToUnload = _.difference(loadedFiles, selectedFiles);
@@ -90,14 +89,13 @@ export class RepoController {
             });
 
             this._loadedFiles.set(file, model);
-            loadedFilesArray.push(model);
           }
 
           for (const file of filesToUnload) {
             this._loadedFiles.get(file)!.dispose();
             this._loadedFiles.delete(file);
           }
-          this._loadedFilesArray = loadedFilesArray;
+          this._loadedFilesArray = [...this._loadedFiles.values()];
           this._selectedFilesKeys = [...selectedFiles];
         },
         { delay: 200 },
@@ -370,7 +368,7 @@ export class FileModel {
   get calculatedHeight() {
     return Math.floor(this.data.lines.length / VisualisationDefaults.maxLineCount) + 1 > 1
       ? VisualisationDefaults.maxLineCount * 10
-      : this.data.lines.length;
+      : this.data.lines.length * 10;
   }
 
   @computed

@@ -1,57 +1,44 @@
 import { ColouringMode, ColouringModeLabels } from "@app/types";
-import { makeAutoObservable, reaction } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
 import { FileModel, MainController } from "../../controllers";
-import { FileViewModel } from "../file/file.vm";
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
 
 export class CanvasViewModel {
-  private _mainController: MainController;
-  private _loadedFileVms: Record<string, FileViewModel> = {};
-  private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
+  @observable private _mainController: MainController;
+  @observable private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
+  @observable private _canvasWidth = 0;
+  @observable private _lastReflowScale = 1;
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
     this._mainController.vmController.setCanvasViewModel(this);
 
-    makeAutoObservable(this, {}, { autoBind: true });
-
-    reaction(
-      () => this._mainController.repoController.loadedFiles,
-      () => {
-        this.updateFileViewModels();
-      },
-      { fireImmediately: true },
-    );
+    makeObservable(this, undefined, { autoBind: true });
   }
-
-  updateFileViewModels() {}
 
   get loadedFiles(): FileModel[] {
     return this._mainController.repoController.loadedFiles;
     //return Object.values(this._loadedFileVms);
   }
 
-  setCanvasContainerRef(ref: RefObject<ReactZoomPanPinchRef>) {
-    this._canvasContainerRef = ref;
-  }
-
   get canvasContainerRef(): RefObject<ReactZoomPanPinchRef> | undefined {
     return this._canvasContainerRef;
   }
 
-  //getFileRef(fileName: string): RefObject<HTMLDivElement> | undefined {
-  //  console.log("Getting ref for", fileName, this.fileRefs?.get(fileName));
-  //  return this.fileRefs?.get(fileName);
-  //}
+  get hasLoadedFiles() {
+    return this._mainController.repoController.loadedFiles.length > 0;
+  }
 
-  //get fileRefs(): Map<string, RefObject<HTMLDivElement>> | undefined {
-  //  return new Map(this._mainController.selectedFiles.map((f) => [f, React.createRef()]));
-  //}
+  @action.bound
+  setCanvasContainerRef(ref: RefObject<ReactZoomPanPinchRef>) {
+    this._canvasContainerRef = ref;
+    if (ref.current) this._canvasWidth = ref.current?.instance.contentComponent?.clientWidth ?? 0;
+  }
 
   zoomIn() {
     if (!this.canvasContainerRef?.current) return;
@@ -83,10 +70,34 @@ export class CanvasViewModel {
     this.canvasContainerRef?.current?.zoomToElement(el, 0);
   }
 
+  @action.bound
+  reflow() {
+    if (
+      this._canvasContainerRef?.current &&
+      this._canvasContainerRef.current.instance.contentComponent
+    ) {
+      this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
+      this._canvasContainerRef.current.instance.contentComponent.style.width = `calc(100% / ${this._mainController.scale})`;
+      this._canvasContainerRef.current.instance.contentComponent.style.height = `calc(100% / ${this._mainController.scale})`;
+    }
+    this.center();
+    this._lastReflowScale = this._mainController.scale;
+  }
+
+  get lastReflowScale() {
+    return this._lastReflowScale;
+  }
+
+  get canvasWidth() {
+    return this._canvasWidth;
+  }
+
+  @action.bound
   unloadAllFiles() {
     this._mainController.repoController.unloadAllFiles();
   }
 
+  @action.bound
   onColouringModeChange = (value: ColouringMode) => {
     this._mainController.setColouringMode(value);
 
@@ -97,6 +108,7 @@ export class CanvasViewModel {
       this._mainController.vmController.setAuthorPanelVisibility(true);
   };
 
+  @computed
   get toggleColouringValues() {
     return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
