@@ -1,13 +1,24 @@
+## Gizual 3.0.0-alpha.3 (10.10.2023)
+
+### Features
+
+- **app:canvas:** implement masonry grid layout for rendering
+- **app:canvas:** separate worker's off-screen canvas from main canvas through object URLs
+
+### Changes
+
+- **app:file-tree:** improve partial select state behaviour
+
 ## Gizual 3.0.0-alpha.2 (10.10.2023)
 
 ### Features
 
-- **backend:fsa-fs:** Pre-cache all file-system-access handles to improve performance and reduce deadlock potential
+- **backend:fsa-fs:** pre-cache all file-system-access handles to improve performance and reduce deadlock potential
 
 ### Bug Fixes
 
-- **backend:worker-pool:** Ignore backend jobs with priority == 0
-- **backend:worker-pool:** Fix sorting of jobQueue
+- **backend:worker-pool:** ignore backend jobs with priority == 0
+- **backend:worker-pool:** fix sorting of jobQueue
 
 ---
 
