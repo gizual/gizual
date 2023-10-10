@@ -24,7 +24,8 @@ export class FileTreeViewModel {
   }
 
   toggleFile(name: string, info: FileNodeInfos) {
-    this._mainController.toggleFile(name, info);
+    console.log("Toggle File", name);
+    this._mainController.repoController.toggleFile(name, info);
   }
 
   get selectedFiles(): string[] {

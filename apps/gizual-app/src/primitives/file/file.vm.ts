@@ -1,13 +1,12 @@
-import { FileNodeInfos } from "@app/types";
+import { FileModel, VisualisationDefaults } from "@app/controllers";
 import { Remote, transfer, wrap } from "comlink";
-import { makeAutoObservable, toJS } from "mobx";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
 
-import { BlameView } from "@giz/explorer";
 import { CommitInfo } from "@giz/explorer";
 import { MainController } from "../../controllers";
 
-import { CanvasWorker } from "./worker/worker";
+import { CanvasWorker, FileContext } from "./worker/worker";
 
 export type Line = {
   content: string;
@@ -25,149 +24,81 @@ export type RenderConfiguration = Partial<{
 }>;
 
 export class FileViewModel {
-  _fileName!: string;
-  _fileExtension!: string;
-  _isFavourite!: boolean;
-  _isLoadIndicator!: boolean;
-  _settings: RenderConfiguration;
-  _mainController: MainController;
-  _isEditorOpen = false;
-  _blameView: BlameView;
-  _colours: string[] = [];
-  _renderPriority = 0;
+  @observable private _mainController: MainController;
+  @observable private _isEditorOpen = false;
+  @observable private _file: FileModel;
 
-  _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
-  _fileRef: React.ForwardedRef<HTMLDivElement> | undefined;
-  _canvasWorker?: Remote<CanvasWorker>;
-  _worker?: Worker;
-  _redrawCount = 0;
-  _lastDrawScale = 1;
-  _lastDrawnColourMode?: MainController["colouringMode"] = "age";
+  @observable private _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
+  @observable private _fileRef: React.RefObject<HTMLDivElement> | undefined;
+  @observable private _canvasWorker?: Remote<CanvasWorker>;
+  @observable private _worker?: Worker;
+  @observable private _redrawCount = 0;
+  @observable private _lastDrawnScale = 1;
+  @observable private _lastDrawnColourMode?: MainController["colouringMode"] = "age";
+  @observable private _lastDrawnContext?: FileContext;
 
-  _fileInfo?: FileNodeInfos;
-
-  constructor(
-    mainController: MainController,
-    path: string,
-    settings: RenderConfiguration,
-    fileInfo?: FileNodeInfos,
-    isFavourite?: boolean,
-    isLoadIndicator?: boolean,
-  ) {
-    this._fileName = path;
-    this._isFavourite = isFavourite ?? false;
+  constructor(mainController: MainController, file: FileModel) {
     this._mainController = mainController;
-    this._isLoadIndicator = isLoadIndicator ?? false;
-    this._settings = settings;
-    this._blameView = this._mainController._repo.getBlame(path);
-    this._fileInfo = fileInfo;
-
-    makeAutoObservable(this);
+    this._file = file;
+    makeObservable(this, undefined, { autoBind: true });
   }
 
-  get renderConfiguration() {
-    return {
-      colourNew:
-        this._mainController.settingsController.settings.visualisationSettings.colours.new.value,
-      colourOld:
-        this._mainController.settingsController.settings.visualisationSettings.colours.old.value,
-      colourNotLoaded:
-        this._mainController.settingsController.settings.visualisationSettings.colours.notLoaded
-          .value,
-      maxLineLength: 120,
-      lineSpacing: 0,
-      maxLineCount: 60,
-      ...this._settings,
-    };
-  }
-
-  get fileInfo() {
-    return this._fileInfo;
-  }
-
+  @action.bound
   dispose() {
+    this._mainController.unregisterWorker(this.fileName);
     this._worker?.terminate();
-    this._blameView.dispose();
+    this._file.dispose();
   }
 
+  @action.bound
   close() {
-    this._mainController.toggleFile(this._fileName);
+    this._mainController.repoController.unloadFiles([this.fileName]);
   }
 
   get fileName() {
-    return this._fileName;
-  }
-
-  get fileExtension() {
-    return this._fileExtension;
-  }
-
-  get loading() {
-    return this._blameView.loading;
-  }
-
-  get isValid() {
-    return (
-      this._blameView.blame && this._blameView.blame.lines && this._blameView.blame.lines.length > 0
-    );
-  }
-
-  get blameInfo() {
-    const blame = this._blameView.blame;
-    if (!blame) throw new Error("BlameView returned an empty blame");
-
-    let lenMax = 0;
-
-    const fileContent: Line[] = blame.lines.map((l) => {
-      const commit = toJS(blame.commits[l.commitId]);
-
-      lenMax = Math.max(l.content.length, lenMax);
-      return {
-        content: l.content,
-        commit,
-      };
-    });
-
-    const lineLengthMax = lenMax < 100 ? 100 : lenMax;
-
-    let earliestTimestamp = Number.MAX_SAFE_INTEGER;
-    let latestTimestamp = Number.MIN_SAFE_INTEGER;
-    for (const commit of Object.values(blame.commits)) {
-      earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
-      latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
-    }
-
-    return { fileContent, lineLengthMax, earliestTimestamp, latestTimestamp };
+    return this._file.name;
   }
 
   get fileContent() {
-    return this.blameInfo.fileContent;
+    return this._file.data.lines;
   }
 
-  get latestTimestamp() {
-    return this.blameInfo.latestTimestamp;
+  get fileData() {
+    return this._file.data;
   }
 
-  get earliestTimestamp() {
-    return this.blameInfo.earliestTimestamp;
+  get fileInfo() {
+    return this._file.infos;
   }
 
-  get lineLengthMax() {
-    return this.blameInfo.lineLengthMax;
+  get isValid() {
+    return this._file.isValid;
   }
 
+  get loading() {
+    return this._file.isLoading;
+  }
+
+  get isPreview() {
+    return this._file.isPreview;
+  }
+
+  @computed
   get isFavourite() {
     return this._mainController.favouriteFiles.has(this.fileName);
   }
 
-  setFavourite() {
-    this._mainController.toggleFavourite(this._fileName, this._fileInfo);
+  @action.bound
+  setColours(colours: string[]) {
+    this._file.setColours(colours);
   }
 
+  @action.bound
   unsetFavourite() {
-    this._mainController.toggleFavourite(this._fileName);
+    this._mainController.toggleFavourite(this.fileName);
   }
 
+  @action.bound
   toggleEditor() {
     this._isEditorOpen = !this._isEditorOpen;
   }
@@ -176,38 +107,35 @@ export class FileViewModel {
     return this._isEditorOpen;
   }
 
+  @action.bound
   assignCanvasRef(ref: React.RefObject<HTMLCanvasElement>) {
     this._canvasRef = ref;
   }
 
-  assignFileRef(ref: React.ForwardedRef<HTMLDivElement>) {
+  @action.bound
+  assignFileRef(ref: React.RefObject<HTMLDivElement>) {
     this._fileRef = ref;
   }
 
-  get isLoadIndicator() {
-    return this._isLoadIndicator;
-  }
-
-  setColours(colors: string[]) {
-    this._colours = colors;
-  }
-
-  get colours() {
-    return this._colours;
+  get fileRef() {
+    return this._fileRef;
   }
 
   get canvasWorker() {
     return this._canvasWorker;
   }
 
+  @action.bound
   setCanvasWorker(worker: Remote<CanvasWorker>) {
     this._canvasWorker = worker;
   }
 
+  @action.bound
   setWorker(worker: Worker) {
     this._worker = worker;
   }
 
+  @computed
   get shouldRedraw() {
     return (
       this.lastDrawScale - this._mainController.scale < -0.25 ||
@@ -215,12 +143,14 @@ export class FileViewModel {
     );
   }
 
+  @action.bound
   setLastDrawScale(scale: number) {
-    this._lastDrawScale = scale;
+    this._lastDrawnScale = scale;
   }
 
-  setLastDrawnColourMode(coloringMode: MainController["colouringMode"]) {
-    this._lastDrawnColourMode = coloringMode;
+  @action.bound
+  setLastDrawnColourMode(colouringMode: MainController["colouringMode"]) {
+    this._lastDrawnColourMode = colouringMode;
   }
 
   get lastDrawnColourMode() {
@@ -228,30 +158,32 @@ export class FileViewModel {
   }
 
   get lastDrawScale() {
-    return this._lastDrawScale;
+    return this._lastDrawnScale;
   }
 
   get redrawCount() {
     return this._redrawCount;
   }
 
+  @action.bound
   setRenderPriority(priority: number) {
-    this._blameView.setPriority(priority);
-    this._renderPriority = priority;
-  }
-
-  get shouldRender() {
-    return this._renderPriority > 0;
+    this._file.setRenderPriority(priority);
   }
 
   get renderPriority() {
-    return this._renderPriority;
+    return this._file.renderPriority;
   }
 
+  get shouldRender() {
+    return this.renderPriority > 0;
+  }
+
+  @action.bound
   incrementRedrawCount() {
     this._redrawCount++;
   }
 
+  @action.bound
   createOrRetrieveCanvasWorker(ref: React.RefObject<HTMLCanvasElement>) {
     if (!this._canvasWorker) {
       const offscreen = toJS(ref).current?.transferControlToOffscreen();
@@ -270,6 +202,7 @@ export class FileViewModel {
     return this._canvasWorker;
   }
 
+  @action.bound
   draw() {
     if (!this._canvasRef || !this._canvasRef.current || !this._fileRef) {
       return;
@@ -291,11 +224,19 @@ export class FileViewModel {
 
     const rect = this._canvasRef.current.getBoundingClientRect();
     rect.width = rect.width * (1 / scale);
-    rect.height = rect.height * (1 / scale);
+
+    let nColumns = 1;
+    if (this.fileContent.length > VisualisationDefaults.maxLineCount) {
+      nColumns = Math.floor(this.fileContent.length / VisualisationDefaults.maxLineCount) + 1;
+    }
+
+    rect.height =
+      nColumns > 1 ? VisualisationDefaults.maxLineCount * 10 : this.fileContent.length * 10;
 
     if (this._canvasRef?.current) {
       this._canvasRef.current.style.width = `${rect.width}px`;
       this._canvasRef.current.style.height = `${rect.height}px`;
+      fileContainer.style.height = `${rect.height + 26}px`;
     }
 
     const CanvasWorkerProxy = this.createOrRetrieveCanvasWorker(this._canvasRef);
@@ -303,32 +244,43 @@ export class FileViewModel {
       throw new Error("Could not assign canvas worker");
     }
 
-    this._mainController.incrementNumActiveWorkers();
+    this._mainController.registerWorker(this.fileName);
 
-    const drawResult = CanvasWorkerProxy.draw({
+    const ctx = {
       authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(this.fileContent),
-      earliestTimestamp: toJS(this.earliestTimestamp),
-      latestTimestamp: toJS(this.latestTimestamp),
-      renderConfiguration: toJS(this.renderConfiguration),
-      lineLengthMax: toJS(this.lineLengthMax),
+      earliestTimestamp: toJS(this.fileData.earliestTimestamp),
+      latestTimestamp: toJS(this.fileData.latestTimestamp),
+      visualisationConfig: toJS(this._mainController.visualisationConfig),
+      lineLengthMax: toJS(this.fileData.maxLineLength),
+      isPreview: toJS(this.fileData.isPreview) ?? true,
       selectedStartDate: toJS(this._mainController.selectedStartDate),
       selectedEndDate: toJS(this._mainController.selectedEndDate),
       dpr,
       rect,
       colouringMode,
+      nColumns,
       redrawCount: toJS(this.redrawCount),
-    });
+    };
+
+    if (!needsToRender(ctx, this._lastDrawnContext)) return;
+
+    const drawResult = CanvasWorkerProxy.draw(ctx);
 
     drawResult.then((result) => {
       if (!result) return;
       fileContainer.style.width = result.width;
-      this.setColours(result.colors);
+      this.setColours(result.colours);
       //console.log("[gizual-app] UI thread: draw result", result);
       this.setLastDrawScale(scale);
       this.setLastDrawnColourMode(colouringMode);
       this.incrementRedrawCount();
-      this._mainController.decrementNumActiveWorkers();
+      this._mainController.unregisterWorker(this.fileName);
     });
   }
+}
+
+function needsToRender(newCtx: FileContext, oldCtx?: FileContext) {
+  return true;
+  return JSON.stringify(oldCtx) !== JSON.stringify(newCtx);
 }

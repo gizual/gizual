@@ -29,7 +29,11 @@ export const Footer = observer(() => {
           backend workers
         </p>
         <p>{mainController.backendMetrics.numJobsInQueue} pending backend jobs</p>
-        <p>{mainController.numActiveWorkers} render jobs</p>
+        <p
+          onClick={() => console.log("Active Render Workers:", mainController.activeRenderWorkers)}
+        >
+          {mainController.numActiveWorkers} render jobs
+        </p>
       </div>
     </div>
   );

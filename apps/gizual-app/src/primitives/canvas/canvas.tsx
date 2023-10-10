@@ -1,4 +1,4 @@
-import { ColorPicker, Dropdown, InputNumber, MenuProps, Radio, Tooltip } from "antd";
+import { ColorPicker, Dropdown, InputNumber, MenuProps, Radio, Spin, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -25,6 +25,51 @@ export type CanvasProps = {
   vm?: CanvasViewModel;
 };
 
+type MasonryGridProps = {
+  children: React.ReactElement[];
+  heights: number[];
+  width: number;
+  css?: React.CSSProperties;
+  className?: string;
+};
+
+type Column = {
+  elements: React.ReactElement[];
+  height: number;
+  index: number;
+};
+
+const MasonryGrid = observer(({ children, css, className, width, heights }: MasonryGridProps) => {
+  const columns: Column[] = [];
+
+  // Create n columns that fit within our canvas.
+  for (let i = 0; i < width; i += 350) {
+    columns.push({ index: i, elements: [], height: 0 });
+  }
+
+  children.map((c, index) => {
+    columns.sort((a, b) => a.height - b.height);
+    const smallestColumn = columns.at(0);
+    if (smallestColumn === undefined) return;
+    smallestColumn.elements.push(c);
+    smallestColumn.height += heights[index];
+  });
+
+  return (
+    <div className={style.Row}>
+      {columns.map((c) => {
+        return (
+          <div className={style.Column} key={c.index}>
+            {c.elements.map((e, index) => (
+              <React.Fragment key={index}>{e}</React.Fragment>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
 function Canvas({ vm: externalVm }: CanvasProps) {
   const mainController = useMainController();
   const vmController = useViewModelController();
@@ -39,11 +84,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
 
   const ref = React.useRef<ReactZoomPanPinchRef>(null);
   const canvasRef = React.useRef<HTMLDivElement>(null);
-  const fileRefs = React.useRef([]);
-
-  React.useEffect(() => {
-    fileRefs.current = vm.selectedFiles.map((_, i) => fileRefs.current[i] ?? React.createRef());
-  }, [vm.selectedFiles]);
 
   React.useEffect(() => {
     vm.setCanvasContainerRef(ref);
@@ -205,18 +245,29 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   height: "100%",
                 }}
               >
-                {vm.selectedFiles.map((file, _index) => {
-                  if (!ref.current?.instance.wrapperComponent) return <></>;
+                {!mainController.repoController.isDoneEstimatingSize && (
+                  <>
+                    <h2>Estimating size - please wait.</h2>
+                    <Spin size={"large"} />
+                  </>
+                )}
+                {mainController.repoController.isDoneEstimatingSize && (
+                  <MasonryGrid width={1200} heights={vm.loadedFiles.map((f) => f.calculatedHeight)}>
+                    {vm.loadedFiles.map((file, index) => {
+                      if (!ref.current?.instance.wrapperComponent || !file.isValid)
+                        return <React.Fragment key={index}></React.Fragment>;
 
-                  return (
-                    <File
-                      ref={vm.getFileRef(file.fileName)}
-                      vm={file}
-                      key={file.fileName}
-                      parentContainer={ref.current?.instance.wrapperComponent}
-                    />
-                  );
-                })}
+                      return (
+                        <File
+                          file={file}
+                          key={index}
+                          parentContainer={ref.current?.instance.wrapperComponent}
+                        />
+                      );
+                    })}
+                  </MasonryGrid>
+                )}
+                {/*</MasonryGrid>*/}
               </TransformComponent>
             </TransformWrapper>
           </div>

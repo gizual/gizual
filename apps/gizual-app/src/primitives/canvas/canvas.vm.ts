@@ -1,11 +1,9 @@
-import { FileNodeInfos } from "@app/types";
 import { ColouringMode, ColouringModeLabels } from "@app/types";
-import _ from "lodash";
-import { autorun, makeAutoObservable } from "mobx";
-import React, { RefObject } from "react";
+import { makeAutoObservable, reaction } from "mobx";
+import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
-import { MainController } from "../../controllers";
+import { FileModel, MainController } from "../../controllers";
 import { FileViewModel } from "../file/file.vm";
 
 export const MIN_ZOOM = 0.25;
@@ -13,7 +11,7 @@ export const MAX_ZOOM = 3;
 
 export class CanvasViewModel {
   private _mainController: MainController;
-  private _selectedFileVms: Record<string, FileViewModel> = {};
+  private _loadedFileVms: Record<string, FileViewModel> = {};
   private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
 
   constructor(mainController: MainController) {
@@ -22,42 +20,20 @@ export class CanvasViewModel {
 
     makeAutoObservable(this, {}, { autoBind: true });
 
-    // Synchronizes the selected files with the mainController.
-    // TODO: Should be changed to a purely reactive context with a
-    // central repository controller.
-    autorun(() => {
-      this.loadSelectedFiles();
-    });
+    reaction(
+      () => this._mainController.repoController.loadedFiles,
+      () => {
+        this.updateFileViewModels();
+      },
+      { fireImmediately: true },
+    );
   }
 
-  loadSelectedFiles() {
-    const selectedFiles = this._mainController.selectedFiles;
-    const existingFiles = Object.keys(this._selectedFileVms);
+  updateFileViewModels() {}
 
-    const filesToLoad = _.difference(selectedFiles, existingFiles);
-    const filesToUnload = _.difference(existingFiles, selectedFiles);
-
-    for (const file of filesToLoad) {
-      const fileInfo = this._mainController.getSelectedFileNodeInfo(file);
-      if (!fileInfo) console.warn(`Info object for ${file} not found.`);
-
-      this._selectedFileVms[file] = new FileViewModel(
-        this._mainController,
-        file,
-        {},
-        fileInfo as FileNodeInfos,
-        false,
-        false,
-      );
-    }
-
-    for (const file of filesToUnload) {
-      delete this._selectedFileVms[file];
-    }
-  }
-
-  get selectedFiles(): FileViewModel[] {
-    return Object.values(this._selectedFileVms);
+  get loadedFiles(): FileModel[] {
+    return this._mainController.repoController.loadedFiles;
+    //return Object.values(this._loadedFileVms);
   }
 
   setCanvasContainerRef(ref: RefObject<ReactZoomPanPinchRef>) {
@@ -68,13 +44,14 @@ export class CanvasViewModel {
     return this._canvasContainerRef;
   }
 
-  getFileRef(fileName: string): RefObject<HTMLDivElement> | undefined {
-    return this.fileRefs?.get(fileName);
-  }
+  //getFileRef(fileName: string): RefObject<HTMLDivElement> | undefined {
+  //  console.log("Getting ref for", fileName, this.fileRefs?.get(fileName));
+  //  return this.fileRefs?.get(fileName);
+  //}
 
-  get fileRefs(): Map<string, RefObject<HTMLDivElement>> | undefined {
-    return new Map(this._mainController.selectedFiles.map((f) => [f, React.createRef()]));
-  }
+  //get fileRefs(): Map<string, RefObject<HTMLDivElement>> | undefined {
+  //  return new Map(this._mainController.selectedFiles.map((f) => [f, React.createRef()]));
+  //}
 
   zoomIn() {
     if (!this.canvasContainerRef?.current) return;
@@ -100,17 +77,14 @@ export class CanvasViewModel {
   }
 
   zoomToFile(fileName: string) {
-    const el = this.getFileRef(fileName)?.current;
+    const el = undefined; // TODO: this.getFileRef(fileName)?.current;
     if (!el) return;
 
     this.canvasContainerRef?.current?.zoomToElement(el, 0);
   }
 
   unloadAllFiles() {
-    for (const file of Object.keys(this._selectedFileVms)) {
-      this._mainController.toggleFile(file);
-      delete this._selectedFileVms[file];
-    }
+    this._mainController.repoController.unloadAllFiles();
   }
 
   onColouringModeChange = (value: ColouringMode) => {
