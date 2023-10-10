@@ -119,6 +119,7 @@ export class JobRef<T = any> {
   setPriority(priority: number) {
     this.priority_ = priority;
     this.pool.setJobPriority(this.id_, priority);
+    this.pool._dispatchJob();
   }
 
   cancel() {
