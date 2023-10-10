@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-array-push-push */
 
 import { CInfo, FileNodeInfos } from "@app/types";
-import { getDateFromTimestamp, getStringDate, GizDate, logAllMethods } from "@app/utils";
+import { getDateFromTimestamp, getStringDate, GizDate } from "@app/utils";
 import _ from "lodash";
 import {
   action,
@@ -20,7 +20,6 @@ import { BlameView } from "@giz/explorer";
 
 import type { MainController } from "./main.controller";
 
-@logAllMethods("RepoController", "#fffdd8")
 export class RepoController {
   @observable private _mainController: MainController;
   @observable private _commitsForBranch?: CInfo[];
@@ -30,8 +29,6 @@ export class RepoController {
   @observable private _loadedFiles = new Map<string, FileModel>();
   @observable private _selectedFilesKeys: string[] = [];
   @observable private _loadedFilesArray: FileModel[] = [];
-
-  @observable private _isDoneEstimatingSize = false;
 
   // these dates are only used if the user explicitly does not specify a date
   // (by deleting the tag from the search bar).
@@ -101,23 +98,6 @@ export class RepoController {
         { delay: 200 },
       ),
     );
-
-    this._disposers.push(
-      reaction(
-        () => toJS(this._loadedFiles),
-        () => {
-          this._isDoneEstimatingSize = false;
-          for (const lf of this._loadedFilesArray) {
-            if (lf.data.lines.length === 0 && lf.isLoading) {
-              this._isDoneEstimatingSize = false;
-              return;
-            }
-          }
-          this._isDoneEstimatingSize = true;
-        },
-        { delay: 200 },
-      ),
-    );
   }
 
   dispose() {
@@ -166,8 +146,9 @@ export class RepoController {
     return this._loadedFilesArray;
   }
 
+  @computed
   get isDoneEstimatingSize() {
-    return this._isDoneEstimatingSize;
+    return !this._loadedFilesArray.some((lf) => lf.isLoading);
   }
 
   @computed
@@ -384,7 +365,6 @@ export class FileModel {
 
   @action.bound
   setRenderPriority(newPriority: number) {
-    console.log("Setting render prio of file", this.name, newPriority);
     this._blameView.setPriority(newPriority);
     this._priority = newPriority;
   }

@@ -5,6 +5,7 @@ import React from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { ReactComponent as Center } from "../../assets/icons/center-focus.svg";
+import { ReactComponent as Layout } from "../../assets/icons/layout.svg";
 import { ReactComponent as MagnifyMinus } from "../../assets/icons/magnify-minus-outline.svg";
 import { ReactComponent as MagnifyPlus } from "../../assets/icons/magnify-plus-outline.svg";
 import { ReactComponent as People } from "../../assets/icons/people.svg";
@@ -154,12 +155,13 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           <Tooltip title={"Reflow"}>
             <IconButton
               onClick={() => {
+                //vm.reflow();
                 vm.reflow();
                 vm.reflow();
               }}
               aria-label="Reflow"
             >
-              <Center className={sharedStyle.ToolbarIcon} />
+              <Layout className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
 

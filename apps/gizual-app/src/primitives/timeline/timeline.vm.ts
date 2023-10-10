@@ -239,7 +239,6 @@ export class TimelineViewModel {
   }
 
   initializePositionsFromSelection() {
-    console.log("initializePositionsFromSelection");
     const range = getDaysBetweenAbs(this.selectedEndDate, this.selectedStartDate);
 
     const datePadding = Math.floor(range / 10);

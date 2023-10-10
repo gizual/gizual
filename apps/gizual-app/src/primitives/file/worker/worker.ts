@@ -27,11 +27,12 @@ export class CanvasWorker {
 
   constructor() {}
 
-  async registerCanvas(canvas: OffscreenCanvas) {
-    this._offscreen = canvas;
-  }
+  //async registerCanvas(canvas: OffscreenCanvas) {
+  //  this._offscreen = canvas;
+  //}
 
   async draw(fileCtx: FileContext) {
+    this._offscreen = new OffscreenCanvas(fileCtx.rect.width, fileCtx.rect.height);
     if (!this._offscreen) return;
 
     const canvas = this._offscreen;
@@ -108,7 +109,15 @@ export class CanvasWorker {
     );
 
     const blob = await canvas.convertToBlob();
-    return { img: blob, width: `${nc * 300}px`, colours };
+    const url = URL.createObjectURL(blob);
+    return {
+      img: blob,
+      width: `${nc * 300}px`,
+      colours,
+      url,
+      canvasWidth: fileCtx.rect.width * fileCtx.dpr,
+      canvasHeight: fileCtx.rect.height * fileCtx.dpr,
+    };
   }
 
   interpolateColour(line: Line, fileContext: FileContext) {

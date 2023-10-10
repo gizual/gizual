@@ -1,5 +1,5 @@
 import { FileModel, VisualisationDefaults } from "@app/controllers";
-import { Remote, transfer, wrap } from "comlink";
+import { Remote, wrap } from "comlink";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
 
@@ -47,7 +47,7 @@ export class FileViewModel {
   dispose() {
     this._mainController.unregisterWorker(this.fileName);
     this._worker?.terminate();
-    this._file.dispose();
+    //this._file.dispose();
   }
 
   @action.bound
@@ -115,6 +115,7 @@ export class FileViewModel {
   @action.bound
   assignFileRef(ref: React.RefObject<HTMLDivElement>) {
     this._fileRef = ref;
+    this.draw();
   }
 
   get fileRef() {
@@ -190,15 +191,15 @@ export class FileViewModel {
   @action.bound
   createOrRetrieveCanvasWorker(ref: React.RefObject<HTMLCanvasElement>) {
     if (!this._canvasWorker) {
-      const offscreen = toJS(ref).current?.transferControlToOffscreen();
-      if (!offscreen) {
-        return;
-      }
+      //const offscreen = toJS(ref).current?.transferControlToOffscreen();
+      //if (!offscreen) {
+      //  return;
+      //}
       const worker = new Worker(new URL("worker/worker.ts", import.meta.url), { type: "module" });
       this.setWorker(worker);
 
       const CanvasWorkerProxy = wrap<CanvasWorker>(worker);
-      CanvasWorkerProxy.registerCanvas(transfer(offscreen, [offscreen]));
+      //CanvasWorkerProxy.registerCanvas(transfer(offscreen, [offscreen]));
 
       this._canvasWorker = CanvasWorkerProxy;
     }
@@ -208,12 +209,13 @@ export class FileViewModel {
 
   @action.bound
   draw() {
-    console.log("Calling draw for file", this.fileName, this.renderPriority);
     if (!this._canvasRef || !this._canvasRef.current || !this._fileRef) {
       return;
     }
 
-    if (this.renderPriority <= 0) return;
+    if (this.renderPriority <= 0) {
+      return;
+    }
 
     const fileContainer = (this._fileRef as any).current;
     if (!fileContainer) {
@@ -270,13 +272,32 @@ export class FileViewModel {
       redrawCount: toJS(this.redrawCount),
     };
 
-    if (!needsToRender(ctx, this._lastDrawnContext)) return;
-
-    console.log("Actually drawing file:", this.fileName);
     const drawResult = CanvasWorkerProxy.draw(ctx);
 
     drawResult.then((result) => {
       if (!result) return;
+
+      const canvas = this._canvasRef?.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      canvas.width = result.canvasWidth;
+      canvas.height = result.canvasHeight;
+
+      const img = new Image();
+      img.addEventListener("load", (event) => {
+        if (!event.target) return;
+
+        if ("src" in event.target && typeof event.target.src === "string")
+          URL.revokeObjectURL(event.target.src);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(event.target as any, 0, 0);
+      });
+      img.src = result.url;
+
       fileContainer.style.width = result.width;
       this.setColours(result.colours);
       //console.log("[gizual-app] UI thread: draw result", result);
@@ -286,9 +307,4 @@ export class FileViewModel {
       this._mainController.unregisterWorker(this.fileName);
     });
   }
-}
-
-function needsToRender(newCtx: FileContext, oldCtx?: FileContext) {
-  return true;
-  return JSON.stringify(oldCtx) !== JSON.stringify(newCtx);
 }

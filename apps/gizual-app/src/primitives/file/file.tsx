@@ -31,6 +31,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
   }, [externalVm]);
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
   React.useEffect(() => {
     vm.assignCanvasRef(canvasRef);
     vm.draw();
@@ -50,7 +51,6 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
     settingsController.settings.visualisationSettings.colours.new.value,
     settingsController.settings.visualisationSettings.colours.old.value,
     settingsController.settings.visualisationSettings.colours.notLoaded.value,
-    mainController.vmController.canvasViewModel?.lastReflowScale,
   ]);
 
   // Attach IntersectionObserver on load, detach on dispose.
@@ -71,7 +71,6 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
     const ioObserver = new IntersectionObserver(ioCallback, ioOptions);
     ioObserver.observe(ref.current);
     return () => {
-      console.log("Disposing file.tsx for:", vm.fileName);
       ioObserver.disconnect();
       //ioObserver.unobserve(ref.current);
       vm.dispose();
