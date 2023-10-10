@@ -37,7 +37,7 @@ export class WasiRuntimeWorker {
     const fds: Fd[] = [];
 
     for (const [path, handle] of Object.entries(this.folderMappings)) {
-      fds.push(await FsaFS.fromDirectoryHandle(path, handle));
+      fds.push(await FsaFS.fromDirectoryHandle(path, handle, [".git"]));
     }
 
     this.wasi = await WASI.create(this.module, {
@@ -61,6 +61,11 @@ export class WasiRuntimeWorker {
     if (this.previousReader) {
       await this.previousReader;
     }
+
+    if (!this.wasi) {
+      return "";
+    }
+
     const prom = this.wasi.readStdoutLine();
     this.previousReader = prom;
     return prom;

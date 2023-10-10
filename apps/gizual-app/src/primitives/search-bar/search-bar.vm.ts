@@ -62,6 +62,7 @@ export class SearchBarViewModel {
   onCreateEditor(view: EditorView, state: EditorState) {
     this._editorView = view;
     this._editorState = state;
+    this.triggerDateTimeUpdate(true);
   }
 
   @action.bound

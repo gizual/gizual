@@ -64,7 +64,16 @@ async function createWorker(handle: FileSystemDirectoryHandle) {
     env: {},
     args: [],
   });
-  const stdout = await runtime.readStdout();
+
+  let stdout = "";
+  while (!stdout) {
+    stdout = await runtime.readStdout();
+
+    if (!stdout) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+
   const data = JSON.parse(stdout);
   if (!data?.ready) {
     throw new Error(data.error);
@@ -110,6 +119,7 @@ export class JobRef<T = any> {
   setPriority(priority: number) {
     this.priority_ = priority;
     this.pool.setJobPriority(this.id_, priority);
+    this.pool._dispatchJob();
   }
 
   cancel() {
@@ -246,7 +256,7 @@ export class ExplorerPool {
   }
 
   private async executeOnWorker(worker: WorkerWithState, job: Job): Promise<any> {
-    const { method, params, id } = job;
+    const { method, params, id, priority } = job;
 
     const payload = {
       jsonrpc: "2.0",
@@ -255,7 +265,7 @@ export class ExplorerPool {
       params,
     };
 
-    this.logger.trace("running cmd", payload);
+    this.logger.trace("running cmd", payload, priority);
     const payloadString = JSON.stringify(payload) + "\n";
     worker.handle.writeStdin(payloadString);
 
@@ -303,11 +313,16 @@ export class ExplorerPool {
       return;
     }
 
-    this._jobQueue = this._jobQueue.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    this._jobQueue = this._jobQueue.sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
     const job = this._jobQueue.shift();
 
     if (!job) {
+      return;
+    }
+
+    if (job.priority === 0) {
+      this._jobQueue.push(job);
       return;
     }
 
