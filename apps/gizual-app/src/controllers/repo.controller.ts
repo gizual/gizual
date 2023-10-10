@@ -88,7 +88,6 @@ export class RepoController {
               name: file,
               infos: this._selectedFiles.get(file)!,
             });
-            console.log(model);
 
             this._loadedFiles.set(file, model);
             loadedFilesArray.push(model);
@@ -109,18 +108,16 @@ export class RepoController {
       reaction(
         () => toJS(this._loadedFiles),
         () => {
-          console.log("Evaluating isDoneEstimatingSize", this._loadedFilesArray);
+          this._isDoneEstimatingSize = false;
           for (const lf of this._loadedFilesArray) {
-            console.log("Checking", lf.name, lf.data.lines.length);
             if (lf.data.lines.length === 0 && lf.isLoading) {
-              console.log("Abort");
               this._isDoneEstimatingSize = false;
               return;
             }
           }
           this._isDoneEstimatingSize = true;
         },
-        { delay: 500 },
+        { delay: 200 },
       ),
     );
   }

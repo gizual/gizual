@@ -252,7 +252,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   </>
                 )}
                 {mainController.repoController.isDoneEstimatingSize && (
-                  <MasonryGrid width={1200} heights={vm.loadedFiles.map((f) => f.calculatedHeight)}>
+                  <MasonryGrid width={1800} heights={vm.loadedFiles.map((f) => f.calculatedHeight)}>
                     {vm.loadedFiles.map((file, index) => {
                       if (!ref.current?.instance.wrapperComponent || !file.isValid)
                         return <React.Fragment key={index}></React.Fragment>;
@@ -267,7 +267,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                     })}
                   </MasonryGrid>
                 )}
-                {/*</MasonryGrid>*/}
               </TransformComponent>
             </TransformWrapper>
           </div>
