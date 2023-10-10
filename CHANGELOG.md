@@ -1,3 +1,16 @@
+## Gizual 3.0.0-alpha.2 (10.10.2023)
+
+### Features
+
+- **backend:fsa-fs:** Pre-cache all file-system-access handles to improve performance and reduce deadlock potential
+
+### Bug Fixes
+
+- **backend:worker-pool:** Ignore backend jobs with priority == 0
+- **backend:worker-pool:** Fix sorting of jobQueue
+
+---
+
 ## Gizual 3.0.0-alpha.1 (07.10.2023)
 
 ### Features
