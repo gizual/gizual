@@ -14,4 +14,6 @@ const rootNodeModulesDir = path.join(buildToolsDir, "..", "..", "node_modules");
 
 const viteNodePath = path.join(rootNodeModulesDir, ".bin", "vite-node");
 
-spawnSync(viteNodePath, args, { stdio: "inherit" });
+const extension = process.platform === "win32" ? ".cmd" : "";
+
+spawnSync(`${viteNodePath}${extension}`, args, { stdio: "inherit" });
