@@ -16,7 +16,7 @@ export const TitleBar = observer(() => {
   return (
     <div className={style.TitleBar}>
       <div className={style.Branding}>
-        <img className={style.Logo} src="./giz.png" alt="Gizual Logo" />
+        <img className={style.Logo} src="./giz-icon.svg" alt="Gizual Logo" />
         <h1 className={style.Title}>gizual</h1>
       </div>
       <div className={style.Menu}>

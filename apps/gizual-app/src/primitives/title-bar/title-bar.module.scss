@@ -9,9 +9,8 @@
 }
 
 .Logo {
-  border-radius: 2rem;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .Title {
@@ -28,6 +27,7 @@
   padding: 0.25rem 1rem;
   border-right: 1px solid var(--border-primary);
   flex-direction: row;
+  align-items: center;
 }
 
 .Left {
@@ -45,7 +45,7 @@
 }
 
 .Menu {
-  padding: 0.5rem 0;
+  padding: 0.25rem 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -55,7 +55,7 @@
 .MenuItem {
   margin: auto 0;
   margin-left: 1rem;
-  width: 7rem;
+  width: 5rem;
   text-align: center;
   cursor: pointer;
 }
@@ -68,9 +68,9 @@
     content: "";
     display: block;
     width: 0;
-    height: 6px;
+    height: 3px;
     position: absolute;
-    bottom: -0.5rem;
+    bottom: -0.25rem;
     left: 50%;
     background: var(--accent-main);
     border-top-left-radius: 10px;
@@ -104,7 +104,7 @@
   color: var(--foreground-primary);
   font-weight: 500;
   text-align: center;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   line-height: 2rem;
   text-decoration: none;
 }
