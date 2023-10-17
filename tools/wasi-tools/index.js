@@ -1,11 +1,18 @@
 import "zx/globals";
 
 import { mkdirp } from "mkdirp";
-import { $, path } from "zx";
+import { $ } from "zx";
+import path from "upath";
 import { getWasiSdkPath } from "./wasi-sdk.js";
 import { prepareBinaryen } from "./binaryen.js";
 
 const PATH_SEPARATOR = process.platform === "win32" ? ";" : ":";
+const EXE_EXTENSION = process.platform === "win32" ? ".exe" : "";
+
+const windowsGitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe";
+if (process.platform === "win32" && fs.existsSync(windowsGitBashPath)) {
+  $.shell = windowsGitBashPath;
+}
 
 export function configure(verbose) {
   $.verbose = verbose;
@@ -54,7 +61,7 @@ export async function buildRust(opts) {
 
   $.cwd = cwd;
 
-  const rootPath = (await $`git rev-parse --show-toplevel`).stdout.trim();
+  let rootPath = await getRootPath();
 
   const env = await getEnv(rootPath);
 
@@ -70,9 +77,7 @@ export async function buildRust(opts) {
 
   const releaseFlag = release ? "--release" : "";
 
-  const cargo = await which("cargo");
-
-  let cmd = `${cargo} build ${releaseFlag} --target=${TARGET}`;
+  let cmd = `cargo build ${releaseFlag} --target=${TARGET}`;
 
   if (bin) {
     cmd += ` --bin=${bin}`;
@@ -81,8 +86,11 @@ export async function buildRust(opts) {
 
   await $([cmd]);
 
-  const wasmFileSrc = `${rootPath}/target/${TARGET}/${flavourFolder}/${name}.wasm`;
-  const wasmFilDest = path.join(outDir, `${name}.wasm`);
+  let wasmFileSrc = `${rootPath}/target/${TARGET}/${flavourFolder}/${name}.wasm`;
+  wasmFileSrc = path.normalizeSafe(wasmFileSrc);
+  let wasmFilDest = path.join(outDir, `${name}.wasm`);
+  wasmFilDest = path.normalizeSafe(wasmFilDest);
+
   await mkdirp(outDir);
   // await fs.copyFile(wasmFileSrc, wasmFilDest);
 
@@ -91,6 +99,13 @@ export async function buildRust(opts) {
   await $`wasm-opt -O3 ${wasmFileSrc} ${asyncifyFlag} -o ${wasmFilDest}  ${debuginfoFlag}`;
 
   return wasmFilDest;
+}
+
+async function getRootPath() {
+  let rootPath = (await $`git rev-parse --show-toplevel`).stdout.trim();
+  rootPath = path.normalizeSafe(rootPath);
+  rootPath = path.toUnix(rootPath);
+  return rootPath;
 }
 
 /**
@@ -117,7 +132,7 @@ export async function buildC(opts) {
 
   $.cwd = cwd;
 
-  const rootPath = (await $`git rev-parse --show-toplevel`).stdout.trim();
+  const rootPath = await getRootPath();
 
   const env = await getEnv(rootPath);
 
@@ -151,20 +166,38 @@ async function getEnv(rootPath) {
   };
 
   if (wasiSdkPath) {
-    env.PATH = `${wasiSdkPath}/bin${PATH_SEPARATOR}${env.PATH}`;
+    let wasiSdkBinPath = path.join(wasiSdkPath, "bin");
+    if (process.platform === "win32") {
+      wasiSdkBinPath = wasiSdkBinPath.replace(/\//g, "\\");
+    }
+
+    env.PATH = `${wasiSdkBinPath}${PATH_SEPARATOR}${env.PATH}`;
   }
 
   if (binaryenPath) {
-    env.PATH = `${binaryenPath}${PATH_SEPARATOR}${env.PATH}`;
+    let binaryenBinPath = path.join(binaryenPath);
+    if (process.platform === "win32") {
+      binaryenBinPath = binaryenBinPath.replace(/\//g, "\\");
+    }
+    env.PATH = `${binaryenBinPath}${PATH_SEPARATOR}${env.PATH}`;
   }
 
-  env.CC = `${wasiSdkPath}/bin/clang -D_WASI_EMULATED_MMAN --sysroot=${wasiSdkPath}/share/wasi-sysroot`;
-  env.LLD = `${wasiSdkPath}/bin/lld -lwasi-emulated-mman`;
+  env.CC = `${wasiSdkPath}/bin/clang${EXE_EXTENSION} -D_WASI_EMULATED_MMAN --sysroot=${wasiSdkPath}/share/wasi-sysroot`;
+  env.LLD = `${wasiSdkPath}/bin/lld${EXE_EXTENSION} -lwasi-emulated-mman`;
   env.LD = `${env.LLD}`;
-  env.AR = `${wasiSdkPath}/bin/llvm-ar`;
-  env.NM = `${wasiSdkPath}/bin/llvm-nm`;
+  env.AR = `${wasiSdkPath}/bin/llvm-ar${EXE_EXTENSION}`;
+  env.NM = `${wasiSdkPath}/bin/llvm-nm${EXE_EXTENSION}`;
 
-  const libgccFile = (await $`${wasiSdkPath}/bin/clang -print-libgcc-file-name`).stdout.trim();
+  const libgccFile = path.join(
+    wasiSdkPath,
+    "lib",
+    "clang",
+    "16",
+    "lib",
+    "wasi",
+    "libclang_rt.builtins-wasm32.a",
+  );
+
   env.RUSTFLAGS = `-C link-arg=${libgccFile}`;
 
   env.TARGET = `wasm32-wasi`;
@@ -176,7 +209,7 @@ async function getEnv(rootPath) {
  * @param {string} name
  */
 export async function lintRust(name) {
-  const rootPath = (await $`git rev-parse --show-toplevel`).stdout.trim();
+  const rootPath = await getRootPath();
 
   await prepareRustOnPlatform();
   const env = await getEnv(rootPath);

@@ -9,6 +9,7 @@
   "devDependencies": {
     "download": "8.0.0",
     "mkdirp": "3.0.1",
+    "upath": "2.0.1",
     "zx": "7.2.3"
   }
 }

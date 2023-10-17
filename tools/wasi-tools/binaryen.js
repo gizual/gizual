@@ -1,6 +1,7 @@
 import "zx/globals";
 import { mkdirp } from "mkdirp";
 import download from "download";
+import path from "upath";
 
 const BINARYEN_URL_BASE = "https://github.com/WebAssembly/binaryen/releases/download/version_114";
 const BINARYEN_URL = {
@@ -20,7 +21,7 @@ export async function installBinaryen(rootPath) {
   const binaryenPath = `${rootPath}/.cache/tools/binaryen`;
   const binaryenBinPath = `${binaryenPath}/bin`;
 
-  if (fs.existsSync(binaryenBinPath)) {
+  if (fs.existsSync(path.normalizeSafe(binaryenBinPath))) {
     return binaryenBinPath;
   }
 
