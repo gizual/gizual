@@ -9,6 +9,11 @@ import { prepareBinaryen } from "./binaryen.js";
 const PATH_SEPARATOR = process.platform === "win32" ? ";" : ":";
 const EXE_EXTENSION = process.platform === "win32" ? ".exe" : "";
 
+const windowsGitBashPath = "C:\\Program Files\\Git\\bin\\bash.exe";
+if (process.platform === "win32" && fs.existsSync(windowsGitBashPath)) {
+  $.shell = windowsGitBashPath;
+}
+
 export function configure(verbose) {
   $.verbose = verbose;
 }
