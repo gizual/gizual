@@ -1,16 +1,17 @@
 import { ColouringMode, ColouringModeLabels } from "@app/types";
-import { Masonry, truncateSmart } from "@app/utils";
+import {
+  Masonry,
+  SvgBaseElement,
+  SvgGroupElement,
+  SvgRectElement,
+  SvgTextElement,
+  truncateSmart,
+} from "@app/utils";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
 import { FileModel, MainController, VisualisationDefaults } from "../../controllers";
-import {
-  SvgBaseElement,
-  SvgGroupElement,
-  SvgRectElement,
-  SvgTextElement,
-} from "../file/worker/svg";
 import { CanvasWorker, FileContext } from "../file/worker/worker";
 
 export const MIN_ZOOM = 0.25;
@@ -131,9 +132,8 @@ export class CanvasViewModel {
   }
 
   @action.bound
-  async drawSvg() {
+  async drawSvg(width = this.canvasWidth, appearance: "dark" | "light" = "light") {
     const svgChildren: SvgBaseElement[] = [];
-    const width = this.canvasWidth;
 
     // We want to use the masonry layout just for evaluating the required transform,
     // no need to store the elements within the Masonry grid.
@@ -166,19 +166,29 @@ export class CanvasViewModel {
         width: 300,
         height: rectHeight + titleHeight,
         fill: "transparent",
-        stroke: this._mainController.getStyle("--color-gray"),
+        stroke:
+          appearance === "light"
+            ? this._mainController.getStyle("--color-gray")
+            : this._mainController.getStyle("--color-darkslate"),
       });
       const title = new SvgTextElement(truncateSmart(file.name, 35), {
         x: 8,
         y: 20,
         fontSize: "14",
+        fill:
+          appearance === "light"
+            ? this._mainController.getStyle("--color-darkgray")
+            : this._mainController.getStyle("--color-lightgray"),
       });
       const titleBackground = new SvgRectElement({
         x: 0,
         y: 0,
         width: 300,
         height: titleHeight,
-        fill: this._mainController.getStyle("--color-zinc"),
+        fill:
+          appearance === "light"
+            ? this._mainController.getStyle("--color-zinc")
+            : this._mainController.getStyle("--color-gunmetal"),
         stroke: "transparent",
       });
       fileContainer.assignChildren(border, titleBackground, title);
@@ -195,14 +205,19 @@ export class CanvasViewModel {
 
       fileContainer.transform = {
         x: position.x,
-        y: position.startHeight + position.itemId * 16,
+        y: position.startHeight,
       };
       fileContent.assignChildren(...result.result);
       svgChildren.push(fileContainer);
     }
 
     const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
-    const svg = `<svg ${styleTag} viewBox="0 0 ${width} ${masonry.maxHeight}">${svgChildren
+    const style = `style="background-color:${
+      appearance === "light"
+        ? this._mainController.getStyle("--color-white")
+        : this._mainController.getStyle("--color-darkgray")
+    }"`;
+    const svg = `<svg ${styleTag} ${style} viewBox="0 0 ${width} ${masonry.maxHeight}">${svgChildren
       .map((c) => c.render())
       .join("")}</svg>`;
 

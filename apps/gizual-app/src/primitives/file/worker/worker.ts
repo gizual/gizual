@@ -1,12 +1,11 @@
 import { MainController, VisualisationDefaults } from "@app/controllers";
 import { VisualisationConfig } from "@app/types";
-import { BAND_COLOUR_RANGE, getBandColourScale, getColourScale } from "@app/utils";
+import { BAND_COLOUR_RANGE, getBandColourScale, getColourScale, SvgBaseElement } from "@app/utils";
 import { expose } from "comlink";
 
 import { FileViewModel, Line } from "../file.vm";
 
 import { CanvasRenderer, SvgRenderer } from "./renderer";
-import { SvgBaseElement } from "./svg";
 
 export type RenderingMode = "canvas" | "svg";
 export type FileContext = {

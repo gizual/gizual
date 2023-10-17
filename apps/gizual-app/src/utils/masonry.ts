@@ -69,13 +69,13 @@ export class Masonry<T> {
     this.sortColumns(this.columns);
     const col = this.columns[0];
     col.content.push(element);
-    col.currentHeight += element.height;
+    col.currentHeight += element.height + this.gap;
     this.maxHeight = Math.max(this.maxHeight, col.currentHeight);
 
     return {
       columnId: col.index,
       itemId: col.content.length - 1,
-      startHeight: col.currentHeight - element.height,
+      startHeight: col.currentHeight - element.height - this.gap,
       x: col.x,
     };
   }

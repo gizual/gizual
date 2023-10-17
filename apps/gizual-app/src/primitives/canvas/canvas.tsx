@@ -1,7 +1,9 @@
-import { ColorPicker, Dropdown, InputNumber, MenuProps, Radio, Spin, Tooltip } from "antd";
+import { RenderedSettingsEntry } from "@app/pages";
+import { createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
+import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Spin, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { ReactComponent as Center } from "../../assets/icons/center-focus.svg";
@@ -123,10 +125,33 @@ function Canvas({ vm: externalVm }: CanvasProps) {
       key: "3",
       label: "Export SVG",
       onClick: () => {
-        vm.drawSvg();
+        showModal();
       },
     },
   ];
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+    vm.drawSvg(selectedWidth, selectedAppearance);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const [selectedWidth, setSelectedWidth] = useState(vm.canvasWidth);
+  useEffect(() => {
+    setSelectedWidth(vm.canvasWidth);
+  }, [vm.canvasWidth]);
+
+  const currentTheme = useTheme();
+  const [selectedAppearance, setSelectedAppearance] = useState(currentTheme);
 
   return (
     <div className={style.Stage}>
@@ -240,6 +265,38 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         </div>
       </div>
       <div className={style.CanvasWrapper}>
+        <Modal
+          title="Export to SVG"
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          okText="Export"
+        >
+          <RenderedSettingsEntry
+            entry={createNumberSetting(
+              "View-box width",
+              "The width of the SVG view-box. Influences the number of columns within the grid.",
+              selectedWidth,
+            )}
+            onChange={setSelectedWidth}
+            onResetToDefault={() => setSelectedWidth(vm.canvasWidth)}
+            isDefault={() => selectedWidth === vm.canvasWidth}
+          />
+          <RenderedSettingsEntry
+            entry={createSelectSetting(
+              "Appearance",
+              "Controls the background and font colours of the exported SVG.",
+              selectedAppearance,
+              [
+                { value: "dark", label: "Light text on dark background" },
+                { value: "light", label: "Dark text on light background" },
+              ],
+            )}
+            onChange={setSelectedAppearance}
+            onResetToDefault={() => setSelectedAppearance(currentTheme)}
+            isDefault={() => selectedAppearance === currentTheme}
+          />
+        </Modal>
         <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
           <div className={style.Canvas} ref={canvasRef}>
             <TransformWrapper

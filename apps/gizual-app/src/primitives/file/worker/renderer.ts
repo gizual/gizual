@@ -1,4 +1,4 @@
-import { SvgAttributes, SvgBaseElement, SvgRectElement, SvgTextElement } from "./svg";
+import { SvgAttributes, SvgBaseElement, SvgRectElement } from "@app/utils";
 
 export type SvgElement = {
   head: string;

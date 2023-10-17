@@ -7,5 +7,7 @@ export * from "./hooks";
 export * from "./local-storage";
 export * from "./masonry";
 export * from "./mouse";
+export * from "./settings";
+export * from "./svg";
 export * from "./text";
 export * from "./tsutils";
