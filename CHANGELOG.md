@@ -1,3 +1,19 @@
+## Gizual 3.0.0-alpha.5 (22.10.2023)
+
+### Features
+
+- **app:canvas:** implement SVG export
+
+### Changes
+
+- **app:markdown-viewer:** modify markdown styling
+
+### Bug Fixes
+
+- **app:canvas:** fix file names not truncating early enough
+
+---
+
 ## Gizual 3.0.0-alpha.4 (20.10.2023)
 
 ### Features

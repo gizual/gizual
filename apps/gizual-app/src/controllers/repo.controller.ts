@@ -287,7 +287,7 @@ export class RepoController {
 export const VisualisationDefaults = {
   maxLineLength: 120,
   lineSpacing: 0,
-  maxLineCount: 60,
+  maxLineCount: 100,
 };
 
 export type Line = {

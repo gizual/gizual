@@ -188,23 +188,40 @@ export class FileViewModel {
     this._redrawCount++;
   }
 
+  @computed
+  get rectHeight() {
+    return Math.min(this.fileContent.length * 10, VisualisationDefaults.maxLineCount * 10);
+  }
+
   @action.bound
   createOrRetrieveCanvasWorker(ref: React.RefObject<HTMLCanvasElement>) {
     if (!this._canvasWorker) {
-      //const offscreen = toJS(ref).current?.transferControlToOffscreen();
-      //if (!offscreen) {
-      //  return;
-      //}
       const worker = new Worker(new URL("worker/worker.ts", import.meta.url), { type: "module" });
       this.setWorker(worker);
 
       const CanvasWorkerProxy = wrap<CanvasWorker>(worker);
-      //CanvasWorkerProxy.registerCanvas(transfer(offscreen, [offscreen]));
 
       this._canvasWorker = CanvasWorkerProxy;
     }
 
     return this._canvasWorker;
+  }
+
+  @computed
+  get drawingContext() {
+    return {
+      authors: this._mainController.authors.map((a) => toJS(a)),
+      fileContent: toJS(this.fileContent),
+      earliestTimestamp: toJS(this.fileData.earliestTimestamp),
+      latestTimestamp: toJS(this.fileData.latestTimestamp),
+      visualisationConfig: toJS(this._mainController.visualisationConfig),
+      lineLengthMax: toJS(this.fileData.maxLineLength),
+      isPreview: toJS(this.fileData.isPreview) ?? true,
+      selectedStartDate: toJS(this._mainController.selectedStartDate),
+      selectedEndDate: toJS(this._mainController.selectedEndDate),
+      redrawCount: toJS(this.redrawCount),
+      colouringMode: toJS(this._mainController.colouringMode),
+    };
   }
 
   @action.bound
@@ -223,7 +240,6 @@ export class FileViewModel {
     }
 
     const scale = this._mainController.scale;
-    const colouringMode = this._mainController.colouringMode;
 
     // High resolution displays need different scaling to get the canvas to not appear "blurry"
     // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#scaling_for_high_resolution_displays
@@ -244,8 +260,8 @@ export class FileViewModel {
 
     if (this._canvasRef?.current) {
       this._canvasRef.current.style.width = `${rect.width}px`;
-      this._canvasRef.current.style.height = `${rect.height}px`;
-      fileContainer.style.height = `${rect.height + 26}px`;
+      //this._canvasRef.current.style.height = `${rect.height}px`;
+      //fileContainer.style.height = `${rect.height + 26}px`;
     }
 
     const CanvasWorkerProxy = this.createOrRetrieveCanvasWorker(this._canvasRef);
@@ -255,24 +271,14 @@ export class FileViewModel {
 
     this._mainController.registerWorker(this.fileName);
 
-    const ctx = {
-      authors: this._mainController.authors.map((a) => toJS(a)),
-      fileContent: toJS(this.fileContent),
-      earliestTimestamp: toJS(this.fileData.earliestTimestamp),
-      latestTimestamp: toJS(this.fileData.latestTimestamp),
-      visualisationConfig: toJS(this._mainController.visualisationConfig),
-      lineLengthMax: toJS(this.fileData.maxLineLength),
-      isPreview: toJS(this.fileData.isPreview) ?? true,
-      selectedStartDate: toJS(this._mainController.selectedStartDate),
-      selectedEndDate: toJS(this._mainController.selectedEndDate),
+    const ctx: FileContext = {
+      ...this.drawingContext,
       dpr,
       rect,
-      colouringMode,
       nColumns,
-      redrawCount: toJS(this.redrawCount),
     };
 
-    const drawResult = CanvasWorkerProxy.draw(ctx);
+    const drawResult = CanvasWorkerProxy.drawCanvas(ctx);
 
     drawResult.then((result) => {
       if (!result) return;
@@ -283,8 +289,8 @@ export class FileViewModel {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      canvas.width = result.canvasWidth;
-      canvas.height = result.canvasHeight;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
 
       const img = new Image();
       img.addEventListener("load", (event) => {
@@ -296,13 +302,13 @@ export class FileViewModel {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(event.target as any, 0, 0);
       });
-      img.src = result.url;
+      img.src = result.result;
 
-      fileContainer.style.width = result.width;
+      fileContainer.style.width = "300px";
       this.setColours(result.colours);
       //console.log("[gizual-app] UI thread: draw result", result);
       this.setLastDrawScale(scale);
-      this.setLastDrawnColourMode(colouringMode);
+      this.setLastDrawnColourMode(this._mainController.colouringMode);
       this.incrementRedrawCount();
       this._mainController.unregisterWorker(this.fileName);
     });

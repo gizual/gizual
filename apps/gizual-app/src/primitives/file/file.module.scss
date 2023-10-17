@@ -3,10 +3,15 @@
 
 .FileHead {
   @include shared.card-head;
-  margin-bottom: 0.5rem; //calc(0.5rem * var(--canvas-scale-reverse));
   flex: unset;
   //@include adjust-scale-y-with-canvas;
+  margin: unset;
   transform-origin: bottom;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  background-color: var(--background-tertiary);
+  padding-bottom: 0.25rem;
+  padding-top: 0.25rem;
 }
 
 .FileHeadLeft {
@@ -39,7 +44,7 @@
   @include shared.card-title;
   margin: unset;
   align-self: flex-end;
-  line-height: 130%;
+  line-height: unset;
 }
 
 .FontIcon {
@@ -103,6 +108,7 @@
   @include shared.card;
   width: 300px;
   height: 400px;
+  border: 1px solid var(--border-primary);
 }
 
 .LoadFileIcon {
@@ -113,9 +119,9 @@
 }
 
 .FileBody {
-  border: 1px solid var(--border-primary);
   flex: 1 0;
   position: relative;
+  border-top: 1px solid var(--border-primary);
 }
 
 .FileCanvas {

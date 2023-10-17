@@ -1,9 +1,17 @@
 import { ColouringMode, ColouringModeLabels } from "@app/types";
-import { action, computed, makeObservable, observable } from "mobx";
+import { Masonry, truncateSmart } from "@app/utils";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
-import { FileModel, MainController } from "../../controllers";
+import { FileModel, MainController, VisualisationDefaults } from "../../controllers";
+import {
+  SvgBaseElement,
+  SvgGroupElement,
+  SvgRectElement,
+  SvgTextElement,
+} from "../file/worker/svg";
+import { CanvasWorker, FileContext } from "../file/worker/worker";
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
@@ -12,7 +20,6 @@ export class CanvasViewModel {
   @observable private _mainController: MainController;
   @observable private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
   @observable private _canvasWidth = 0;
-  @observable private _lastReflowScale = 1;
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
@@ -76,16 +83,11 @@ export class CanvasViewModel {
       this._canvasContainerRef?.current &&
       this._canvasContainerRef.current.instance.contentComponent
     ) {
-      this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
       this._canvasContainerRef.current.instance.contentComponent.style.width = `calc(100% / ${this._mainController.scale})`;
       this._canvasContainerRef.current.instance.contentComponent.style.height = `calc(100% / ${this._mainController.scale})`;
+      this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
     }
     this.center();
-    this._lastReflowScale = this._mainController.scale;
-  }
-
-  get lastReflowScale() {
-    return this._lastReflowScale;
   }
 
   get canvasWidth() {
@@ -111,5 +113,104 @@ export class CanvasViewModel {
   @computed
   get toggleColouringValues() {
     return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
+  }
+
+  getDrawingContext(file: FileModel) {
+    return {
+      authors: this._mainController.authors.map((a) => toJS(a)),
+      fileContent: toJS(file.data.lines),
+      earliestTimestamp: toJS(file.data.earliestTimestamp),
+      latestTimestamp: toJS(file.data.latestTimestamp),
+      visualisationConfig: toJS(this._mainController.visualisationConfig),
+      lineLengthMax: toJS(file.data.maxLineLength),
+      isPreview: toJS(file.isPreview),
+      selectedStartDate: toJS(this._mainController.selectedStartDate),
+      selectedEndDate: toJS(this._mainController.selectedEndDate),
+      colouringMode: toJS(this._mainController.colouringMode),
+    };
+  }
+
+  @action.bound
+  async drawSvg() {
+    const svgChildren: SvgBaseElement[] = [];
+    const width = this.canvasWidth;
+
+    // We want to use the masonry layout just for evaluating the required transform,
+    // no need to store the elements within the Masonry grid.
+    const masonry = new Masonry<undefined>({ canvasWidth: width, gap: 16 });
+
+    for (const file of this.loadedFiles) {
+      if (file.data.lines.length === 0) continue;
+
+      const rectHeight = Math.min(
+        file.data.lines.length * 10,
+        VisualisationDefaults.maxLineCount * 10,
+      );
+
+      const ctx: FileContext = {
+        ...this.getDrawingContext(file),
+        dpr: 1,
+        nColumns: 1,
+        redrawCount: 0,
+        rect: new DOMRect(0, 0, 300, rectHeight),
+      };
+
+      const titleHeight = 30;
+      const worker = new CanvasWorker();
+      const result = await worker.drawSingleSvg(ctx);
+
+      const fileContainer = new SvgGroupElement(0, 0, 300, rectHeight + titleHeight);
+      const border = new SvgRectElement({
+        x: 0,
+        y: 0,
+        width: 300,
+        height: rectHeight + titleHeight,
+        fill: "transparent",
+        stroke: this._mainController.getStyle("--color-gray"),
+      });
+      const title = new SvgTextElement(truncateSmart(file.name, 35), {
+        x: 8,
+        y: 20,
+        fontSize: "14",
+      });
+      const titleBackground = new SvgRectElement({
+        x: 0,
+        y: 0,
+        width: 300,
+        height: titleHeight,
+        fill: this._mainController.getStyle("--color-zinc"),
+        stroke: "transparent",
+      });
+      fileContainer.assignChildren(border, titleBackground, title);
+
+      const fileContent = new SvgGroupElement(0, 0, 300, rectHeight);
+      fileContent.transform = { x: 0, y: titleHeight };
+      fileContainer.addChild(fileContent);
+
+      const position = masonry.insertElement({
+        id: file.name,
+        content: undefined,
+        height: rectHeight + titleHeight,
+      });
+
+      fileContainer.transform = {
+        x: position.x,
+        y: position.startHeight + position.itemId * 16,
+      };
+      fileContent.assignChildren(...result.result);
+      svgChildren.push(fileContainer);
+    }
+
+    const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
+    const svg = `<svg ${styleTag} viewBox="0 0 ${width} ${masonry.maxHeight}">${svgChildren
+      .map((c) => c.render())
+      .join("")}</svg>`;
+
+    const blob = new Blob([svg.toString()]);
+    const element = document.createElement("a");
+    element.download = `${this._mainController.repoName}.gizual.svg`;
+    element.href = window.URL.createObjectURL(blob);
+    element.click();
+    element.remove();
   }
 }

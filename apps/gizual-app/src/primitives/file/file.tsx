@@ -131,7 +131,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
           />
         )}
         <p className={style.FileTitle} title={vm.fileName}>
-          {truncateSmart(vm.fileName, 35)}
+          {truncateSmart(vm.fileName, 30)}
         </p>
       </div>
       <div className={style.FileActions}>

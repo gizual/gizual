@@ -3,6 +3,7 @@
 import { useMainController } from "@app/controllers";
 import { StreamLanguage } from "@codemirror/language";
 import { simpleMode } from "@codemirror/legacy-modes/mode/simple-mode";
+import { Prec } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
@@ -115,24 +116,41 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
 const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
   const ref = React.useRef<ReactCodeMirrorRef>(null);
 
-  const customKeymap = keymap.of([
-    {
-      key: "Enter",
-      run: (view) => {
-        vm.search();
-        view.contentDOM.blur();
-        return true;
+  const customKeymap = Prec.highest(
+    keymap.of([
+      {
+        key: "Enter",
+        run: (view) => {
+          vm.search();
+          view.contentDOM.blur();
+          return true;
+        },
       },
-    },
-    {
-      key: "Escape",
-      run: (view) => {
-        view.contentDOM.blur();
-        vm.closePopover();
-        return true;
+      {
+        key: "Escape",
+        run: (view) => {
+          console.log("Escape");
+          view.contentDOM.blur();
+          vm.closePopover();
+          return true;
+        },
       },
-    },
-  ]);
+      {
+        key: "Tab",
+        run: (view) => {
+          console.log("Tab");
+          return true;
+        },
+      },
+      {
+        key: "ArrowDown",
+        run: (view) => {
+          console.log("ArrowDown");
+          return true;
+        },
+      },
+    ]),
+  );
 
   React.useEffect(() => {
     if (ref.current) {

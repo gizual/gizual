@@ -98,6 +98,11 @@ export class MainController {
     //return this._fileTreeRoot;
   }
 
+  getStyle(key: string) {
+    const doc = document.documentElement;
+    return getComputedStyle(doc).getPropertyValue(key);
+  }
+
   @action.bound
   setFileTreeRoot(root: FileTree) {
     this._fileTreeRoot = root;

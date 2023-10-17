@@ -60,14 +60,15 @@ function sortChildrenToColumns(
 const MasonryGrid = observer(({ children, css, className, width, heights }: MasonryGridProps) => {
   const sortedColumns = React.useMemo(() => {
     const cols: Column[] = [];
-    for (let i = 0; i < width; i += 350) {
+    for (let i = 16; i < width - 16; i += 350 + 32) {
       cols.push({ index: i, elements: [], height: 0 });
     }
-    return sortChildrenToColumns(children, heights, cols);
+    const sorted = sortChildrenToColumns(children, heights, cols);
+    return sorted;
   }, [children, heights]);
 
   return (
-    <div className={clsx(style.Row, className)}>
+    <div className={clsx(style.Row, className)} style={{ ...css }}>
       {sortedColumns &&
         sortedColumns.map((c) => {
           return (
@@ -118,6 +119,13 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         vm.unloadAllFiles();
       },
     },
+    {
+      key: "3",
+      label: "Export SVG",
+      onClick: () => {
+        vm.drawSvg();
+      },
+    },
   ];
 
   return (
@@ -155,8 +163,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           <Tooltip title={"Reflow"}>
             <IconButton
               onClick={() => {
-                //vm.reflow();
-                vm.reflow();
                 vm.reflow();
               }}
               aria-label="Reflow"

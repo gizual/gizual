@@ -1,10 +1,14 @@
 import { MainController, VisualisationDefaults } from "@app/controllers";
 import { VisualisationConfig } from "@app/types";
-import { BAND_COLOUR_RANGE, getBandColourScale, getColourScale, SPECIAL_COLOURS } from "@app/utils";
+import { BAND_COLOUR_RANGE, getBandColourScale, getColourScale } from "@app/utils";
 import { expose } from "comlink";
 
 import { FileViewModel, Line } from "../file.vm";
 
+import { CanvasRenderer, SvgRenderer } from "./renderer";
+import { SvgBaseElement } from "./svg";
+
+export type RenderingMode = "canvas" | "svg";
 export type FileContext = {
   colouringMode: MainController["_colouringMode"];
   fileContent: FileViewModel["fileContent"];
@@ -23,100 +27,106 @@ export type FileContext = {
 };
 
 export class CanvasWorker {
-  _offscreen?: OffscreenCanvas;
-
   constructor() {}
 
   //async registerCanvas(canvas: OffscreenCanvas) {
   //  this._offscreen = canvas;
   //}
 
-  async draw(fileCtx: FileContext) {
-    this._offscreen = new OffscreenCanvas(fileCtx.rect.width, fileCtx.rect.height);
-    if (!this._offscreen) return;
+  async prepareFont() {
+    if (self.FontFace && (self as any).fonts) {
+      const fontFace = new FontFace("Iosevka Extended", "local('Iosevka Extended')");
+      // add it to the list of fonts our worker supports
+      (self as any).fonts.add(fontFace);
+      // load the font
+      return fontFace.load();
+    }
+  }
 
-    const canvas = this._offscreen;
+  async drawCanvas(fileCtx: FileContext): Promise<{ result: string; colours: string[] }> {
+    return this.draw(fileCtx, "canvas");
+  }
+
+  async drawSingleSvg(
+    fileCtx: FileContext,
+  ): Promise<{ result: SvgBaseElement[]; colours: string[] }> {
+    return this.draw(fileCtx, "svg");
+  }
+
+  async draw(fileCtx: FileContext, mode: "canvas"): Promise<{ result: string; colours: string[] }>;
+  async draw(
+    fileCtx: FileContext,
+    mode: "svg",
+  ): Promise<{ result: SvgBaseElement[]; colours: string[] }>;
+  async draw(fileCtx: FileContext, mode: RenderingMode = "canvas") {
+    await this.prepareFont();
+
+    let renderer: CanvasRenderer | SvgRenderer | undefined;
+    if (mode === "canvas") renderer = new CanvasRenderer();
+    if (mode === "svg") renderer = new SvgRenderer();
+    if (!renderer) throw new Error("Renderer not initialized. Provided mode: " + mode);
+
+    renderer.prepareContext(fileCtx.rect.width, fileCtx.rect.height, fileCtx.dpr);
+
     const colours: string[] = [];
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      return;
-    }
+    const columnSpacing = 0;
+    const lineHeight = 10 * fileCtx.dpr;
 
-    ctx.scale(fileCtx.dpr, fileCtx.dpr);
-
+    const currentX = 0;
     let currentY = 0;
 
-    const columnSpacing = 0;
+    const scaledCanvasWidth = fileCtx.rect.width * fileCtx.dpr;
 
-    canvas.height = fileCtx.rect.height * fileCtx.dpr;
-    //(lineHeight + fileContext.settings.lineSpacing) * fileContext.settings.maxLineCount;
-    const lineHeight = 10 * fileCtx.dpr; //canvas.height / fileCtx.settings.maxLineCount - fileCtx.settings.lineSpacing;
+    let columnWidth = scaledCanvasWidth;
 
-    canvas.width = fileCtx.rect.width * fileCtx.dpr; //canvas.width * resolutionScale;
+    if (fileCtx.nColumns > 1)
+      columnWidth = scaledCanvasWidth / fileCtx.nColumns - (fileCtx.nColumns - 1) * columnSpacing;
 
-    let currentX = 0;
-    let lineIndex = 0;
-    let currentColumn = 0;
-
-    const columnWidth = canvas.width / fileCtx.nColumns - (fileCtx.nColumns - 1) * columnSpacing;
     const widthPerCharacter = columnWidth / VisualisationDefaults.maxLineLength;
 
-    for (const line of fileCtx.fileContent) {
+    for (const [index, line] of fileCtx.fileContent.entries()) {
+      if (index + 1 > VisualisationDefaults.maxLineCount) break;
       const lineLength = line.content.length;
 
       const lineOffsetScaled =
-        (line.content.trimStart().length - line.content.length) * widthPerCharacter;
+        (line.content.length - line.content.trimStart().length) * widthPerCharacter;
 
-      const rectWidth = lineLength * widthPerCharacter - lineOffsetScaled;
+      const rectWidth = Math.min(
+        lineLength * widthPerCharacter - lineOffsetScaled,
+        scaledCanvasWidth - lineOffsetScaled,
+      );
 
-      const rectHeight = lineHeight;
       const colour =
         line.commit && !fileCtx.isPreview
           ? this.interpolateColour(line, fileCtx)
           : fileCtx.visualisationConfig.colours.notLoaded;
 
-      ctx.fillStyle = colour;
       line.color = colour;
       colours.push(line.color);
 
-      ctx.fillRect(currentX + lineOffsetScaled, currentY, rectWidth, rectHeight);
-      ctx.font = `${4 * fileCtx.dpr}px monospace`;
-      ctx.fillStyle = "white";
-      ctx.fillText(line.content, currentX, currentY + rectHeight / 1.5);
+      renderer.drawRect({
+        x: currentX + lineOffsetScaled,
+        y: currentY,
+        width: rectWidth,
+        height: lineHeight,
+        fill: colour,
+      });
+      renderer.drawText(line.content, {
+        x: currentX,
+        y: currentY + lineHeight / 1.5,
+        fontSize: "4",
+        fill: "white",
+      });
 
       currentY += lineHeight + VisualisationDefaults.lineSpacing;
-      lineIndex++;
-
-      if (lineIndex > VisualisationDefaults.maxLineCount && currentColumn < fileCtx.nColumns - 1) {
-        ctx.fillStyle = SPECIAL_COLOURS.NOT_LOADED;
-        currentY = 0;
-        currentX += columnWidth;
-        ctx.fillRect(currentX - 1, currentY, 1, canvas.height);
-        lineIndex = 0;
-        currentColumn++;
-      }
     }
 
-    const nc = 1; //nColumns > 2 ? 2 : nColumns;
+    const result = await renderer.getReturnValue();
 
-    ctx.font = `${5 * fileCtx.dpr}px Arial`;
-    ctx.fillStyle = "white";
-    ctx.fillText(
-      `redraws: ${fileCtx.redrawCount}`,
-      canvas.width - canvas.width / 8,
-      10 * fileCtx.dpr,
-    );
-
-    const blob = await canvas.convertToBlob();
-    const url = URL.createObjectURL(blob);
     return {
-      img: blob,
-      width: `${nc * 300}px`,
+      result,
       colours,
-      url,
-      canvasWidth: fileCtx.rect.width * fileCtx.dpr,
-      canvasHeight: fileCtx.rect.height * fileCtx.dpr,
     };
   }
 
