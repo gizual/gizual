@@ -1,5 +1,5 @@
 import { RenderedSettingsEntry } from "@app/pages";
-import { createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
+import { createNumberSetting, createSelectSetting, Masonry, useTheme } from "@app/utils";
 import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Spin, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
@@ -12,6 +12,7 @@ import { ReactComponent as MagnifyMinus } from "../../assets/icons/magnify-minus
 import { ReactComponent as MagnifyPlus } from "../../assets/icons/magnify-plus-outline.svg";
 import { ReactComponent as People } from "../../assets/icons/people.svg";
 import {
+  FileModel,
   useMainController,
   useSettingsController,
   useViewModelController,
@@ -31,52 +32,35 @@ export type CanvasProps = {
 
 type MasonryGridProps = {
   children: React.ReactElement[];
-  heights: number[];
+  files: FileModel[];
   width: number;
   css?: React.CSSProperties;
   className?: string;
 };
 
-type Column = {
-  elements: React.ReactElement[];
-  height: number;
-  index: number;
-};
-
-function sortChildrenToColumns(
-  children: React.ReactElement[],
-  heights: number[],
-  columns: Column[],
-) {
-  const sortedColumns = [...columns];
-  for (const [index, child] of children.entries()) {
-    sortedColumns.sort((a, b) => a.height - b.height);
-    const smallestColumn = sortedColumns.at(0);
-    if (smallestColumn === undefined) return;
-    smallestColumn.elements.push(child);
-    smallestColumn.height += heights[index];
-  }
-  return sortedColumns;
-}
-
-const MasonryGrid = observer(({ children, css, className, width, heights }: MasonryGridProps) => {
+const MasonryGrid = observer(({ children, css, className, width, files }: MasonryGridProps) => {
   const sortedColumns = React.useMemo(() => {
-    const cols: Column[] = [];
-    for (let i = 16; i < width - 16; i += 350 + 32) {
-      cols.push({ index: i, elements: [], height: 0 });
+    const masonry = new Masonry<React.ReactElement>({ canvasWidth: width });
+    for (const [index, child] of children.entries()) {
+      masonry.insertElement({
+        id: files[index].name,
+        content: child,
+        height: files[index].calculatedHeight + 30,
+      });
     }
-    const sorted = sortChildrenToColumns(children, heights, cols);
-    return sorted;
-  }, [children, heights]);
+    masonry.sortAndPack();
+    return masonry.columns;
+  }, [children, files]);
 
   return (
     <div className={clsx(style.Row, className)} style={{ ...css }}>
       {sortedColumns &&
         sortedColumns.map((c) => {
+          if (c.content.length === 0) return <></>;
           return (
             <div className={style.Column} key={c.index}>
-              {c.elements.map((e, index) => (
-                <React.Fragment key={index}>{e}</React.Fragment>
+              {c.content.map((e, index) => (
+                <React.Fragment key={index}>{e.content}</React.Fragment>
               ))}
             </div>
           );
@@ -346,10 +330,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                       </>
                     )}
                     {mainController.repoController.isDoneEstimatingSize && (
-                      <MasonryGrid
-                        width={vm.canvasWidth}
-                        heights={vm.loadedFiles.map((f) => f.calculatedHeight)}
-                      >
+                      <MasonryGrid width={vm.canvasWidth} files={vm.loadedFiles}>
                         {vm.loadedFiles.map((file, index) => {
                           if (!ref.current?.instance.wrapperComponent || !file.isValid)
                             return <React.Fragment key={index}></React.Fragment>;

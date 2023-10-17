@@ -1,19 +1,20 @@
-// Helper functions to turn anything into a masonry grid.
-
 export type SortingHeuristic = "height";
 
 export type MasonryElement<T> = {
-  id: string | number | Symbol;
+  id: string;
   content: T;
   height: number;
+};
+
+export type PositionedMasonryElement<T> = MasonryElement<T> & {
+  y: number;
 };
 
 export type Column<T> = {
   index: number;
   width: number;
-  content: MasonryElement<T>[];
+  content: PositionedMasonryElement<T>[];
   currentHeight: number;
-  x: number;
 };
 
 export type MasonryOpts = {
@@ -39,7 +40,7 @@ export class Masonry<T> {
   maxHeight = 0;
 
   constructor(opts: MasonryOpts) {
-    const { canvasWidth = 1200, columnWidth = 300, horizontalPadding = 16, gap = 32 } = opts;
+    const { canvasWidth = 1200, columnWidth = 300, horizontalPadding = 16, gap = 16 } = opts;
     this.canvasWidth = canvasWidth;
     this.columnWidth = columnWidth;
     this.horizontalPadding = horizontalPadding;
@@ -56,41 +57,63 @@ export class Masonry<T> {
       i < this.canvasWidth - this.horizontalPadding - this.columnWidth;
       i += this.columnWidth + this.gap
     ) {
-      columns.push({ index, width: this.columnWidth, content: [], currentHeight: 0, x: i });
+      columns.push({ index, width: this.columnWidth, content: [], currentHeight: 0 });
       index++;
     }
 
     if (columns.length === 0)
       throw new Error("Tried to construct an empty Masonry layout. Aborted.");
+    console.log("Columns", columns);
     return columns;
   }
 
-  insertElement(element: MasonryElement<T>): InsertedPosition {
-    this.sortColumns(this.columns);
+  insertElement(element: MasonryElement<T>) {
+    this.sortColumns();
     const col = this.columns[0];
-    col.content.push(element);
+    const positionedElement: PositionedMasonryElement<T> = { ...element, y: col.currentHeight };
+    col.content.push(positionedElement);
     col.currentHeight += element.height + this.gap;
     this.maxHeight = Math.max(this.maxHeight, col.currentHeight);
 
-    return {
-      columnId: col.index,
-      itemId: col.content.length - 1,
-      startHeight: col.currentHeight - element.height - this.gap,
-      x: col.x,
-    };
+    this.sortItems();
   }
 
-  sortColumns(columns: Column<T>[], heuristic: SortingHeuristic = "height") {
+  sortColumns(heuristic: SortingHeuristic = "height") {
     if (heuristic === "height") {
-      return this.sortColumnsByHeight(columns);
+      return this.sortColumnsByHeight();
     }
   }
 
-  sortColumnsByHeight(columns: Column<T>[]) {
-    columns.sort((a, b) => a.currentHeight - b.currentHeight);
+  sortColumnsByHeight() {
+    this.columns.sort((a, b) => a.currentHeight - b.currentHeight);
   }
 
-  sortColumnsByNumItems(columns: Column<T>[]) {
-    columns.sort((a, b) => a.content.length - b.content.length);
+  sortColumnsByNumItems() {
+    this.columns.sort((a, b) => a.content.length - b.content.length);
+  }
+
+  sortItems() {
+    for (const column of this.columns) this.sortItemsByIndex(column);
+  }
+
+  sortItemsByIndex(column: Column<T>) {
+    column.content.sort((a, b) => a.id.localeCompare(b.id));
+  }
+
+  // Rebuild the entire grid by sorting all children before inserting them.
+  sortAndPack() {
+    const newColumns = this.createColumns();
+    const children: MasonryElement<T>[] = [];
+    for (const col of this.columns) {
+      for (const child of col.content) {
+        children.push(child);
+      }
+    }
+    children.sort((a, b) => b.height - a.height);
+
+    this.columns = newColumns;
+    for (const child of children) {
+      this.insertElement(child);
+    }
   }
 }

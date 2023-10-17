@@ -11,7 +11,7 @@ import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
-import { FileModel, MainController, VisualisationDefaults } from "../../controllers";
+import { FileModel, MainController } from "../../controllers";
 import { CanvasWorker, FileContext } from "../file/worker/worker";
 
 export const MIN_ZOOM = 0.25;
@@ -135,36 +135,29 @@ export class CanvasViewModel {
   async drawSvg(width = this.canvasWidth, appearance: "dark" | "light" = "light") {
     const svgChildren: SvgBaseElement[] = [];
 
-    // We want to use the masonry layout just for evaluating the required transform,
-    // no need to store the elements within the Masonry grid.
-    const masonry = new Masonry<undefined>({ canvasWidth: width, gap: 16 });
+    const masonry = new Masonry<SvgBaseElement>({ canvasWidth: width, gap: 16 });
 
     for (const file of this.loadedFiles) {
       if (file.data.lines.length === 0) continue;
-
-      const rectHeight = Math.min(
-        file.data.lines.length * 10,
-        VisualisationDefaults.maxLineCount * 10,
-      );
 
       const ctx: FileContext = {
         ...this.getDrawingContext(file),
         dpr: 1,
         nColumns: 1,
         redrawCount: 0,
-        rect: new DOMRect(0, 0, 300, rectHeight),
+        rect: new DOMRect(0, 0, 300, file.calculatedHeight),
       };
 
-      const titleHeight = 30;
+      const titleHeight = 26;
       const worker = new CanvasWorker();
       const result = await worker.drawSingleSvg(ctx);
 
-      const fileContainer = new SvgGroupElement(0, 0, 300, rectHeight + titleHeight);
+      const fileContainer = new SvgGroupElement(0, 0, 300, file.calculatedHeight + titleHeight);
       const border = new SvgRectElement({
         x: 0,
         y: 0,
         width: 300,
-        height: rectHeight + titleHeight,
+        height: file.calculatedHeight + titleHeight,
         fill: "transparent",
         stroke:
           appearance === "light"
@@ -173,7 +166,7 @@ export class CanvasViewModel {
       });
       const title = new SvgTextElement(truncateSmart(file.name, 35), {
         x: 8,
-        y: 20,
+        y: 16,
         fontSize: "14",
         fill:
           appearance === "light"
@@ -193,22 +186,30 @@ export class CanvasViewModel {
       });
       fileContainer.assignChildren(border, titleBackground, title);
 
-      const fileContent = new SvgGroupElement(0, 0, 300, rectHeight);
+      const fileContent = new SvgGroupElement(0, 0, 300, file.calculatedHeight);
       fileContent.transform = { x: 0, y: titleHeight };
       fileContainer.addChild(fileContent);
 
-      const position = masonry.insertElement({
+      masonry.insertElement({
         id: file.name,
-        content: undefined,
-        height: rectHeight + titleHeight,
+        content: fileContainer,
+        height: file.calculatedHeight + titleHeight,
       });
 
-      fileContainer.transform = {
-        x: position.x,
-        y: position.startHeight,
-      };
       fileContent.assignChildren(...result.result);
-      svgChildren.push(fileContainer);
+      //svgChildren.push(fileContainer);
+    }
+
+    masonry.sortAndPack();
+
+    for (const [index, column] of masonry.columns.entries()) {
+      for (const child of column.content) {
+        child.content.transform = {
+          x: index * 316 + 16,
+          y: child.y,
+        };
+        svgChildren.push(child.content);
+      }
     }
 
     const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
