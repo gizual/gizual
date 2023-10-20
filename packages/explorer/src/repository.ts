@@ -77,20 +77,14 @@ export class Repository {
         directoryHandle: handle,
       });
 
-      console.log("controller", this.controller);
-
       const port = await this.controller.createPort();
       this.portal = new PoolPortal(port);
-
-      console.log("portal", this.portal);
     } catch (error) {
       this._setState("error");
       throw error;
     }
 
-    const branches = await this.portal.execute<string[]>("list_branches").promise;
-
-    console.log("branches", branches);
+    const branches = await this.portal.getBranches();
 
     const defaultBranch =
       branches.find((branch) => branch === "master" || branch === "main" || branch === "develop") ||
@@ -110,7 +104,7 @@ export class Repository {
       name: `GitGraph`,
       initialPromise: {
         create: async () => {
-          const data = await this.portal!.execute<{ graph: GitGraph }>("git_graph").promise;
+          const data = await this.portal!.getGitGraph();
           return data.graph;
         },
         args: [],

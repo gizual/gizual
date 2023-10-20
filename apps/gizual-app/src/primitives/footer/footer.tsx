@@ -3,9 +3,9 @@ import { observer } from "mobx-react-lite";
 
 import ChangelogMd from "../../../../../CHANGELOG.md?raw";
 import { useMainController } from "../../controllers";
+import { DialogProvider } from "../dialog-provider";
 import { MarkdownViewer } from "../markdown-viewer";
 
-import { DialogProvider } from "..";
 import style from "./footer.module.scss";
 
 export const Footer = observer(() => {
@@ -16,7 +16,7 @@ export const Footer = observer(() => {
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.3 - Build #{__COMMIT_HASH__}</p>}
+          trigger={<p>Gizual v3.0.0-alpha.4 - Build #{__COMMIT_HASH__}</p>}
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>

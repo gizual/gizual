@@ -71,11 +71,11 @@ export class PoolPortal {
   private jobs: PortaledJob[] = [];
 
   constructor(private port: MessagePort) {
-    this.onMessage = this.onMessage.bind(this);
-    this.onMessageError = this.onMessageError.bind(this);
+    this.onPortMessage = this.onPortMessage.bind(this);
+    this.onPortMessageError = this.onPortMessageError.bind(this);
 
-    port.onmessage = this.onMessage;
-    port.onmessageerror = this.onMessageError;
+    port.onmessage = this.onPortMessage;
+    port.onmessageerror = this.onPortMessageError;
   }
 
   dispose() {
@@ -92,7 +92,7 @@ export class PoolPortal {
     this.jobs = [];
   }
 
-  onMessage(message: MessageEvent<PoolResponse>) {
+  onPortMessage(message: MessageEvent<PoolResponse>) {
     const data: PoolResponse = message.data;
     const jobId = data.id;
 
@@ -129,7 +129,7 @@ export class PoolPortal {
     }
   }
 
-  onMessageError(message: MessageEvent<unknown>) {
+  onPortMessageError(message: MessageEvent<unknown>) {
     console.error("Port message error", message);
   }
 
@@ -238,7 +238,7 @@ export class PoolPortal {
   }
 
   getGitGraph() {
-    return this.execute<GitGraph>("git_graph").promise;
+    return this.execute<{ graph: GitGraph }>("git_graph").promise;
   }
 
   streamFileTree(

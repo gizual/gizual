@@ -109,7 +109,7 @@ export class PoolNode {
     };
 
     const payloadString = JSON.stringify(payload) + "\n";
-    this.runtime!.writeStdin(payloadString);
+    this.runtime.writeStdin(payloadString);
 
     return this.handleResponse(job);
   }

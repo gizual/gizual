@@ -171,28 +171,32 @@ export class PoolMaster {
       return;
     }
 
-    if (this.jobs.length === 0) {
-      return;
-    }
+    const startTime = performance.now();
 
-    const idleWorkers = this.idleWorkers;
+    do {
+      if (this.jobs.length === 0) {
+        return;
+      }
 
-    if (idleWorkers.length === 0) {
-      return;
-    }
+      const idleWorkers = this.idleWorkers;
 
-    this.jobs = this.jobs.sort((a, b) => b.priority - a.priority);
+      if (idleWorkers.length === 0) {
+        return;
+      }
 
-    const job = this.jobs.shift()!;
+      this.jobs = this.jobs.sort((a, b) => b.priority - a.priority);
 
-    if (job.priority === 0) {
-      this.jobs.push(job);
-      return;
-    }
+      const job = this.jobs.shift()!;
 
-    const worker = idleWorkers.pop()!;
+      if (job.priority === 0) {
+        this.jobs.push(job);
+        return;
+      }
 
-    worker.execute(job);
+      const worker = idleWorkers.pop()!;
+
+      worker.execute(job);
+    } while (performance.now() - startTime < SCHEDULER_INTERVAL - 10);
   }
 
   get totalWorkersCount() {
