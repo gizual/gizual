@@ -1,4 +1,3 @@
-import { lowerI64Imports } from "@wasmer/wasm-transformer";
 import * as Comlink from "comlink";
 
 import { LOG, Logger } from "@giz/logger";
@@ -38,7 +37,7 @@ export class WasiRuntime {
       bytes = new Uint8Array(WASM_CACHE[this.opts.moduleUrl]);
     } else {
       const wasmBytes = await fetch(this.opts.moduleUrl).then((res) => res.arrayBuffer());
-      bytes = await lowerI64Imports(new Uint8Array(wasmBytes));
+      bytes = new Uint8Array(wasmBytes);
       WASM_CACHE[this.opts.moduleUrl] = new Uint8Array(bytes);
     }
 

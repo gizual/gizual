@@ -93,5 +93,7 @@ module.exports = {
 
     "unicorn/prevent-abbreviations": OFF,
     "unicorn/prefer-module": OFF,
+
+    "unicorn/prefer-add-event-listener": OFF,
   },
 };

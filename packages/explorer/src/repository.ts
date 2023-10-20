@@ -1,13 +1,14 @@
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { BlameView } from "./blame-view";
-import { ExplorerPool } from "./explorer-pool";
 import { FileTreeView } from "./file-tree-view";
+import { PoolController, PoolPortal } from "./pool";
 import { PromiseObserver } from "./promise-observer";
 import { Aid, Author, GitGraph } from "./types";
 
 export class Repository {
-  backend?: ExplorerPool;
+  portal?: PoolPortal;
+  controller?: PoolController;
 
   _state: "uninitialized" | "loading" | "ready" | "error" = "uninitialized";
 
@@ -37,17 +38,18 @@ export class Repository {
       _setState: action,
       authors: computed,
       _authors: observable,
-      metrics: computed,
     });
   }
 
-  get metrics() {
-    if (!this.backend) throw new Error("No backend");
+  getMetrics() {
+    if (!this.portal) throw new Error("No backend");
+
+    const metrics = this.controller?.metrics;
 
     return {
-      numWorkers: this.backend.numWorkers,
-      numJobsInQueue: this.backend.numJobsInQueue,
-      numBusyWorkers: this.backend.numBusyWorkers,
+      numWorkers: metrics!.numAvailableWorkers ?? 0,
+      numJobsInQueue: metrics!.numJobsInQueue ?? 0,
+      numBusyWorkers: metrics!.numBusyWorkers ?? 0,
     };
   }
 
@@ -64,21 +66,25 @@ export class Repository {
   }
 
   async setup(handle: FileSystemDirectoryHandle) {
-    if (this.backend) {
+    if (this.portal) {
       throw new Error("Already setup");
     }
 
     this._setState("loading");
 
-    let backend: ExplorerPool;
     try {
-      backend = await ExplorerPool.create(handle);
+      this.controller = await PoolController.create({
+        directoryHandle: handle,
+      });
+
+      const port = await this.controller.createPort();
+      this.portal = new PoolPortal(port);
     } catch (error) {
       this._setState("error");
       throw error;
     }
 
-    const branches = await backend.getBranches();
+    const branches = await this.portal.getBranches();
 
     const defaultBranch =
       branches.find((branch) => branch === "master" || branch === "main" || branch === "develop") ||
@@ -89,15 +95,16 @@ export class Repository {
       throw new Error("No default branch found");
     }
 
-    const { startCommitId, endCommitId } = await backend.execute("get_commits_for_branch", [
-      defaultBranch,
-    ]).promise;
+    const { startCommitId, endCommitId } = await this.portal.execute<{
+      startCommitId: string;
+      endCommitId: string;
+    }>("get_commits_for_branch", [defaultBranch]).promise;
 
     this._gitGraph = new PromiseObserver<GitGraph>({
       name: `GitGraph`,
       initialPromise: {
         create: async () => {
-          const data = await backend.execute("git_graph").promise;
+          const data = await this.portal!.getGitGraph();
           return data.graph;
         },
         args: [],
@@ -105,7 +112,6 @@ export class Repository {
     });
 
     runInAction(() => {
-      this.backend = backend;
       this._selectedBranch = defaultBranch;
       this._selectedStartCommit = startCommitId;
       this._selectedEndCommit = endCommitId;
@@ -155,7 +161,7 @@ export class Repository {
   }
 
   getBlame(path: string) {
-    if (!this.backend) {
+    if (!this.portal) {
       throw new Error("Backend not initialized");
     }
 
@@ -178,7 +184,7 @@ export class Repository {
   }
 
   _loadAuthors() {
-    this.backend?.streamAuthors(
+    this.portal!.streamAuthors(
       (author) => {
         runInAction(() => {
           this._authors.set(author.id, author);

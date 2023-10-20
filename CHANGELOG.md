@@ -1,3 +1,11 @@
+## Gizual 3.0.0-alpha.4 (20.10.2023)
+
+### Features
+
+- **backend:worker-pool:** refactor pooling logic into separate WebWorker to avoid blocking the main thread
+
+---
+
 ## Gizual 3.0.0-alpha.3 (10.10.2023)
 
 ### Features
@@ -8,6 +16,8 @@
 ### Changes
 
 - **app:file-tree:** improve partial select state behaviour
+
+---
 
 ## Gizual 3.0.0-alpha.2 (10.10.2023)
 

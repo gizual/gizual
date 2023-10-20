@@ -23,7 +23,7 @@ export class FileTreeView {
   }
 
   update() {
-    if (!this.repo.backend) return;
+    if (!this.repo.portal) return;
 
     this.loading = true;
     this.error = undefined;
@@ -34,7 +34,7 @@ export class FileTreeView {
       loading: true,
     };
     const branch = this.repo.selectedBranch;
-    this.repo.backend.streamFileTree(branch, this._onData, this._onEnd, this._onErr);
+    this.repo.portal.streamFileTree(branch, this._onData, this._onEnd, this._onErr);
   }
 
   _onData(data: FileTreeNode) {

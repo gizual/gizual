@@ -70,12 +70,11 @@ export class MainController {
     this._notification.open(args);
   }
 
-  @computed
   get backendMetrics() {
     if (this._repo.state !== "ready")
       return { numBusyWorkers: 0, numWorkers: 0, numJobsInQueue: 0 };
 
-    return this._repo.metrics;
+    return this._repo.getMetrics();
   }
 
   @computed

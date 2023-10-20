@@ -1049,9 +1049,6 @@ __metadata:
     "@types/react": 18.0.28
     "@types/react-dom": 18.0.11
     "@vitejs/plugin-react-swc": 3.1.0
-    "@wasmer/wasi": 1.2.2
-    "@wasmer/wasm-transformer": 0.12.0
-    "@wasmer/wasmfs": 0.12.0
     asyncify-wasm: 1.2.1
     eslint: 8.45.0
     normalize.css: 8.0.1
@@ -2353,33 +2350,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wasmer/wasi@npm:1.2.2":
-  version: 1.2.2
-  resolution: "@wasmer/wasi@npm:1.2.2"
-  checksum: ab774a8ace0637e07e50146da5c67d4b1250314bc27d959bf98b3baba71f85e1df84da72407c160f9db2a4a77a0bc32f427c13bcc111aecb93b8ab0700cd3c14
-  languageName: node
-  linkType: hard
-
-"@wasmer/wasm-transformer@npm:0.12.0":
-  version: 0.12.0
-  resolution: "@wasmer/wasm-transformer@npm:0.12.0"
-  dependencies:
-    wasm-feature-detect: ^1.2.2
-  checksum: b1f83078b80157cdb074f85e8341b7fe1832a64878d9eac5c72658c3eecb94d5ab0da7265838f220b8fbbb5c9f30d9f61ca81b2f703ddac57c4242ca75ba187f
-  languageName: node
-  linkType: hard
-
-"@wasmer/wasmfs@npm:0.12.0":
-  version: 0.12.0
-  resolution: "@wasmer/wasmfs@npm:0.12.0"
-  dependencies:
-    memfs: 3.0.4
-    pako: ^1.0.11
-    tar-stream: ^2.1.0
-  checksum: c726a8653ba4ed05e033e2779d987933e39459be57054668d27dedbb555d2d12e62f50148340861d358bb7218060caa4acf5f46182ddb5c541679232c6beb502
-  languageName: node
-  linkType: hard
-
 "@xtuc/asyncify-wasm@npm:2.0.0":
   version: 2.0.0
   resolution: "@xtuc/asyncify-wasm@npm:2.0.0"
@@ -2773,17 +2743,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bl@npm:^4.0.3":
-  version: 4.1.0
-  resolution: "bl@npm:4.1.0"
-  dependencies:
-    buffer: ^5.5.0
-    inherits: ^2.0.4
-    readable-stream: ^3.4.0
-  checksum: 9e8521fa7e83aa9427c6f8ccdcba6e8167ef30cc9a22df26effcc5ab682ef91d2cbc23a239f945d099289e4bbcfae7a192e9c28c84c6202e710a0dfec3722662
-  languageName: node
-  linkType: hard
-
 "boolean@npm:^3.1.4":
   version: 3.2.0
   resolution: "boolean@npm:3.2.0"
@@ -2864,7 +2823,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.2.1, buffer@npm:^5.5.0":
+"buffer@npm:^5.2.1":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -3783,7 +3742,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"end-of-stream@npm:^1.0.0, end-of-stream@npm:^1.1.0, end-of-stream@npm:^1.4.1":
+"end-of-stream@npm:^1.0.0, end-of-stream@npm:^1.1.0":
   version: 1.4.4
   resolution: "end-of-stream@npm:1.4.4"
   dependencies:
@@ -4396,13 +4355,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-extend@npm:1.0.2":
-  version: 1.0.2
-  resolution: "fast-extend@npm:1.0.2"
-  checksum: aec1e3773e674f23edf0f2d6932416bb98fb962c1e06fe8e08eafe4d118faa5a4155506b71549ed980cddc4a8a731e70598e3d802fea6a91fdf0bc55c820fb93
-  languageName: node
-  linkType: hard
-
 "fast-glob@npm:^3.2.9, fast-glob@npm:^3.3.0":
   version: 3.3.0
   resolution: "fast-glob@npm:3.3.0"
@@ -4694,13 +4646,6 @@ __metadata:
   dependencies:
     minipass: ^3.0.0
   checksum: 1b8d128dae2ac6cc94230cc5ead341ba3e0efaef82dab46a33d171c044caaa6ca001364178d42069b2809c35a1c3c35079a32107c770e9ffab3901b59af8c8b1
-  languageName: node
-  linkType: hard
-
-"fs-monkey@npm:0.3.3":
-  version: 0.3.3
-  resolution: "fs-monkey@npm:0.3.3"
-  checksum: 0d2c3b78ff6b3effc400583c4b84c8b8fbf9f686468f019ed0422308ceb20fc262c1e1aa79b1bab48c6572b35d646e3827601279f9bd027f343e13f0c9200785
   languageName: node
   linkType: hard
 
@@ -5338,7 +5283,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inherits@npm:2, inherits@npm:^2.0.1, inherits@npm:^2.0.3, inherits@npm:^2.0.4, inherits@npm:~2.0.3":
+"inherits@npm:2, inherits@npm:^2.0.1, inherits@npm:^2.0.3, inherits@npm:~2.0.3":
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 4a48a733847879d6cf6691860a6b1e3f0f4754176e4d71494c41f3475553768b10f84b5ce1d40fbd0e34e6bfbb864ee35858ad4dd2cf31e02fc4a154b724d7f1
@@ -6159,16 +6104,6 @@ __metadata:
   dependencies:
     "@types/mdast": ^4.0.0
   checksum: 35489fb5710d58cbc2d6c8b6547df161a3f81e0f28f320dfb3548a9393555daf07c310c0c497708e67ed4dfea4a06e5655799e7d631ca91420c288b4525d6c29
-  languageName: node
-  linkType: hard
-
-"memfs@npm:3.0.4":
-  version: 3.0.4
-  resolution: "memfs@npm:3.0.4"
-  dependencies:
-    fast-extend: 1.0.2
-    fs-monkey: 0.3.3
-  checksum: 2bb9b9e4b04f3079df8f8fdb5bf3fbd961b4a255eb9ccc46d2ea978b397d3cf0605d20ddee4eda10d5549066e0b9ed903d1bc2c67ace59d8eb89add84ff8de6e
   languageName: node
   linkType: hard
 
@@ -7038,13 +6973,6 @@ __metadata:
   version: 2.2.0
   resolution: "p-try@npm:2.2.0"
   checksum: f8a8e9a7693659383f06aec604ad5ead237c7a261c18048a6e1b5b85a5f8a067e469aa24f5bc009b991ea3b058a87f5065ef4176793a200d4917349881216cae
-  languageName: node
-  linkType: hard
-
-"pako@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "pako@npm:1.0.11"
-  checksum: 1be2bfa1f807608c7538afa15d6f25baa523c30ec870a3228a89579e474a4d992f4293859524e46d5d87fd30fa17c5edf34dbef0671251d9749820b488660b16
   languageName: node
   linkType: hard
 
@@ -8124,7 +8052,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^3.1.1, readable-stream@npm:^3.4.0, readable-stream@npm:^3.6.0":
+"readable-stream@npm:^3.6.0":
   version: 3.6.2
   resolution: "readable-stream@npm:3.6.2"
   dependencies:
@@ -9122,19 +9050,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar-stream@npm:^2.1.0":
-  version: 2.2.0
-  resolution: "tar-stream@npm:2.2.0"
-  dependencies:
-    bl: ^4.0.3
-    end-of-stream: ^1.4.1
-    fs-constants: ^1.0.0
-    inherits: ^2.0.3
-    readable-stream: ^3.1.1
-  checksum: 699831a8b97666ef50021c767f84924cfee21c142c2eb0e79c63254e140e6408d6d55a065a2992548e72b06de39237ef2b802b99e3ece93ca3904a37622a66f3
-  languageName: node
-  linkType: hard
-
 "tar@npm:^6.1.11, tar@npm:^6.1.2":
   version: 6.1.13
   resolution: "tar@npm:6.1.13"
@@ -9894,13 +9809,6 @@ __metadata:
   version: 2.2.6
   resolution: "w3c-keyname@npm:2.2.6"
   checksum: 59a31d23ca9953c01c99ed6695fee5b6ea36eb2412d76a21fe4302ab33a3f5cd96c006a763940b6115c3d042c16d3564eeee1156832217d028af0518098b3a42
-  languageName: node
-  linkType: hard
-
-"wasm-feature-detect@npm:^1.2.2":
-  version: 1.5.1
-  resolution: "wasm-feature-detect@npm:1.5.1"
-  checksum: a99be305a83530271e47212ef138644c75bc65bcf2b2c094b22fe4e13b9ca1a2c00fdd8a01d663b338e189459a5e1f27d9cbd71c8adca3c71957beea51606193
   languageName: node
   linkType: hard
 

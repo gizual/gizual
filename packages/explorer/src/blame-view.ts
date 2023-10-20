@@ -86,7 +86,7 @@ export class BlameView {
 
     this.full_blame = undefined;
 
-    this.full_blame_job = this.repo.backend?._enqueueJob({
+    this.full_blame_job = this.repo.portal?._enqueueJob({
       method: "blame",
       params: [
         {
@@ -110,7 +110,7 @@ export class BlameView {
 
     this.preview_blame = undefined;
 
-    this.preview_blame_job = this.repo.backend?._enqueueJob({
+    this.preview_blame_job = this.repo.portal?._enqueueJob({
       method: "blame",
       params: [
         {
