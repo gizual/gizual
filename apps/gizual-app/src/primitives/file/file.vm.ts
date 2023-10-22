@@ -293,16 +293,12 @@ export class FileViewModel {
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
 
-      const img = new Image();
-      img.addEventListener("load", (event) => {
-        if (!event.target) return;
+      canvas.setAttribute("src", result.result);
+      canvas.setAttribute("alt", this.fileName);
 
-        if ("src" in event.target && typeof event.target.src === "string") {
-          canvas.setAttribute("src", event.target.src);
-          URL.revokeObjectURL(event.target.src);
-        }
-      });
-      img.src = result.result;
+      setTimeout(() => {
+        URL.revokeObjectURL(result.result);
+      }, 1000);
 
       fileContainer.style.width = "300px";
       this._isWorkerBusy = false;

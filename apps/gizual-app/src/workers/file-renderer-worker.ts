@@ -4,6 +4,8 @@ import { VisualizationConfig } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SvgBaseElement } from "@app/utils";
 import { expose } from "comlink";
 
+import iosevkaUrl from "@giz/gizual-app/src/fonts/Iosevka-Extended.woff2?url";
+
 import { CanvasRenderer, SvgRenderer } from "./file-renderer";
 
 export type RenderingMode = "canvas" | "svg";
@@ -33,7 +35,10 @@ export class FileRendererWorker {
 
   async prepareFont() {
     if (self.FontFace && (self as any).fonts) {
-      const fontFace = new FontFace("Iosevka Extended", "local('Iosevka Extended')");
+      const fontFace = new FontFace(
+        "Iosevka Extended",
+        `local('Iosevka Extended'), url(${iosevkaUrl}) format('woff2')`,
+      );
       // add it to the list of fonts our worker supports
       (self as any).fonts.add(fontFace);
       // load the font

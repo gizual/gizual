@@ -90,7 +90,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
       </div>
     );
   } else if (vm.isValid) {
-    body = <img className={style.FileCanvas} ref={canvasRef} alt={vm.fileName} />;
+    body = <img className={style.FileCanvas} ref={canvasRef} alt="" />;
   } else {
     body = (
       <div>
