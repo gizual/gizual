@@ -61,13 +61,12 @@ export class Masonry<T> {
       index++;
     }
 
-    if (columns.length === 0) console.warn("Tried to construct an empty Masonry layout.");
+    if (columns.length === 0) return [];
     return columns;
   }
 
   insertElement(element: MasonryElement<T>) {
     if (this.columns.length === 0) {
-      console.warn("Cannot insert element (no valid columns)");
       return;
     }
 
@@ -101,6 +100,12 @@ export class Masonry<T> {
 
   sortItemsByIndex(column: Column<T>) {
     column.content.sort((a, b) => a.id.localeCompare(b.id));
+
+    let currentY = 0;
+    for (const item of column.content) {
+      item.y = currentY;
+      currentY += item.height;
+    }
   }
 
   // Rebuild the entire grid by sorting all children before inserting them.

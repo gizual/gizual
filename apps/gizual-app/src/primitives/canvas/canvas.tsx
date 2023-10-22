@@ -44,10 +44,12 @@ const MasonryGrid = observer(({ children, css, className, width, files }: Masonr
   const sortedColumns = React.useMemo(() => {
     const masonry = new Masonry<React.ReactElement>({ canvasWidth: width });
     for (const [index, child] of children.entries()) {
+      if (files[index].calculatedHeight === 0) continue;
+
       masonry.insertElement({
         id: files[index].name,
         content: child,
-        height: files[index].calculatedHeight + 30,
+        height: files[index].calculatedHeight + 26,
       });
     }
     masonry.sortAndPack();

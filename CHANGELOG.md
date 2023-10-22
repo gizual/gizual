@@ -4,10 +4,12 @@
 
 - **app:canvas:** implement SVG export
 - **app:canvas:** implement full width visualization style
+- **app:canvas:** render files in image tags instead of canvas
 
 ### Changes
 
 - **app:markdown-viewer:** modify markdown styling
+- **app:canvas:** implement deterministic masonry layout based on file size and name
 
 ### Bug Fixes
 

@@ -202,10 +202,10 @@ export class CanvasViewModel {
     masonry.sortAndPack();
 
     for (const [index, column] of masonry.columns.entries()) {
-      for (const child of column.content) {
+      for (const [columnIndex, child] of column.content.entries()) {
         child.content.transform = {
           x: index * 316 + 16,
-          y: child.y,
+          y: child.y + columnIndex * 16 + 32, // 16px gap between items, 32px padding to top
         };
         svgChildren.push(child.content);
       }
