@@ -8,8 +8,8 @@
 
 ### Changes
 
-- **app:markdown-viewer:** modify markdown styling
 - **app:canvas:** implement deterministic masonry layout based on file size and name
+- **app:markdown-viewer:** modify markdown styling
 
 ### Bug Fixes
 
