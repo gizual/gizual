@@ -1,12 +1,10 @@
-import { FileModel, VisualizationDefaults } from "@app/controllers";
+import { FileModel, MainController, VisualizationDefaults } from "@app/controllers";
+import { FileContext, FileRendererWorker } from "@app/workers";
 import { Remote, wrap } from "comlink";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
 
 import { CommitInfo } from "@giz/explorer";
-import { MainController } from "../../controllers";
-
-import { CanvasWorker, FileContext } from "./worker/worker";
 
 export type Line = {
   content: string;
@@ -28,13 +26,14 @@ export class FileViewModel {
   @observable private _isEditorOpen = false;
   @observable private _file: FileModel;
 
-  @observable private _canvasRef: React.RefObject<HTMLCanvasElement> | undefined;
+  @observable private _canvasRef: React.RefObject<HTMLImageElement> | undefined;
   @observable private _fileRef: React.RefObject<HTMLDivElement> | undefined;
-  @observable private _canvasWorker?: Remote<CanvasWorker>;
+  @observable private _canvasWorker?: Remote<FileRendererWorker>;
   @observable private _worker?: Worker;
   @observable private _redrawCount = 0;
   @observable private _lastDrawnScale = 1;
   @observable private _lastDrawnColorMode?: MainController["coloringMode"] = "age";
+  @observable private _isWorkerBusy? = false;
 
   constructor(mainController: MainController, file: FileModel) {
     this._mainController = mainController;
@@ -78,6 +77,10 @@ export class FileViewModel {
     return this._file.isLoading;
   }
 
+  get isWorkerBusy() {
+    return this._isWorkerBusy;
+  }
+
   get isPreview() {
     return this._file.isPreview;
   }
@@ -111,7 +114,7 @@ export class FileViewModel {
   }
 
   @action.bound
-  assignCanvasRef(ref: React.RefObject<HTMLCanvasElement>) {
+  assignCanvasRef(ref: React.RefObject<HTMLImageElement>) {
     this._canvasRef = ref;
   }
 
@@ -130,7 +133,7 @@ export class FileViewModel {
   }
 
   @action.bound
-  setCanvasWorker(worker: Remote<CanvasWorker>) {
+  setCanvasWorker(worker: Remote<FileRendererWorker>) {
     this._canvasWorker = worker;
   }
 
@@ -197,12 +200,14 @@ export class FileViewModel {
   }
 
   @action.bound
-  createOrRetrieveCanvasWorker(ref: React.RefObject<HTMLCanvasElement>) {
+  createOrRetrieveCanvasWorker() {
     if (!this._canvasWorker) {
-      const worker = new Worker(new URL("worker/worker.ts", import.meta.url), { type: "module" });
+      const worker = new Worker(new URL("../../workers/file-renderer-worker.ts", import.meta.url), {
+        type: "module",
+      });
       this.setWorker(worker);
 
-      const CanvasWorkerProxy = wrap<CanvasWorker>(worker);
+      const CanvasWorkerProxy = wrap<FileRendererWorker>(worker);
 
       this._canvasWorker = CanvasWorkerProxy;
     }
@@ -237,7 +242,7 @@ export class FileViewModel {
       return;
     }
 
-    const fileContainer = (this._fileRef as any).current;
+    const fileContainer = this._fileRef.current;
     if (!fileContainer) {
       return;
     }
@@ -252,9 +257,6 @@ export class FileViewModel {
     rect.width = rect.width * (1 / scale);
 
     const nColumns = 1;
-    //if (this.fileContent.length > VisualizationDefaults.maxLineCount) {
-    //  nColumns = Math.floor(this.fileContent.length / VisualizationDefaults.maxLineCount) + 1;
-    //}
 
     rect.height = Math.min(
       nColumns > 1 ? VisualizationDefaults.maxLineCount * 10 : this.fileContent.length * 10,
@@ -263,11 +265,9 @@ export class FileViewModel {
 
     if (this._canvasRef?.current) {
       this._canvasRef.current.style.width = `${rect.width}px`;
-      //this._canvasRef.current.style.height = `${rect.height}px`;
-      //fileContainer.style.height = `${rect.height + 26}px`;
     }
 
-    const CanvasWorkerProxy = this.createOrRetrieveCanvasWorker(this._canvasRef);
+    const CanvasWorkerProxy = this.createOrRetrieveCanvasWorker();
     if (!CanvasWorkerProxy) {
       throw new Error("Could not assign canvas worker");
     }
@@ -281,6 +281,7 @@ export class FileViewModel {
       nColumns,
     };
 
+    this._isWorkerBusy = true;
     const drawResult = CanvasWorkerProxy.drawCanvas(ctx);
 
     drawResult.then((result) => {
@@ -289,9 +290,6 @@ export class FileViewModel {
       const canvas = this._canvasRef?.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
 
@@ -299,15 +297,15 @@ export class FileViewModel {
       img.addEventListener("load", (event) => {
         if (!event.target) return;
 
-        if ("src" in event.target && typeof event.target.src === "string")
+        if ("src" in event.target && typeof event.target.src === "string") {
+          canvas.setAttribute("src", event.target.src);
           URL.revokeObjectURL(event.target.src);
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(event.target as any, 0, 0);
+        }
       });
       img.src = result.result;
 
       fileContainer.style.width = "300px";
+      this._isWorkerBusy = false;
       this.setColors(result.colors);
       //console.log("[gizual-app] UI thread: draw result", result);
       this.setLastDrawScale(scale);

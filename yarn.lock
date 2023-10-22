@@ -87,6 +87,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@app/assets@workspace:*, @app/assets@workspace:apps/gizual-app/src/assets":
+  version: 0.0.0-use.local
+  resolution: "@app/assets@workspace:apps/gizual-app/src/assets"
+  languageName: unknown
+  linkType: soft
+
 "@app/charts@workspace:*, @app/charts@workspace:apps/gizual-app/src/charts":
   version: 0.0.0-use.local
   resolution: "@app/charts@workspace:apps/gizual-app/src/charts"
@@ -109,6 +115,8 @@ __metadata:
   resolution: "@app/pages@workspace:apps/gizual-app/src/pages"
   dependencies:
     "@app/charts": "workspace:*"
+    "@app/controllers": "workspace:*"
+    "@app/primitives": "workspace:*"
     "@app/utils": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -117,8 +125,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/primitives@workspace:apps/gizual-app/src/primitives"
   dependencies:
+    "@app/assets": "workspace:*"
     "@app/types": "workspace:*"
     "@app/utils": "workspace:*"
+    "@app/workers": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -131,6 +141,12 @@ __metadata:
 "@app/utils@workspace:*, @app/utils@workspace:apps/gizual-app/src/utils":
   version: 0.0.0-use.local
   resolution: "@app/utils@workspace:apps/gizual-app/src/utils"
+  languageName: unknown
+  linkType: soft
+
+"@app/workers@workspace:*, @app/workers@workspace:apps/gizual-app/src/workers":
+  version: 0.0.0-use.local
+  resolution: "@app/workers@workspace:apps/gizual-app/src/workers"
   languageName: unknown
   linkType: soft
 

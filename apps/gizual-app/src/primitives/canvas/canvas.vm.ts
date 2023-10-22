@@ -1,3 +1,4 @@
+import { FileModel, MainController } from "@app/controllers";
 import { ColoringMode, ColoringModeLabels } from "@app/types";
 import {
   Masonry,
@@ -7,12 +8,10 @@ import {
   SvgTextElement,
   truncateSmart,
 } from "@app/utils";
+import { FileContext, FileRendererWorker } from "@app/workers";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
-
-import { FileModel, MainController } from "../../controllers";
-import { CanvasWorker, FileContext } from "../file/worker/worker";
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
@@ -71,7 +70,7 @@ export class CanvasViewModel {
     this.canvasContainerRef.current.zoomOut(this._mainController.scale - n, 0);
   }
 
-  zoomToFile(fileName: string) {
+  zoomToFile(_fileName: string) {
     const el = undefined; // TODO: this.getFileRef(fileName)?.current;
     if (!el) return;
 
@@ -149,7 +148,7 @@ export class CanvasViewModel {
       };
 
       const titleHeight = 26;
-      const worker = new CanvasWorker();
+      const worker = new FileRendererWorker();
       const result = await worker.drawSingleSvg(ctx);
 
       const fileContainer = new SvgGroupElement(0, 0, 300, file.calculatedHeight + titleHeight);

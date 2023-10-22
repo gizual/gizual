@@ -1,3 +1,16 @@
+import {
+  IconCenterFocus,
+  IconLayout,
+  IconMagnifyMinus,
+  IconMagnifyPlus,
+  IconPeople,
+} from "@app/assets";
+import {
+  FileModel,
+  useMainController,
+  useSettingsController,
+  useViewModelController,
+} from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
 import { createNumberSetting, createSelectSetting, Masonry, useTheme } from "@app/utils";
 import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Spin, Tooltip } from "antd";
@@ -6,17 +19,6 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { ReactComponent as Center } from "../../assets/icons/center-focus.svg";
-import { ReactComponent as Layout } from "../../assets/icons/layout.svg";
-import { ReactComponent as MagnifyMinus } from "../../assets/icons/magnify-minus-outline.svg";
-import { ReactComponent as MagnifyPlus } from "../../assets/icons/magnify-plus-outline.svg";
-import { ReactComponent as People } from "../../assets/icons/people.svg";
-import {
-  FileModel,
-  useMainController,
-  useSettingsController,
-  useViewModelController,
-} from "../../controllers";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { File } from "../file/";
@@ -149,7 +151,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         <div className={sharedStyle.InlineRow}>
           <Tooltip title={"Zoom out"}>
             <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
-              <MagnifyMinus className={sharedStyle.ToolbarIcon} />
+              <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <InputNumber
@@ -161,12 +163,12 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           />
           <Tooltip title={"Zoom in"}>
             <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
-              <MagnifyPlus className={sharedStyle.ToolbarIcon} />
+              <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <Tooltip title={"Center"}>
             <IconButton onClick={() => vm.center(1)} aria-label="Center">
-              <Center className={sharedStyle.ToolbarIcon} />
+              <IconCenterFocus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <Tooltip title={"Reflow"}>
@@ -176,7 +178,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               }}
               aria-label="Reflow"
             >
-              <Layout className={sharedStyle.ToolbarIcon} />
+              <IconLayout className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
 
@@ -243,7 +245,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               aria-label="Toggle author panel"
               colored={vmController.isAuthorPanelVisible}
             >
-              <People className={sharedStyle.ToolbarIcon} />
+              <IconPeople className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
         </div>

@@ -1,11 +1,10 @@
 import { MainController, VisualizationDefaults } from "@app/controllers";
+import { FileViewModel, Line } from "@app/primitives/file";
 import { VisualizationConfig } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SvgBaseElement } from "@app/utils";
 import { expose } from "comlink";
 
-import { FileViewModel, Line } from "../file.vm";
-
-import { CanvasRenderer, SvgRenderer } from "./renderer";
+import { CanvasRenderer, SvgRenderer } from "./file-renderer";
 
 export type RenderingMode = "canvas" | "svg";
 export type FileContext = {
@@ -25,7 +24,7 @@ export type FileContext = {
   nColumns: number;
 };
 
-export class CanvasWorker {
+export class FileRendererWorker {
   constructor() {}
 
   //async registerCanvas(canvas: OffscreenCanvas) {
@@ -166,4 +165,4 @@ export class CanvasWorker {
   }
 }
 
-expose(new CanvasWorker());
+expose(new FileRendererWorker());

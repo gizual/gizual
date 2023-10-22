@@ -3,6 +3,8 @@
   "main": "./index.ts",
   "dependencies": {
     "@app/charts": "workspace:*",
+    "@app/controllers": "workspace:*",
+    "@app/primitives": "workspace:*",
     "@app/utils": "workspace:*"
   }
 }

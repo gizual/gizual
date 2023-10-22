@@ -1,3 +1,4 @@
+import { MainController } from "@app/controllers";
 import { DATE_FORMAT, getDaysBetweenAbs, getStringDate, GizDate } from "@app/utils";
 import { EditorState } from "@codemirror/state";
 import { EditorView, ViewUpdate } from "@codemirror/view";
@@ -5,8 +6,6 @@ import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import dayjs from "dayjs";
 import { action, computed, makeObservable, observable } from "mobx";
 import React from "react";
-
-import { MainController } from "../../controllers";
 
 import {
   AvailableTagId,
@@ -37,7 +36,7 @@ export class SearchBarViewModel {
 
   // Synthetic events identify adjustments to the search-bar that are not
   // directly fired by means of a user-event, so they originate from within
-  // another component and require a different focus behaviour.
+  // another component and require a different focus behavior.
   @observable _isSyntheticEvent = false;
 
   constructor(mainController: MainController) {

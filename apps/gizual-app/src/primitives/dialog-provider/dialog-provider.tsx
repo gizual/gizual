@@ -1,7 +1,7 @@
+import { IconClose } from "@app/assets";
 import React from "react";
 import { createPortal } from "react-dom";
 
-import { ReactComponent as CloseIcon } from "../../assets/icons/close.svg";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
@@ -44,7 +44,7 @@ export function DialogProvider({ trigger, children, title }: PopoverProviderProp
                     setIsOpen(false);
                   }}
                 >
-                  <CloseIcon />
+                  <IconClose />
                 </IconButton>
               </div>
               <div className={style.DialogBody}>{children}</div>

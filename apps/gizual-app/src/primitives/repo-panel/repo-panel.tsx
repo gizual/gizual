@@ -2,10 +2,9 @@ import { useMainController } from "@app/controllers";
 import { Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
-import React from "react";
 
 import sharedStyle from "../css/shared-styles.module.scss";
-import { FileTree } from "../file-tree/file-tree";
+import { FileTree } from "../file-tree";
 
 import style from "./repo-panel.module.scss";
 

@@ -1,3 +1,4 @@
+import { MainController } from "@app/controllers";
 import { FileNodeInfos } from "@app/types";
 import type { DataNode } from "antd/es/tree";
 import { isNumber } from "lodash";
@@ -6,7 +7,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import React from "react";
 
 import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
-import { MainController } from "../../controllers";
 
 export type FileTreeDataNode = DataNode &
   FileNodeInfos & {
@@ -105,28 +105,12 @@ export class FileTreeViewModel {
     return [];
   }
 
-  onFileTreeSelect(node: FileTreeDataNode, check = false) {
+  onFileTreeSelect(node: FileTreeDataNode) {
     if (node.isLeaf) {
       this.toggleFile(node.path, node);
       this.zoomToFile(node.path);
       return;
     }
-
-    //const toggleChildren = (currentNode: FileTreeDataNode) => {
-    //  if (!currentNode.children) return;
-
-    //  for (const child of currentNode.children) {
-    //    if (check) {
-    //      if (child.isLeaf) {
-    //        this.toggleFile(child.path, child);
-    //      } else {
-    //        toggleChildren(child);
-    //      }
-    //    }
-    //  }
-
-    //  this._expandedKeys.add(currentNode.key);
-    //};
 
     const getChildrenFlat = (currentNode: FileTreeDataNode): FileTreeDataNode[] => {
       if (currentNode.isLeaf) return [currentNode];

@@ -3,7 +3,7 @@ import { Dropdown, MenuProps, Tree } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { FontIcon } from "../font-icon/font-icon";
+import { FontIcon } from "../font-icon";
 
 import style from "./file-tree.module.scss";
 import { FileTreeDataNode, FileTreeViewModel } from "./file-tree.vm";
@@ -62,7 +62,7 @@ export const FileTree = observer(({ mode = "tree", vm: externalVm }: FileTreePro
     <Dropdown menu={{ items }} trigger={["contextMenu"]}>
       <Tree
         checkable
-        onCheck={(_, i) => vm.onFileTreeSelect(i.node, true)}
+        onCheck={(_, i) => vm.onFileTreeSelect(i.node)}
         checkedKeys={selectedKeys}
         multiple
         defaultExpandAll

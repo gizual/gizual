@@ -1,3 +1,4 @@
+import { MainController } from "@app/controllers";
 import { javascript } from "@codemirror/lang-javascript";
 import { EditorState } from "@codemirror/state";
 import { Extension } from "@codemirror/state";
@@ -7,8 +8,7 @@ import { basicSetup } from "codemirror";
 import { autorun, makeAutoObservable } from "mobx";
 import React from "react";
 
-import { MainController } from "../../controllers";
-import { FileViewModel } from "../file/file.vm";
+import { FileViewModel } from "../file";
 
 export class EditorViewModel {
   _editorRef: React.RefObject<HTMLDivElement> | undefined;

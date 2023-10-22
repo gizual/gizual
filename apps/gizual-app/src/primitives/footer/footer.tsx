@@ -1,8 +1,8 @@
+import { useMainController } from "@app/controllers";
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
 
 import ChangelogMd from "../../../../../CHANGELOG.md?raw";
-import { useMainController } from "../../controllers";
 import { DialogProvider } from "../dialog-provider";
 import { MarkdownViewer } from "../markdown-viewer";
 

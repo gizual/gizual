@@ -6,7 +6,7 @@ export type SvgElement = {
   children?: SvgBaseElement[];
 };
 
-export interface Renderer {
+export interface FileRenderer {
   prepareContext(width: number, height: number, dpr?: number): void;
   assignContext(ctx: OffscreenCanvas | SvgElement): void;
   getContext(): OffscreenCanvas | SvgElement | undefined;
@@ -17,7 +17,7 @@ export interface Renderer {
   drawText(text: string, attr: SvgAttributes): void;
 }
 
-export class CanvasRenderer implements Renderer {
+export class CanvasRenderer implements FileRenderer {
   canvas?: OffscreenCanvas;
   ctx?: OffscreenCanvasRenderingContext2D;
   dpr = 0;
@@ -70,7 +70,7 @@ export class CanvasRenderer implements Renderer {
 }
 
 //@logAllMethods("SvgRenderer", "#9c94d6")
-export class SvgRenderer implements Renderer {
+export class SvgRenderer implements FileRenderer {
   svg?: SvgElement;
   transform = { x: 0, y: 0 };
   svgContent?: SvgBaseElement[];
@@ -119,7 +119,7 @@ export class SvgRenderer implements Renderer {
   }
 
   // This is a no-op for now, since embedding code into an SVG is awkward (we need to escape all tags, HTML special characters, etc.)
-  drawText(text: string, attr: SvgAttributes) {
+  drawText(_text: string, _attr: SvgAttributes) {
     //if (!this.svg || !this.svgContent) throw new Error("Drawing context was not initialized.");
     //const t = new SvgTextElement(text, attr);
     //this.svgContent.push(t);

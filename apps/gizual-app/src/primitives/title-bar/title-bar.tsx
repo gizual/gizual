@@ -1,9 +1,9 @@
+import { IconClose } from "@app/assets";
+import { useMainController } from "@app/controllers";
 import { App, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
-import { ReactComponent as Close } from "../../assets/icons/close-box.svg";
-import { useMainController } from "../../controllers";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
@@ -74,7 +74,7 @@ export const TitleBar = observer(() => {
                 });
               }}
             >
-              <Close />
+              <IconClose />
             </IconButton>
           </Tooltip>
         </div>

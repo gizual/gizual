@@ -1,3 +1,4 @@
+import { IconDownload, IconOpen } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { IconButton } from "@app/primitives/icon-button";
 import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/utils";
@@ -18,9 +19,6 @@ import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { ReactComponent as Download } from "../../assets/icons/download.svg";
-import { ReactComponent as Open } from "../../assets/icons/open.svg";
-
 import style from "./settings.module.scss";
 
 export const SettingsPage = observer(() => {
@@ -36,7 +34,7 @@ export const SettingsPage = observer(() => {
             onClick={() => settingsController.importSettingsJSON()}
             aria-label="Load settings from JSON"
           >
-            <Open />
+            <IconOpen />
           </IconButton>
         </Tooltip>
         <Tooltip title="Download settings as JSON">
@@ -44,7 +42,7 @@ export const SettingsPage = observer(() => {
             onClick={() => settingsController.downloadSettingsJSON()}
             aria-label="Download settings as JSON"
           >
-            <Download />
+            <IconDownload />
           </IconButton>
         </Tooltip>
       </div>
