@@ -2,10 +2,9 @@ import { useMainController } from "@app/controllers";
 import { Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
-import React from "react";
 
 import sharedStyle from "../css/shared-styles.module.scss";
-import { FileTree } from "../file-tree/file-tree";
+import { FileTree } from "../file-tree";
 
 import style from "./repo-panel.module.scss";
 
@@ -14,13 +13,13 @@ export const RepoPanel = observer(() => {
 
   return (
     <div className={style.RepoPanel}>
-      {mainController.favouriteFiles.size > 0 && (
+      {mainController.favoriteFiles.size > 0 && (
         <div className={sharedStyle.Section}>
           <div className={sharedStyle.SectionHead}>
-            <h1>Favourites</h1>
+            <h1>Favorites</h1>
           </div>
           <div className={sharedStyle.SectionBody}>
-            <FileTree mode={"favourite"} />
+            <FileTree mode={"favorite"} />
           </div>
         </div>
       )}

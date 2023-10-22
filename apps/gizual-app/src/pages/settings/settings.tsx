@@ -1,6 +1,7 @@
+import { IconDownload, IconOpen } from "@app/assets";
 import { useMainController } from "@app/controllers";
-import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/controllers/settings.controller";
 import { IconButton } from "@app/primitives/icon-button";
+import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/utils";
 import {
   Checkbox,
   ColorPicker,
@@ -18,9 +19,6 @@ import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { ReactComponent as Download } from "../../assets/icons/download.svg";
-import { ReactComponent as Open } from "../../assets/icons/open.svg";
-
 import style from "./settings.module.scss";
 
 export const SettingsPage = observer(() => {
@@ -36,7 +34,7 @@ export const SettingsPage = observer(() => {
             onClick={() => settingsController.importSettingsJSON()}
             aria-label="Load settings from JSON"
           >
-            <Open />
+            <IconOpen />
           </IconButton>
         </Tooltip>
         <Tooltip title="Download settings as JSON">
@@ -44,7 +42,7 @@ export const SettingsPage = observer(() => {
             onClick={() => settingsController.downloadSettingsJSON()}
             aria-label="Download settings as JSON"
           >
-            <Download />
+            <IconDownload />
           </IconButton>
         </Tooltip>
       </div>
@@ -72,7 +70,7 @@ const SettingsGroup = observer(({ settings, prefix = "" }: { settings: any; pref
           if (isGroupEntry(entry)) {
             return <SettingsGroup key={index} settings={entry} prefix={entry.groupName} />;
           } else {
-            return <SettingsEntry key={index} entry={entry} prefix={prefix} />;
+            return <RenderedSettingsEntry key={index} entry={entry} prefix={prefix} />;
           }
         }
         return;
@@ -101,38 +99,58 @@ const openNotification = _.debounce((open: (args: ArgsProps) => void, type: Noti
   }
 }, 800);
 
-const SettingsEntry = observer(
-  ({ entry, prefix }: { entry: SettingsEntry<any, any>; prefix?: string }) => {
+export const RenderedSettingsEntry = observer(
+  ({
+    entry,
+    prefix,
+    onChange,
+    onCheckChange,
+    onResetToDefault,
+    isDefault,
+  }: {
+    entry: SettingsEntry<any, any>;
+    prefix?: string;
+    onChange?: (e: any) => void;
+    onCheckChange?: (e: CheckboxChangeEvent) => void;
+    onResetToDefault?: () => void;
+    isDefault?: () => boolean;
+  }) => {
     const mainController = useMainController();
     const settingsController = mainController._settingsController;
 
-    const onChange = (e: any) => {
-      runInAction(() => {
-        entry.value = e;
-        settingsController.storeSettings();
-        openNotification(mainController.displayNotification, "updated");
-      });
-    };
+    if (!onChange)
+      onChange = (e: any) => {
+        runInAction(() => {
+          entry.value = e;
+          settingsController.storeSettings();
+          openNotification(mainController.displayNotification, "updated");
+        });
+      };
 
-    const onCheckChange = (e: CheckboxChangeEvent) => {
-      runInAction(() => {
-        entry.value = e.target.checked;
-        settingsController.storeSettings();
-        openNotification(mainController.displayNotification, "updated");
-      });
-    };
+    if (!onCheckChange)
+      onCheckChange = (e: CheckboxChangeEvent) => {
+        runInAction(() => {
+          entry.value = e.target.checked;
+          settingsController.storeSettings();
+          openNotification(mainController.displayNotification, "updated");
+        });
+      };
+
+    if (!onResetToDefault)
+      onResetToDefault = () =>
+        runInAction(() => {
+          entry.value = entry.defaultValue;
+          settingsController.storeSettings();
+          openNotification(mainController.displayNotification, "default");
+        });
+
+    if (!isDefault) isDefault = () => entry.value === entry.defaultValue;
 
     const dropdownItems: MenuProps["items"] = [
       {
         key: "1",
         label: "Reset to default",
-        onClick: () => {
-          runInAction(() => {
-            entry.value = entry.defaultValue;
-            settingsController.storeSettings();
-            openNotification(mainController.displayNotification, "default");
-          });
-        },
+        onClick: onResetToDefault,
       },
     ];
 
@@ -144,9 +162,7 @@ const SettingsEntry = observer(
           <span className={style.SettingsEntryLabel}>
             {namePrefix}
             {entry.name}
-            {entry.value === entry.defaultValue && (
-              <span className={style.SettingsEntryDefault}>{" (Default)"}</span>
-            )}
+            {isDefault() && <span className={style.SettingsEntryDefault}>{" (Default)"}</span>}
           </span>
           <span className={style.SettingsEntryDescription}>{entry.description}</span>
           <div>
@@ -154,18 +170,18 @@ const SettingsEntry = observer(
             {entry.controlType === "select" && (
               <Select
                 value={entry.value}
-                style={{ width: 200 }}
+                style={{ width: 300 }}
                 onChange={onChange}
                 options={entry.availableValues}
               />
             )}
-            {entry.controlType === "colour" && (
+            {entry.controlType === "color" && (
               <ColorPicker
                 showText
                 value={entry.value}
                 format="hex"
                 onChange={(e) => {
-                  onChange(`#${e.toHex(false)}`);
+                  onChange!(`#${e.toHex(false)}`);
                 }}
               />
             )}

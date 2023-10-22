@@ -1,3 +1,4 @@
+import { MainController } from "@app/controllers";
 import { FileNodeInfos } from "@app/types";
 import type { DataNode } from "antd/es/tree";
 import { isNumber } from "lodash";
@@ -6,7 +7,6 @@ import { makeAutoObservable, runInAction } from "mobx";
 import React from "react";
 
 import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
-import { MainController } from "../../controllers";
 
 export type FileTreeDataNode = DataNode &
   FileNodeInfos & {
@@ -32,22 +32,22 @@ export class FileTreeViewModel {
     return this._mainController.selectedFiles;
   }
 
-  get selectedFavouriteFiles(): string[] {
+  get selectedFavoriteFiles(): string[] {
     const files: string[] = [];
     for (const file of this.selectedFiles) {
-      if (this._mainController.favouriteFiles.has(file)) files.push(file);
+      if (this._mainController.favoriteFiles.has(file)) files.push(file);
     }
     return files;
   }
 
-  toggleFavourite(name: string) {
-    this._mainController.toggleFavourite(name);
+  toggleFavorite(name: string) {
+    this._mainController.toggleFavorite(name);
   }
 
-  get favouriteTreeData(): FileTreeDataNode[] {
+  get favoriteTreeData(): FileTreeDataNode[] {
     const tree: FileTreeDataNode[] = [];
 
-    for (const [path, info] of this._mainController.favouriteFiles) {
+    for (const [path, info] of this._mainController.favoriteFiles) {
       if (!info) continue;
       tree.push({
         key: path,
@@ -105,28 +105,12 @@ export class FileTreeViewModel {
     return [];
   }
 
-  onFileTreeSelect(node: FileTreeDataNode, check = false) {
+  onFileTreeSelect(node: FileTreeDataNode) {
     if (node.isLeaf) {
       this.toggleFile(node.path, node);
       this.zoomToFile(node.path);
       return;
     }
-
-    //const toggleChildren = (currentNode: FileTreeDataNode) => {
-    //  if (!currentNode.children) return;
-
-    //  for (const child of currentNode.children) {
-    //    if (check) {
-    //      if (child.isLeaf) {
-    //        this.toggleFile(child.path, child);
-    //      } else {
-    //        toggleChildren(child);
-    //      }
-    //    }
-    //  }
-
-    //  this._expandedKeys.add(currentNode.key);
-    //};
 
     const getChildrenFlat = (currentNode: FileTreeDataNode): FileTreeDataNode[] => {
       if (currentNode.isLeaf) return [currentNode];
@@ -163,12 +147,12 @@ export class FileTreeViewModel {
     this._mainController.vmController?.canvasViewModel?.zoomToFile(path);
   }
 
-  setFavourite(node: FileTreeDataNode) {
-    this._mainController.toggleFavourite(node.path, node);
+  setFavorite(node: FileTreeDataNode) {
+    this._mainController.toggleFavorite(node.path, node);
   }
 
-  isFavourite(node: FileTreeDataNode) {
-    return this._mainController.favouriteFiles.has(node.path);
+  isFavorite(node: FileTreeDataNode) {
+    return this._mainController.favoriteFiles.has(node.path);
   }
 
   isFileSelected(node: FileTreeDataNode) {

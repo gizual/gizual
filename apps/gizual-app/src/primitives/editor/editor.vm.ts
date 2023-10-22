@@ -1,3 +1,4 @@
+import { MainController } from "@app/controllers";
 import { javascript } from "@codemirror/lang-javascript";
 import { EditorState } from "@codemirror/state";
 import { Extension } from "@codemirror/state";
@@ -7,8 +8,7 @@ import { basicSetup } from "codemirror";
 import { autorun, makeAutoObservable } from "mobx";
 import React from "react";
 
-import { MainController } from "../../controllers";
-import { FileViewModel } from "../file/file.vm";
+import { FileViewModel } from "../file";
 
 export class EditorViewModel {
   _editorRef: React.RefObject<HTMLDivElement> | undefined;
@@ -87,7 +87,7 @@ export class EditorViewModel {
             const lineContent = fileContent[lineNumber];
             const authorId = lineContent.commit?.authorId;
             const authorName = authorId
-              ? this._file._mainController.getAuthorById(authorId)?.name
+              ? this._mainController.getAuthorById(authorId)?.name
               : "Unknown Author";
 
             const div = document.createElement("div");
@@ -96,8 +96,8 @@ export class EditorViewModel {
             div.className = "GitGutter";
             div.style.width = gutterStyle === "author" ? "8rem" : "0.5rem";
             div.style.backgroundColor =
-              (this._file.colours && this._file.colours[lineNumber]) ??
-              this._mainController.settingsController.settings.visualisationSettings.colours
+              (this._file.colors && this._file.colors[lineNumber]) ??
+              this._mainController.settingsController.settings.visualizationSettings.colors
                 .notLoaded;
 
             if (gutterStyle === "author") {

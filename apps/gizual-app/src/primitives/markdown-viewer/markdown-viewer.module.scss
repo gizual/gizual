@@ -8,9 +8,6 @@
   h2 {
     @include text-lg;
     font-family: "FiraGO";
-    :not(:first-of-type) {
-      padding-top: 1rem;
-    }
   }
   h3 {
     @include text-base;
@@ -23,5 +20,9 @@
   }
   em {
     color: var(--accent-tertiary);
+  }
+  hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
 }

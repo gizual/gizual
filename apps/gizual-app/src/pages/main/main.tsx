@@ -1,13 +1,11 @@
 import { Container, Languages, parseLanguages } from "@app/charts";
+import { useMainController } from "@app/controllers";
+import { Canvas, SearchBar, TitleBar } from "@app/primitives";
 import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
 
-import { useMainController } from "../../controllers";
-import { TitleBar } from "../../primitives";
-import { Canvas } from "../../primitives/canvas";
-import { SearchBar } from "../../primitives/search-bar/search-bar";
 import { SettingsPage } from "../settings";
 
 import style from "./main.module.scss";
@@ -33,7 +31,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
 
       <div className={style.Body}>
         {mainController.selectedPanel === "explore" && <ExplorePage vm={vm} />}
-        {mainController.selectedPanel === "analyse" && <AnalysePage vm={vm} />}
+        {mainController.selectedPanel === "analyze" && <AnalyzePage vm={vm} />}
         {mainController.selectedPanel === "settings" && <SettingsPage />}
       </div>
     </div>
@@ -52,7 +50,7 @@ const ExplorePage = observer(({ vm }: MainPageProps) => {
   );
 });
 
-const AnalysePage = observer(({ vm }: MainPageProps) => {
+const AnalyzePage = observer(({ vm }: MainPageProps) => {
   const mainController = useMainController();
   if (!vm) return <div />;
   const [width, height] = useWindowSize();
@@ -72,7 +70,7 @@ const AnalysePage = observer(({ vm }: MainPageProps) => {
   const languageData = parseLanguages(mainController.fileTreeRoot);
 
   return (
-    <div ref={ref} className={style.AnalysePage}>
+    <div ref={ref} className={style.AnalyzePage}>
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
         <div key={"a"}>
           <Container title={"Language Distribution"}>

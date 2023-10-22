@@ -1,19 +1,24 @@
-import { ColorPicker, Dropdown, InputNumber, MenuProps, Radio, Spin, Tooltip } from "antd";
-import clsx from "clsx";
-import { observer } from "mobx-react-lite";
-import React from "react";
-import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-
-import { ReactComponent as Center } from "../../assets/icons/center-focus.svg";
-import { ReactComponent as Layout } from "../../assets/icons/layout.svg";
-import { ReactComponent as MagnifyMinus } from "../../assets/icons/magnify-minus-outline.svg";
-import { ReactComponent as MagnifyPlus } from "../../assets/icons/magnify-plus-outline.svg";
-import { ReactComponent as People } from "../../assets/icons/people.svg";
 import {
+  IconCenterFocus,
+  IconLayout,
+  IconMagnifyMinus,
+  IconMagnifyPlus,
+  IconPeople,
+} from "@app/assets";
+import {
+  FileModel,
   useMainController,
   useSettingsController,
   useViewModelController,
-} from "../../controllers";
+} from "@app/controllers";
+import { RenderedSettingsEntry } from "@app/pages";
+import { createNumberSetting, createSelectSetting, Masonry, useTheme } from "@app/utils";
+import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Spin, Tooltip } from "antd";
+import clsx from "clsx";
+import { observer } from "mobx-react-lite";
+import React, { useEffect, useState } from "react";
+import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { File } from "../file/";
@@ -29,51 +34,37 @@ export type CanvasProps = {
 
 type MasonryGridProps = {
   children: React.ReactElement[];
-  heights: number[];
+  files: FileModel[];
   width: number;
   css?: React.CSSProperties;
   className?: string;
 };
 
-type Column = {
-  elements: React.ReactElement[];
-  height: number;
-  index: number;
-};
-
-function sortChildrenToColumns(
-  children: React.ReactElement[],
-  heights: number[],
-  columns: Column[],
-) {
-  const sortedColumns = [...columns];
-  for (const [index, child] of children.entries()) {
-    sortedColumns.sort((a, b) => a.height - b.height);
-    const smallestColumn = sortedColumns.at(0);
-    if (smallestColumn === undefined) return;
-    smallestColumn.elements.push(child);
-    smallestColumn.height += heights[index];
-  }
-  return sortedColumns;
-}
-
-const MasonryGrid = observer(({ children, css, className, width, heights }: MasonryGridProps) => {
+const MasonryGrid = observer(({ children, css, className, width, files }: MasonryGridProps) => {
   const sortedColumns = React.useMemo(() => {
-    const cols: Column[] = [];
-    for (let i = 0; i < width; i += 350) {
-      cols.push({ index: i, elements: [], height: 0 });
+    const masonry = new Masonry<React.ReactElement>({ canvasWidth: width });
+    for (const [index, child] of children.entries()) {
+      if (files[index].calculatedHeight === 0) continue;
+
+      masonry.insertElement({
+        id: files[index].name,
+        content: child,
+        height: files[index].calculatedHeight + 26,
+      });
     }
-    return sortChildrenToColumns(children, heights, cols);
-  }, [children, heights]);
+    masonry.sortAndPack();
+    return masonry.columns;
+  }, [children, files]);
 
   return (
-    <div className={clsx(style.Row, className)}>
+    <div className={clsx(style.Row, className)} style={{ ...css }}>
       {sortedColumns &&
         sortedColumns.map((c) => {
+          if (c.content.length === 0) return <></>;
           return (
             <div className={style.Column} key={c.index}>
-              {c.elements.map((e, index) => (
-                <React.Fragment key={index}>{e}</React.Fragment>
+              {c.content.map((e, index) => (
+                <React.Fragment key={index}>{e.content}</React.Fragment>
               ))}
             </div>
           );
@@ -118,7 +109,37 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         vm.unloadAllFiles();
       },
     },
+    {
+      key: "3",
+      label: "Export SVG",
+      onClick: () => {
+        showModal();
+      },
+    },
   ];
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+    vm.drawSvg(selectedWidth, selectedAppearance);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const [selectedWidth, setSelectedWidth] = useState(vm.canvasWidth);
+  useEffect(() => {
+    setSelectedWidth(vm.canvasWidth);
+  }, [vm.canvasWidth]);
+
+  const currentTheme = useTheme();
+  const [selectedAppearance, setSelectedAppearance] = useState(currentTheme);
 
   return (
     <div className={style.Stage}>
@@ -132,7 +153,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         <div className={sharedStyle.InlineRow}>
           <Tooltip title={"Zoom out"}>
             <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
-              <MagnifyMinus className={sharedStyle.ToolbarIcon} />
+              <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <InputNumber
@@ -144,40 +165,38 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           />
           <Tooltip title={"Zoom in"}>
             <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
-              <MagnifyPlus className={sharedStyle.ToolbarIcon} />
+              <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <Tooltip title={"Center"}>
             <IconButton onClick={() => vm.center(1)} aria-label="Center">
-              <Center className={sharedStyle.ToolbarIcon} />
+              <IconCenterFocus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
           <Tooltip title={"Reflow"}>
             <IconButton
               onClick={() => {
-                //vm.reflow();
-                vm.reflow();
                 vm.reflow();
               }}
               aria-label="Reflow"
             >
-              <Layout className={sharedStyle.ToolbarIcon} />
+              <IconLayout className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
 
-          {mainController._colouringMode === "age" && (
+          {mainController._coloringMode === "age" && (
             <>
               <div className={style.Separator}></div>
               <div className={style.ControlWithLabel}>
                 <p className={style["ControlWithLabel__Label"]}>Old changes:</p>
                 <ColorPicker
-                  value={settingsController.settings.visualisationSettings.colours.old.value}
+                  value={settingsController.settings.visualizationSettings.colors.old.value}
                   showText
                   size="small"
                   format="hex"
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
-                      settingsController.settings.visualisationSettings.colours.old,
+                      settingsController.settings.visualizationSettings.colors.old,
                       `#${e.toHex(false)}`,
                     );
                   }}
@@ -188,13 +207,13 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               <div className={style.ControlWithLabel}>
                 <p className={style["ControlWithLabel__Label"]}>New changes:</p>
                 <ColorPicker
-                  value={settingsController.settings.visualisationSettings.colours.new.value}
+                  value={settingsController.settings.visualizationSettings.colors.new.value}
                   showText
                   size="small"
                   format="hex"
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
-                      settingsController.settings.visualisationSettings.colours.new,
+                      settingsController.settings.visualizationSettings.colors.new,
                       `#${e.toHex(false)}`,
                     );
                   }}
@@ -206,15 +225,15 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         </div>
         <div className={sharedStyle.InlineRow}>
           <div className={style.ControlWithLabel}>
-            <p className={style["ControlWithLabel__Label"]}>Colouring mode:</p>
+            <p className={style["ControlWithLabel__Label"]}>Coloring mode:</p>
             <Radio.Group
               buttonStyle={"solid"}
-              value={mainController.colouringMode}
-              onChange={(n) => vm.onColouringModeChange(n.target.value)}
+              value={mainController.coloringMode}
+              onChange={(n) => vm.onColoringModeChange(n.target.value)}
               size="small"
               style={{ display: "flex", flexDirection: "row" }}
             >
-              {vm.toggleColouringValues.map((v) => (
+              {vm.toggleColoringValues.map((v) => (
                 <Radio.Button key={v.value} value={v.value} style={{ whiteSpace: "nowrap" }}>
                   {v.label}
                 </Radio.Button>
@@ -226,14 +245,46 @@ function Canvas({ vm: externalVm }: CanvasProps) {
             <IconButton
               onClick={() => vmController.toggleAuthorPanelVisibility()}
               aria-label="Toggle author panel"
-              coloured={vmController.isAuthorPanelVisible}
+              colored={vmController.isAuthorPanelVisible}
             >
-              <People className={sharedStyle.ToolbarIcon} />
+              <IconPeople className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
         </div>
       </div>
       <div className={style.CanvasWrapper}>
+        <Modal
+          title="Export to SVG"
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          okText="Export"
+        >
+          <RenderedSettingsEntry
+            entry={createNumberSetting(
+              "View-box width",
+              "The width of the SVG view-box. Influences the number of columns within the grid.",
+              selectedWidth,
+            )}
+            onChange={setSelectedWidth}
+            onResetToDefault={() => setSelectedWidth(vm.canvasWidth)}
+            isDefault={() => selectedWidth === vm.canvasWidth}
+          />
+          <RenderedSettingsEntry
+            entry={createSelectSetting(
+              "Appearance",
+              "Controls the background and font colors of the exported SVG.",
+              selectedAppearance,
+              [
+                { value: "dark", label: "Light text on dark background" },
+                { value: "light", label: "Dark text on light background" },
+              ],
+            )}
+            onChange={setSelectedAppearance}
+            onResetToDefault={() => setSelectedAppearance(currentTheme)}
+            isDefault={() => selectedAppearance === currentTheme}
+          />
+        </Modal>
         <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
           <div className={style.Canvas} ref={canvasRef}>
             <TransformWrapper
@@ -283,10 +334,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                       </>
                     )}
                     {mainController.repoController.isDoneEstimatingSize && (
-                      <MasonryGrid
-                        width={vm.canvasWidth}
-                        heights={vm.loadedFiles.map((f) => f.calculatedHeight)}
-                      >
+                      <MasonryGrid width={vm.canvasWidth} files={vm.loadedFiles}>
                         {vm.loadedFiles.map((file, index) => {
                           if (!ref.current?.instance.wrapperComponent || !file.isValid)
                             return <React.Fragment key={index}></React.Fragment>;

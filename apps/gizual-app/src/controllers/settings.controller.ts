@@ -1,62 +1,14 @@
-import { LINEAR_COLOUR_RANGE, SPECIAL_COLOURS } from "@app/utils";
+import {
+  createCheckboxSetting,
+  createColorSetting,
+  createNumberSetting,
+  createSelectSetting,
+  GroupEntry,
+  LINEAR_COLOR_RANGE,
+  SettingsEntry,
+  SPECIAL_COLORS,
+} from "@app/utils";
 import { makeAutoObservable, toJS } from "mobx";
-
-type GroupEntry = {
-  groupName: string;
-};
-
-export type ControlType = "select" | "colour" | "number" | "checkbox" | "text";
-export type SettingsValue = number | string | boolean | ViewMode;
-
-export type SettingsEntry<T extends SettingsValue, C extends ControlType> = {
-  name: string;
-  description: string;
-  value: T;
-  controlType: C;
-  defaultValue: T;
-  availableValues?: { value: T; label: T }[];
-};
-
-export function isSettingsEntry(obj: unknown): obj is SettingsEntry<SettingsValue, ControlType> {
-  return typeof obj === "object" && obj !== null && obj !== undefined && "name" in obj;
-}
-
-export function isGroupEntry(obj: unknown): obj is GroupEntry {
-  return typeof obj === "object" && obj !== null && obj !== undefined && "groupName" in obj;
-}
-
-function createSetting<T extends SettingsValue, C extends ControlType>(
-  name: string,
-  description: string,
-  value: T,
-  controlType: C,
-  availableValues?: { value: T; label: T }[],
-): SettingsEntry<T, C> {
-  return {
-    name,
-    description,
-    value,
-    controlType,
-    defaultValue: value,
-    availableValues,
-  };
-}
-
-// Specific factory functions for different control types:
-const createColourSetting = (name: string, description: string, value: string) =>
-  createSetting<string, "colour">(name, description, value, "colour");
-const createSelectSetting = <T extends string>(
-  name: string,
-  description: string,
-  value: T,
-  availableValues: { value: T; label: T }[],
-) => createSetting<T, "select">(name, description, value, "select", availableValues);
-const createNumberSetting = (name: string, description: string, value: number) =>
-  createSetting<number, "number">(name, description, value, "number");
-const createCheckboxSetting = (name: string, description: string, value: boolean) =>
-  createSetting<boolean, "checkbox">(name, description, value, "checkbox");
-const _createTextSetting = (name: string, description: string, value: string) =>
-  createSetting<string, "text">(name, description, value, "text");
 
 const VIEW_MODES = ["block", "flex"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];
@@ -64,15 +16,21 @@ type ViewMode = (typeof VIEW_MODES)[number];
 const TIMELINE_MODES = ["visible", "collapsed"] as const;
 type TimelineMode = (typeof TIMELINE_MODES)[number];
 
-type VisualisationSettings = {
-  colours: {
-    old: SettingsEntry<string, "colour">;
-    new: SettingsEntry<string, "colour">;
-    notLoaded: SettingsEntry<string, "colour">;
+const LINE_LENGTH_MODES = ["lineLength", "full"] as const;
+type LineLengthMode = (typeof LINE_LENGTH_MODES)[number];
+
+type VisualizationSettings = {
+  colors: {
+    old: SettingsEntry<string, "color">;
+    new: SettingsEntry<string, "color">;
+    notLoaded: SettingsEntry<string, "color">;
   } & GroupEntry;
   canvas: {
     viewMode: SettingsEntry<ViewMode, "select">;
     rootMargin: SettingsEntry<number, "number">;
+  } & GroupEntry;
+  style: {
+    lineLength: SettingsEntry<LineLengthMode, "select">;
   } & GroupEntry;
 } & GroupEntry;
 
@@ -119,7 +77,7 @@ export class SettingsController {
     ),
     defaultRange: createNumberSetting(
       "Default Selection Range",
-      "Adjusts the default date range (how many days to visualise, starting from the last commit in the repository).",
+      "Adjusts the default date range (how many days to visualize, starting from the last commit in the repository).",
       365,
     ),
     weekModeThreshold: createNumberSetting(
@@ -128,24 +86,24 @@ export class SettingsController {
       365,
     ),
   };
-  visualisationSettings: VisualisationSettings = {
-    groupName: "Visualisation Settings",
-    colours: {
+  visualizationSettings: VisualizationSettings = {
+    groupName: "Visualization Settings",
+    colors: {
       groupName: "Colors",
-      old: createColourSetting(
+      old: createColorSetting(
         "Old",
-        "The color that visualises the most distant change.",
-        LINEAR_COLOUR_RANGE[0],
+        "The color that visualizes the most distant change.",
+        LINEAR_COLOR_RANGE[0],
       ),
-      new: createColourSetting(
+      new: createColorSetting(
         "New",
-        "The color that visualises the most recent change.",
-        LINEAR_COLOUR_RANGE[1],
+        "The color that visualizes the most recent change.",
+        LINEAR_COLOR_RANGE[1],
       ),
-      notLoaded: createColourSetting(
+      notLoaded: createColorSetting(
         "Not loaded",
-        "The color that visualises changes that did not load yet or are outside the range.",
-        SPECIAL_COLOURS.NOT_LOADED,
+        "The color that visualizes changes that did not load yet or are outside the range.",
+        SPECIAL_COLORS.NOT_LOADED,
       ),
     },
     canvas: {
@@ -164,6 +122,18 @@ export class SettingsController {
         200,
       ),
     },
+    style: {
+      groupName: "Style",
+      lineLength: createSelectSetting(
+        "Line Length",
+        "Controls the length of each line within the visualization. It can either be representative to the line length within the file, or full width.",
+        "lineLength",
+        [
+          { value: "lineLength", label: "Based on line length" },
+          { value: "full", label: "Full width" },
+        ],
+      ),
+    },
   };
 
   constructor() {
@@ -174,7 +144,7 @@ export class SettingsController {
     return {
       editor: this.editor,
       timelineSettings: this.timelineSettings,
-      visualisationSettings: this.visualisationSettings,
+      visualizationSettings: this.visualizationSettings,
     };
   }
 
@@ -193,9 +163,9 @@ export class SettingsController {
 
     const parsed = JSON.parse(settings);
     this.editor = mergeObj(toJS(this.editor), parsed.editor);
-    this.visualisationSettings = mergeObj(
-      toJS(this.visualisationSettings),
-      parsed.visualisationSettings,
+    this.visualizationSettings = mergeObj(
+      toJS(this.visualizationSettings),
+      parsed.visualizationSettings,
     );
     this.timelineSettings = mergeObj(toJS(this.timelineSettings), parsed.timelineSettings);
   }

@@ -1,5 +1,5 @@
-import { ColouringMode, FileNodeInfos, VisualisationConfig } from "@app/types";
-import { BAND_COLOUR_RANGE, getBandColourScale, GizDate } from "@app/utils";
+import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
+import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import dayjs from "dayjs";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
@@ -10,14 +10,14 @@ import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-type Panel = "explore" | "analyse" | "settings";
+type Panel = "explore" | "analyze" | "settings";
 type Page = "welcome" | "main";
 
 export class MainController {
-  @observable _favouriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
+  @observable _favoriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
   @observable _notification?: NotificationInstance;
 
-  @observable _colouringMode: ColouringMode = "age";
+  @observable _coloringMode: ColoringMode = "age";
   @observable _fileTreeRoot?: FileTree;
   @observable _page: Page = "welcome";
   @observable _selectedPanel: Panel = "explore";
@@ -98,6 +98,11 @@ export class MainController {
     //return this._fileTreeRoot;
   }
 
+  getStyle(key: string) {
+    const doc = document.documentElement;
+    return getComputedStyle(doc).getPropertyValue(key);
+  }
+
   @action.bound
   setFileTreeRoot(root: FileTree) {
     this._fileTreeRoot = root;
@@ -123,18 +128,18 @@ export class MainController {
   }
 
   @action.bound
-  toggleFavourite(name: string, info?: FileNodeInfos) {
-    if (this._favouriteFiles.has(name)) {
-      this._favouriteFiles.delete(name);
-    } else this._favouriteFiles.set(name, info);
+  toggleFavorite(name: string, info?: FileNodeInfos) {
+    if (this._favoriteFiles.has(name)) {
+      this._favoriteFiles.delete(name);
+    } else this._favoriteFiles.set(name, info);
   }
 
-  get favouriteFiles() {
-    return this._favouriteFiles;
+  get favoriteFiles() {
+    return this._favoriteFiles;
   }
 
-  getFavouriteFileNodeInfo(key: string) {
-    return this._favouriteFiles.get(key);
+  getFavoriteFileNodeInfo(key: string) {
+    return this._favoriteFiles.get(key);
   }
 
   @action.bound
@@ -166,10 +171,10 @@ export class MainController {
   }
 
   @computed
-  get authorColourScale() {
-    return getBandColourScale(
+  get authorColorScale() {
+    return getBandColorScale(
       this.authors.map((a) => a.id),
-      BAND_COLOUR_RANGE,
+      BAND_COLOR_RANGE,
     );
   }
 
@@ -178,12 +183,12 @@ export class MainController {
   }
 
   @action.bound
-  setColouringMode(mode: ColouringMode) {
-    this._colouringMode = mode;
+  setColoringMode(mode: ColoringMode) {
+    this._coloringMode = mode;
   }
 
-  get colouringMode() {
-    return this._colouringMode;
+  get coloringMode() {
+    return this._coloringMode;
   }
 
   @computed
@@ -266,12 +271,15 @@ export class MainController {
   }
 
   @computed
-  get visualisationConfig(): VisualisationConfig {
+  get visualizationConfig(): VisualizationConfig {
     return {
-      colours: {
-        newest: this.settingsController.settings.visualisationSettings.colours.new.value,
-        oldest: this.settingsController.settings.visualisationSettings.colours.old.value,
-        notLoaded: this.settingsController.settings.visualisationSettings.colours.notLoaded.value,
+      colors: {
+        newest: this.settingsController.settings.visualizationSettings.colors.new.value,
+        oldest: this.settingsController.settings.visualizationSettings.colors.old.value,
+        notLoaded: this.settingsController.settings.visualizationSettings.colors.notLoaded.value,
+      },
+      style: {
+        lineLength: this.settingsController.settings.visualizationSettings.style.lineLength.value,
       },
     };
   }

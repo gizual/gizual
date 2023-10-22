@@ -1,15 +1,14 @@
+import { IconCloseBox, IconSource } from "@app/assets";
 import { FileModel, useMainController } from "@app/controllers";
-import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import { truncateSmart } from "@app/utils";
 import { Skeleton, Spin, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { ReactComponent as CloseBox } from "../../assets/icons/close-box.svg";
-import { ReactComponent as Source } from "../../assets/icons/source.svg";
+import sharedStyle from "../css/shared-styles.module.scss";
 import { DialogProvider } from "../dialog-provider";
 import { Editor } from "../editor";
-import { FontIcon } from "../font-icon/font-icon";
+import { FontIcon } from "../font-icon";
 
 import style from "./file.module.scss";
 import { FileViewModel } from "./file.vm";
@@ -30,7 +29,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
     return externalVm || new FileViewModel(mainController, file);
   }, [externalVm]);
 
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const canvasRef = React.useRef<HTMLImageElement>(null);
 
   React.useEffect(() => {
     vm.assignCanvasRef(canvasRef);
@@ -48,9 +47,9 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
     mainController.selectedStartDate,
     mainController.selectedEndDate,
     vm.shouldRender,
-    settingsController.settings.visualisationSettings.colours.new.value,
-    settingsController.settings.visualisationSettings.colours.old.value,
-    settingsController.settings.visualisationSettings.colours.notLoaded.value,
+    settingsController.settings.visualizationSettings.colors.new.value,
+    settingsController.settings.visualizationSettings.colors.old.value,
+    settingsController.settings.visualizationSettings.colors.notLoaded.value,
   ]);
 
   // Attach IntersectionObserver on load, detach on dispose.
@@ -59,7 +58,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
 
     const ioOptions: IntersectionObserverInit = {
       root: parentContainer,
-      rootMargin: `${settingsController.visualisationSettings.canvas.rootMargin.value}px`,
+      rootMargin: `${settingsController.visualizationSettings.canvas.rootMargin.value}px`,
       threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
     };
 
@@ -87,11 +86,11 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
   if (vm.loading) {
     body = (
       <div>
-        <Skeleton active />
+        <Skeleton active paragraph={false} />
       </div>
     );
   } else if (vm.isValid) {
-    body = <canvas className={style.FileCanvas} ref={canvasRef} />;
+    body = <img className={style.FileCanvas} ref={canvasRef} alt="" />;
   } else {
     body = (
       <div>
@@ -127,11 +126,11 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
           <FontIcon
             className={style.FontIcon}
             name={vm.fileInfo.fileIcon}
-            colours={vm.fileInfo.fileIconColor!}
+            colors={vm.fileInfo.fileIconColor!}
           />
         )}
         <p className={style.FileTitle} title={vm.fileName}>
-          {truncateSmart(vm.fileName, 35)}
+          {truncateSmart(vm.fileName, 30)}
         </p>
       </div>
       <div className={style.FileActions}>
@@ -139,7 +138,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
           trigger={
             <Tooltip title="Show file content">
               <div className={sharedStyle.Pointer}>
-                <Source className={style.FileIcon} />
+                <IconSource className={style.FileIcon} />
               </div>
             </Tooltip>
           }
@@ -150,7 +149,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
 
         <Tooltip title="Close file">
           <div className={sharedStyle.Pointer}>
-            <CloseBox
+            <IconCloseBox
               className={style.FileActionIcon}
               onClick={() => {
                 vm.close();

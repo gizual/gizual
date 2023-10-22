@@ -1,12 +1,11 @@
+import { IconDragVertical } from "@app/assets";
+import { useMainController, useViewModelController } from "@app/controllers";
 import { NoVmError, useWindowSize } from "@app/utils";
 import { Dropdown, Spin } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
-
-import { ReactComponent as DragVertical } from "../../assets/icons/drag-vertical.svg";
-import { useMainController, useViewModelController } from "../../controllers";
 
 import { Commits } from "./commits";
 import { RulerTicks } from "./ruler-ticks";
@@ -147,7 +146,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
                   height: vm.selectionBoxHandle.height,
                 }}
               >
-                <DragVertical className={style.SelectionBoxDragHandleIcon} />
+                <IconDragVertical className={style.SelectionBoxDragHandleIcon} />
               </div>
               <div
                 className={style.SelectionBoxDragHandle}
@@ -158,7 +157,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
                   height: vm.selectionBoxHandle.height,
                 }}
               >
-                <DragVertical className={style.SelectionBoxDragHandleIcon} />
+                <IconDragVertical className={style.SelectionBoxDragHandleIcon} />
               </div>
             </div>
             <div

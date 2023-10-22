@@ -55,7 +55,7 @@ export class RepoController {
     this.loadCommitsForBranch();
 
     // This autorun is required because the access to the branches and commits is not
-    // properly decentralised yet.
+    // properly decentralized yet.
     this._disposers.push(
       autorun(() => {
         if (this._mainController.branches.some((b) => b.name === this.selectedBranch))
@@ -260,7 +260,7 @@ export class RepoController {
 
   @action.bound
   updateFileTag() {
-    // TODO: Cleanup the tag and file synchronisation issues.
+    // TODO: Cleanup the tag and file synchronization issues.
     const numSelFiles = this._selectedFiles.size;
     this.mainController.vmController.searchBarViewModel?.updateTag(
       "file",
@@ -284,10 +284,10 @@ export class RepoController {
   }
 }
 
-export const VisualisationDefaults = {
+export const VisualizationDefaults = {
   maxLineLength: 120,
   lineSpacing: 0,
-  maxLineCount: 60,
+  maxLineCount: 100,
 };
 
 export type Line = {
@@ -300,7 +300,7 @@ export class FileModel {
   @observable private _blameView: BlameView;
   @observable private _name: string;
   @observable private _infos: FileNodeInfos;
-  @observable private _colours: string[] = [];
+  @observable private _colors: string[] = [];
 
   @observable private _priority = 0;
 
@@ -342,8 +342,8 @@ export class FileModel {
     return this._priority;
   }
 
-  get colours() {
-    return this._colours;
+  get colors() {
+    return this._colors;
   }
 
   get infos() {
@@ -352,8 +352,8 @@ export class FileModel {
 
   @computed
   get calculatedHeight() {
-    return Math.floor(this.data.lines.length / VisualisationDefaults.maxLineCount) + 1 > 1
-      ? VisualisationDefaults.maxLineCount * 10
+    return Math.floor(this.data.lines.length / VisualizationDefaults.maxLineCount) + 1 > 1
+      ? VisualizationDefaults.maxLineCount * 10
       : this.data.lines.length * 10;
   }
 
@@ -375,8 +375,8 @@ export class FileModel {
   }
 
   @action.bound
-  setColours(colours: string[]) {
-    this._colours = colours;
+  setColors(colors: string[]) {
+    this._colors = colors;
   }
 }
 
@@ -391,7 +391,7 @@ function parseLines(blame: Blame) {
       commit,
     };
   });
-  const maxLineLength = Math.min(lenMax, VisualisationDefaults.maxLineLength);
+  const maxLineLength = Math.min(lenMax, VisualizationDefaults.maxLineLength);
 
   return { lines, maxLineLength };
 }

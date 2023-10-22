@@ -1,9 +1,9 @@
+import { IconTrash } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { ReactComponent as TrashIcon } from "../../../assets/icons/trash.svg";
 import style from "../search-bar.module.scss";
 import { AvailableTagId } from "../search-tags";
 
@@ -29,7 +29,7 @@ export const CommonInputAssist = observer(({ tagId }: CommonInputAssistProps) =>
           vm.removeTag(selectedTag);
         }}
       >
-        <TrashIcon style={{ margin: 0 }} />
+        <IconTrash style={{ margin: 0 }} />
         <p>Remove Tag</p>
       </div>
     </React.Fragment>

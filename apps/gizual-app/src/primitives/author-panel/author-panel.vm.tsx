@@ -45,8 +45,8 @@ export class AuthorPanelViewModel {
               display: "block",
               borderRadius: 5,
               backgroundColor:
-                this._mainController.colouringMode === "author"
-                  ? this._mainController.authorColourScale(record.id ?? "")
+                this._mainController.coloringMode === "author"
+                  ? this._mainController.authorColorScale(record.id ?? "")
                   : "transparent",
             }}
           />

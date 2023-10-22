@@ -6,7 +6,7 @@ export type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
   onClick: () => void;
   ariaLabel?: string;
-  coloured?: boolean;
+  colored?: boolean;
   wide?: boolean;
   border?: "right";
 };
@@ -14,7 +14,7 @@ export type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 export function IconButton({
   className,
   onClick,
-  coloured,
+  colored,
   wide,
   border,
   children,
@@ -24,7 +24,7 @@ export function IconButton({
     <button
       className={clsx(
         style.IconButton,
-        coloured ? style.Coloured : "",
+        colored ? style.Colored : "",
         wide ? style.Wide : "",
         border === "right" ? style.BorderRight : "",
         className,

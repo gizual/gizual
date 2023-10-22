@@ -1,9 +1,17 @@
-import { ColouringMode, ColouringModeLabels } from "@app/types";
-import { action, computed, makeObservable, observable } from "mobx";
+import { FileModel, MainController } from "@app/controllers";
+import { ColoringMode, ColoringModeLabels } from "@app/types";
+import {
+  Masonry,
+  SvgBaseElement,
+  SvgGroupElement,
+  SvgRectElement,
+  SvgTextElement,
+  truncateSmart,
+} from "@app/utils";
+import { FileContext, FileRendererWorker } from "@app/workers";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
-
-import { FileModel, MainController } from "../../controllers";
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
@@ -12,7 +20,6 @@ export class CanvasViewModel {
   @observable private _mainController: MainController;
   @observable private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
   @observable private _canvasWidth = 0;
-  @observable private _lastReflowScale = 1;
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
@@ -63,7 +70,7 @@ export class CanvasViewModel {
     this.canvasContainerRef.current.zoomOut(this._mainController.scale - n, 0);
   }
 
-  zoomToFile(fileName: string) {
+  zoomToFile(_fileName: string) {
     const el = undefined; // TODO: this.getFileRef(fileName)?.current;
     if (!el) return;
 
@@ -76,16 +83,11 @@ export class CanvasViewModel {
       this._canvasContainerRef?.current &&
       this._canvasContainerRef.current.instance.contentComponent
     ) {
-      this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
       this._canvasContainerRef.current.instance.contentComponent.style.width = `calc(100% / ${this._mainController.scale})`;
       this._canvasContainerRef.current.instance.contentComponent.style.height = `calc(100% / ${this._mainController.scale})`;
+      this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
     }
     this.center();
-    this._lastReflowScale = this._mainController.scale;
-  }
-
-  get lastReflowScale() {
-    return this._lastReflowScale;
   }
 
   get canvasWidth() {
@@ -98,8 +100,8 @@ export class CanvasViewModel {
   }
 
   @action.bound
-  onColouringModeChange = (value: ColouringMode) => {
-    this._mainController.setColouringMode(value);
+  onColoringModeChange = (value: ColoringMode) => {
+    this._mainController.setColoringMode(value);
 
     if (value !== "author" && this._mainController.vmController.isAuthorPanelVisible)
       this._mainController.vmController.setAuthorPanelVisibility(false);
@@ -109,7 +111,121 @@ export class CanvasViewModel {
   };
 
   @computed
-  get toggleColouringValues() {
-    return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
+  get toggleColoringValues() {
+    return Object.entries(ColoringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
+  }
+
+  getDrawingContext(file: FileModel) {
+    return {
+      authors: this._mainController.authors.map((a) => toJS(a)),
+      fileContent: toJS(file.data.lines),
+      earliestTimestamp: toJS(file.data.earliestTimestamp),
+      latestTimestamp: toJS(file.data.latestTimestamp),
+      visualizationConfig: toJS(this._mainController.visualizationConfig),
+      lineLengthMax: toJS(file.data.maxLineLength),
+      isPreview: toJS(file.isPreview),
+      selectedStartDate: toJS(this._mainController.selectedStartDate),
+      selectedEndDate: toJS(this._mainController.selectedEndDate),
+      coloringMode: toJS(this._mainController.coloringMode),
+    };
+  }
+
+  @action.bound
+  async drawSvg(width = this.canvasWidth, appearance: "dark" | "light" = "light") {
+    const svgChildren: SvgBaseElement[] = [];
+
+    const masonry = new Masonry<SvgBaseElement>({ canvasWidth: width, gap: 16 });
+
+    for (const file of this.loadedFiles) {
+      if (file.data.lines.length === 0) continue;
+
+      const ctx: FileContext = {
+        ...this.getDrawingContext(file),
+        dpr: 1,
+        nColumns: 1,
+        redrawCount: 0,
+        rect: new DOMRect(0, 0, 300, file.calculatedHeight),
+      };
+
+      const titleHeight = 26;
+      const worker = new FileRendererWorker();
+      const result = await worker.drawSingleSvg(ctx);
+
+      const fileContainer = new SvgGroupElement(0, 0, 300, file.calculatedHeight + titleHeight);
+      const border = new SvgRectElement({
+        x: 0,
+        y: 0,
+        width: 300,
+        height: file.calculatedHeight + titleHeight,
+        fill: "transparent",
+        stroke:
+          appearance === "light"
+            ? this._mainController.getStyle("--color-gray")
+            : this._mainController.getStyle("--color-darkslate"),
+      });
+      const title = new SvgTextElement(truncateSmart(file.name, 35), {
+        x: 8,
+        y: 16,
+        fontSize: "14",
+        fill:
+          appearance === "light"
+            ? this._mainController.getStyle("--color-darkgray")
+            : this._mainController.getStyle("--color-lightgray"),
+      });
+      const titleBackground = new SvgRectElement({
+        x: 0,
+        y: 0,
+        width: 300,
+        height: titleHeight,
+        fill:
+          appearance === "light"
+            ? this._mainController.getStyle("--color-zinc")
+            : this._mainController.getStyle("--color-gunmetal"),
+        stroke: "transparent",
+      });
+      fileContainer.assignChildren(border, titleBackground, title);
+
+      const fileContent = new SvgGroupElement(0, 0, 300, file.calculatedHeight);
+      fileContent.transform = { x: 0, y: titleHeight };
+      fileContainer.addChild(fileContent);
+
+      masonry.insertElement({
+        id: file.name,
+        content: fileContainer,
+        height: file.calculatedHeight + titleHeight,
+      });
+
+      fileContent.assignChildren(...result.result);
+      //svgChildren.push(fileContainer);
+    }
+
+    masonry.sortAndPack();
+
+    for (const [index, column] of masonry.columns.entries()) {
+      for (const [columnIndex, child] of column.content.entries()) {
+        child.content.transform = {
+          x: index * 316 + 16,
+          y: child.y + columnIndex * 16 + 32, // 16px gap between items, 32px padding to top
+        };
+        svgChildren.push(child.content);
+      }
+    }
+
+    const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
+    const style = `style="background-color:${
+      appearance === "light"
+        ? this._mainController.getStyle("--color-white")
+        : this._mainController.getStyle("--color-darkgray")
+    }"`;
+    const svg = `<svg ${styleTag} ${style} viewBox="0 0 ${width} ${masonry.maxHeight}">${svgChildren
+      .map((c) => c.render())
+      .join("")}</svg>`;
+
+    const blob = new Blob([svg.toString()]);
+    const element = document.createElement("a");
+    element.download = `${this._mainController.repoName}.gizual.svg`;
+    element.href = window.URL.createObjectURL(blob);
+    element.click();
+    element.remove();
   }
 }

@@ -1,8 +1,10 @@
 /// <reference types="vite-plugin-svgr/client" />
 
+import { IconGitBranchLine, IconSearch } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { StreamLanguage } from "@codemirror/language";
 import { simpleMode } from "@codemirror/legacy-modes/mode/simple-mode";
+import { Prec } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import createTheme from "@uiw/codemirror-themes";
@@ -12,8 +14,6 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { createPortal } from "react-dom";
 
-import { ReactComponent as GitBranchLine } from "../../assets/icons/git-branch-line.svg";
-import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 import { Select } from "../select";
@@ -102,7 +102,7 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
           options={mainController.branchNames.map((b) => {
             return { label: b, value: b };
           })}
-          icon={<GitBranchLine />}
+          icon={<IconGitBranchLine />}
         />
         <div id="inputWrapper" className={style.SearchInputWrapper}>
           <SearchInput vm={vm} />
@@ -115,24 +115,41 @@ export const SearchBar = observer(({ vm: externalVm }: SearchBarProps) => {
 const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
   const ref = React.useRef<ReactCodeMirrorRef>(null);
 
-  const customKeymap = keymap.of([
-    {
-      key: "Enter",
-      run: (view) => {
-        vm.search();
-        view.contentDOM.blur();
-        return true;
+  const customKeymap = Prec.highest(
+    keymap.of([
+      {
+        key: "Enter",
+        run: (view) => {
+          vm.search();
+          view.contentDOM.blur();
+          return true;
+        },
       },
-    },
-    {
-      key: "Escape",
-      run: (view) => {
-        view.contentDOM.blur();
-        vm.closePopover();
-        return true;
+      {
+        key: "Escape",
+        run: (view) => {
+          console.log("Escape");
+          view.contentDOM.blur();
+          vm.closePopover();
+          return true;
+        },
       },
-    },
-  ]);
+      {
+        key: "Tab",
+        run: (_view) => {
+          console.log("Tab");
+          return true;
+        },
+      },
+      {
+        key: "ArrowDown",
+        run: (_view) => {
+          console.log("ArrowDown");
+          return true;
+        },
+      },
+    ]),
+  );
 
   React.useEffect(() => {
     if (ref.current) {
@@ -205,13 +222,13 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
 
       <IconButton
         className={style.SearchIcon}
-        coloured
+        colored
         wide
         border="right"
         onClick={() => vm.search()}
         aria-label="Search"
       >
-        <SearchIcon />
+        <IconSearch />
       </IconButton>
     </div>
   );

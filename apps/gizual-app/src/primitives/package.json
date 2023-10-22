@@ -2,7 +2,9 @@
   "name": "@app/primitives",
   "main": "./index.ts",
   "dependencies": {
+    "@app/assets": "workspace:*",
     "@app/types": "workspace:*",
-    "@app/utils": "workspace:*"
+    "@app/utils": "workspace:*",
+    "@app/workers": "workspace:*"
   }
 }

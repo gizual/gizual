@@ -1,8 +1,8 @@
+import { useMainController } from "@app/controllers";
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
 
 import ChangelogMd from "../../../../../CHANGELOG.md?raw";
-import { useMainController } from "../../controllers";
 import { DialogProvider } from "../dialog-provider";
 import { MarkdownViewer } from "../markdown-viewer";
 
@@ -16,7 +16,7 @@ export const Footer = observer(() => {
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.4 - Build #{__COMMIT_HASH__}</p>}
+          trigger={<p>Gizual v3.0.0-alpha.5 - Build #{__COMMIT_HASH__}</p>}
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>

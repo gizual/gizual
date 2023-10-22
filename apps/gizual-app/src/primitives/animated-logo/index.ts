@@ -1,1 +1,1 @@
-export * from "./animaged-logo";
+export * from "./animated";

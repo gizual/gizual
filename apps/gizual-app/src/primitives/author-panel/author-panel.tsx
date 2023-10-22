@@ -25,13 +25,13 @@ export const AuthorPanel = observer(({ vm: externalVm }: AuthorPanelProps) => {
           <h1>Authors</h1>
         </div>
         {/*<div className={sharedStyle.Block}>
-            <h3>Colouring mode</h3>
+            <h3>Coloring mode</h3>
             <Radio.Group
               buttonStyle={"solid"}
-              value={mainController.colouringMode}
-              onChange={(n) => vm.onColouringModeChange(n.target.value)}
+              value={mainController.coloringMode}
+              onChange={(n) => vm.onColoringModeChange(n.target.value)}
             >
-              {vm.toggleColouringValues.map((v) => (
+              {vm.toggleColoringValues.map((v) => (
                 <Radio.Button key={v.value} value={v.value}>
                   {v.label}
                 </Radio.Button>

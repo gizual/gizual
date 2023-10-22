@@ -1,3 +1,4 @@
+import { MainController } from "@app/controllers";
 import { BranchInfo, CInfo } from "@app/types";
 import {
   convertDaysToMs,
@@ -11,8 +12,6 @@ import {
 import { MenuProps } from "antd";
 import { makeAutoObservable } from "mobx";
 import { RefObject } from "react";
-
-import { MainController } from "../../controllers";
 
 import { TimelineEventHandler } from "./event-handler";
 

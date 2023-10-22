@@ -1,9 +1,9 @@
+import { IconClose } from "@app/assets";
+import { useMainController } from "@app/controllers";
 import { App, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
-import { ReactComponent as Close } from "../../assets/icons/close-box.svg";
-import { useMainController } from "../../controllers";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
@@ -16,7 +16,7 @@ export const TitleBar = observer(() => {
   return (
     <div className={style.TitleBar}>
       <div className={style.Branding}>
-        <img className={style.Logo} src="./giz.png" alt="Gizual Logo" />
+        <img className={style.Logo} src="./giz-icon.svg" alt="Gizual Logo" />
         <h1 className={style.Title}>gizual</h1>
       </div>
       <div className={style.Menu}>
@@ -36,11 +36,11 @@ export const TitleBar = observer(() => {
           <div
             className={clsx(
               style.MenuItem,
-              mainController._selectedPanel === "analyse" ? style.Selected : undefined,
+              mainController._selectedPanel === "analyze" ? style.Selected : undefined,
             )}
           >
-            <a className={style.MenuItemText} onClick={() => mainController.setPanel("analyse")}>
-              Analyse
+            <a className={style.MenuItemText} onClick={() => mainController.setPanel("analyze")}>
+              Analyze
             </a>
           </div>
 
@@ -74,7 +74,7 @@ export const TitleBar = observer(() => {
                 });
               }}
             >
-              <Close />
+              <IconClose />
             </IconButton>
           </Tooltip>
         </div>

@@ -37,7 +37,7 @@ export function AnimatedLogo({ className }: AnimatedLogoProps) {
         >
           Gizual
         </span>
-        <span className={style.TitleColourBg}>Gizual</span>
+        <span className={style.TitleColorBg}>Gizual</span>
       </div>
     </div>
   );

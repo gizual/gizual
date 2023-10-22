@@ -55,6 +55,7 @@
   padding: 0.5rem 0.5rem;
   gap: 0.25rem;
   min-height: 0;
+  transition: all 0.2s;
 
   &:hover {
     background-color: var(--background-secondary);
