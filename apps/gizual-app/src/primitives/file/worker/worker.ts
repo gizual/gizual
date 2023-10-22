@@ -88,13 +88,17 @@ export class CanvasWorker {
       if (index + 1 > VisualisationDefaults.maxLineCount) break;
       const lineLength = line.content.length;
 
-      const lineOffsetScaled =
-        (line.content.length - line.content.trimStart().length) * widthPerCharacter;
+      let rectWidth = columnWidth;
+      let lineOffsetScaled = 0;
 
-      const rectWidth = Math.min(
-        lineLength * widthPerCharacter - lineOffsetScaled,
-        scaledCanvasWidth - lineOffsetScaled,
-      );
+      if (fileCtx.visualisationConfig.style.lineLength === "lineLength") {
+        lineOffsetScaled =
+          (line.content.length - line.content.trimStart().length) * widthPerCharacter;
+        rectWidth = Math.min(
+          lineLength * widthPerCharacter - lineOffsetScaled,
+          scaledCanvasWidth - lineOffsetScaled,
+        );
+      }
 
       const colour =
         line.commit && !fileCtx.isPreview

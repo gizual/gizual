@@ -61,13 +61,16 @@ export class Masonry<T> {
       index++;
     }
 
-    if (columns.length === 0)
-      throw new Error("Tried to construct an empty Masonry layout. Aborted.");
-    console.log("Columns", columns);
+    if (columns.length === 0) console.warn("Tried to construct an empty Masonry layout.");
     return columns;
   }
 
   insertElement(element: MasonryElement<T>) {
+    if (this.columns.length === 0) {
+      console.warn("Cannot insert element (no valid columns)");
+      return;
+    }
+
     this.sortColumns();
     const col = this.columns[0];
     const positionedElement: PositionedMasonryElement<T> = { ...element, y: col.currentHeight };

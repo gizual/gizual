@@ -4,4 +4,7 @@ export type VisualisationConfig = {
     newest: string;
     notLoaded: string;
   };
+  style: {
+    lineLength: "lineLength" | "full";
+  };
 };

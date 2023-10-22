@@ -35,7 +35,6 @@ export class FileViewModel {
   @observable private _redrawCount = 0;
   @observable private _lastDrawnScale = 1;
   @observable private _lastDrawnColourMode?: MainController["colouringMode"] = "age";
-  @observable private _lastDrawnContext?: FileContext;
 
   constructor(mainController: MainController, file: FileModel) {
     this._mainController = mainController;
@@ -81,6 +80,10 @@ export class FileViewModel {
 
   get isPreview() {
     return this._file.isPreview;
+  }
+
+  get colours() {
+    return this._file.colours;
   }
 
   @computed

@@ -16,6 +16,9 @@ type ViewMode = (typeof VIEW_MODES)[number];
 const TIMELINE_MODES = ["visible", "collapsed"] as const;
 type TimelineMode = (typeof TIMELINE_MODES)[number];
 
+const LINE_LENGTH_MODES = ["lineLength", "full"] as const;
+type LineLengthMode = (typeof LINE_LENGTH_MODES)[number];
+
 type VisualisationSettings = {
   colours: {
     old: SettingsEntry<string, "colour">;
@@ -25,6 +28,9 @@ type VisualisationSettings = {
   canvas: {
     viewMode: SettingsEntry<ViewMode, "select">;
     rootMargin: SettingsEntry<number, "number">;
+  } & GroupEntry;
+  style: {
+    lineLength: SettingsEntry<LineLengthMode, "select">;
   } & GroupEntry;
 } & GroupEntry;
 
@@ -114,6 +120,18 @@ export class SettingsController {
         "Root Margin",
         "The margin of the canvas for evaluating file visibility, given in pixels. Positive margins enlarge the bounding box, negative margins shrink it.",
         200,
+      ),
+    },
+    style: {
+      groupName: "Style",
+      lineLength: createSelectSetting(
+        "Line Length",
+        "Controls the length of each line within the visualisation. It can either be representative to the line length within the file, or full width.",
+        "lineLength",
+        [
+          { value: "lineLength", label: "Based on line length" },
+          { value: "full", label: "Full width" },
+        ],
       ),
     },
   };

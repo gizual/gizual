@@ -11,7 +11,7 @@ export type SettingsEntry<T extends SettingsValue, C extends ControlType> = {
   value: T;
   controlType: C;
   defaultValue: T;
-  availableValues?: { value: T; label: T }[];
+  availableValues?: { value: T; label: T | string }[];
 };
 
 export function isSettingsEntry(obj: unknown): obj is SettingsEntry<SettingsValue, ControlType> {
@@ -27,7 +27,7 @@ function createSetting<T extends SettingsValue, C extends ControlType>(
   description: string,
   value: T,
   controlType: C,
-  availableValues?: { value: T; label: T }[],
+  availableValues?: { value: T; label: T | string }[],
 ): SettingsEntry<T, C> {
   return {
     name,
@@ -46,7 +46,7 @@ export const createSelectSetting = <T extends string>(
   name: string,
   description: string,
   value: T,
-  availableValues: { value: T; label: T }[],
+  availableValues: { value: T; label: T | string }[],
 ) => createSetting<T, "select">(name, description, value, "select", availableValues);
 export const createNumberSetting = (name: string, description: string, value: number) =>
   createSetting<number, "number">(name, description, value, "number");

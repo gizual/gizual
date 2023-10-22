@@ -87,7 +87,7 @@ export class EditorViewModel {
             const lineContent = fileContent[lineNumber];
             const authorId = lineContent.commit?.authorId;
             const authorName = authorId
-              ? this._file._mainController.getAuthorById(authorId)?.name
+              ? this._mainController.getAuthorById(authorId)?.name
               : "Unknown Author";
 
             const div = document.createElement("div");

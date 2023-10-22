@@ -278,6 +278,9 @@ export class MainController {
         oldest: this.settingsController.settings.visualisationSettings.colours.old.value,
         notLoaded: this.settingsController.settings.visualisationSettings.colours.notLoaded.value,
       },
+      style: {
+        lineLength: this.settingsController.settings.visualisationSettings.style.lineLength.value,
+      },
     };
   }
 

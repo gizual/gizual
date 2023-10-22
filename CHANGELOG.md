@@ -3,6 +3,7 @@
 ### Features
 
 - **app:canvas:** implement SVG export
+- **app:canvas:** implement full width visualization style 
 
 ### Changes
 
