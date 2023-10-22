@@ -31,7 +31,7 @@ export const AvailableTags: Record<AvailableTagId, Tag> = {
   },
   range: {
     id: "range",
-    textHint: "Constrain the visualisation to a specific time-range.",
+    textHint: "Constrain the visualization to a specific time-range.",
     inputAssist: <DateTimeInputAssist tagId="range" />,
   },
 };

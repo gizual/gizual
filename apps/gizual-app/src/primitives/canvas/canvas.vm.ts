@@ -1,4 +1,4 @@
-import { ColouringMode, ColouringModeLabels } from "@app/types";
+import { ColoringMode, ColoringModeLabels } from "@app/types";
 import {
   Masonry,
   SvgBaseElement,
@@ -101,8 +101,8 @@ export class CanvasViewModel {
   }
 
   @action.bound
-  onColouringModeChange = (value: ColouringMode) => {
-    this._mainController.setColouringMode(value);
+  onColoringModeChange = (value: ColoringMode) => {
+    this._mainController.setColoringMode(value);
 
     if (value !== "author" && this._mainController.vmController.isAuthorPanelVisible)
       this._mainController.vmController.setAuthorPanelVisibility(false);
@@ -112,8 +112,8 @@ export class CanvasViewModel {
   };
 
   @computed
-  get toggleColouringValues() {
-    return Object.entries(ColouringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
+  get toggleColoringValues() {
+    return Object.entries(ColoringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
   getDrawingContext(file: FileModel) {
@@ -122,12 +122,12 @@ export class CanvasViewModel {
       fileContent: toJS(file.data.lines),
       earliestTimestamp: toJS(file.data.earliestTimestamp),
       latestTimestamp: toJS(file.data.latestTimestamp),
-      visualisationConfig: toJS(this._mainController.visualisationConfig),
+      visualizationConfig: toJS(this._mainController.visualizationConfig),
       lineLengthMax: toJS(file.data.maxLineLength),
       isPreview: toJS(file.isPreview),
       selectedStartDate: toJS(this._mainController.selectedStartDate),
       selectedEndDate: toJS(this._mainController.selectedEndDate),
-      colouringMode: toJS(this._mainController.colouringMode),
+      coloringMode: toJS(this._mainController.coloringMode),
     };
   }
 

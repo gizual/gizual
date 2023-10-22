@@ -1,12 +1,12 @@
 import {
   createCheckboxSetting,
-  createColourSetting,
+  createColorSetting,
   createNumberSetting,
   createSelectSetting,
   GroupEntry,
-  LINEAR_COLOUR_RANGE,
+  LINEAR_COLOR_RANGE,
   SettingsEntry,
-  SPECIAL_COLOURS,
+  SPECIAL_COLORS,
 } from "@app/utils";
 import { makeAutoObservable, toJS } from "mobx";
 
@@ -19,11 +19,11 @@ type TimelineMode = (typeof TIMELINE_MODES)[number];
 const LINE_LENGTH_MODES = ["lineLength", "full"] as const;
 type LineLengthMode = (typeof LINE_LENGTH_MODES)[number];
 
-type VisualisationSettings = {
-  colours: {
-    old: SettingsEntry<string, "colour">;
-    new: SettingsEntry<string, "colour">;
-    notLoaded: SettingsEntry<string, "colour">;
+type VisualizationSettings = {
+  colors: {
+    old: SettingsEntry<string, "color">;
+    new: SettingsEntry<string, "color">;
+    notLoaded: SettingsEntry<string, "color">;
   } & GroupEntry;
   canvas: {
     viewMode: SettingsEntry<ViewMode, "select">;
@@ -77,7 +77,7 @@ export class SettingsController {
     ),
     defaultRange: createNumberSetting(
       "Default Selection Range",
-      "Adjusts the default date range (how many days to visualise, starting from the last commit in the repository).",
+      "Adjusts the default date range (how many days to visualize, starting from the last commit in the repository).",
       365,
     ),
     weekModeThreshold: createNumberSetting(
@@ -86,24 +86,24 @@ export class SettingsController {
       365,
     ),
   };
-  visualisationSettings: VisualisationSettings = {
-    groupName: "Visualisation Settings",
-    colours: {
+  visualizationSettings: VisualizationSettings = {
+    groupName: "Visualization Settings",
+    colors: {
       groupName: "Colors",
-      old: createColourSetting(
+      old: createColorSetting(
         "Old",
-        "The color that visualises the most distant change.",
-        LINEAR_COLOUR_RANGE[0],
+        "The color that visualizes the most distant change.",
+        LINEAR_COLOR_RANGE[0],
       ),
-      new: createColourSetting(
+      new: createColorSetting(
         "New",
-        "The color that visualises the most recent change.",
-        LINEAR_COLOUR_RANGE[1],
+        "The color that visualizes the most recent change.",
+        LINEAR_COLOR_RANGE[1],
       ),
-      notLoaded: createColourSetting(
+      notLoaded: createColorSetting(
         "Not loaded",
-        "The color that visualises changes that did not load yet or are outside the range.",
-        SPECIAL_COLOURS.NOT_LOADED,
+        "The color that visualizes changes that did not load yet or are outside the range.",
+        SPECIAL_COLORS.NOT_LOADED,
       ),
     },
     canvas: {
@@ -126,7 +126,7 @@ export class SettingsController {
       groupName: "Style",
       lineLength: createSelectSetting(
         "Line Length",
-        "Controls the length of each line within the visualisation. It can either be representative to the line length within the file, or full width.",
+        "Controls the length of each line within the visualization. It can either be representative to the line length within the file, or full width.",
         "lineLength",
         [
           { value: "lineLength", label: "Based on line length" },
@@ -144,7 +144,7 @@ export class SettingsController {
     return {
       editor: this.editor,
       timelineSettings: this.timelineSettings,
-      visualisationSettings: this.visualisationSettings,
+      visualizationSettings: this.visualizationSettings,
     };
   }
 
@@ -163,9 +163,9 @@ export class SettingsController {
 
     const parsed = JSON.parse(settings);
     this.editor = mergeObj(toJS(this.editor), parsed.editor);
-    this.visualisationSettings = mergeObj(
-      toJS(this.visualisationSettings),
-      parsed.visualisationSettings,
+    this.visualizationSettings = mergeObj(
+      toJS(this.visualizationSettings),
+      parsed.visualizationSettings,
     );
     this.timelineSettings = mergeObj(toJS(this.timelineSettings), parsed.timelineSettings);
   }

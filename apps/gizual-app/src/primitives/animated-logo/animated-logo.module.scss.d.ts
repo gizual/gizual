@@ -3,7 +3,7 @@ declare const classNames: {
   readonly Container: "Container";
   readonly TitleStroke: "TitleStroke";
   readonly TitleIdleWave: "TitleIdleWave";
-  readonly TitleColourBg: "TitleColourBg";
+  readonly TitleColorBg: "TitleColorBg";
   readonly LoadingFinishedWaveAnimate: "LoadingFinishedWaveAnimate";
   readonly GitLineMain: "GitLineMain";
   readonly GitLineBranch: "GitLineBranch";

@@ -177,7 +177,7 @@ export const RenderedSettingsEntry = observer(
                 options={entry.availableValues}
               />
             )}
-            {entry.controlType === "colour" && (
+            {entry.controlType === "color" && (
               <ColorPicker
                 showText
                 value={entry.value}

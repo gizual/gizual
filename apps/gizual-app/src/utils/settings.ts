@@ -2,7 +2,7 @@ export type GroupEntry = {
   groupName: string;
 };
 
-export type ControlType = "select" | "colour" | "number" | "checkbox" | "text";
+export type ControlType = "select" | "color" | "number" | "checkbox" | "text";
 export type SettingsValue = number | string | boolean;
 
 export type SettingsEntry<T extends SettingsValue, C extends ControlType> = {
@@ -40,8 +40,8 @@ function createSetting<T extends SettingsValue, C extends ControlType>(
 }
 
 // Specific factory functions for different control types:
-export const createColourSetting = (name: string, description: string, value: string) =>
-  createSetting<string, "colour">(name, description, value, "colour");
+export const createColorSetting = (name: string, description: string, value: string) =>
+  createSetting<string, "color">(name, description, value, "color");
 export const createSelectSetting = <T extends string>(
   name: string,
   description: string,

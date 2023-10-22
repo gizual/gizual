@@ -4,8 +4,8 @@ declare const classNames: {
   readonly FileIcon: "FileIcon";
   readonly FileTitle: "FileTitle";
   readonly FontIcon: "FontIcon";
-  readonly FavouriteIcon: "FavouriteIcon";
-  readonly FavouriteIconUnfilled: "FavouriteIconUnfilled";
+  readonly FavoriteIcon: "FavoriteIcon";
+  readonly FavoriteIconUnfilled: "FavoriteIconUnfilled";
   readonly LoadingContainer: "LoadingContainer";
   readonly FileActions: "FileActions";
   readonly FileActionIcon: "FileActionIcon";

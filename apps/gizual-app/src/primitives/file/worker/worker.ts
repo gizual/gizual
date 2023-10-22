@@ -1,6 +1,6 @@
-import { MainController, VisualisationDefaults } from "@app/controllers";
-import { VisualisationConfig } from "@app/types";
-import { BAND_COLOUR_RANGE, getBandColourScale, getColourScale, SvgBaseElement } from "@app/utils";
+import { MainController, VisualizationDefaults } from "@app/controllers";
+import { VisualizationConfig } from "@app/types";
+import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SvgBaseElement } from "@app/utils";
 import { expose } from "comlink";
 
 import { FileViewModel, Line } from "../file.vm";
@@ -9,9 +9,9 @@ import { CanvasRenderer, SvgRenderer } from "./renderer";
 
 export type RenderingMode = "canvas" | "svg";
 export type FileContext = {
-  colouringMode: MainController["_colouringMode"];
+  coloringMode: MainController["_coloringMode"];
   fileContent: FileViewModel["fileContent"];
-  visualisationConfig: VisualisationConfig;
+  visualizationConfig: VisualizationConfig;
   lineLengthMax: number;
   earliestTimestamp: number;
   latestTimestamp: number;
@@ -42,21 +42,21 @@ export class CanvasWorker {
     }
   }
 
-  async drawCanvas(fileCtx: FileContext): Promise<{ result: string; colours: string[] }> {
+  async drawCanvas(fileCtx: FileContext): Promise<{ result: string; colors: string[] }> {
     return this.draw(fileCtx, "canvas");
   }
 
   async drawSingleSvg(
     fileCtx: FileContext,
-  ): Promise<{ result: SvgBaseElement[]; colours: string[] }> {
+  ): Promise<{ result: SvgBaseElement[]; colors: string[] }> {
     return this.draw(fileCtx, "svg");
   }
 
-  async draw(fileCtx: FileContext, mode: "canvas"): Promise<{ result: string; colours: string[] }>;
+  async draw(fileCtx: FileContext, mode: "canvas"): Promise<{ result: string; colors: string[] }>;
   async draw(
     fileCtx: FileContext,
     mode: "svg",
-  ): Promise<{ result: SvgBaseElement[]; colours: string[] }>;
+  ): Promise<{ result: SvgBaseElement[]; colors: string[] }>;
   async draw(fileCtx: FileContext, mode: RenderingMode = "canvas") {
     await this.prepareFont();
 
@@ -67,7 +67,7 @@ export class CanvasWorker {
 
     renderer.prepareContext(fileCtx.rect.width, fileCtx.rect.height, fileCtx.dpr);
 
-    const colours: string[] = [];
+    const colors: string[] = [];
 
     const columnSpacing = 0;
     const lineHeight = 10 * fileCtx.dpr;
@@ -82,16 +82,16 @@ export class CanvasWorker {
     if (fileCtx.nColumns > 1)
       columnWidth = scaledCanvasWidth / fileCtx.nColumns - (fileCtx.nColumns - 1) * columnSpacing;
 
-    const widthPerCharacter = columnWidth / VisualisationDefaults.maxLineLength;
+    const widthPerCharacter = columnWidth / VisualizationDefaults.maxLineLength;
 
     for (const [index, line] of fileCtx.fileContent.entries()) {
-      if (index + 1 > VisualisationDefaults.maxLineCount) break;
+      if (index + 1 > VisualizationDefaults.maxLineCount) break;
       const lineLength = line.content.length;
 
       let rectWidth = columnWidth;
       let lineOffsetScaled = 0;
 
-      if (fileCtx.visualisationConfig.style.lineLength === "lineLength") {
+      if (fileCtx.visualizationConfig.style.lineLength === "lineLength") {
         lineOffsetScaled =
           (line.content.length - line.content.trimStart().length) * widthPerCharacter;
         rectWidth = Math.min(
@@ -100,20 +100,20 @@ export class CanvasWorker {
         );
       }
 
-      const colour =
+      const color =
         line.commit && !fileCtx.isPreview
-          ? this.interpolateColour(line, fileCtx)
-          : fileCtx.visualisationConfig.colours.notLoaded;
+          ? this.interpolateColor(line, fileCtx)
+          : fileCtx.visualizationConfig.colors.notLoaded;
 
-      line.color = colour;
-      colours.push(line.color);
+      line.color = color;
+      colors.push(line.color);
 
       renderer.drawRect({
         x: currentX + lineOffsetScaled,
         y: currentY,
         width: rectWidth,
         height: lineHeight,
-        fill: colour,
+        fill: color,
       });
       renderer.drawText(line.content, {
         x: currentX,
@@ -122,18 +122,18 @@ export class CanvasWorker {
         fill: "white",
       });
 
-      currentY += lineHeight + VisualisationDefaults.lineSpacing;
+      currentY += lineHeight + VisualizationDefaults.lineSpacing;
     }
 
     const result = await renderer.getReturnValue();
 
     return {
       result,
-      colours,
+      colors,
     };
   }
 
-  interpolateColour(line: Line, fileContext: FileContext) {
+  interpolateColor(line: Line, fileContext: FileContext) {
     const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
 
     // If the line was updated before the start or after the end date, grey it out.
@@ -141,26 +141,26 @@ export class CanvasWorker {
       updatedAtSeconds * 1000 < fileContext.selectedStartDate.getTime() ||
       updatedAtSeconds * 1000 > fileContext.selectedEndDate.getTime()
     )
-      return fileContext.visualisationConfig.colours.notLoaded;
+      return fileContext.visualizationConfig.colors.notLoaded;
 
-    if (fileContext.colouringMode === "age") {
+    if (fileContext.coloringMode === "age") {
       const timeRange: [number, number] = [
         fileContext.earliestTimestamp,
         fileContext.latestTimestamp,
       ];
       const colorRange: [string, string] = [
-        fileContext.visualisationConfig.colours.oldest,
-        fileContext.visualisationConfig.colours.newest,
+        fileContext.visualizationConfig.colors.oldest,
+        fileContext.visualizationConfig.colors.newest,
       ];
 
       return updatedAtSeconds
-        ? getColourScale(timeRange, colorRange)(updatedAtSeconds)
-        : fileContext.visualisationConfig.colours.notLoaded;
+        ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
+        : fileContext.visualizationConfig.colors.notLoaded;
     } else {
       const author = fileContext.authors.find((a) => a.id === line.commit?.authorId);
-      return getBandColourScale(
+      return getBandColorScale(
         fileContext.authors.map((a) => a.id),
-        BAND_COLOUR_RANGE,
+        BAND_COLOR_RANGE,
       )(author?.id ?? "");
     }
   }

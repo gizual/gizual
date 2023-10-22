@@ -96,8 +96,8 @@ export class EditorViewModel {
             div.className = "GitGutter";
             div.style.width = gutterStyle === "author" ? "8rem" : "0.5rem";
             div.style.backgroundColor =
-              (this._file.colours && this._file.colours[lineNumber]) ??
-              this._mainController.settingsController.settings.visualisationSettings.colours
+              (this._file.colors && this._file.colors[lineNumber]) ??
+              this._mainController.settingsController.settings.visualizationSettings.colors
                 .notLoaded;
 
             if (gutterStyle === "author") {

@@ -1,6 +1,6 @@
-export const ColouringModes = ["age", "author"] as const;
-export type ColouringMode = (typeof ColouringModes)[number];
-export const ColouringModeLabels: Record<ColouringMode, string> = {
+export const ColoringModes = ["age", "author"] as const;
+export type ColoringMode = (typeof ColoringModes)[number];
+export const ColoringModeLabels: Record<ColoringMode, string> = {
   age: "By Age",
   author: "By Author",
 };

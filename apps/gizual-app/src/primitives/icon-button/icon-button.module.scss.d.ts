@@ -2,6 +2,6 @@ declare const classNames: {
   readonly IconButton: "IconButton";
   readonly Wide: "Wide";
   readonly BorderRight: "BorderRight";
-  readonly Coloured: "Coloured";
+  readonly Colored: "Colored";
 };
 export = classNames;

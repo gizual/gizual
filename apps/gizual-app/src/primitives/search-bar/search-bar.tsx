@@ -223,7 +223,7 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
 
       <IconButton
         className={style.SearchIcon}
-        coloured
+        colored
         wide
         border="right"
         onClick={() => vm.search()}

@@ -180,19 +180,19 @@ function Canvas({ vm: externalVm }: CanvasProps) {
             </IconButton>
           </Tooltip>
 
-          {mainController._colouringMode === "age" && (
+          {mainController._coloringMode === "age" && (
             <>
               <div className={style.Separator}></div>
               <div className={style.ControlWithLabel}>
                 <p className={style["ControlWithLabel__Label"]}>Old changes:</p>
                 <ColorPicker
-                  value={settingsController.settings.visualisationSettings.colours.old.value}
+                  value={settingsController.settings.visualizationSettings.colors.old.value}
                   showText
                   size="small"
                   format="hex"
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
-                      settingsController.settings.visualisationSettings.colours.old,
+                      settingsController.settings.visualizationSettings.colors.old,
                       `#${e.toHex(false)}`,
                     );
                   }}
@@ -203,13 +203,13 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               <div className={style.ControlWithLabel}>
                 <p className={style["ControlWithLabel__Label"]}>New changes:</p>
                 <ColorPicker
-                  value={settingsController.settings.visualisationSettings.colours.new.value}
+                  value={settingsController.settings.visualizationSettings.colors.new.value}
                   showText
                   size="small"
                   format="hex"
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
-                      settingsController.settings.visualisationSettings.colours.new,
+                      settingsController.settings.visualizationSettings.colors.new,
                       `#${e.toHex(false)}`,
                     );
                   }}
@@ -221,15 +221,15 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         </div>
         <div className={sharedStyle.InlineRow}>
           <div className={style.ControlWithLabel}>
-            <p className={style["ControlWithLabel__Label"]}>Colouring mode:</p>
+            <p className={style["ControlWithLabel__Label"]}>Coloring mode:</p>
             <Radio.Group
               buttonStyle={"solid"}
-              value={mainController.colouringMode}
-              onChange={(n) => vm.onColouringModeChange(n.target.value)}
+              value={mainController.coloringMode}
+              onChange={(n) => vm.onColoringModeChange(n.target.value)}
               size="small"
               style={{ display: "flex", flexDirection: "row" }}
             >
-              {vm.toggleColouringValues.map((v) => (
+              {vm.toggleColoringValues.map((v) => (
                 <Radio.Button key={v.value} value={v.value} style={{ whiteSpace: "nowrap" }}>
                   {v.label}
                 </Radio.Button>
@@ -241,7 +241,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
             <IconButton
               onClick={() => vmController.toggleAuthorPanelVisibility()}
               aria-label="Toggle author panel"
-              coloured={vmController.isAuthorPanelVisible}
+              colored={vmController.isAuthorPanelVisible}
             >
               <People className={sharedStyle.ToolbarIcon} />
             </IconButton>
@@ -269,7 +269,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           <RenderedSettingsEntry
             entry={createSelectSetting(
               "Appearance",
-              "Controls the background and font colours of the exported SVG.",
+              "Controls the background and font colors of the exported SVG.",
               selectedAppearance,
               [
                 { value: "dark", label: "Light text on dark background" },

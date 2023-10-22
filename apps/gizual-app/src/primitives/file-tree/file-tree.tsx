@@ -10,11 +10,11 @@ import { FileTreeDataNode, FileTreeViewModel } from "./file-tree.vm";
 
 type FileTreeProps = {
   vm?: FileTreeViewModel;
-  mode?: "favourite" | "tree";
+  mode?: "favorite" | "tree";
 };
 
 /**
- * File Tree component, responsible for rendering the file tree and the favourite tree.
+ * File Tree component, responsible for rendering the file tree and the favorite tree.
  */
 export const FileTree = observer(({ mode = "tree", vm: externalVm }: FileTreeProps) => {
   const mainController = useMainController();
@@ -22,8 +22,8 @@ export const FileTree = observer(({ mode = "tree", vm: externalVm }: FileTreePro
     return externalVm || new FileTreeViewModel(mainController);
   }, []);
 
-  const treeData = mode === "favourite" ? vm.favouriteTreeData : vm.treeData;
-  const selectedKeys = mode === "favourite" ? vm.selectedFavouriteFiles : vm.selectedFiles;
+  const treeData = mode === "favorite" ? vm.favoriteTreeData : vm.treeData;
+  const selectedKeys = mode === "favorite" ? vm.selectedFavoriteFiles : vm.selectedFiles;
   if (vm.treeData.length < 0) return <></>;
 
   // We're deliberately only setting `currentNode` when a right-click on a tree element is detected.
@@ -51,10 +51,8 @@ export const FileTree = observer(({ mode = "tree", vm: externalVm }: FileTreePro
       {
         key: "3",
         label:
-          currentNode && vm.isFavourite(currentNode)
-            ? "Remove from favourites"
-            : "Mark as favourite",
-        onClick: () => currentNode && vm.setFavourite(currentNode),
+          currentNode && vm.isFavorite(currentNode) ? "Remove from favorites" : "Mark as favorite",
+        onClick: () => currentNode && vm.setFavorite(currentNode),
       },
     ],
     [currentNode],
@@ -89,7 +87,7 @@ export const FileTree = observer(({ mode = "tree", vm: externalVm }: FileTreePro
 
           return (
             <div key={node.key} className={style.TreeEntry}>
-              <FontIcon name={icon} colours={node.fileIconColor} />
+              <FontIcon name={icon} colors={node.fileIconColor} />
               <div className={style.TreeNode} onClick={() => vm.onFileTreeSelect(node)}>
                 {node.title}
               </div>

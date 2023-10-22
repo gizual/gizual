@@ -14,13 +14,13 @@ export const RepoPanel = observer(() => {
 
   return (
     <div className={style.RepoPanel}>
-      {mainController.favouriteFiles.size > 0 && (
+      {mainController.favoriteFiles.size > 0 && (
         <div className={sharedStyle.Section}>
           <div className={sharedStyle.SectionHead}>
-            <h1>Favourites</h1>
+            <h1>Favorites</h1>
           </div>
           <div className={sharedStyle.SectionBody}>
-            <FileTree mode={"favourite"} />
+            <FileTree mode={"favorite"} />
           </div>
         </div>
       )}

@@ -52,14 +52,14 @@
   transform-origin: bottom left;
 }
 
-.FavouriteIcon {
+.FavoriteIcon {
   @include icon-scaled;
   & > path {
     fill: var(--color-gold);
   }
 }
 
-.FavouriteIconUnfilled {
+.FavoriteIconUnfilled {
   @include icon-scaled;
   fill: var(--color-gold);
 }

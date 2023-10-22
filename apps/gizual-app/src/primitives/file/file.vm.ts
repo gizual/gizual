@@ -1,4 +1,4 @@
-import { FileModel, VisualisationDefaults } from "@app/controllers";
+import { FileModel, VisualizationDefaults } from "@app/controllers";
 import { Remote, wrap } from "comlink";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
@@ -15,9 +15,9 @@ export type Line = {
 };
 
 export type RenderConfiguration = Partial<{
-  colourOld: string;
-  colourNew: string;
-  colourNotLoaded: string;
+  colorOld: string;
+  colorNew: string;
+  colorNotLoaded: string;
   maxLineLength: number;
   lineSpacing: number;
   maxLineCount: number;
@@ -34,7 +34,7 @@ export class FileViewModel {
   @observable private _worker?: Worker;
   @observable private _redrawCount = 0;
   @observable private _lastDrawnScale = 1;
-  @observable private _lastDrawnColourMode?: MainController["colouringMode"] = "age";
+  @observable private _lastDrawnColorMode?: MainController["coloringMode"] = "age";
 
   constructor(mainController: MainController, file: FileModel) {
     this._mainController = mainController;
@@ -82,23 +82,23 @@ export class FileViewModel {
     return this._file.isPreview;
   }
 
-  get colours() {
-    return this._file.colours;
+  get colors() {
+    return this._file.colors;
   }
 
   @computed
-  get isFavourite() {
-    return this._mainController.favouriteFiles.has(this.fileName);
+  get isFavorite() {
+    return this._mainController.favoriteFiles.has(this.fileName);
   }
 
   @action.bound
-  setColours(colours: string[]) {
-    this._file.setColours(colours);
+  setColors(colors: string[]) {
+    this._file.setColors(colors);
   }
 
   @action.bound
-  unsetFavourite() {
-    this._mainController.toggleFavourite(this.fileName);
+  unsetFavorite() {
+    this._mainController.toggleFavorite(this.fileName);
   }
 
   @action.bound
@@ -143,7 +143,7 @@ export class FileViewModel {
   get shouldRedraw() {
     return (
       this.lastDrawScale - this._mainController.scale < -0.25 ||
-      this.lastDrawnColourMode !== this._mainController.colouringMode
+      this.lastDrawnColorMode !== this._mainController.coloringMode
     );
   }
 
@@ -153,12 +153,12 @@ export class FileViewModel {
   }
 
   @action.bound
-  setLastDrawnColourMode(colouringMode: MainController["colouringMode"]) {
-    this._lastDrawnColourMode = colouringMode;
+  setLastDrawnColorMode(coloringMode: MainController["coloringMode"]) {
+    this._lastDrawnColorMode = coloringMode;
   }
 
-  get lastDrawnColourMode() {
-    return this._lastDrawnColourMode;
+  get lastDrawnColorMode() {
+    return this._lastDrawnColorMode;
   }
 
   get lastDrawScale() {
@@ -193,7 +193,7 @@ export class FileViewModel {
 
   @computed
   get rectHeight() {
-    return Math.min(this.fileContent.length * 10, VisualisationDefaults.maxLineCount * 10);
+    return Math.min(this.fileContent.length * 10, VisualizationDefaults.maxLineCount * 10);
   }
 
   @action.bound
@@ -217,13 +217,13 @@ export class FileViewModel {
       fileContent: toJS(this.fileContent),
       earliestTimestamp: toJS(this.fileData.earliestTimestamp),
       latestTimestamp: toJS(this.fileData.latestTimestamp),
-      visualisationConfig: toJS(this._mainController.visualisationConfig),
+      visualizationConfig: toJS(this._mainController.visualizationConfig),
       lineLengthMax: toJS(this.fileData.maxLineLength),
       isPreview: toJS(this.fileData.isPreview) ?? true,
       selectedStartDate: toJS(this._mainController.selectedStartDate),
       selectedEndDate: toJS(this._mainController.selectedEndDate),
       redrawCount: toJS(this.redrawCount),
-      colouringMode: toJS(this._mainController.colouringMode),
+      coloringMode: toJS(this._mainController.coloringMode),
     };
   }
 
@@ -252,13 +252,13 @@ export class FileViewModel {
     rect.width = rect.width * (1 / scale);
 
     const nColumns = 1;
-    //if (this.fileContent.length > VisualisationDefaults.maxLineCount) {
-    //  nColumns = Math.floor(this.fileContent.length / VisualisationDefaults.maxLineCount) + 1;
+    //if (this.fileContent.length > VisualizationDefaults.maxLineCount) {
+    //  nColumns = Math.floor(this.fileContent.length / VisualizationDefaults.maxLineCount) + 1;
     //}
 
     rect.height = Math.min(
-      nColumns > 1 ? VisualisationDefaults.maxLineCount * 10 : this.fileContent.length * 10,
-      VisualisationDefaults.maxLineCount * 10,
+      nColumns > 1 ? VisualizationDefaults.maxLineCount * 10 : this.fileContent.length * 10,
+      VisualizationDefaults.maxLineCount * 10,
     );
 
     if (this._canvasRef?.current) {
@@ -308,10 +308,10 @@ export class FileViewModel {
       img.src = result.result;
 
       fileContainer.style.width = "300px";
-      this.setColours(result.colours);
+      this.setColors(result.colors);
       //console.log("[gizual-app] UI thread: draw result", result);
       this.setLastDrawScale(scale);
-      this.setLastDrawnColourMode(this._mainController.colouringMode);
+      this.setLastDrawnColorMode(this._mainController.coloringMode);
       this.incrementRedrawCount();
       this._mainController.unregisterWorker(this.fileName);
     });

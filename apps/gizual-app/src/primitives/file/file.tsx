@@ -48,9 +48,9 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
     mainController.selectedStartDate,
     mainController.selectedEndDate,
     vm.shouldRender,
-    settingsController.settings.visualisationSettings.colours.new.value,
-    settingsController.settings.visualisationSettings.colours.old.value,
-    settingsController.settings.visualisationSettings.colours.notLoaded.value,
+    settingsController.settings.visualizationSettings.colors.new.value,
+    settingsController.settings.visualizationSettings.colors.old.value,
+    settingsController.settings.visualizationSettings.colors.notLoaded.value,
   ]);
 
   // Attach IntersectionObserver on load, detach on dispose.
@@ -59,7 +59,7 @@ export const File = observer(({ vm: externalVm, file, parentContainer }: FilePro
 
     const ioOptions: IntersectionObserverInit = {
       root: parentContainer,
-      rootMargin: `${settingsController.visualisationSettings.canvas.rootMargin.value}px`,
+      rootMargin: `${settingsController.visualizationSettings.canvas.rootMargin.value}px`,
       threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
     };
 
@@ -127,7 +127,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
           <FontIcon
             className={style.FontIcon}
             name={vm.fileInfo.fileIcon}
-            colours={vm.fileInfo.fileIconColor!}
+            colors={vm.fileInfo.fileIconColor!}
           />
         )}
         <p className={style.FileTitle} title={vm.fileName}>

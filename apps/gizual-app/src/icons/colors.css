@@ -1,49 +1,9 @@
-/*============================================================================*
-	MIXINS
-	Moved from `colours.less` to avoid flooding stylesheet with documentation.
-/*============================================================================*/
-/**
- * Brighten a colour if it would be too dim to see with a dark-coloured theme.
- *
- * @colour: CSS colour value
- * @amount: Percentile value controlling the increase
- *          to the colour's luminosity and saturation.
- *
- * HACK: Saturation will be increased slightly to account for the "washed out"
- *       look when brightening a colour will high luminosity. This will destroy
- *       achromatic values, turning shades of grey into into a pale cyan.
- *       Use `.brighten-grey-if-needed` to brighten monochromatic colours.
- */
-/**
- * Brighten a greyscale colour if it's too close to the theme's background colour.
- *
- * @colour: An acromatic CSS colour value
- * @amount: Percentile value determining how far to increase the shade's brightness.
- *
- * NOTE: This mixin is identical to `.brighten-if-needed`, except that saturation
- *       won't be modified. This should theoretically be handled by the current
- *       mixin, except Less's syntax for branching sucks and I hate this language
- *       enough already without being forced to spoonfeed it.
- */
-/**
- * Darken a colour if it would be too bright to see with a light-coloured theme.
- *
- * @colour: CSS colour value
- * @amount: Percentile value controlling the decrease in luminosity.
- *
- * NOTE: There's no accompanying `.darken-grey-if-needed`, because
- *       the colour's saturation is not modified when darkening.
- */
-/**
- * Utility class to provide JavaScript with a reliable brightness indicator.
- * Not a Less mixin, but the ruleset doesn't belong in `colours.less` either.
- */
 .theme-colour-check {
   background: #303030;
 }
 /*============================================================================*
 	PALETTE	
-	Base16 colours from https://github.com/chriskempson/base16
+	Base16 colors from https://github.com/chriskempson/base16
 /*============================================================================*/
 /*============================================================================*
 	CSS CLASSES
