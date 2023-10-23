@@ -13,6 +13,21 @@
   display: flex;
 }
 
+.AdvancedSearchIconContainer {
+  position: absolute;
+  right: 12px;
+  z-index: 9999;
+  height: 30px;
+  cursor: pointer;
+}
+
+.AdvancedSearchIcon {
+  & > path {
+    stroke: var(--foreground-primary);
+    fill: var(--background-tertiary);
+  }
+}
+
 .SearchInput {
   @include rounded;
   @include z-index-dialog-2;

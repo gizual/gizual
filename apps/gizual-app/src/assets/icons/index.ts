@@ -3,6 +3,7 @@ export { ReactComponent as IconChevronDown } from "./chevron-down.svg";
 export { ReactComponent as IconChevronUp } from "./chevron-up.svg";
 export { ReactComponent as IconClose } from "./close.svg";
 export { ReactComponent as IconCloseBox } from "./close-box.svg";
+export { ReactComponent as IconCommandLine } from "./command-line.svg";
 export { ReactComponent as IconDownload } from "./download.svg";
 export { ReactComponent as IconDragVertical } from "./drag-vertical.svg";
 export { ReactComponent as IconFileTree } from "./file-tree.svg";
