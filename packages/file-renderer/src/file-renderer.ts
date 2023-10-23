@@ -1,4 +1,10 @@
-import { SvgAttributes, SvgBaseElement, SvgRectElement } from "@app/utils";
+import { SvgAttributes, SvgBaseElement, SvgRectElement } from "@giz/gizual-app/utils";
+
+export const VisualizationDefaults = {
+  maxLineLength: 120,
+  lineSpacing: 0,
+  maxLineCount: 100,
+};
 
 export type SvgElement = {
   head: string;

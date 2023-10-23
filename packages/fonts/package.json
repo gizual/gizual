@@ -1,0 +1,6 @@
+{
+  "name": "@giz/fonts",
+  "exports": {
+    "./": "./src/"
+  }
+}

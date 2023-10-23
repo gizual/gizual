@@ -962,6 +962,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@giz/file-renderer@workspace:*, @giz/file-renderer@workspace:packages/file-renderer":
+  version: 0.0.0-use.local
+  resolution: "@giz/file-renderer@workspace:packages/file-renderer"
+  dependencies:
+    "@swc/core": 1.3.70
+    comlink: 4.4.1
+    eslint: 8.45.0
+    tsup: 7.1.0
+    typescript: 5.0.4
+  languageName: unknown
+  linkType: soft
+
+"@giz/fonts@workspace:packages/fonts":
+  version: 0.0.0-use.local
+  resolution: "@giz/fonts@workspace:packages/fonts"
+  languageName: unknown
+  linkType: soft
+
 "@giz/gizual-app@workspace:apps/gizual-app":
   version: 0.0.0-use.local
   resolution: "@giz/gizual-app@workspace:apps/gizual-app"
@@ -974,6 +992,7 @@ __metadata:
     "@codemirror/view": ^6.11.2
     "@giz/eslint-config": "workspace:*"
     "@giz/explorer": "workspace:*"
+    "@giz/file-renderer": "workspace:*"
     "@lezer/highlight": ^1.1.6
     "@lezer/lr": ^1.3.9
     "@types/d3-interpolate": ^3.0.1
@@ -1651,7 +1670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.3.10, @swc/core@npm:^1.3.30, @swc/core@npm:^1.3.61":
+"@swc/core@npm:1.3.70, @swc/core@npm:^1.3.10, @swc/core@npm:^1.3.30, @swc/core@npm:^1.3.61":
   version: 1.3.70
   resolution: "@swc/core@npm:1.3.70"
   dependencies:

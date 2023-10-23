@@ -1,3 +1,11 @@
+## Gizual 3.0.0-alpha.6 (23.10.2023)
+
+### Features
+
+- **app:canvas:** implement file renderer worker pool
+
+---
+
 ## Gizual 3.0.0-alpha.5 (22.10.2023)
 
 ### Features

@@ -8,10 +8,11 @@ import {
   SvgTextElement,
   truncateSmart,
 } from "@app/utils";
-import { FileContext, FileRendererWorker } from "@app/workers";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
+
+import { FileContext, FileRendererWorker } from "@giz/file-renderer";
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
@@ -136,6 +137,8 @@ export class CanvasViewModel {
 
     const masonry = new Masonry<SvgBaseElement>({ canvasWidth: width, gap: 16 });
 
+    const renderer = new FileRendererWorker();
+
     for (const file of this.loadedFiles) {
       if (file.data.lines.length === 0) continue;
 
@@ -148,8 +151,7 @@ export class CanvasViewModel {
       };
 
       const titleHeight = 26;
-      const worker = new FileRendererWorker();
-      const result = await worker.drawSingleSvg(ctx);
+      const result = await renderer.drawSingleSvg(ctx);
 
       const fileContainer = new SvgGroupElement(0, 0, 300, file.calculatedHeight + titleHeight);
       const border = new SvgRectElement({

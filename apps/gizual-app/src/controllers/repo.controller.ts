@@ -17,6 +17,7 @@ import {
 
 import { Blame, CommitInfo } from "@giz/explorer";
 import { BlameView } from "@giz/explorer";
+import { VisualizationDefaults } from "@giz/file-renderer";
 
 import type { MainController } from "./main.controller";
 
@@ -283,12 +284,6 @@ export class RepoController {
     }
   }
 }
-
-export const VisualizationDefaults = {
-  maxLineLength: 120,
-  lineSpacing: 0,
-  maxLineCount: 100,
-};
 
 export type Line = {
   content: string;

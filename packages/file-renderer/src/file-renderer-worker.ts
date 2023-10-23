@@ -1,12 +1,18 @@
-import { MainController, VisualizationDefaults } from "@app/controllers";
-import { FileViewModel, Line } from "@app/primitives/file";
-import { VisualizationConfig } from "@app/types";
-import { BAND_COLOR_RANGE, getBandColorScale, getColorScale, SvgBaseElement } from "@app/utils";
 import { expose } from "comlink";
 
-import iosevkaUrl from "@giz/gizual-app/src/fonts/Iosevka-Extended.woff2?url";
+import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
+import type { MainController } from "@giz/gizual-app/controllers";
+import type { FileViewModel, Line } from "@giz/gizual-app/primitives/file/index.ts";
+import type { VisualizationConfig } from "@giz/gizual-app/types";
+import {
+  BAND_COLOR_RANGE,
+  getBandColorScale,
+  getColorScale,
+  SvgBaseElement,
+} from "@giz/gizual-app/utils";
 
 import { CanvasRenderer, SvgRenderer } from "./file-renderer";
+import { VisualizationDefaults } from "./file-renderer";
 
 export type RenderingMode = "canvas" | "svg";
 export type FileContext = {
@@ -27,6 +33,8 @@ export type FileContext = {
 };
 
 export class FileRendererWorker {
+  fontsPrepared = false;
+
   constructor() {}
 
   //async registerCanvas(canvas: OffscreenCanvas) {
@@ -34,6 +42,8 @@ export class FileRendererWorker {
   //}
 
   async prepareFont() {
+    if (this.fontsPrepared) return;
+    this.fontsPrepared = true;
     if (self.FontFace && (self as any).fonts) {
       const fontFace = new FontFace(
         "Iosevka Extended",
@@ -170,4 +180,7 @@ export class FileRendererWorker {
   }
 }
 
-expose(new FileRendererWorker());
+if (typeof self !== "undefined" && typeof window === "undefined") {
+  // only expose in a worker
+  expose(new FileRendererWorker());
+}
