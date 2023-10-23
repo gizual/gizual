@@ -66,12 +66,12 @@ export const defaultQuery = `{
   },
   "highlight": [
     {
-      "fill": "{{ gradient($.age) }}"
+      "fill": "<%= gradient(data.age) %>"
     },
     {
-      "if": "{{ $.author === 'joe' }}",
+      "if": "<%= data.author === 'joe' %>",
       "stroke": "green",
-      "fill": "{{ if $.commitDate > '2020-01-01' ? 'red' : 'blue' }}"
+      "fill": "<%= data.commitDate > '2020-01-01' ? 'red' : 'blue' %>"
     }
   ]
 }`;
