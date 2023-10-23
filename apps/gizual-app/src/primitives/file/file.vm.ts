@@ -1,10 +1,9 @@
-import { FileModel, MainController, VisualizationDefaults } from "@app/controllers";
-import { FileContext, FileRendererWorker } from "@app/workers";
-import { Remote, wrap } from "comlink";
+import { FileModel, MainController } from "@app/controllers";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
 
 import { CommitInfo } from "@giz/explorer";
+import { type FileContext, VisualizationDefaults } from "@giz/file-renderer";
 
 export type Line = {
   content: string;
@@ -28,8 +27,6 @@ export class FileViewModel {
 
   @observable private _canvasRef: React.RefObject<HTMLImageElement> | undefined;
   @observable private _fileRef: React.RefObject<HTMLDivElement> | undefined;
-  @observable private _canvasWorker?: Remote<FileRendererWorker>;
-  @observable private _worker?: Worker;
   @observable private _redrawCount = 0;
   @observable private _lastDrawnScale = 1;
   @observable private _lastDrawnColorMode?: MainController["coloringMode"] = "age";
@@ -44,7 +41,6 @@ export class FileViewModel {
   @action.bound
   dispose() {
     this._mainController.unregisterWorker(this.fileName);
-    this._worker?.terminate();
     //this._file.dispose();
   }
 
@@ -128,20 +124,6 @@ export class FileViewModel {
     return this._fileRef;
   }
 
-  get canvasWorker() {
-    return this._canvasWorker;
-  }
-
-  @action.bound
-  setCanvasWorker(worker: Remote<FileRendererWorker>) {
-    this._canvasWorker = worker;
-  }
-
-  @action.bound
-  setWorker(worker: Worker) {
-    this._worker = worker;
-  }
-
   @computed
   get shouldRedraw() {
     return (
@@ -199,22 +181,6 @@ export class FileViewModel {
     return Math.min(this.fileContent.length * 10, VisualizationDefaults.maxLineCount * 10);
   }
 
-  @action.bound
-  createOrRetrieveCanvasWorker() {
-    if (!this._canvasWorker) {
-      const worker = new Worker(new URL("../../workers/file-renderer-worker.ts", import.meta.url), {
-        type: "module",
-      });
-      this.setWorker(worker);
-
-      const CanvasWorkerProxy = wrap<FileRendererWorker>(worker);
-
-      this._canvasWorker = CanvasWorkerProxy;
-    }
-
-    return this._canvasWorker;
-  }
-
   @computed
   get drawingContext() {
     return {
@@ -267,11 +233,6 @@ export class FileViewModel {
       this._canvasRef.current.style.width = `${rect.width}px`;
     }
 
-    const CanvasWorkerProxy = this.createOrRetrieveCanvasWorker();
-    if (!CanvasWorkerProxy) {
-      throw new Error("Could not assign canvas worker");
-    }
-
     this._mainController.registerWorker(this.fileName);
 
     const ctx: FileContext = {
@@ -282,7 +243,7 @@ export class FileViewModel {
     };
 
     this._isWorkerBusy = true;
-    const drawResult = CanvasWorkerProxy.drawCanvas(ctx);
+    const drawResult = this._mainController._fileRendererPool.renderCanvas(ctx);
 
     drawResult.then((result) => {
       if (!result) return;

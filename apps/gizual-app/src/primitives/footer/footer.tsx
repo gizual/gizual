@@ -8,15 +8,31 @@ import { MarkdownViewer } from "../markdown-viewer";
 
 import style from "./footer.module.scss";
 
+function paddedNumber(num: number, length = 2) {
+  return num.toString().padStart(length, "0");
+}
+
 export const Footer = observer(() => {
   const mainController = useMainController();
+
+  const explorer = {
+    jobs: paddedNumber(mainController.backendMetrics.numJobsInQueue, 3),
+    busyWorkers: paddedNumber(mainController.backendMetrics.numBusyWorkers, 2),
+    totalWorkers: paddedNumber(mainController.backendMetrics.numWorkers, 2),
+  };
+
+  const renderer = {
+    jobs: paddedNumber(mainController.numRenderJobs, 3),
+    busyWorkers: paddedNumber(mainController.numBusyRenderWorkers, 2),
+    totalWorkers: paddedNumber(mainController.numRenderWorkers, 2),
+  };
 
   return (
     <div className={style.Footer}>
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.5 - Build #{__COMMIT_HASH__}</p>}
+          trigger={<p>Gizual v3.0.0-alpha.6 - Build #{__COMMIT_HASH__}</p>}
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>
@@ -25,14 +41,10 @@ export const Footer = observer(() => {
         <Spin spinning={mainController.isBusy} />
         <p>{mainController.selectedFiles.length} files selected</p>
         <p>
-          {mainController.backendMetrics.numBusyWorkers}/{mainController.backendMetrics.numWorkers}{" "}
-          backend workers
+          explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
         </p>
-        <p>{mainController.backendMetrics.numJobsInQueue} pending backend jobs</p>
-        <p
-          onClick={() => console.log("Active Render Workers:", mainController.activeRenderWorkers)}
-        >
-          {mainController.numActiveWorkers} render jobs
+        <p>
+          renderer: {renderer.busyWorkers}/{renderer.totalWorkers} workers | {renderer.jobs} jobs
         </p>
       </div>
     </div>

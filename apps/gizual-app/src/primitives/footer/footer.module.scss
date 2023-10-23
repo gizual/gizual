@@ -39,6 +39,7 @@
   @include footer-container;
   justify-content: flex-end;
   text-align: right;
+  font-family: monospace;
 
   // border-left on all child elements
   > * {

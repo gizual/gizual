@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer";
+import { FileRendererPool } from "@giz/file-renderer";
 
 import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
@@ -25,6 +26,7 @@ export class MainController {
   @observable _vmController = new ViewModelController(this);
   @observable _settingsController: SettingsController;
   @observable _repoController: RepoController;
+  @observable _fileRendererPool: FileRendererPool;
   @observable _activeRenderWorkers = new Set<string>();
   @observable _isBusy = false;
   @observable _repoName = "";
@@ -52,6 +54,7 @@ export class MainController {
     this._selectedStartDate = new GizDate("1970-01-01");
     this._selectedEndDate = new GizDate("1970-01-01");
     this._repoController = new RepoController(this);
+    this._fileRendererPool = new FileRendererPool();
   }
 
   get repoController() {
@@ -309,8 +312,16 @@ export class MainController {
     this._isBusy = busy;
   }
 
-  get numActiveWorkers() {
-    return this._activeRenderWorkers.size;
+  get numRenderJobs() {
+    return this._fileRendererPool.numJobsInQueue;
+  }
+
+  get numBusyRenderWorkers() {
+    return this._fileRendererPool.numBusyWorkers;
+  }
+
+  get numRenderWorkers() {
+    return this._fileRendererPool.numWorkers;
   }
 
   @action.bound
