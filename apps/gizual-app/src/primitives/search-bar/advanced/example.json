@@ -39,12 +39,12 @@
 
   "highlight": [
     {
-      "fill": "{{ gradient($.age) }}"
+      "fill": "{{ _.gradient(_.age) }}"
     },
     {
-      "if": "{{ $.author === 'joe' }}",
+      "$if": "{{ _.author === 'joe' }}",
       "stroke": "green",
-      "fill": "{{ if $.commitDate > '2020-01-01' ? 'red' : 'blue' }}"
+      "fill": "{{ if _.commitDate > '2020-01-01' ? 'red' : 'blue' }}"
     }
   ]
 }

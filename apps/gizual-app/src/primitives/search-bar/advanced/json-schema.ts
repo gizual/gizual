@@ -11,9 +11,9 @@ const FilesQueryConditions = Type.Object({
 const AndOrQuery = Type.Array(FilesQueryConditions, { minItems: 2 });
 
 const FilesQuery = Type.Object({
-  and: Type.Optional(AndOrQuery),
-  or: Type.Optional(AndOrQuery),
-  not: Type.Optional(FilesQueryConditions),
+  $and: Type.Optional(AndOrQuery),
+  $or: Type.Optional(AndOrQuery),
+  $not: Type.Optional(FilesQueryConditions),
   ...FilesQueryConditions.properties,
 });
 
@@ -33,7 +33,7 @@ const TimeQuery = Type.Union([TimeSinceFirstCommitBy, TimeRangeByDate, TimeRange
 
 const HighlightItem = Type.Object({
   fill: Type.Optional(Type.String()),
-  if: Type.Optional(Type.String()),
+  $if: Type.Optional(Type.String()),
   stroke: Type.Optional(Type.String()),
 });
 
@@ -47,7 +47,7 @@ const SearchQuery = Type.Object({
 
 export type SearchQueryType = Static<typeof SearchQuery>;
 
-export function getSchema() {
+export function getSchema(): any {
   return { ...Type.Strict(SearchQuery), additionalProperties: false };
 }
 
@@ -66,12 +66,12 @@ export const defaultQuery = `{
   },
   "highlight": [
     {
-      "fill": "<%= gradient(data.age) %>"
+      "fill": "<%= _.gradient(_.age) %>"
     },
     {
-      "if": "<%= data.author === 'joe' %>",
+      "if": "<%= _.author === 'joe' %>",
       "stroke": "green",
-      "fill": "<%= data.commitDate > '2020-01-01' ? 'red' : 'blue' %>"
+      "fill": "<%= _.commitDate > '2020-01-01' ? 'red' : 'blue' %>"
     }
   ]
 }`;
