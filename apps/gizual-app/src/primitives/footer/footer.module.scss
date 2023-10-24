@@ -26,6 +26,8 @@
 
 .LeftSection {
   @include footer-container;
+  @include font-code;
+  @include text-sm;
   justify-content: flex-start;
 
   // border-right on all child elements
@@ -37,9 +39,10 @@
 
 .RightSection {
   @include footer-container;
+  @include font-code;
+  @include text-sm;
   justify-content: flex-end;
   text-align: right;
-  font-family: monospace;
 
   // border-left on all child elements
   > * {
