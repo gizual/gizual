@@ -3,6 +3,7 @@ mod cmd_blame;
 mod cmd_branches;
 mod cmd_get_file_content;
 mod cmd_get_filetree;
+mod cmd_stream_commits;
 mod cmd_git_graph;
 mod utils;
 mod file_types;
@@ -23,6 +24,7 @@ use crate::cmd_blame::{Blame, BlameParams};
 use crate::cmd_branches::CommitsForBranch;
 use crate::cmd_get_file_content::GetFileContentParams;
 use crate::cmd_get_filetree::GetFileTreeParams;
+use crate::cmd_stream_commits::StreamCommitsParams;
 use structopt::StructOpt;
 
 #[allow(unused_imports)]
@@ -61,6 +63,10 @@ pub trait RpcCommands {
 
     #[rpc(name = "get_commits_for_branch")]
     fn get_commits_for_branch(&self, branch: String) -> Result<CommitsForBranch>;
+
+    #[rpc(name = "stream_commits")]
+    fn stream_commits(&self) -> Result<bool>;
+
 
     #[rpc(name = "shutdown")]
     fn shutdown(&self) -> Result<bool>;
@@ -120,6 +126,12 @@ impl RpcCommands for RpcHandler {
     fn get_commits_for_branch(&self, branch: String) -> Result<CommitsForBranch> {
         let repo = self.repo.lock().unwrap();
         let result = cmd_branches::get_commits_for_branch(&repo, branch);
+        self.respond(result)
+    }
+
+    fn stream_commits(&self) -> Result<bool> {
+        let mut repo = self.repo.lock().unwrap();
+        let result = cmd_stream_commits::stream_commits(&mut repo);
         self.respond(result)
     }
 

@@ -24,6 +24,7 @@
     "@codemirror/state": "^6.2.0",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.11.2",
+    "@giz/database": "workspace:*",
     "@giz/explorer": "workspace:*",
     "@giz/file-renderer": "workspace:*",
     "@lezer/highlight": "^1.1.6",

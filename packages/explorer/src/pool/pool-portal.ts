@@ -21,6 +21,15 @@ export type PortaledJobOpts = {
   onData?: (data: any) => void;
 };
 
+export type CommitStreamData = {
+  oid: string;
+  aid: string;
+  message: string;
+
+  files: string[];
+  timestamp: string;
+};
+
 export class JobRef<T> {
   private id_: number;
   private priority_: number;
@@ -250,6 +259,20 @@ export class PoolPortal {
     return this.stream({
       method: "file_tree",
       params: [{ branch }],
+      onData,
+      onEnd,
+      onErr,
+    });
+  }
+
+  streamCommits(
+    onData: (data: CommitStreamData) => void,
+    onEnd: () => void,
+    onErr: (err: any) => void,
+  ) {
+    return this.stream({
+      method: "stream_commits",
+      params: [],
       onData,
       onEnd,
       onErr,

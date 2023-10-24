@@ -13,6 +13,7 @@ const commitHash = child.execSync("git rev-parse --short HEAD").toString();
 export default defineConfig({
   optimizeDeps: {
     include: ["@xtuc/asyncify-wasm"],
+    exclude: ["@sqlite.org/sqlite-wasm"],
   },
   define: {
     __COMMIT_HASH__: JSON.stringify(commitHash),
@@ -24,6 +25,16 @@ export default defineConfig({
     },
   },
   plugins: [
+    {
+      name: "isolation",
+      configureServer(server) {
+        server.middlewares.use((_req, res, next) => {
+          //res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+          //res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+          next();
+        });
+      },
+    },
     svgr(),
     react({
       tsDecorators: true,

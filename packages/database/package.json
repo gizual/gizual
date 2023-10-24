@@ -1,0 +1,40 @@
+{
+  "name": "@giz/database",
+  "module": "dist/index.mjs",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "^3.43.2-build1",
+    "comlink": "4.4.1"
+  },
+  "devDependencies": {
+    "@swc/core": "1.3.70",
+    "eslint": "8.45.0",
+    "tsup": "7.1.0",
+    "typescript": "5.0.4"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "lint": "eslint .",
+    "type-check": "tsc"
+  },
+  "please": {
+    "build": {
+      "input": "src/*"
+    }
+  },
+  "tsup": {
+    "entry": {
+      "index": "src/index.ts",
+      "database-worker": "src/database-worker.ts"
+    },
+    "external": [],
+    "format": "esm",
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "keepNames": true,
+    "dts": true
+  }
+}

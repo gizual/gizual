@@ -924,6 +924,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@giz/database@workspace:*, @giz/database@workspace:packages/database":
+  version: 0.0.0-use.local
+  resolution: "@giz/database@workspace:packages/database"
+  dependencies:
+    "@sqlite.org/sqlite-wasm": ^3.43.2-build1
+    "@swc/core": 1.3.70
+    comlink: 4.4.1
+    eslint: 8.45.0
+    tsup: 7.1.0
+    typescript: 5.0.4
+  languageName: unknown
+  linkType: soft
+
 "@giz/eslint-config@workspace:*, @giz/eslint-config@workspace:tools/eslint-config":
   version: 0.0.0-use.local
   resolution: "@giz/eslint-config@workspace:tools/eslint-config"
@@ -990,6 +1003,7 @@ __metadata:
     "@codemirror/state": ^6.2.0
     "@codemirror/theme-one-dark": ^6.1.2
     "@codemirror/view": ^6.11.2
+    "@giz/database": "workspace:*"
     "@giz/eslint-config": "workspace:*"
     "@giz/explorer": "workspace:*"
     "@giz/file-renderer": "workspace:*"
@@ -1473,6 +1487,20 @@ __metadata:
   version: 0.7.0
   resolution: "@sindresorhus/is@npm:0.7.0"
   checksum: decc50f6fe80b75c981bcff0a585c05259f5e04424a46a653ac9a7e065194145c463ca81001e3a229bd203f59474afadb5b1fa0af5507723f87f2dd45bd3897c
+  languageName: node
+  linkType: hard
+
+"@sqlite.org/sqlite-wasm@npm:^3.43.2-build1":
+  version: 3.43.2-prebuild1
+  resolution: "@sqlite.org/sqlite-wasm@npm:3.43.2-prebuild1"
+  dependencies:
+    comlink: ^4.4.1
+  dependenciesMeta:
+    comlink:
+      optional: true
+  bin:
+    sqlite-wasm: bin/index.js
+  checksum: ccc611ff8049ec19a509fa6466ea0b4ef68e28d2a7c5befcebb8744258f702f90c884e2030fcedc9f2f7e42cd84e387579814b344a2ca1a3177683274ee81801
   languageName: node
   linkType: hard
 
@@ -3217,7 +3245,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"comlink@npm:4.4.1":
+"comlink@npm:4.4.1, comlink@npm:^4.4.1":
   version: 4.4.1
   resolution: "comlink@npm:4.4.1"
   checksum: 16d58a8f590087fc45432e31d6c138308dfd4b75b89aec0b7f7bb97ad33d810381bd2b1e608a1fb2cf05979af9cbfcdcaf1715996d5fcf77aeb013b6da3260af

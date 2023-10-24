@@ -53,11 +53,11 @@ impl fmt::Display for CommitInfo {
     }
 }
 
-fn to_string_oid(oid: &git2::Oid) -> Oid {
+pub fn to_string_oid(oid: &git2::Oid) -> Oid {
     oid.to_string()
 }
 
-fn get_stash_ids(repository: &mut Repository) -> Result<HashSet<Oid>, Error> {
+pub fn get_stash_ids(repository: &mut Repository) -> Result<HashSet<Oid>, Error> {
     let mut stashes = HashSet::new();
     repository.stash_foreach(|_, _, oid| {
         stashes.insert(to_string_oid(oid));

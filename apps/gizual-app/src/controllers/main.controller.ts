@@ -4,6 +4,7 @@ import { ArgsProps, NotificationInstance } from "antd/es/notification/interface"
 import dayjs from "dayjs";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
+import { Database } from "@giz/database";
 import { FileTree, Repository } from "@giz/explorer";
 import { FileRendererPool } from "@giz/file-renderer";
 
@@ -27,6 +28,7 @@ export class MainController {
   @observable _settingsController: SettingsController;
   @observable _repoController: RepoController;
   @observable _fileRendererPool: FileRendererPool;
+  @observable _database: Database;
   @observable _activeRenderWorkers = new Set<string>();
   @observable _isBusy = false;
   @observable _repoName = "";
@@ -55,6 +57,7 @@ export class MainController {
     this._selectedEndDate = new GizDate("1970-01-01");
     this._repoController = new RepoController(this);
     this._fileRendererPool = new FileRendererPool();
+    this._database = new Database();
   }
 
   get repoController() {
@@ -280,6 +283,33 @@ export class MainController {
   setPage(page: Page) {
     this._page = page;
     this._pendingTransition = false;
+
+    if (page === "main") {
+      setTimeout(async () => {
+        const port = await this._repoController.repo.controller?.createPort();
+
+        this._database.init(port!);
+      });
+    }
+  }
+
+  async selectMatchingFiles(path: string, editedBy: string) {
+    this.repoController.unloadAllFiles();
+
+    const files = await this._database.selectMatchingFiles(
+      path,
+      editedBy,
+      this.repoController.selectedBranch,
+    );
+
+    for (const file of files) {
+      this.repoController.toggleFile(file, {
+        path: file,
+        title: file,
+        // eslint-disable-next-line unicorn/no-null
+        fileIconColor: [null, null],
+      });
+    }
   }
 
   @action.bound
