@@ -63,6 +63,27 @@ export class PoolController {
     this.worker.addEventListener("message", this.metricsCallback);
   }
 
+  static async seekRepo(
+    directoryHandle: FileSystemDirectoryHandle,
+    depth = 0,
+  ): Promise<FileSystemDirectoryHandle | undefined> {
+    // check if the dir contains a .git folder or if any subfolder contains a .git folder
+
+    const entries = await directoryHandle.entries();
+
+    for await (const [name, handle] of entries) {
+      if (name === ".git" && handle.kind === "directory") {
+        return directoryHandle;
+      } else if (handle.kind === "directory" && depth < 2) {
+        const found = await this.seekRepo(handle);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return undefined;
+  }
+
   static async importDirectoryEntry(
     rootEntry: FileSystemDirectoryEntry,
   ): Promise<FileSystemDirectoryHandle> {
@@ -76,6 +97,17 @@ export class PoolController {
 
     const importEntry = async (source: FileSystemEntry, target: FileSystemDirectoryHandle) => {
       if (isFileSystemDirectoryEntry(source)) {
+        if (
+          source.name === "node_modules" ||
+          source.name === ".yarn" ||
+          source.name === "target" ||
+          source.name === "cache" ||
+          source.name === ".cache"
+        ) {
+          // TODO: auto detect ignored files from .gitignore
+          return;
+        }
+
         const dirName = source.name;
         let targetHandle: FileSystemDirectoryHandle;
 
@@ -161,6 +193,10 @@ export class PoolController {
       }
       const fileName = parts.pop()!;
       const dirPath = parts.join("/");
+
+      if (!dirPath.includes(".git")) {
+        continue;
+      }
 
       if (dirPath !== currentPath) {
         currentPath = dirPath;
@@ -253,6 +289,8 @@ export class PoolController {
     } else if (opts.zipFile) {
       opts.directoryHandle = await this.importZipFile(opts.zipFile!);
     }
+
+    opts.directoryHandle = await this.seekRepo(opts.directoryHandle!);
 
     const worker = new Worker(new URL("pool-master.ts", import.meta.url), { type: "module" });
     const remote = Comlink.wrap<PoolMaster>(worker);
