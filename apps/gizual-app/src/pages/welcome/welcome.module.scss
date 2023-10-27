@@ -21,11 +21,14 @@
 .Card {
   width: 100%;
   padding-top: 2rem;
+  padding-bottom: 2rem;
   display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .Button {
-  margin: 0 auto;
+  min-width: 220px;
   margin-bottom: 2rem;
 }
 
@@ -73,4 +76,26 @@
   margin-right: auto;
   text-align: center;
   padding-top: 1rem;
+}
+
+.DropZone {
+  border: 2px dashed var(--foreground-secondary);
+  text-align: center;
+  width: 220px;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  height: 40px;
+  margin: 1px;
+
+  &.DropZoneActive {
+    background-color: gray;
+    border: 3px dashed var(--foreground-primary);
+    margin: 0;
+  }
+
+  &.DropZoneActive .DropZoneText {
+    user-select: none;
+    pointer-events: none;
+    color: var(--foreground-primary);
+  }
 }
