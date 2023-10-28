@@ -37,24 +37,55 @@ export const WelcomePage = observer(() => {
           </>
         )}
         <div className={style.Card}>
-          {isSupportedBrowser() ? (
-            <>
-              {mainController.isLoading || mainController.isPendingTransition ? (
-                <Spin size={"large"} style={{ margin: "auto", marginBottom: "1rem" }}></Spin>
-              ) : (
-                <>
-                  <Button
-                    variant="filled"
-                    onClick={() => mainController.openRepository()}
-                    className={style.Button}
-                  >
-                    Load Repository
-                  </Button>
-                </>
-              )}
-            </>
+          {mainController.isLoading || mainController.isPendingTransition ? (
+            <Spin size={"large"} style={{ margin: "auto", marginBottom: "1rem" }}></Spin>
           ) : (
-            <UnsupportedBrowser />
+            <>
+              {isSupportedBrowser() && (
+                <Button
+                  variant="filled"
+                  onClick={() => mainController.openRepository()}
+                  className={style.Button}
+                >
+                  Load Repository (fsa)
+                </Button>
+              )}
+
+              <Button
+                variant="filled"
+                onClick={() => mainController.openRepositoryLegacy("directory")}
+                className={style.Button}
+              >
+                Load Repository (input-directory)
+              </Button>
+
+              <Button
+                variant="filled"
+                onClick={() => mainController.openRepositoryLegacy("zip")}
+                className={style.Button}
+              >
+                Load Repository (input-zip)
+              </Button>
+
+              <div
+                className={style.DropZone}
+                onDragOver={(e) => e.preventDefault()}
+                onDragEnter={(e) => {
+                  e.currentTarget.classList.add(style.DropZoneActive);
+                }}
+                onDragLeave={(e) => {
+                  e.currentTarget.classList.remove(style.DropZoneActive);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  mainController.openRepositoryLegacy(e.dataTransfer.items);
+                }}
+              >
+                <div className={style.DropZoneText}>
+                  Drag .git folder <br /> or .zip file here
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>

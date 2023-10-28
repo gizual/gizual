@@ -10,5 +10,8 @@ declare const classNames: {
   readonly WelcomeImage: "WelcomeImage";
   readonly WelcomeAnimation: "WelcomeAnimation";
   readonly Header: "Header";
+  readonly DropZone: "DropZone";
+  readonly DropZoneActive: "DropZoneActive";
+  readonly DropZoneText: "DropZoneText";
 };
 export = classNames;

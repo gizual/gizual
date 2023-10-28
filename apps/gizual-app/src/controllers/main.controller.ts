@@ -209,6 +209,65 @@ export class MainController {
     });
   }
 
+  showFilePicker(type: "directory" | "zip" = "directory") {
+    const input = document.createElement("input");
+    input.style.display = "none";
+    input.style.visibility = "hidden";
+    input.type = "file";
+    if (type === "directory") {
+      //input.multiple = true;
+      input.webkitdirectory = true;
+    } else {
+      input.accept = ".zip";
+    }
+
+    document.body.append(input);
+
+    const remove = () => {
+      try {
+        input.remove();
+      } catch {
+        // noop
+      }
+    };
+
+    const promise = new Promise<FileList>((resolve, reject) => {
+      input.onchange = async () => {
+        if (input.files && input.files.length > 0) {
+          resolve(input.files);
+        } else {
+          reject("No files selected");
+        }
+
+        remove();
+      };
+
+      input.oncancel = () => {
+        reject("User cancelled");
+        remove();
+      };
+    });
+    input.click();
+    return promise;
+  }
+
+  @action.bound
+  async openRepositoryLegacy(
+    source: "directory" | "zip" | DataTransferItemList | FileList = "directory",
+  ) {
+    if (typeof source === "string") {
+      source = await this.showFilePicker(source);
+    }
+
+    if (source.length === 0) return;
+
+    this.setRepoName("?");
+    await this._repo.setup(source);
+    runInAction(() => {
+      this._pendingTransition = true;
+    });
+  }
+
   get page() {
     return this._page;
   }
