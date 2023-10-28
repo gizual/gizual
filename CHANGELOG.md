@@ -1,3 +1,12 @@
+## Gizual 3.0.0-alpha.7 (28.10.2023)
+
+### Features
+
+- **backend:general** implement multiple alternatives for loading local repositories by importing the files to OPFS
+- **app:general** enable Firefox support
+
+---
+
 ## Gizual 3.0.0-alpha.6 (23.10.2023)
 
 ### Features

@@ -84,6 +84,22 @@ export class PoolController {
     return undefined;
   }
 
+  static shouldIgnoreFilePath(input: string): boolean {
+    if (
+      input.includes("node_modules") ||
+      input.includes(".yarn") ||
+      input.includes("target") ||
+      input.includes("cache") ||
+      input.includes(".cache") ||
+      input.includes("__MACOSX")
+    ) {
+      // TODO: auto detect ignored files from .gitignore
+      return true;
+    }
+
+    return false;
+  }
+
   static async importDirectoryEntry(
     rootEntry: FileSystemDirectoryEntry,
   ): Promise<FileSystemDirectoryHandle> {
@@ -97,16 +113,7 @@ export class PoolController {
 
     const importEntry = async (source: FileSystemEntry, target: FileSystemDirectoryHandle) => {
       if (isFileSystemDirectoryEntry(source)) {
-        if (
-          source.name === "node_modules" ||
-          source.name === ".yarn" ||
-          source.name === "target" ||
-          source.name === "cache" ||
-          source.name === ".cache"
-        ) {
-          // TODO: auto detect ignored files from .gitignore
-          return;
-        }
+        if (this.shouldIgnoreFilePath(source.name)) return;
 
         const dirName = source.name;
         let targetHandle: FileSystemDirectoryHandle;
@@ -234,8 +241,7 @@ export class PoolController {
     const data = await fs.arrayBuffer();
 
     const unzipped = unzipSync(new Uint8Array(data), {
-      filter: (info: UnzipFileInfo) =>
-        !info.name.startsWith("__MACOSX") && !info.name.endsWith(".crswap"),
+      filter: (info: UnzipFileInfo) => !this.shouldIgnoreFilePath(info.name),
     });
 
     let currentHandle = directory;
