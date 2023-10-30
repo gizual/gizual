@@ -57,6 +57,7 @@ export class AuthorPanelViewModel {
         dataIndex: "avatar",
         render: (_, record) => (
           <Avatar
+            crossOrigin="anonymous"
             src={`https://www.gravatar.com/avatar/${record.avatar}?d=retro`}
             style={{ border: "1px solid var(--border-primary)", width: 28, height: 28 }}
           />
