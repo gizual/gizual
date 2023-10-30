@@ -95,5 +95,7 @@ module.exports = {
     "unicorn/prefer-module": OFF,
 
     "unicorn/prefer-add-event-listener": OFF,
+
+    "unicorn/prefer-ternary": OFF,
   },
 };

@@ -296,12 +296,23 @@ export class PoolController {
       opts.directoryHandle = await this.importZipFile(opts.zipFile!);
     }
 
-    opts.directoryHandle = await this.seekRepo(opts.directoryHandle!);
+    if (opts.directoryHandle) {
+      opts.directoryHandle = await this.seekRepo(opts.directoryHandle!);
+    }
 
     const worker = new Worker(new URL("pool-master.ts", import.meta.url), { type: "module" });
     const remote = Comlink.wrap<PoolMaster>(worker);
 
-    remote.init(opts.directoryHandle!, opts.maxConcurrency);
+    if (opts.directoryHandle) {
+      await remote.init(opts.directoryHandle!, opts.maxConcurrency);
+    } else if (opts.zipFile) {
+      const zipData = await opts.zipFile!.arrayBuffer();
+      const zipDataArray = new Uint8Array(zipData);
+
+      await remote.init(Comlink.transfer(zipDataArray, [zipDataArray.buffer]), opts.maxConcurrency);
+    } else {
+      throw new Error("No directory handle or zip file to use");
+    }
 
     const controller = new PoolController(worker, remote);
 

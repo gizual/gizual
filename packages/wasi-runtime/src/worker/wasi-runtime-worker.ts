@@ -1,12 +1,12 @@
 import { LOG } from "@giz/logger";
-import { Fd, FsaFS, WASI } from "@giz/wasi-shim";
+import { Fd, FsaFS, WASI, ZipFS } from "@giz/wasi-shim";
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
 export class WasiRuntimeWorker {
   private module!: WebAssembly.Module;
   private wasi!: WASI;
   private opts!: WasiRuntimeOpts;
-  private folderMappings!: Record<string, FileSystemDirectoryHandle>;
+  private folderMappings!: Record<string, FileSystemDirectoryHandle | Uint8Array>;
   private id = 0;
   private logger = LOG.getSubLogger({ name: "WasiRuntimeWorker" });
   constructor() {
@@ -19,7 +19,7 @@ export class WasiRuntimeWorker {
     this.logger.settings.minLevel = minLevel;
   }
 
-  addFolderMapping(path: string, handle: FileSystemDirectoryHandle) {
+  addFolderMapping(path: string, handle: FileSystemDirectoryHandle | Uint8Array) {
     this.folderMappings[path] = handle;
   }
 
@@ -37,6 +37,12 @@ export class WasiRuntimeWorker {
     const fds: Fd[] = [];
 
     for (const [path, handle] of Object.entries(this.folderMappings)) {
+      if (handle instanceof Uint8Array) {
+        const folder = new ZipFS(path, handle);
+        fds.push(folder);
+        continue;
+      }
+
       fds.push(await FsaFS.fromDirectoryHandle(path, handle, [".git"]));
     }
 

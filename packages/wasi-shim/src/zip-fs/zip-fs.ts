@@ -1,4 +1,4 @@
-import { UnzipFileInfo, unzipSync } from "fflate";
+import { UnzipFileInfo, unzipSync } from "fflate/browser";
 
 import { MemoryDirectory, MemoryFile, MemoryFS } from "../memory-fs";
 

@@ -26,6 +26,7 @@ const METRICS_UPDATE_INTERVAL = 200;
 export class PoolMaster {
   maxConcurrency = DEFAULT_MAX_CONCURRENCY;
   directoryHandle!: FileSystemDirectoryHandle;
+  zipFile!: Uint8Array;
   schedulerInterval: any;
   metricsUpdateInterval: any;
   workers: PoolNode[] = [];
@@ -61,8 +62,12 @@ export class PoolMaster {
     this.maxConcurrency = num;
   }
 
-  init(directoryHandle: FileSystemDirectoryHandle, maxConcurrency?: number) {
-    this.directoryHandle = directoryHandle;
+  init(source: FileSystemDirectoryHandle | Uint8Array, maxConcurrency?: number) {
+    if (source instanceof Uint8Array) {
+      this.zipFile = source;
+    } else {
+      this.directoryHandle = source;
+    }
     this.maxConcurrency = maxConcurrency ?? this.maxConcurrency;
 
     this.updatePoolSize();
@@ -148,7 +153,7 @@ export class PoolMaster {
       this.workers.push(...newWorkers);
 
       for (const w of newWorkers) {
-        w.boot(this.directoryHandle);
+        w.boot(this.directoryHandle ?? this.zipFile);
       }
       return true;
     } else if (totalWorkersCount > this.maxConcurrency) {

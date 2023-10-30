@@ -165,6 +165,12 @@ fn main() {
 
     for line in stdin.lock().lines().flatten() {
         let result = io.handle_request_sync(line.as_str());
+
+        if result.is_none() {
+            eprintln!("Failed to handle request: {}", line);
+            continue;
+        }
+
         println!("{}", result.unwrap());
         let shutdown = shutdown_flag.lock().unwrap();
         if shutdown.eq(&true) {

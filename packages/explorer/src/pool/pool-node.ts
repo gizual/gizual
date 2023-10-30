@@ -5,10 +5,15 @@ import { WasiRuntime } from "@giz/wasi-runtime";
 
 import { DataResponse, ErrorResponse, JobWithOrigin } from "./types";
 
+export type PoolNodeOpts = {
+  wasmFileUrl?: string;
+};
+
 /**
  * A PoolNode represents single worker in the pool, but lives within the pool-master thread
  */
 export class PoolNode {
+  wasmFileUrl = wasmFileUrl;
   starting!: Promise<void>;
 
   runtime?: WasiRuntime;
@@ -22,15 +27,19 @@ export class PoolNode {
     return !!this.runtime;
   }
 
-  constructor() {}
+  constructor(opts: PoolNodeOpts = {}) {
+    if (opts.wasmFileUrl) {
+      this.wasmFileUrl = opts.wasmFileUrl;
+    }
+  }
 
-  boot(handle: FileSystemDirectoryHandle) {
+  boot(handle: FileSystemDirectoryHandle | Uint8Array) {
     this.starting = this._boot(handle);
   }
 
-  private async _boot(handle: FileSystemDirectoryHandle): Promise<void> {
+  private async _boot(handle: FileSystemDirectoryHandle | Uint8Array): Promise<void> {
     const runtime = await WasiRuntime.create({
-      moduleUrl: wasmFileUrl,
+      moduleUrl: this.wasmFileUrl,
       moduleName: "/module.wasm",
       folderMappings: {
         "/repo": handle,
