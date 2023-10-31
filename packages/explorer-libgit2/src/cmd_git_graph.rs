@@ -242,5 +242,5 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
         branches,
     };
 
-    Ok(CommitTree { graph, dot })
+    Ok(CommitTree { graph, dot: "".to_owned() })
 }

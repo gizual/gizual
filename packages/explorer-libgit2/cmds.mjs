@@ -5,7 +5,7 @@ import { argv } from "zx";
 
 const command = argv._[0];
 
-const pkgName = "explorer-backend-libgit2";
+const pkgName = "explorer-libgit2";
 
 switch (command) {
   case "build": {

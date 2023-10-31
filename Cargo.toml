@@ -1,2 +1,2 @@
 [workspace]
-members = ["packages/asyncify_exports", "packages/explorer-backend-libgit2"]
+members = ["packages/asyncify_exports", "packages/explorer-libgit2"]

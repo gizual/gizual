@@ -1,6 +1,6 @@
 {
-  "name": "@giz/explorer-backend-libgit2",
-  "module": "dist/explorer-backend-libgit2.wasm",
+  "name": "@giz/explorer-libgit2",
+  "module": "dist/explorer-libgit2.wasm",
   "scripts": {
     "build": "zx cmds.mjs build",
     "dev": "turbowatch",

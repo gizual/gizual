@@ -21,8 +21,8 @@ export function getFileIcon(kind: number): FileIcon | undefined {
  * This list represents the first 2 columns of the file-icons table available at
  * https://github.com/file-icons/atom/blob/master/lib/icons/.icondb.js
  *
- * The regex matching is done in the rust explorer-backend-libgit2 package
- * (packages/explorer-backend-libgit2/src/file_types_db.rs)
+ * The regex matching is done in the rust explorer-libgit2 package
+ * (packages/explorer-libgit2/src/file_types_db.rs)
  */
 const FILE_ICON_DB: [string, [string | null, string | null]][] = [
   ["lock-icon", ["dark-blue", "dark-blue"]],

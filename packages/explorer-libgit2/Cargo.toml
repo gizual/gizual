@@ -1,5 +1,5 @@
 [package]
-name = "explorer-backend-libgit2"
+name = "explorer-libgit2"
 version = "0.0.0"
 edition = "2021"
 
