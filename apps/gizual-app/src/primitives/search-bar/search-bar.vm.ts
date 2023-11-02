@@ -7,6 +7,8 @@ import dayjs from "dayjs";
 import { action, computed, makeObservable, observable } from "mobx";
 import React from "react";
 
+import { QueryManager } from "../advanced-query";
+
 import {
   AvailableTagId,
   AvailableTagIdsForRegexp,
@@ -27,6 +29,7 @@ export class SearchBarViewModel {
   @observable _cursorPosition = 0;
   @observable _shouldFocusEol = false;
   @observable _usedTags: Tag[] = [];
+  @observable _queryManager = new QueryManager();
 
   // A synthetic blur occurs when the user blurs the search bar by clicking on
   // any of the helper tags / buttons within the popover. On synthetic blurs,
@@ -354,6 +357,10 @@ export class SearchBarViewModel {
   @computed
   get isPopoverOpen() {
     return this._popoverOpen;
+  }
+
+  get queryManager() {
+    return this._queryManager;
   }
 
   @action.bound

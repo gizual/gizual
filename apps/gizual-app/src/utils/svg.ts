@@ -1,3 +1,9 @@
+export type SvgElement = {
+  head: string;
+  tail: string;
+  children?: SvgBaseElement[];
+};
+
 export class SvgBaseElement {
   protected _tag: string;
   protected _children: SvgBaseElement[];

@@ -3,7 +3,7 @@ import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
 
 import { GitGraphCommitInfo } from "@giz/explorer";
-import { type FileContext, VisualizationDefaults } from "@giz/file-renderer";
+import { type FileLinesContext, RenderType, VisualizationDefaults } from "@giz/file-renderer";
 
 export type Line = {
   content: string;
@@ -184,6 +184,7 @@ export class FileViewModel {
   @computed
   get drawingContext() {
     return {
+      type: RenderType.FileLines,
       authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(this.fileContent),
       earliestTimestamp: toJS(this.fileData.earliestTimestamp),
@@ -235,12 +236,11 @@ export class FileViewModel {
 
     this._mainController.registerWorker(this.fileName);
 
-    const ctx: FileContext = {
+    const ctx = {
       ...this.drawingContext,
       dpr,
       rect,
-      nColumns,
-    };
+    } as FileLinesContext;
 
     this._isWorkerBusy = true;
     const drawResult = this._mainController._fileRendererPool.renderCanvas(ctx);

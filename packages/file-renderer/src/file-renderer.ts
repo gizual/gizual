@@ -1,4 +1,4 @@
-import { SvgAttributes, SvgBaseElement, SvgRectElement } from "@giz/gizual-app/utils";
+import { SvgAttributes, SvgBaseElement, SvgElement, SvgRectElement } from "@giz/gizual-app/utils";
 
 export const VisualizationDefaults = {
   maxLineLength: 120,
@@ -6,13 +6,7 @@ export const VisualizationDefaults = {
   maxLineCount: 100,
 };
 
-export type SvgElement = {
-  head: string;
-  tail: string;
-  children?: SvgBaseElement[];
-};
-
-export interface FileRenderer {
+export interface BaseRenderer {
   prepareContext(width: number, height: number, dpr?: number): void;
   assignContext(ctx: OffscreenCanvas | SvgElement): void;
   getContext(): OffscreenCanvas | SvgElement | undefined;
@@ -23,7 +17,7 @@ export interface FileRenderer {
   drawText(text: string, attr: SvgAttributes): void;
 }
 
-export class CanvasRenderer implements FileRenderer {
+export class CanvasRenderer implements BaseRenderer {
   canvas?: OffscreenCanvas;
   ctx?: OffscreenCanvasRenderingContext2D;
   dpr = 0;
@@ -76,7 +70,7 @@ export class CanvasRenderer implements FileRenderer {
 }
 
 //@logAllMethods("SvgRenderer", "#9c94d6")
-export class SvgRenderer implements FileRenderer {
+export class SvgRenderer implements BaseRenderer {
   svg?: SvgElement;
   transform = { x: 0, y: 0 };
   svgContent?: SvgBaseElement[];

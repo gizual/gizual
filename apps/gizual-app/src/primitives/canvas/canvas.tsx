@@ -5,73 +5,26 @@ import {
   IconMagnifyPlus,
   IconPeople,
 } from "@app/assets";
-import {
-  FileModel,
-  useMainController,
-  useSettingsController,
-  useViewModelController,
-} from "@app/controllers";
+import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
-import { createNumberSetting, createSelectSetting, Masonry, useTheme } from "@app/utils";
-import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Spin, Tooltip } from "antd";
-import clsx from "clsx";
+import { createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
+import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
-import { File } from "../file/";
 import { IconButton } from "../icon-button";
 import { Timeline } from "../timeline";
 
 import style from "./canvas.module.scss";
 import { CanvasViewModel, MAX_ZOOM, MIN_ZOOM } from "./canvas.vm";
+import { FileCanvas } from "./file-canvas";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;
 };
-
-type MasonryGridProps = {
-  children: React.ReactElement[];
-  files: FileModel[];
-  width: number;
-  css?: React.CSSProperties;
-  className?: string;
-};
-
-const MasonryGrid = observer(({ children, css, className, width, files }: MasonryGridProps) => {
-  const sortedColumns = React.useMemo(() => {
-    const masonry = new Masonry<React.ReactElement>({ canvasWidth: width });
-    for (const [index, child] of children.entries()) {
-      if (files[index].calculatedHeight === 0) continue;
-
-      masonry.insertElement({
-        id: files[index].name,
-        content: child,
-        height: files[index].calculatedHeight + 26,
-      });
-    }
-    masonry.sortAndPack();
-    return masonry.columns;
-  }, [children, files]);
-
-  return (
-    <div className={clsx(style.Row, className)} style={{ ...css }}>
-      {sortedColumns &&
-        sortedColumns.map((c) => {
-          if (c.content.length === 0) return <></>;
-          return (
-            <div className={style.Column} key={c.index}>
-              {c.content.map((e, index) => (
-                <React.Fragment key={index}>{e.content}</React.Fragment>
-              ))}
-            </div>
-          );
-        })}
-    </div>
-  );
-});
 
 function Canvas({ vm: externalVm }: CanvasProps) {
   const mainController = useMainController();
@@ -322,35 +275,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   height: "100%",
                 }}
               >
-                {!vm.hasLoadedFiles && (
-                  <h2>No files loaded. Use the search bar to select something.</h2>
-                )}
-                {vm.hasLoadedFiles && (
-                  <>
-                    {!mainController.repoController.isDoneEstimatingSize && (
-                      <>
-                        <h2>Estimating size - please wait.</h2>
-                        <Spin size={"large"} />
-                      </>
-                    )}
-                    {mainController.repoController.isDoneEstimatingSize && (
-                      <MasonryGrid width={vm.canvasWidth} files={vm.loadedFiles}>
-                        {vm.loadedFiles.map((file, index) => {
-                          if (!ref.current?.instance.wrapperComponent || !file.isValid)
-                            return <React.Fragment key={index}></React.Fragment>;
-
-                          return (
-                            <File
-                              file={file}
-                              key={index}
-                              parentContainer={ref.current?.instance.wrapperComponent}
-                            />
-                          );
-                        })}
-                      </MasonryGrid>
-                    )}
-                  </>
-                )}
+                <FileCanvas vm={vm} wrapper={ref.current?.instance.wrapperComponent} />
               </TransformComponent>
             </TransformWrapper>
           </div>

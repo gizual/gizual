@@ -2,82 +2,25 @@ import { useTheme } from "@app/utils";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import * as ejs from "ejs";
 import { observer } from "mobx-react-lite";
-import * as monaco from "monaco-editor";
+import React from "react";
 
+import { defaultQuery, getSchema } from "../../advanced-query";
+import { Validator } from "../../advanced-query/validator";
+import { Button } from "../../button";
 import { SearchBarViewModel } from "../search-bar.vm";
 
 import style from "./advanced-editor.module.scss";
-import { defaultQuery, getSchema } from "./json-schema";
+import { CompletionProvider } from "./completion-provider";
 
 export type AdvancedEditorProps = {
   vm: SearchBarViewModel;
 };
 
-function handleEditorValidation(markers: any) {
-  // model markers
-  for (const marker of markers) console.log("onValidate:", marker.message);
-}
-
-const customCompletionItems = [
-  {
-    label: "_.age",
-    kind: monaco.languages.CompletionItemKind.Variable,
-    insertText: "_.age",
-    detail: "Resolves to the age of an individual line within the visualization.",
-  },
-  {
-    label: "_.author",
-    kind: monaco.languages.CompletionItemKind.Variable,
-    insertText: "_.author",
-    detail: "Resolves to the author of an individual line within the visualization.",
-  },
-  {
-    label: "_.commitDate",
-    kind: monaco.languages.CompletionItemKind.Variable,
-    insertText: "_.commitDate",
-    detail: "Resolves to the commit date of an individual line within the visualization.",
-  },
-  {
-    label: "_.gradient",
-    kind: monaco.languages.CompletionItemKind.Variable,
-    insertText: "_.gradient()",
-    detail: "Function that takes the given input variable and creates a gradient based on it.",
-  },
-];
-
 function handleEditorWillMount(editor: Monaco) {
   editor.languages.registerCompletionItemProvider("json", {
     triggerCharacters: ["_", "."],
-    provideCompletionItems: (model, position) => {
-      const word = model.getWordUntilPosition(position);
-
-      const range = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-
-      if (word.word.startsWith("_.") || word.word === "_") {
-        return {
-          suggestions: customCompletionItems.map((item) => ({
-            ...item,
-            range,
-          })),
-        };
-      }
-
-      //if (isCursorInsideFunction("gradient", model, position)) {
-      //  return {
-      //    suggestions: customCompletionItems.map((item) => ({
-      //      ...item,
-      //      range,
-      //    })),
-      //  };
-      //}
-
-      return { suggestions: [] };
-    },
+    provideCompletionItems: (model, position) =>
+      CompletionProvider.provideCompletionItems(editor, model, position),
   });
 }
 
@@ -97,26 +40,9 @@ function handleEditorDidMount(editor: Monaco) {
   });
 }
 
-// Check if the cursor is within a pair of function parentheses.
-function isCursorInsideFunction(
-  functionName: string,
-  model: monaco.editor.ITextModel,
-  position: monaco.Position,
-) {
-  // Extract the text in the current line up to the cursor position
-  const textUntilPosition = model.getValueInRange({
-    startLineNumber: position.lineNumber,
-    startColumn: 1,
-    endLineNumber: position.lineNumber,
-    endColumn: position.column,
-  });
-  console.log("isCursorInsideFunction", textUntilPosition);
-
-  const functionPattern = new RegExp(`\\b${functionName}\\s*\\(\\s*[^)]*$`, "i");
-  return functionPattern.test(textUntilPosition);
-}
-
-export const AdvancedEditor = observer(({ vm: _vm }: AdvancedEditorProps) => {
+export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
+  const [validationOutput, setValidationOutput] = React.useState<string[]>([]);
+  const [editorContent, setEditorContent] = React.useState<string>("");
   const monacoInstance = useMonaco();
   const theme = useTheme();
 
@@ -136,12 +62,21 @@ export const AdvancedEditor = observer(({ vm: _vm }: AdvancedEditorProps) => {
     const ejsOut = ejs.render(e, context, {});
     console.log("EJS Context:", context);
     console.log("EJS Out:", ejsOut);
+    setEditorContent(e);
   };
+
+  function handleEditorValidation(markers: any) {
+    setValidationOutput([]);
+    for (const marker of markers)
+      setValidationOutput([...validationOutput, marker.message as string]);
+  }
+
+  const containsErrors = validationOutput.length > 0;
 
   if (!monacoInstance) return <></>;
 
   return (
-    <div>
+    <div className={style.AdvancedEditorContainer}>
       <Editor
         className={style.AdvancedEditor}
         defaultLanguage="json"
@@ -152,7 +87,21 @@ export const AdvancedEditor = observer(({ vm: _vm }: AdvancedEditorProps) => {
         onChange={(e) => parseInput(e)}
         width="unset"
         theme={theme === "light" ? "light" : "vs-dark"}
+        height="unset" // Populated through CSS
       ></Editor>
+      {containsErrors && <>Validation error: {validationOutput.join(", ")}</>}
+      <div className={style.EditorActionGroup}>
+        <Button
+          variant="filled"
+          disabled={validationOutput.length > 0}
+          onClick={() => Validator.validate(editorContent)}
+        >
+          Run query
+        </Button>
+        <Button variant="filled" onClick={() => vm.queryManager.storeQuery("abc", "")}>
+          Save query
+        </Button>
+      </div>
     </div>
   );
 });

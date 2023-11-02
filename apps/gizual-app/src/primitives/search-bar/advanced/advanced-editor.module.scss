@@ -1,8 +1,24 @@
 .AdvancedEditor {
-  height: 100%;
-  width: 50vw;
-  max-height: 80vh;
+  display: relative;
+  width: 100%;
+  max-height: 70vh;
   max-width: 90vw;
   min-height: 50vh;
-  min-width: 60vh;
+  min-width: 60vw;
+}
+
+.AdvancedEditorContainer {
+  position: relative;
+  min-width: 70vw;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.EditorActionGroup {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  gap: 1rem;
 }

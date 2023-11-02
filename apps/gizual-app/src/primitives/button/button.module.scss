@@ -8,6 +8,10 @@
   display: block;
   border: none;
   text-align: center;
+  &:disabled {
+    background-color: var(--background-tertiary);
+    cursor: not-allowed;
+  }
 }
 
 .ButtonFilled {

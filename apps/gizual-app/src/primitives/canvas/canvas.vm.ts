@@ -145,7 +145,6 @@ export class CanvasViewModel {
       const ctx: FileContext = {
         ...this.getDrawingContext(file),
         dpr: 1,
-        nColumns: 1,
         redrawCount: 0,
         rect: new DOMRect(0, 0, 300, file.calculatedHeight),
       };

@@ -53,25 +53,3 @@
   white-space: nowrap;
   text-align: left;
 }
-
-.Masonry {
-  > div {
-    gap: 1rem !important;
-    > div {
-      gap: 1rem !important;
-      width: auto !important;
-    }
-  }
-}
-
-.Row {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-}
-
-.Column {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
