@@ -1,7 +1,7 @@
 import { isString } from "lodash";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
-import wasmFileUrl from "@giz/explorer-libgit2/dist/explorer-libgit2.wasm?url";
+import wasmFileUrl from "@giz/explorer/dist/explorer-libgit2.wasm?url";
 import { LOG, Logger } from "@giz/logger";
 import { WasiRuntime } from "@giz/wasi-runtime";
 

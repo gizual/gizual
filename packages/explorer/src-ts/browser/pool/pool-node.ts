@@ -1,6 +1,6 @@
 import { isString } from "lodash";
 
-import wasmFileUrl from "@giz/explorer-libgit2/dist/explorer-libgit2.wasm?url";
+import wasmFileUrl from "@giz/explorer/dist/explorer-libgit2.wasm?url";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
 import { DataResponse, ErrorResponse, JobWithOrigin } from "./types";

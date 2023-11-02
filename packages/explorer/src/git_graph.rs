@@ -5,11 +5,10 @@ use std::{
     ops::Add,
 };
 
-use petgraph::dot::{Config, Dot};
 use petgraph::graph::DiGraph;
 use std::fmt;
 
-use crate::utils::get_author_id;
+use crate::{handler::RpcHandler, utils::get_author_id};
 
 type Oid = String;
 type Aid = String;
@@ -64,11 +63,6 @@ pub fn get_stash_ids(repository: &mut Repository) -> Result<HashSet<Oid>, Error>
         true
     })?;
     Ok(stashes)
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GetCommitTreeOptions {
-    pub repo_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -225,12 +219,10 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
         }
     }
 
-    let dot = Dot::with_config(&graph, &[Config::EdgeNoLabel]).to_string();
+    //let dot: String = Dot::with_config(&graph, &[Config::EdgeNoLabel]).to_string();
 
-    #[cfg(not(target_arch = "wasm32"))]
-    println!("Test: {}", dot);
-
-    //
+    //#[cfg(not(target_arch = "wasm32"))]
+    //println!("Test: {}", dot);
 
     // Commit list per branch, each commit has a list of children (and parents), seperate info about child/parent branches
 
@@ -242,5 +234,23 @@ pub fn cmd_get_git_graph(repo: &mut Repository) -> Result<CommitTree, git2::Erro
         branches,
     };
 
-    Ok(CommitTree { graph, dot: "".to_owned() })
+    Ok(CommitTree {
+        graph,
+        dot: "".to_owned(),
+    })
+}
+
+impl RpcHandler {
+    pub fn cmd_get_git_graph(&self) {
+        let mut repo = self.repo.lock().unwrap();
+
+        match cmd_get_git_graph(&mut repo) {
+            Ok(graph) => {
+                self.send(graph, true);
+            }
+            Err(e) => {
+                self.send_error(e.message().to_string());
+            }
+        }
+    }
 }

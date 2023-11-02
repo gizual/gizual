@@ -2,22 +2,29 @@
   "name": "@giz/explorer",
   "main": "src/index.ts",
   "scripts": {
+    "build": "zx cmds.mjs build",
     "clean": "rimraf dist",
-    "lint": "eslint .",
-    "type-check": "tsc"
+    "lint": "zx cmds.mjs lint",
+    "type-check": "tsc",
+    "format": "cargo fmt"
   },
   "devDependencies": {
+    "@giz/wasi-tools": "workspace:*",
     "@types/lodash": "4.14.195",
-    "eslint": "8.45.0"
+    "eslint": "8.45.0",
+    "zx": "7.2.3"
   },
   "dependencies": {
-    "@giz/explorer-libgit2": "workspace:*",
     "@giz/wasi-runtime": "workspace:*",
     "lodash": "4.17.21",
     "mobx": "6.10.0"
   },
   "please": {
     "build": {
+      "input": [
+        "src/*",
+        "ts-src/*"
+      ],
       "dependsOn": [
         "build"
       ]

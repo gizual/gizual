@@ -28,3 +28,4 @@ pub fn get_author_id(author_name: &String, author_email: &String) -> String {
     let author_id = format!("{:x}", s.finish());
     author_id
 }
+

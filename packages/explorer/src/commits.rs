@@ -1,7 +1,8 @@
-use crate::cmd_git_graph::get_stash_ids;
-use crate::cmd_git_graph::to_string_oid;
+use crate::git_graph::get_stash_ids;
+use crate::git_graph::to_string_oid;
+use crate::handler::RequestResult;
+use crate::handler::RpcHandler;
 use crate::utils::get_author_id;
-use git2::Repository;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,9 +17,9 @@ pub struct Commit {
     timestamp: String,
 }
 
-pub fn stream_commits(
-    repo: &mut Repository,
-) -> Result<bool, git2::Error> {
+pub fn stream_commits(handler: &RpcHandler) -> Result<(), git2::Error> {
+    let mut repo = handler.repo.lock().unwrap();
+    let repo = &mut *repo;
     let stashes = get_stash_ids(repo).expect("Failed to get stashes");
 
     let mut walk = repo.revwalk().expect("Failed to create revwalk");
@@ -105,8 +106,20 @@ pub fn stream_commits(
                 data.files.push(file_path.clone());
             }
         }
-        println!("{}", serde_json::to_string(&data).unwrap());
+        handler.send(data, false);
     }
 
-    Ok(true)
+    handler.send((), true);
+    Ok(())
+}
+
+impl RpcHandler {
+    pub fn stream_commits(&self) -> RequestResult {
+        match stream_commits(self) {
+            Ok(_) => {}
+            Err(e) => {
+                self.send_error(e.message().to_string());
+            }
+        }
+    }
 }

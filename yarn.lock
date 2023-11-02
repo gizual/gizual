@@ -952,26 +952,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@giz/explorer-libgit2@workspace:*, @giz/explorer-libgit2@workspace:packages/explorer-libgit2":
-  version: 0.0.0-use.local
-  resolution: "@giz/explorer-libgit2@workspace:packages/explorer-libgit2"
-  dependencies:
-    "@giz/wasi-tools": "workspace:*"
-    turbowatch: 2.29.4
-    zx: 7.2.3
-  languageName: unknown
-  linkType: soft
-
 "@giz/explorer@workspace:*, @giz/explorer@workspace:packages/explorer":
   version: 0.0.0-use.local
   resolution: "@giz/explorer@workspace:packages/explorer"
   dependencies:
-    "@giz/explorer-libgit2": "workspace:*"
     "@giz/wasi-runtime": "workspace:*"
+    "@giz/wasi-tools": "workspace:*"
     "@types/lodash": 4.14.195
     eslint: 8.45.0
     lodash: 4.17.21
     mobx: 6.10.0
+    zx: 7.2.3
   languageName: unknown
   linkType: soft
 

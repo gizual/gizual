@@ -5,7 +5,7 @@ import { argv } from "zx";
 
 const command = argv._[0];
 
-const pkgName = "explorer-libgit2";
+const pkgName = "explorer";
 
 switch (command) {
   case "build": {
@@ -13,6 +13,7 @@ switch (command) {
       cwd: __dirname,
       name: pkgName,
     });
+    // TODO tsup typescript sources
     break;
   }
   case "lint": {
