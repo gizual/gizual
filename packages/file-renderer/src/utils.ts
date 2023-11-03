@@ -2,36 +2,43 @@ import { Line } from "@app/controllers";
 
 import { BAND_COLOR_RANGE, getBandColorScale, getColorScale } from "@giz/gizual-app/utils";
 
-import type { FileLinesContext } from "./types";
+import type { FileLinesContext, FileMosaicContext } from "./types";
 
-export function interpolateColor(line: Line, fileContext: FileLinesContext) {
+export function interpolateColor(line: Line, ctx: FileLinesContext | FileMosaicContext) {
   const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
 
   // If the line was updated before the start or after the end date, grey it out.
   if (
-    updatedAtSeconds * 1000 < fileContext.selectedStartDate.getTime() ||
-    updatedAtSeconds * 1000 > fileContext.selectedEndDate.getTime()
+    updatedAtSeconds * 1000 < ctx.selectedStartDate.getTime() ||
+    updatedAtSeconds * 1000 > ctx.selectedEndDate.getTime()
   )
-    return fileContext.visualizationConfig.colors.notLoaded;
+    return ctx.visualizationConfig.colors.notLoaded;
 
-  if (fileContext.coloringMode === "age") {
-    const timeRange: [number, number] = [
-      fileContext.earliestTimestamp,
-      fileContext.latestTimestamp,
-    ];
+  if (ctx.coloringMode === "age") {
+    const timeRange: [number, number] = [ctx.earliestTimestamp, ctx.latestTimestamp];
     const colorRange: [string, string] = [
-      fileContext.visualizationConfig.colors.oldest,
-      fileContext.visualizationConfig.colors.newest,
+      ctx.visualizationConfig.colors.oldest,
+      ctx.visualizationConfig.colors.newest,
     ];
 
     return updatedAtSeconds
       ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
-      : fileContext.visualizationConfig.colors.notLoaded;
+      : ctx.visualizationConfig.colors.notLoaded;
   } else {
-    const author = fileContext.authors.find((a) => a.id === line.commit?.aid);
+    const author = ctx.authors.find((a) => a.id === line.commit?.aid);
     return getBandColorScale(
-      fileContext.authors.map((a) => a.id),
+      ctx.authors.map((a) => a.id),
       BAND_COLOR_RANGE,
     )(author?.id ?? "");
   }
+}
+
+export function interpolateColorBetween(
+  value: number,
+  start: number,
+  end: number,
+  colors: [string, string],
+) {
+  const colorRange: [string, string] = colors;
+  return getColorScale([start, end], colorRange)(value);
 }

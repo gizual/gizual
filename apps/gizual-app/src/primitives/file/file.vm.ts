@@ -185,6 +185,7 @@ export class FileViewModel {
   get drawingContext() {
     return {
       type: RenderType.FileLines,
+      backgroundWidth: toJS(this._mainController.visualizationConfig.style.lineLength),
       authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(this.fileContent),
       earliestTimestamp: toJS(this.fileData.earliestTimestamp),

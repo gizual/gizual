@@ -1,8 +1,12 @@
 type RendererProps = {
-  type: "file-lines";
+  type: RenderType;
   colorNewest: string;
   colorOldest: string;
-  visualizationStyle: "lineLength" | "full";
+  visualizationStyle?: "lineLength" | "full";
+  tilesPerRow?: number;
+  strokeColor?: string;
+  strokeWidth?: number;
+  highlightLastModifiedByAuthor?: boolean;
 };
 
 export default RendererProps;
@@ -10,13 +14,21 @@ export default RendererProps;
 import { LINEAR_COLOR_RANGE } from "@app/utils";
 import React from "react";
 
-import { FileLinesContext, FileRendererWorker, RenderType } from "@giz/file-renderer";
+import { AuthorMosaicContext, FileRendererWorker, RenderType } from "@giz/file-renderer";
 
 import { testPackageJSON } from "./renderer.mock";
 
-function prepareContext(props: RendererProps): FileLinesContext {
-  const { colorNewest, colorOldest, visualizationStyle } = props;
-  return {
+function prepareContext(props: RendererProps) {
+  const {
+    colorNewest,
+    colorOldest,
+    visualizationStyle,
+    tilesPerRow,
+    strokeColor,
+    strokeWidth,
+    highlightLastModifiedByAuthor,
+  } = props;
+  const baseContext = {
     ...testPackageJSON,
     visualizationConfig: {
       colors: {
@@ -28,8 +40,46 @@ function prepareContext(props: RendererProps): FileLinesContext {
         lineLength: visualizationStyle ?? "lineLength",
       },
     },
-    type: RenderType.FileLines,
+    type: props.type,
   };
+
+  if (props.type === RenderType.FileLines) {
+    baseContext.backgroundWidth = visualizationStyle;
+    return baseContext;
+  }
+
+  if (props.type === RenderType.FileMosaic) {
+    baseContext.tilesPerRow = tilesPerRow;
+    return baseContext;
+  }
+
+  if (props.type === RenderType.AuthorMosaic) {
+    const prepareMockFiles = () => {
+      const files = [];
+      for (let i = 0; i < 330; i++) {
+        const startTime = 1_659_415_884;
+        const endTime = 1_679_415_884;
+        const diff = endTime - startTime;
+        files.push({
+          name: `Mock File #${i}`,
+          modifiedAt: startTime + Math.floor(Math.random() * diff),
+          createdAt: startTime + Math.floor(Math.random() * diff),
+          lastModifiedByAuthor: Math.random() > 0.5,
+        });
+      }
+      return files;
+    };
+    const context: AuthorMosaicContext = {
+      ...testPackageJSON,
+      type: props.type,
+      strokeColor: strokeColor,
+      strokeWidth: strokeWidth,
+      highlightLastModifiedByAuthor: highlightLastModifiedByAuthor,
+      tilesPerRow: tilesPerRow ?? 20,
+      files: prepareMockFiles(),
+    };
+    return context;
+  }
 }
 
 export function Renderer(props: RendererProps) {
@@ -37,10 +87,11 @@ export function Renderer(props: RendererProps) {
   const [imageSrc, setImageSrc] = React.useState<string>("");
 
   React.useEffect(() => {
+    setImageSrc("");
     renderer?.draw(prepareContext(props), "canvas").then(({ result, colors }) => {
       setImageSrc(result);
     });
-  }, []);
+  }, [props]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>

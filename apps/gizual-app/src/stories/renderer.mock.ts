@@ -519,7 +519,7 @@ export const testPackageJSON: any = {
   selectedEndDate: new GizDate(),
   redrawCount: 0,
   coloringMode: "age",
-  dpr: 4,
+  dpr: 10,
   rect: {
     x: 1075,
     y: 201,
