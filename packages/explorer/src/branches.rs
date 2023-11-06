@@ -1,14 +1,18 @@
 use git2::{BranchType, Error};
 use serde::{Deserialize, Serialize};
 
-use crate::handler::{RequestResult, RpcHandler};
+#[cfg(feature = "bindings")]
+use specta::Type;
 
+use crate::explorer::Explorer;
+
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCommitsForBranchParams {
     branch: String,
-    path: String,
 }
 
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CommitsForBranch {
     #[serde(alias = "startCommitId")]
@@ -17,8 +21,8 @@ pub struct CommitsForBranch {
     end_commit: String,
 }
 
-impl RpcHandler {
-    pub fn cmd_get_branches(&self) -> RequestResult {
+impl Explorer {
+    pub fn cmd_get_branches(&self) {
         match self.get_branches() {
             Ok(branches) => {
                 self.send(branches, true);
@@ -30,7 +34,8 @@ impl RpcHandler {
     }
 
     fn get_branches(&self) -> Result<Vec<String>, Error> {
-        let repo = self.repo.lock().unwrap();
+        let repo = self.repo.as_ref().unwrap();
+
         let mut result: Vec<String> = Vec::new();
 
         let branches = repo.branches(Some(BranchType::Local))?;
@@ -43,7 +48,7 @@ impl RpcHandler {
         Ok(result)
     }
 
-    pub fn cmd_get_commits_for_branch(&self, params: &GetCommitsForBranchParams) -> RequestResult {
+    pub fn cmd_get_commits_for_branch(&self, params: &GetCommitsForBranchParams) {
         match self.get_commits_for_branch(params) {
             Ok(commits) => {
                 self.send(commits, true);
@@ -54,8 +59,12 @@ impl RpcHandler {
         }
     }
 
-    fn get_commits_for_branch(&self, params: &GetCommitsForBranchParams) -> Result<CommitsForBranch, Error> {
-        let repo = self.repo.lock().unwrap();
+    fn get_commits_for_branch(
+        &self,
+        params: &GetCommitsForBranchParams,
+    ) -> Result<CommitsForBranch, Error> {
+        let repo = self.repo.as_ref().unwrap();
+
 
         let end_commit = repo
             .find_branch(&params.branch, BranchType::Local)?

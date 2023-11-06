@@ -40,6 +40,8 @@ export async function prepareRustOnPlatform() {
  * @property {boolean | undefined} [asyncify] - Whether to run wasm-opt with the --asyncify flag. Defaults to true.
  * @property {boolean | undefined} [debuginfo] - Whether to run wasm-opt with the --debuginfo flag. Defaults to true.
  * @property {string | undefined} [bin] - A specific binary to build.
+ * @property {string[] | undefined} [features] - A list of features to enable.
+ * @property {boolean | undefined} [wasmOpt] - Whether to run wasm-opt. Defaults to true.
  */
 
 /**
@@ -55,6 +57,8 @@ export async function buildRust(opts) {
     release = true,
     outDir = path.join(cwd, "dist"),
     bin,
+    features,
+    wasmOpt = true,
   } = opts;
 
   let { name = path.basename(cwd) } = opts;
@@ -79,6 +83,10 @@ export async function buildRust(opts) {
 
   let cmd = `cargo build ${releaseFlag} --target=${TARGET}`;
 
+  if (features) {
+    cmd += ` --no-default-features --features="${features.join(" ")}"`;
+  }
+
   if (bin) {
     cmd += ` --bin=${bin}`;
     name = bin;
@@ -94,9 +102,15 @@ export async function buildRust(opts) {
   await mkdirp(outDir);
   // await fs.copyFile(wasmFileSrc, wasmFilDest);
 
-  const asyncifyFlag = asyncify ? "--asyncify" : "";
-  const debuginfoFlag = debuginfo ? "--debuginfo" : "";
-  await $`wasm-opt -O3 ${wasmFileSrc} ${asyncifyFlag} -o ${wasmFilDest}  ${debuginfoFlag}`;
+  if (wasmOpt) {
+    const asyncifyFlag = asyncify ? "--asyncify" : "";
+    const debuginfoFlag = debuginfo ? "--debuginfo" : "";
+
+    // IMPORTANT: seems like any optimization level higher than "-O1" breaks the wasm file
+    await $`wasm-opt -O1 ${wasmFileSrc} ${asyncifyFlag} -o ${wasmFilDest}  ${debuginfoFlag}`;
+  } else {
+    await fs.copyFile(wasmFileSrc, wasmFilDest);
+  }
 
   return wasmFilDest;
 }

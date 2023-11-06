@@ -9,13 +9,13 @@ const pkgName = "explorer";
 
 switch (command) {
   case "build": {
-    await buildRust({
-      cwd: __dirname,
-      name: pkgName,
+    buildRust({
+      outDir: "build",
+      pkgName: "explorer-web",
     });
-    // TODO tsup typescript sources
     break;
   }
+
   case "lint": {
     await lintRust(pkgName);
     break;

@@ -17,7 +17,7 @@ type CommandJob = {
   id?: number;
   priority?: number;
   method: string;
-  params?: any[];
+  params?: any;
   onErr: (err: any) => void;
   onEnd: (data: any) => void;
 };
@@ -40,7 +40,7 @@ type StreamJob = {
   id?: number;
   priority?: number;
   method: string;
-  params?: any[];
+  params?: any;
   onEnd: () => void;
   onData: (data: any) => void;
   onErr: (err: any) => void;
@@ -216,7 +216,7 @@ export class ExplorerPool {
     });
   }
 
-  execute(method: string, params?: any[], priority = 100): JobRef {
+  execute(method: string, params?: any, priority = 100): JobRef {
     const job = {
       id: this.counter++,
       priority,
@@ -344,19 +344,19 @@ export class ExplorerPool {
   // -------
 
   getBranches(): Promise<string[]> {
-    return this.execute("list_branches").promise;
+    return this.execute("get_branches").promise;
   }
 
   getBlame(branch: string, path: string, preview?: boolean): JobRef<Blame> {
-    return this.execute("blame", [{ branch, path, preview }], preview ? 100 : 1);
+    return this.execute("get_blame", { branch, path, preview }, preview ? 100 : 1);
   }
 
   getFileContent(branch: string, path: string): Promise<string> {
-    return this.execute("file_content", [{ branch, path }]).promise;
+    return this.execute("get_file_content", { branch, path }).promise;
   }
 
   getGitGraph() {
-    return this.execute("git_graph").promise;
+    return this.execute("get_git_graph").promise;
   }
 
   streamFileTree(
@@ -366,8 +366,8 @@ export class ExplorerPool {
     onErr: (err: any) => void,
   ) {
     return this.executeStream({
-      method: "file_tree",
-      params: [{ branch }],
+      method: "stream_file_tree",
+      params: { branch },
       onData,
       onEnd,
       onErr,
@@ -377,7 +377,7 @@ export class ExplorerPool {
   streamAuthors(onData: (data: Author) => void, onEnd: () => void, onErr: (err: any) => void) {
     return this.executeStream({
       method: "stream_authors",
-      params: [],
+      params: {},
       onData,
       onEnd,
       onErr,

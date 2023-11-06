@@ -26,6 +26,7 @@
     "@codemirror/view": "^6.11.2",
     "@giz/database": "workspace:*",
     "@giz/explorer": "workspace:*",
+    "@giz/explorer-web": "workspace:*",
     "@giz/file-renderer": "workspace:*",
     "@lezer/highlight": "^1.1.6",
     "@lezer/lr": "^1.3.9",

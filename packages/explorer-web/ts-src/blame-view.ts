@@ -87,18 +87,17 @@ export class BlameView {
     this.full_blame = undefined;
 
     this.full_blame_job = this.repo.portal?._enqueueJob({
-      method: "blame",
-      params: [
-        {
-          branch: this.repo.selectedBranch,
-          path: this.path,
-          preview: false,
-        },
-      ],
+      method: "get_blame",
+      params: {
+        branch: this.repo.selectedBranch,
+        path: this.path,
+        preview: false,
+      },
+
       priority: this.priority,
       onEnd: this.onReceiveFullBlame,
       onErr: (err) => console.info(err),
-    });
+    }) as any;
   }
 
   _refreshPreviewBlame() {
@@ -111,18 +110,17 @@ export class BlameView {
     this.preview_blame = undefined;
 
     this.preview_blame_job = this.repo.portal?._enqueueJob({
-      method: "blame",
-      params: [
-        {
-          branch: this.repo.selectedBranch,
-          path: this.path,
-          preview: true,
-        },
-      ],
+      method: "get_blame",
+      params: {
+        branch: this.repo.selectedBranch,
+        path: this.path,
+        preview: true,
+      },
+
       priority: 100 + this.priority,
       onEnd: this.onReceivePreviewBlame,
       onErr: (err) => console.info(err),
-    });
+    }) as any;
   }
 
   _refresh() {

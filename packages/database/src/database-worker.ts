@@ -6,7 +6,7 @@ import {
 import { expose } from "comlink";
 import _flatten from "lodash/flatten";
 
-import { PoolPortal } from "@giz/explorer/src/pool";
+import { PoolPortal } from "@giz/explorer-web";
 
 const log = (...args: any[]) => console.log(...args);
 const error = (...args: any[]) => console.error(...args);

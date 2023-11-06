@@ -3,20 +3,24 @@ name = "explorer"
 version = "0.0.0"
 edition = "2021"
 
+[[bin]]
+name = "bindings"
+path = "src/main-bindings.rs"
+
 [dependencies]
-specta = { workspace = true }
-asyncify_exports = { workspace = true }
 structopt = { workspace = true }
+specta = { workspace = true, features = ["export", "typescript"], optional = true }
 serde_json = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_with = { workspace = true }
 md5 = "0.6.0"
 lazy_static = "1.4.0"
 regex = { workspace = true }
-git2 = {  workspace = true }
-
+git2 = { workspace = true }
 
 [target.'cfg(not(target_os = "wasm"))'.dependencies]
 petgraph = "0.6.3"
 
-[dev-dependencies]
+[features]
+default = ["bindings"]
+bindings = ["dep:specta"]

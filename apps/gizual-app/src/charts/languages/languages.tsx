@@ -7,7 +7,7 @@ import { Spin, Tooltip } from "antd";
 import type { ScaleBand, ScaleLinear } from "d3-scale";
 import React from "react";
 
-import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
+import { FileIcon, FileTree, getFileIcon } from "@giz/explorer-web";
 
 type LanguageInfo = {
   iconInfo?: FileIcon;

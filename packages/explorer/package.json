@@ -1,23 +1,16 @@
 {
   "name": "@giz/explorer",
-  "main": "src/index.ts",
+  "main": "ts-src/index.ts",
   "scripts": {
-    "build": "zx cmds.mjs build",
+    "build": "cargo run --bin=bindings -- --output ts-src/types/generated.ts",
     "clean": "rimraf dist",
-    "lint": "zx cmds.mjs lint",
+    "lint": "cargo clippy",
     "type-check": "tsc",
     "format": "cargo fmt"
   },
   "devDependencies": {
-    "@giz/wasi-tools": "workspace:*",
-    "@types/lodash": "4.14.195",
     "eslint": "8.45.0",
     "zx": "7.2.3"
-  },
-  "dependencies": {
-    "@giz/wasi-runtime": "workspace:*",
-    "lodash": "4.17.21",
-    "mobx": "6.10.0"
   },
   "please": {
     "build": {

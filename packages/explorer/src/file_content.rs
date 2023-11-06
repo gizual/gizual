@@ -1,9 +1,14 @@
 use git2::{ObjectType, Repository};
 use serde::{Deserialize, Serialize};
+
 use std::path::Path;
 
-use crate::handler::RpcHandler;
+#[cfg(feature = "bindings")]
+use specta::Type;
 
+use crate::explorer::Explorer;
+
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetFileContentParams {
     branch: String,
@@ -28,10 +33,11 @@ pub fn get_file_content(
     Ok("not a blob".to_string())
 }
 
-impl RpcHandler {
+impl Explorer {
     pub fn get_file_content(&self, params: &GetFileContentParams) {
-        let repo = self.repo.lock().unwrap();
-        let result = get_file_content(params, &repo);
+        let repo = self.repo.as_ref().unwrap();
+
+        let result = get_file_content(params, repo);
 
         match result {
             Ok(content) => {

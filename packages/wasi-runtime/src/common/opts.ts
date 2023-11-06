@@ -6,4 +6,5 @@ export interface WasiRuntimeOpts {
 export interface WasiRunOpts {
   args: string[];
   env: Record<string, string>;
+  awaitExit?: boolean;
 }

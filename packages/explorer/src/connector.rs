@@ -1,17 +1,15 @@
+use std::io::{BufRead, Write};
 
-use std::io::{Write, BufRead};
-
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Error;
 
 pub enum Connector {
     Stdout(StdoutConnector),
     #[allow(dead_code)]
-    Tauri(TauriConnector)
+    Tauri(TauriConnector),
 }
 
 impl Connector {
-
     pub fn read<T: for<'a> Deserialize<'a>>(&self) -> Option<Result<T, Error>> {
         match self {
             Connector::Stdout(stdout) => stdout.read(),
@@ -62,7 +60,7 @@ impl StdoutConnector {
         let result = serde_json::to_writer(&mut handle, data);
 
         match result {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(err) => {
                 panic!("Failed to write to stdout: {}", err)
             }
@@ -71,7 +69,7 @@ impl StdoutConnector {
         let result = handle.write_all(b"\n");
 
         match result {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(err) => {
                 panic!("Failed to write new-line to stdout {}", err)
             }
@@ -93,4 +91,3 @@ impl TauriConnector {
         unimplemented!();
     }
 }
-

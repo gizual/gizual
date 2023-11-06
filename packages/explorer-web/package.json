@@ -1,0 +1,28 @@
+{
+  "name": "@giz/explorer-web",
+  "main": "./ts-src/index.ts",
+  "scripts": {
+    "build": "yarn zx cmds.mjs build",
+    "lint:rust": "yarn zx cmds.mjs lint",
+    "lint:ts": "eslint ."
+  },
+  "dependencies": {
+    "@giz/explorer": "workspace:*",
+    "@giz/wasi-runtime": "workspace:*",
+    "eslint": "8.45.0"
+  },
+  "devDependencies": {
+    "@giz/wasi-tools": "workspace:*",
+    "zx": "7.2.3"
+  },
+  "please": {
+    "build": {
+      "input": [
+        "src/*"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    }
+  }
+}

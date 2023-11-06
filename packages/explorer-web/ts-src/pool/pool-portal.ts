@@ -6,7 +6,7 @@ export type PortaledJob = {
   id: number;
   priority: number;
   method: string;
-  params: any[];
+  params: any;
   onEnd: (data: any) => void;
   onErr: (err: any) => void;
   onData?: (data: any) => void;
@@ -15,7 +15,7 @@ export type PortaledJobOpts = {
   id?: number;
   priority?: number;
   method: string;
-  params: any[];
+  params: any;
   onEnd: (data: any) => void;
   onErr: (err: any) => void;
   onData?: (data: any) => void;
@@ -142,11 +142,11 @@ export class PoolPortal {
     console.error("Port message error", message);
   }
 
-  execute<T>(method: string, params?: any[], priority = 100): JobRef<T> {
+  execute<T>(method: string, params?: any, priority = 100): JobRef<T> {
     const job = {
       id: this.counter++,
       priority,
-      params: params ?? [],
+      params: params ?? {},
       method,
       onEnd: () => {},
       onErr: () => {},
@@ -200,7 +200,7 @@ export class PoolPortal {
     });
   }
 
-  _enqueueJob(job_: PortaledJob) {
+  _enqueueJob(job_: PortaledJobOpts) {
     const id = job_.id ?? this.counter++;
     const priority = job_.priority ?? 1;
 
@@ -235,19 +235,19 @@ export class PoolPortal {
   }
 
   getBranches(): Promise<string[]> {
-    return this.execute<string[]>("list_branches").promise;
+    return this.execute<string[]>("get_branches").promise;
   }
 
   getBlame(branch: string, path: string, preview?: boolean): JobRef<Blame> {
-    return this.execute<Blame>("blame", [{ branch, path, preview }], preview ? 100 : 1);
+    return this.execute<Blame>("get_blame", { branch, path, preview }, preview ? 100 : 1);
   }
 
   getFileContent(branch: string, path: string): Promise<string> {
-    return this.execute<string>("file_content", [{ branch, path }]).promise;
+    return this.execute<string>("get_file_content", { branch, path }).promise;
   }
 
   getGitGraph() {
-    return this.execute<{ graph: GitGraph }>("git_graph").promise;
+    return this.execute<{ graph: GitGraph }>("get_git_graph").promise;
   }
 
   streamFileTree(
@@ -257,8 +257,8 @@ export class PoolPortal {
     onErr: (err: any) => void,
   ) {
     return this.stream({
-      method: "file_tree",
-      params: [{ branch }],
+      method: "stream_file_tree",
+      params: { branch },
       onData,
       onEnd,
       onErr,
@@ -272,7 +272,7 @@ export class PoolPortal {
   ) {
     return this.stream({
       method: "stream_commits",
-      params: [],
+      params: {},
       onData,
       onEnd,
       onErr,
@@ -282,7 +282,7 @@ export class PoolPortal {
   streamAuthors(onData: (data: Author) => void, onEnd: () => void, onErr: (err: any) => void) {
     return this.stream({
       method: "stream_authors",
-      params: [],
+      params: {},
       onData,
       onEnd,
       onErr,

@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { Database } from "@giz/database";
-import { FileTree, Repository } from "@giz/explorer";
+import { FileTree, Repository } from "@giz/explorer-web";
 import { FileRendererPool } from "@giz/file-renderer";
 
 import { RepoController } from "./repo.controller";

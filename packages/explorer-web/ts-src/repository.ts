@@ -127,7 +127,7 @@ export class Repository {
     const { startCommitId, endCommitId } = await this.portal.execute<{
       startCommitId: string;
       endCommitId: string;
-    }>("get_commits_for_branch", [defaultBranch]).promise;
+    }>("get_commits_for_branch", { branch: defaultBranch }).promise;
 
     this._gitGraph = new PromiseObserver<GitGraph>({
       name: `GitGraph`,

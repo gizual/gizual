@@ -1,10 +1,10 @@
 /**
- * This list represents the third column of the file-icons table available at 
+ * This list represents the third column of the file-icons table available at
  * https://github.com/file-icons/atom/blob/master/lib/icons/.icondb.js
- * 
+ *
  * The conversion to icon and color is done in the frontend (packages/explorer/src/file-icon-db.ts)
  */
-pub static FILE_TYPE_REGEX_DB: &'static [&'static str] = &[
+pub static FILE_TYPE_REGEX_DB: &[&str] = &[
     r"(?i)(?:^|.*(?:\.|-|\/))vault\.ya?ml$$",
     r"(?i)\.swp$",
     r"(?i)(?:^|\.)fonts\.(?:dir|scale|alias)$",

@@ -1,7 +1,7 @@
 import { isString } from "lodash";
 
-import wasmFileUrl from "@giz/explorer/dist/explorer-libgit2.wasm?url";
 import { WasiRuntime } from "@giz/wasi-runtime";
+import wasmFileUrl from "../../build/explorer-web.wasm?url";
 
 import { DataResponse, ErrorResponse, JobWithOrigin } from "./types";
 
@@ -46,28 +46,17 @@ export class PoolNode {
       },
     });
 
-    runtime.run({
+    await runtime.run({
       env: {},
       args: [],
     });
 
-    let stdout = "";
-    let maxTries = 100;
-    while (!stdout && maxTries--) {
-      stdout = await runtime.readStdout();
+    await runtime.writeStdin("PING\n");
 
-      if (!stdout) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-    }
+    const stdout = await runtime.readStdout();
 
-    if (maxTries <= 0) {
-      throw new Error("Timeout waiting for worker to start");
-    }
-
-    const data = JSON.parse(stdout);
-    if (!data?.ready) {
-      throw new Error(data.error);
+    if (stdout !== "PONG") {
+      throw new Error("unable to start worker");
     }
 
     this.runtime = runtime;
@@ -108,11 +97,9 @@ export class PoolNode {
 
     this.activeJob = job;
 
-    const { id, method, params } = job;
+    const { method, params } = job;
 
     const payload = {
-      jsonrpc: "2.0",
-      id,
       method,
       params,
     };
@@ -136,7 +123,7 @@ export class PoolNode {
         break;
       }
 
-      const isIntermediateResponse = !isString(data?.jsonrpc);
+      const isIntermediateResponse = !data.end;
       //this.logger.trace("stdout", stdout);
 
       if (data.error) {
@@ -144,11 +131,11 @@ export class PoolNode {
         break;
       }
       if (!isIntermediateResponse) {
-        this.sendResponse(job, data.result, true);
+        this.sendResponse(job, data.data, true);
         break;
       }
 
-      this.sendResponse(job, data);
+      this.sendResponse(job, data.data);
     }
     this.activeJob = undefined;
   }

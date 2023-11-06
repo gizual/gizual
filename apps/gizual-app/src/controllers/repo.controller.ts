@@ -15,8 +15,8 @@ import {
   when,
 } from "mobx";
 
-import { Blame, CommitInfo } from "@giz/explorer";
-import { BlameView } from "@giz/explorer";
+import { GitGraphCommitInfo } from "@giz/explorer";
+import { Blame, BlameView } from "@giz/explorer-web";
 import { VisualizationDefaults } from "@giz/file-renderer";
 
 import type { MainController } from "./main.controller";
@@ -287,7 +287,7 @@ export class RepoController {
 
 export type Line = {
   content: string;
-  commit?: CommitInfo;
+  commit?: GitGraphCommitInfo;
   color?: string;
 };
 

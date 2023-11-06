@@ -1,0 +1,37 @@
+{
+  "name": "@giz/explorer-node",
+  "main": "ts-src/index.ts",
+  "scripts": {
+    "build": "yarn build:node",
+    "build:node": "napi build --cargo-name explorer_node --platform  --release ./build",
+    "clean": "rimraf dist",
+    "lint": "yarn lint:rust && yarn lint:ts",
+    "lint:rust": "cargo clippy --no-deps",
+    "lint:ts": "eslint .",
+    "type-check": "tsc",
+    "format": "cargo fmt",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "2.16.5",
+    "eslint": "8.45.0",
+    "node-addon-api": "*",
+    "ts-node": "10.9.1",
+    "vitest": "0.34.6",
+    "zx": "7.2.3"
+  },
+  "dependencies": {
+    "@giz/explorer": "workspace:*"
+  },
+  "please": {
+    "build": {
+      "input": [
+        "src/*",
+        "ts-src/*"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    }
+  }
+}

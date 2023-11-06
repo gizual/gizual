@@ -1,15 +1,17 @@
-use crate::{
-    handler::{RequestResult, RpcHandler},
-    utils,
-};
+use crate::{explorer::Explorer, utils};
 
 use git2::Error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
+#[cfg(feature = "bindings")]
+use specta::Type;
+
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StreamAuthorsParams {}
 
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Author {
     id: String,
@@ -19,8 +21,8 @@ pub struct Author {
     gravatar_hash: String,
 }
 
-impl RpcHandler {
-    pub fn cmd_stream_authors(&self) -> RequestResult {
+impl Explorer {
+    pub fn cmd_stream_authors(&self) {
         match self.visit_authors(true) {
             Ok(_) => {}
             Err(e) => {
@@ -29,7 +31,7 @@ impl RpcHandler {
         }
     }
 
-    pub fn cmd_get_authors(&self) -> RequestResult {
+    pub fn cmd_get_authors(&self) {
         match self.visit_authors(false) {
             Ok(_) => {}
             Err(e) => {
@@ -39,7 +41,7 @@ impl RpcHandler {
     }
 
     fn visit_authors(&self, stream: bool) -> Result<(), Error> {
-        let repo = self.repo.lock().unwrap();
+        let repo = self.repo.as_ref().unwrap();
 
         let mut revwalk = repo.revwalk()?;
         revwalk.set_sorting(git2::Sort::TIME | git2::Sort::REVERSE)?;

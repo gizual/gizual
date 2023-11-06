@@ -1,25 +1,58 @@
-use git2::{ObjectType, Repository, Tree, Error};
+use git2::{Error, ObjectType, Repository, Tree};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Value, Map};
 
+#[cfg(feature = "bindings")]
+use specta::Type;
+
+use crate::explorer::Explorer;
 use crate::file_types::get_file_type;
-use crate::handler::{RequestResult, RpcHandler};
 
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetFileTreeParams {
     pub branch: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct CustomValue(Value);
+
+#[cfg(feature = "bindings")]
+impl specta::Type for CustomValue {
+    fn inline(_: specta::DefOpts, _: &[specta::DataType]) -> specta::DataType {
+        specta::DataType::Any
+    }
+}
+
+impl From<u32> for CustomValue {
+    fn from(value: u32) -> Self {
+        CustomValue(Value::Number(value.into()))
+    }
+}
+
+impl From<String> for CustomValue {
+    fn from(value: String) -> Self {
+        CustomValue(Value::String(value))
+    }
+}
+
+impl From<&str> for CustomValue {
+    fn from(value: &str) -> Self {
+        CustomValue(Value::String(value.into()))
+    }
+}
+
+#[cfg_attr(feature = "bindings", derive(Type))]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FileTreeNode {
     path: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    kind: Option<Value>,
+    kind: Option<CustomValue>,
     #[serde(skip_serializing_if = "Option::is_none")]
     loading: Option<bool>,
 }
 
-impl RpcHandler {
+impl Explorer {
     // Traverse the file tree breadth-first and print findings as json objects
     fn traverse_tree(
         &self,
@@ -70,14 +103,15 @@ impl RpcHandler {
                     result.push(entry);
                 }
             }
-
         }
 
         for (path, subtree) in sub_trees {
             let sub_results = self.traverse_tree(repo, stream, &subtree, path);
+            
             if !stream && sub_results.is_ok() {
                 result.extend(sub_results.unwrap());
             }
+           
         }
 
         let entry = FileTreeNode {
@@ -100,28 +134,30 @@ impl RpcHandler {
         params: &GetFileTreeParams,
         stream: bool,
     ) -> Result<Vec<FileTreeNode>, git2::Error> {
-        let repo = self.repo.lock().unwrap();
-        let repo = &*repo;
+        let repo = self.repo.as_ref().unwrap();
+
 
         let branch = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
         let commit = branch.get().peel_to_commit()?;
         let tree = commit.tree()?;
 
-        self.traverse_tree(repo, stream, &tree, Vec::new())
+         self.traverse_tree(repo, stream, &tree, Vec::new())
     }
 
-    pub fn stream_file_tree(&self, params: &GetFileTreeParams) -> RequestResult {
+    pub fn stream_file_tree(&self, params: &GetFileTreeParams) {
         let result = self.file_tree(params, true);
 
         match result {
-            Ok(_) => {}
+            Ok(_) => {
+                self.send("", true);
+            }
             Err(e) => {
                 self.send_error(e.message().to_string());
             }
         }
     }
 
-    pub fn get_file_tree(&self, params: &GetFileTreeParams) -> RequestResult {
+    pub fn get_file_tree(&self, params: &GetFileTreeParams) {
         let result = self.file_tree(params, false);
 
         match result {

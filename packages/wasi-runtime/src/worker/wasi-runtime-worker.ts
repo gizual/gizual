@@ -32,7 +32,7 @@ export class WasiRuntimeWorker {
   async run(opts: WasiRunOpts) {
     const start = performance.now();
 
-    const { args } = opts;
+    const { args, awaitExit } = opts;
 
     const fds: Fd[] = [];
 
@@ -53,11 +53,15 @@ export class WasiRuntimeWorker {
       trace: false,
     });
 
-    await this.wasi.run();
+    const runPromise = this.wasi.run();
 
-    const end = performance.now();
-    const durationSeconds = (end - start) / 1000;
-    this.logger.info(`Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`);
+    if (awaitExit) {
+      await runPromise;
+      const end = performance.now();
+      const durationSeconds = (end - start) / 1000;
+      this.logger.info(`Ran command in ${Math.round(durationSeconds * 1000) / 1000} seconds`);
+    }
+
     return;
   }
 

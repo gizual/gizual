@@ -1,0 +1,4 @@
+{
+  "extends": "@giz/tsconfig/tsconfig.web.json",
+  "include": ["ts-src", "tests"]
+}

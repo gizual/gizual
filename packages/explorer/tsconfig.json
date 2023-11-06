@@ -3,6 +3,6 @@
     "lib": ["esnext", "dom"]
   },
   "extends": "@giz/tsconfig/tsconfig.web.json",
-  "include": ["src-ts"],
+  "include": ["ts-src"],
   "exclude": ["dist", "build", "node_modules"]
 }

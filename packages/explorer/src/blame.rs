@@ -1,13 +1,14 @@
-use crate::{
-    handler::{RequestResult, RpcHandler},
-    utils,
-};
+use crate::{explorer::Explorer, utils};
 use git2::BlameOptions;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
+#[cfg(feature = "bindings")]
+use specta::Type;
+
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Blame {
     #[serde(rename = "fileName")]
@@ -16,6 +17,7 @@ pub struct Blame {
     lines: Vec<BlameLine>,
 }
 
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 struct BlameLine {
     #[serde(rename = "lineNo")]
@@ -25,6 +27,7 @@ struct BlameLine {
     content: String,
 }
 
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 struct CommitInfo {
     #[serde(rename = "commitId")]
@@ -34,6 +37,7 @@ struct CommitInfo {
     timestamp: String,
 }
 
+#[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BlameParams {
     pub branch: String,
@@ -42,9 +46,8 @@ pub struct BlameParams {
     pub preview: Option<bool>,
 }
 
-impl RpcHandler {
-
-    pub fn cmd_get_blame(&self, params: &BlameParams) -> RequestResult {
+impl Explorer {
+    pub fn cmd_get_blame(&self, params: &BlameParams) {
         match self.blame(params) {
             Ok(blame) => {
                 self.send(blame, true);
@@ -55,8 +58,9 @@ impl RpcHandler {
         }
     }
 
-     fn blame(&self, params: &BlameParams) -> Result<Blame, git2::Error> {
-        let repo = self.repo.lock().unwrap();
+    fn blame(&self, params: &BlameParams) -> Result<Blame, git2::Error> {
+        let repo = self.repo.as_ref().unwrap();
+
         let file_name = params.path.split('/').last().unwrap();
         let mut result = Blame {
             file_name: file_name.to_string(),

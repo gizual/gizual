@@ -2,7 +2,7 @@ export type Job = {
   id: number;
   priority: number;
   method: string;
-  params: any[];
+  params: any;
 };
 
 export type JobWithOrigin = Job & {
