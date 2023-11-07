@@ -32,7 +32,10 @@
   },
   "please": {
     "build": {
-      "input": "src/*"
+      "input": "src/*",
+      "dependsOn": [
+        "build"
+      ]
     }
   },
   "tsup": {
