@@ -25,7 +25,8 @@ export function interpolateColor(line: Line, ctx: FileLinesContext | FileMosaicC
       ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
       : ctx.visualizationConfig.colors.notLoaded;
   } else {
-    const author = ctx.authors.find((a) => a.id === line.commit?.aid);
+    const author = ctx.authors.find((a) => a.id === line.commit?.authorId);
+
     return getBandColorScale(
       ctx.authors.map((a) => a.id),
       BAND_COLOR_RANGE,

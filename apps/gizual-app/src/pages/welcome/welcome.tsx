@@ -84,7 +84,7 @@ export const WelcomePage = observer(() => {
   );
 });
 
-function UnsupportedBrowser() {
+function _UnsupportedBrowser() {
   return (
     <div className={style.EmphasizedContainer}>
       <h2 className={style.EmphasizedHeader}>🚫</h2>

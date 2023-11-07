@@ -291,7 +291,7 @@ export class FileRendererWorker {
 
   async drawFilesLines(ctx: FileLinesContext, renderer: BaseRenderer) {
     const colors: string[] = [];
-    const { width, height } = calculateDimensions(ctx.dpr, ctx.rect);
+    const { width } = calculateDimensions(ctx.dpr, ctx.rect);
     const lineHeight = 10 * ctx.dpr;
 
     let currentY = 0;

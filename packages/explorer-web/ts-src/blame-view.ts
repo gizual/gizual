@@ -1,8 +1,9 @@
 import { action, computed, makeObservable, observable } from "mobx";
 
+import { Blame } from "@giz/explorer";
+
 import { JobRef } from "./explorer-pool";
 import { Repository } from "./repository";
-import { Blame } from "./types";
 
 export class BlameView {
   private repo: Repository;

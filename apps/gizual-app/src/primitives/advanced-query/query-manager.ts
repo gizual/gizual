@@ -19,12 +19,12 @@ export class QueryManager {
     this.currentQuery = query;
   }
 
-  parseShortFormQuery(filesQuery: string, timesQuery: string): string {
+  parseShortFormQuery(_filesQuery: string, _timesQuery: string): string {
     const longQuery = "";
     return longQuery;
   }
 
-  translateToShortFormQuery(query: string): { filesQuery: string; timesQuery: string } {
+  translateToShortFormQuery(_query: string): { filesQuery: string; timesQuery: string } {
     return { filesQuery: "", timesQuery: "" };
   }
 
