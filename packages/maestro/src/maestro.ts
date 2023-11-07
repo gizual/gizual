@@ -4,10 +4,10 @@ import { makeObservable, observable, runInAction } from "mobx";
 
 import { webworkerLink } from "@giz/trpc-webworker/link";
 
-import type { AppRouter, MaestroWorker } from "./worker/maestro-worker";
+import type { AppRouter, MaestroWorker } from "./maestro-worker";
 
 export class Maestro {
-  rawWorker: Worker;
+  rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
   trpc!: ReturnType<typeof createTRPCProxyClient<AppRouter>>;
   link!: ReturnType<typeof webworkerLink>[0];
@@ -16,10 +16,12 @@ export class Maestro {
 
   constructor() {
     console.log("Maestro constructor");
-    this.rawWorker = new Worker(new URL("worker/maestro-worker.ts", import.meta.url), {
+
+    this.rawWorker = new Worker(new URL("maestro-worker.mjs", import.meta.url), {
       type: "module",
     });
     this.worker = wrap<MaestroWorker>(this.rawWorker);
+
     this.state = "init";
 
     makeObservable(this, undefined, { autoBind: true });

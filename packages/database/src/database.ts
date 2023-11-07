@@ -22,4 +22,8 @@ export class Database {
   async queryAuthors(offset: number, limit: number) {
     return await this.worker.queryAuthors(offset, limit);
   }
+
+  async countAuthors() {
+    return await this.worker.countAuthors();
+  }
 }

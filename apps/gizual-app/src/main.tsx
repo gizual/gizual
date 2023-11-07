@@ -1,8 +1,7 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createTRPCReact } from "@trpc/react-query";
 import ReactDOM from "react-dom/client";
 
-import { AppRouter, Maestro } from "@giz/maestro";
+import { Maestro } from "@giz/maestro";
+import { MaestroProvider } from "@giz/maestro/react";
 
 import App from "./app";
 import { MainContext, MainController } from "./controllers";
@@ -20,20 +19,10 @@ const mainController = new MainController(maestro);
 
 (window as any).mainController = mainController;
 
-export const trpc = createTRPCReact<AppRouter>();
-
-const trpcClient = trpc.createClient({
-  links: [maestro.link],
-});
-const queryClient = new QueryClient();
-
 ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <MainContext.Provider value={mainController}>
-        <App />
-      </MainContext.Provider>
-      ,
-    </QueryClientProvider>
-  </trpc.Provider>,
+  <MaestroProvider maestro={maestro}>
+    <MainContext.Provider value={mainController}>
+      <App />
+    </MainContext.Provider>
+  </MaestroProvider>,
 );

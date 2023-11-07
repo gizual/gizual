@@ -31,7 +31,8 @@ export function applyWebWorkerHandler<TRouter extends AnyRouter>(
       const result = await callProcedure({
         procedures: router._def.procedures,
         path,
-        rawInput: input,
+        getRawInput: () => Promise.resolve(input),
+        //rawInput: input,
         ctx: undefined,
         type,
       });

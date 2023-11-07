@@ -1,6 +1,6 @@
 {
   "extends": "@giz/tsconfig/tsconfig.web.json",
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/react/providers.tsx"],
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true

@@ -3,6 +3,7 @@ import { Skeleton, Table } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
+import { useAuthorList } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
 
 import style from "./author-panel.module.scss";
@@ -13,6 +14,9 @@ export type AuthorPanelProps = {
 };
 
 export const AuthorPanel = observer(({ vm: externalVm }: AuthorPanelProps) => {
+  const { data, isLoading } = useAuthorList(10, 0);
+  console.log(data, isLoading);
+
   const mainController = useMainController();
   const vm: AuthorPanelViewModel = React.useMemo(() => {
     return externalVm || new AuthorPanelViewModel(mainController);

@@ -1,9 +1,18 @@
 {
   "name": "@giz/maestro",
   "main": "src/index.ts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./react": "./dist/react.mjs"
+  },
+  "types": "./dist/index.d.ts",
   "dependencies": {
-    "@trpc/client": "10.43.1",
-    "@trpc/server": "10.43.1",
+    "@giz/database": "workspace:*",
+    "@giz/explorer-web": "workspace:*",
+    "@tanstack/react-query": "5.7.2",
+    "@trpc/client": "next",
+    "@trpc/react-query": "next",
+    "@trpc/server": "next",
     "comlink": "4.4.1",
     "eventemitter3": "5.0.1",
     "zod": "3.22.4"
@@ -15,6 +24,7 @@
     "typescript": "5.0.4"
   },
   "scripts": {
+    "build": "tsup",
     "run-local": "bun ./tests/main.ts",
     "clean": "rimraf dist",
     "lint": "eslint .",
@@ -28,9 +38,18 @@
   "tsup": {
     "entry": {
       "index": "src/index.ts",
-      "backend-worker": "src/maestro-worker.ts"
+      "maestro-worker": "src/maestro-worker.ts",
+      "react": "src/react/index.ts"
     },
-    "external": [],
+    "external": [
+      "@tanstack/react-query",
+      "@trpc/react-query",
+      "@trpc/server",
+      "@trpc/client",
+      "react",
+      "eventemitter3",
+      "comlink"
+    ],
     "format": "esm",
     "splitting": false,
     "sourcemap": true,

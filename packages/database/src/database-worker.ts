@@ -114,6 +114,16 @@ export class DatabaseWorker {
     return result as any;
   }
 
+  async countAuthors(): Promise<number> {
+    const result = await this.db.exec({
+      sql: "SELECT COUNT(*) FROM authors;",
+      returnValue: "resultRows",
+      rowMode: 0,
+    });
+
+    return result[0] as number;
+  }
+
   async loadAuthors() {
     const stmt = this.db.prepare(INSERT_AUTHORS_TABLE);
 

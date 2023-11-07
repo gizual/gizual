@@ -10,7 +10,7 @@ import { Database } from "@giz/database";
 import { PoolPortal } from "@giz/explorer-web";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
-import { t } from "./trpc";
+import { t } from "./trpc-worker";
 
 if (typeof window !== "undefined") {
   throw new TypeError("Must be run in a worker");
@@ -83,7 +83,12 @@ const router = t.router({
       const { limit, offset } = opts.input;
 
       const authors = await DB.queryAuthors(offset, limit);
-      return authors;
+      const count = await DB.countAuthors();
+
+      return {
+        authors,
+        total: count,
+      };
     }),
 });
 

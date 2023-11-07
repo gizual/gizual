@@ -12,8 +12,16 @@ const commitHash = child.execSync("git rev-parse --short HEAD").toString();
 // https://vitejs.dev/config/
 export default defineConfig({
   optimizeDeps: {
-    include: ["@xtuc/asyncify-wasm"],
-    exclude: ["@sqlite.org/sqlite-wasm", "@tanstack/react-query", "@trpc/react-query"],
+    include: ["@xtuc/asyncify-wasm", "zod", "eventemitter3", "tslog"],
+    exclude: [
+      "@sqlite.org/sqlite-wasm",
+      "@tanstack/react-query",
+      "@trpc/react-query",
+      "@trpc/client",
+      "@trpc/server",
+      "@giz/database",
+      "@giz/maestro",
+    ],
   },
   define: {
     __COMMIT_HASH__: JSON.stringify(commitHash),
