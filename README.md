@@ -46,7 +46,6 @@ yarn            # install dependencies
 yarn build      # run build, afterwards artifacts can then be found at `apps/gizual-app/dist/`
 ```
 
-
 ### Storybook (UI Testing)
 
 Some components are attached to Storybook so they can be tested in isolation.

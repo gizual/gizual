@@ -39,7 +39,7 @@ export const MasonryGrid = observer(
       <div className={clsx(style.Row, className)} style={{ ...css }} key="masonry">
         {sortedColumns &&
           sortedColumns.map((c) => {
-            if (c.content.length === 0) return <React.Fragment key={"empty"}></React.Fragment>;
+            if (c.content.length === 0) return <React.Fragment key={c.index}></React.Fragment>;
             return (
               <div className={style.Column} key={c.index}>
                 {c.content.map((e, index) => (

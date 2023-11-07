@@ -120,10 +120,12 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
                   const parsedStartDate = dayjs(startDate, DATE_FORMAT);
                   if (parsedStartDate && parsedStartDate.isValid()) {
                     mainController.setSelectedStartDate(new GizDate(parsedStartDate.toDate()));
+                    mainController.vmController.timelineViewModel?.initializePositionsFromSelection();
                   }
                   const parsedEndDate = dayjs(endDate, DATE_FORMAT);
                   if (parsedEndDate && parsedEndDate.isValid()) {
                     mainController.setSelectedEndDate(new GizDate(parsedEndDate.toDate()));
+                    mainController.vmController.timelineViewModel?.initializePositionsFromSelection();
                   }
                 }
               }

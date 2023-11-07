@@ -32,7 +32,7 @@ export type GitGraphCommitInfo = { oid: string; aid: string; timestamp: string; 
 
 export type HistoryGraph = { commit_indices: { [key in string]: number }; commits: GitGraphCommitInfo[]; branches: BranchInfo[] }
 
-export type Infallible = never 
+export type Infallible = never
 
 export type NoParams = Record<string, never>
 
@@ -43,3 +43,4 @@ export type OpenRepositoryResult = { success: boolean }
 export type StreamAuthorsParams = Record<string, never>
 
 export type StreamCommitsParams = Record<string, never>
+
