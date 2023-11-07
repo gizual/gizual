@@ -125,11 +125,11 @@ export class SettingsController {
     style: {
       groupName: "Style",
       lineLength: createSelectSetting(
-        "Line Length",
-        "Controls the length of each line within the visualization. It can either be representative to the line length within the file, or full width.",
+        "Line Background Width",
+        "Controls the background width for each line within the visualization in file-line mode. It can either be set to represent the line length within the file, or full width.",
         "lineLength",
         [
-          { value: "lineLength", label: "Based on line length" },
+          { value: "lineLength", label: "By actual line length" },
           { value: "full", label: "Full width" },
         ],
       ),

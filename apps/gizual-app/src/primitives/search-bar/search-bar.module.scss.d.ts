@@ -1,6 +1,8 @@
 declare const classNames: {
   readonly SearchBar: "SearchBar";
   readonly Content: "Content";
+  readonly AdvancedSearchIconContainer: "AdvancedSearchIconContainer";
+  readonly AdvancedSearchIcon: "AdvancedSearchIcon";
   readonly SearchInput: "SearchInput";
   readonly "cm-focused": "cm-focused";
   readonly SearchInputWrapper: "SearchInputWrapper";

@@ -1,6 +1,6 @@
 {
   "name": "gizual",
-  "version": "3.0.0-alpha.8",
+  "version": "3.0.0-alpha.9",
   "packageManager": "yarn@3.5.0",
   "license": "Apache-2.0",
   "private": true,
@@ -21,6 +21,7 @@
   },
   "scripts": {
     "dev": "yarn please @giz/gizual-app#dev",
+    "storybook": "yarn please @giz/gizual-app#storybook",
     "build": "yarn please @giz/gizual-app#build",
     "preview": "yarn please @giz/gizual-app#preview",
     "playground": "yarn please @giz/wasi-playground-app#dev",

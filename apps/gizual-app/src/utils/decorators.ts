@@ -1,3 +1,5 @@
+import { getBaseConsoleCSS, getPrettyConsoleCSS } from "./console";
+
 function getTimestamp(): string {
   const now = new Date();
   const hours = now.getHours();
@@ -10,8 +12,8 @@ function getTimestamp(): string {
 export function logWithPrefix(prefix = "[LOGGER]", bgColor = "lightblue", ...args: any[]) {
   // Specify two sets of CSS rules, such that prefix and variables can be formatted differently.
   let messageConfig = "%c%s  %c";
-  const cssPrefix = `background: ${bgColor}; color: #444; padding: 2px; font-family:monospace;`;
-  const cssContent = `background: inherit; padding-left: 2px;`;
+  const cssPrefix = getPrettyConsoleCSS(bgColor);
+  const cssContent = getBaseConsoleCSS();
 
   let shouldInsertComma = true;
   for (const argument of args) {

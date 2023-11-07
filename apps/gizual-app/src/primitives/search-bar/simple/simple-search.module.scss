@@ -1,0 +1,108 @@
+@use "@/mixins" as *;
+
+.Container {
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid var(--border-primary);
+  padding: 0 1rem;
+}
+
+.Clickable {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  display: flex;
+}
+
+.AdvancedSearchIconContainer {
+  position: absolute;
+  right: 12px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.AdvancedSearchIcon {
+  & > path {
+    stroke: var(--foreground-primary);
+    fill: var(--background-tertiary);
+  }
+}
+
+.Content {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  height: 2rem;
+}
+
+.SearchModule {
+  @include rounded;
+  background-color: var(--background-tertiary);
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  align-items: center;
+  position: relative;
+}
+
+.SearchModuleIcon {
+  width: 15px;
+  height: 15px;
+}
+
+.SearchModuleTitle {
+  @include text-base;
+  color: var(--foreground-primary);
+  text-align: left;
+}
+
+.SearchModuleIconWithText {
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.SpacedChildren {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  height: 100%;
+  align-items: center;
+}
+
+.CloseIcon {
+  width: 15px;
+  height: 15px;
+  & > path {
+    fill: var(--color-tomato);
+  }
+  cursor: pointer;
+}
+
+.IconBase {
+  width: 20px;
+  height: 20px;
+  transition: 0.25s border;
+  transition: 0.25s background-color;
+  cursor: pointer;
+}
+
+.IconBase:hover {
+  background-color: var(--background-primary) !important;
+}
+
+.IconToggled {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--accent-main);
+}
+
+.IconUnToggled {
+  background-color: unset;
+  border: 1px solid var(--background-tertiary);
+}
+
+.FileTreeWrapper {
+  height: 80vh;
+  min-width: 50vw;
+}

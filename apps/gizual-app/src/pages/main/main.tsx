@@ -1,6 +1,7 @@
 import { Container, Languages, parseLanguages } from "@app/charts";
 import { useMainController } from "@app/controllers";
-import { Canvas, SearchBar, TitleBar } from "@app/primitives";
+import { Canvas, TitleBar } from "@app/primitives";
+import { SimpleSearchBar } from "@app/primitives/search-bar";
 import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -26,7 +27,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
     <div className={style.Page}>
       <div className={style.TitleBarContainer}>
         <TitleBar />
-        <SearchBar />
+        <SimpleSearchBar />
       </div>
 
       <div className={style.Body}>

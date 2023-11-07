@@ -8,6 +8,10 @@
   display: block;
   border: none;
   text-align: center;
+  &:disabled {
+    background-color: var(--background-tertiary);
+    cursor: not-allowed;
+  }
 }
 
 .ButtonFilled {
@@ -34,4 +38,19 @@
   background-color: unset;
   color: var(--foreground-primary);
   border: 1px solid var(--accent-main);
+}
+
+.ButtonSmall {
+  @include text-sm;
+  padding: 0.1rem 1rem;
+}
+
+.ButtonRegular {
+  @include text-base;
+  padding: 0.5rem 1rem;
+}
+
+.ButtonLarge {
+  @include text-lg;
+  padding: 0.5 1rem;
 }

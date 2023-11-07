@@ -12,4 +12,7 @@ export const LocalStorage = {
   getBoolean(key: string): boolean {
     return this.getItem(key) === "true";
   },
+  sanitizeKey(key: string) {
+    return key.replaceAll(/[^\w.-]/g, "");
+  },
 };

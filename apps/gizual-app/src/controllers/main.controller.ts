@@ -1,7 +1,6 @@
 import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
-import dayjs from "dayjs";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer-web";
@@ -308,11 +307,8 @@ export class MainController {
     if (this._selectedEndDate.getTime() !== date.getTime()) this._selectedEndDate = date;
   }
 
-  @computed
   get startDate() {
-    if (dayjs(this._startDate).isValid()) return this._startDate;
-
-    return new GizDate();
+    return this._startDate;
   }
 
   @computed
@@ -322,11 +318,8 @@ export class MainController {
       : this._selectedEndDate;
   }
 
-  @computed
   get endDate() {
-    if (dayjs(this._endDate).isValid()) return this._endDate;
-
-    return new GizDate();
+    return this._endDate;
   }
 
   @computed

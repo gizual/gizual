@@ -1,6 +1,6 @@
 import { IconCloseBox, IconSource } from "@app/assets";
 import { FileModel, useMainController } from "@app/controllers";
-import { truncateSmart } from "@app/utils";
+import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { Skeleton, Spin, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -130,7 +130,7 @@ const FileHeader = observer(({ vm }: FileHeaderProps) => {
           />
         )}
         <p className={style.FileTitle} title={vm.fileName}>
-          {truncateSmart(vm.fileName, 30)}
+          {truncateSmart(vm.fileName, maxCharactersThatFitInWidth(180, 10))}
         </p>
       </div>
       <div className={style.FileActions}>

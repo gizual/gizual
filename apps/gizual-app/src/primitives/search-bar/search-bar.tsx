@@ -1,81 +1,26 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import { IconGitBranchLine, IconSearch } from "@app/assets";
+import { IconCommandLine, IconGitBranchLine, IconSearch } from "@app/assets";
 import { useMainController } from "@app/controllers";
-import { StreamLanguage } from "@codemirror/language";
-import { simpleMode } from "@codemirror/legacy-modes/mode/simple-mode";
 import { Prec } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
-import { tags as t } from "@lezer/highlight";
-import createTheme from "@uiw/codemirror-themes";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { createPortal } from "react-dom";
 
 import sharedStyle from "../css/shared-styles.module.scss";
+import { DialogProvider } from "../dialog-provider";
 import { IconButton } from "../icon-button";
 import { Select } from "../select";
 
+import { AdvancedEditor } from "./advanced/advanced-editor";
+import { searchBarSyntaxSimple, searchBarTheme } from "./config";
 import { CommonInputAssist } from "./panels/common-footer";
 import style from "./search-bar.module.scss";
 import { SearchBarViewModel } from "./search-bar.vm";
-import { AvailableTagIdsForRegexp, TAG_PREFIX } from "./search-tags";
-
-const myTheme = createTheme({
-  theme: "dark",
-  settings: {
-    fontFamily: "Iosevka Extended",
-    background: "var(--background-tertiary)",
-    foreground: "var(--text-primary)",
-    caret: "var(--text-secondary)",
-    selection: "var(--background-primary)",
-    selectionMatch: "var(--background-primary)",
-    lineHighlight: "transparent",
-    gutterBackground: "transparent",
-    gutterForeground: "transparent",
-  },
-  styles: [
-    {
-      tag: t.tagName,
-      color: "var(--accent-main)",
-      backgroundColor: "#0c0c0d40",
-      padding: "0.125rem 0 0.125rem 0",
-      borderTopLeftRadius: "0.25rem",
-      borderBottomLeftRadius: "0.25rem",
-    },
-    {
-      tag: t.emphasis,
-      backgroundColor: "#0c0c0d40",
-      padding: "0.125rem 0 0.125rem 0",
-      borderTopRightRadius: "0.25rem",
-      borderBottomRightRadius: "0.25rem",
-    },
-    { tag: t.annotation, textDecoration: "underline red" },
-    { tag: t.operator, fontWeight: "bold", color: "var(--accent-tertiary)" },
-  ],
-});
-
-const customParser = StreamLanguage.define(
-  simpleMode({
-    start: [
-      {
-        regex: new RegExp(TAG_PREFIX + "\\b(" + AvailableTagIdsForRegexp + ")\\b(?=:)"),
-        token: "tag",
-        next: "tagged",
-      },
-      { regex: /\b(AND|OR|NOT)\b/, token: "operator" },
-      { regex: /\b(\w+)\b(?=:)/, token: "annotation", next: "tagged" }, // mark unsupported tokens as annotations (errors)
-      { regex: /./, token: "text" },
-    ],
-    tagged: [
-      { regex: /:"([^"\\]*(?:\\.[^"\\]*)*)"/, token: "emphasis", next: "start" },
-      { regex: /:(\S+)/, token: "emphasis", next: "start" },
-      { regex: /./, token: "text" },
-    ],
-  }),
-);
 
 export type SearchBarProps = {
   vm?: SearchBarViewModel;
@@ -159,27 +104,41 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
 
   return (
     <div className={style.InputFieldWrapper}>
-      <CodeMirror
-        ref={ref}
-        className={style.SearchInput}
-        onFocus={vm.onSearchBarFocus}
-        onBlur={vm.onSearchBarBlur}
-        onChange={vm.onSearchInput}
-        onUpdate={vm.onSearchUpdate}
-        onCreateEditor={vm.onCreateEditor}
-        value={vm.searchInput}
-        basicSetup={{
-          lineNumbers: false,
-          autocompletion: false,
-          highlightActiveLine: false,
-          defaultKeymap: false,
-          foldGutter: true,
-        }}
-        extensions={[customKeymap, customParser]}
-        width={"100%"}
-        style={{ margin: "auto" }}
-        theme={myTheme}
-      />
+      {
+        <CodeMirror
+          ref={ref}
+          className={style.SearchInput}
+          onFocus={vm.onSearchBarFocus}
+          onBlur={vm.onSearchBarBlur}
+          onChange={vm.onSearchInput}
+          onUpdate={vm.onSearchUpdate}
+          onCreateEditor={vm.onCreateEditor}
+          value={vm.searchInput}
+          basicSetup={{
+            lineNumbers: false,
+            autocompletion: false,
+            highlightActiveLine: false,
+            defaultKeymap: false,
+            foldGutter: true,
+          }}
+          extensions={[customKeymap, searchBarSyntaxSimple]}
+          width={"100%"}
+          style={{ margin: "auto", position: "relative" }}
+          theme={searchBarTheme}
+        >
+          <DialogProvider
+            title="Advanced Query Builder"
+            trigger={
+              <Tooltip title="Open advanced query builder">
+                <IconCommandLine className={style.AdvancedSearchIcon} />
+              </Tooltip>
+            }
+            triggerClassName={style.AdvancedSearchIconContainer}
+          >
+            <AdvancedEditor vm={vm} />
+          </DialogProvider>
+        </CodeMirror>
+      }
       {vm.isPopoverOpen && (
         <>
           {createPortal(

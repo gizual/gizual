@@ -1,0 +1,50 @@
+{
+  "files": {
+    "$or": [
+      {
+        "$and": [{ "path": "*.js" }, { "createdBy": ["joe"] }]
+      },
+      { "path": ["index.html", "index.js", "*.ts"] },
+      { "lastEditedBy": ["joe"] },
+      { "editedBy": ["joe"] },
+      { "createdBy": ["joe"] },
+      { "contains": "hello" },
+      {
+        "$not": {
+          "contains": "world"
+        }
+      }
+    ]
+  },
+
+  "time": {
+    "sinceFirstCommitBy": "joe"
+  },
+
+  "time2": {
+    "rangeByDate": ["2020-01-01", "2020-01-02"]
+  },
+
+  "time3": {
+    "rangeByDate": ["2020-01-01"]
+  },
+
+  "time4": {
+    "rangeByRef": ["v5.1.2", "v5.1.3"]
+  },
+
+  "time5": {
+    "rangeByRef": ["v5.1.2"]
+  },
+
+  "highlight": [
+    {
+      "fill": "{{ _.gradient(_.age) }}"
+    },
+    {
+      "$if": "{{ _.author === 'joe' }}",
+      "stroke": "green",
+      "fill": "{{ if _.commitDate > '2020-01-01' ? 'red' : 'blue' }}"
+    }
+  ]
+}

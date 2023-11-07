@@ -10,16 +10,22 @@ import style from "./dialog-provider.module.scss";
 export type PopoverProviderProps = {
   title?: string;
   trigger: React.ReactNode | React.ReactNode[];
+  triggerClassName?: string;
   children: React.ReactNode | React.ReactNode[];
 };
 
-export function DialogProvider({ trigger, children, title }: PopoverProviderProps) {
+export function DialogProvider({
+  trigger,
+  triggerClassName,
+  children,
+  title,
+}: PopoverProviderProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <>
       <div
-        className={style.Trigger}
+        className={triggerClassName ?? style.Trigger}
         onClick={() => {
           setIsOpen(true);
         }}

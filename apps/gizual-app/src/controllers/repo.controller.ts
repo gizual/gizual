@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-array-push-push */
 
 import { CInfo, FileNodeInfos } from "@app/types";
-import { getDateFromTimestamp, getStringDate, GizDate } from "@app/utils";
+import { getDateFromTimestamp, getStringDate, GizDate, VisualizationDefaults } from "@app/utils";
 import _ from "lodash";
 import {
   action,
@@ -15,9 +15,8 @@ import {
   when,
 } from "mobx";
 
-import { GitGraphCommitInfo } from "@giz/explorer";
-import { Blame, BlameView } from "@giz/explorer-web";
-import { VisualizationDefaults } from "@giz/file-renderer";
+import { Blame, CommitInfo } from "@giz/explorer";
+import { BlameView } from "@giz/explorer-web";
 
 import type { MainController } from "./main.controller";
 
@@ -287,7 +286,7 @@ export class RepoController {
 
 export type Line = {
   content: string;
-  commit?: GitGraphCommitInfo;
+  commit?: CommitInfo;
   color?: string;
 };
 
