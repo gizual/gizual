@@ -97,5 +97,7 @@ module.exports = {
     "unicorn/prefer-add-event-listener": OFF,
 
     "unicorn/prefer-ternary": OFF,
+
+    "unicorn/no-useless-undefined": OFF,
   },
 };

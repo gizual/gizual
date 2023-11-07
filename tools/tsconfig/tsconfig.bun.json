@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "moduleResolution": "Bundler",
     "composite": true,
     "lib": ["ESNext"],

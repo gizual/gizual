@@ -18,4 +18,8 @@ export class Database {
   async selectMatchingFiles(path: string, editedBy: string, commitId: string) {
     return await this.worker.selectMatchingFiles({ path, editedBy }, commitId);
   }
+
+  async queryAuthors(offset: number, limit: number) {
+    return await this.worker.queryAuthors(offset, limit);
+  }
 }

@@ -6,7 +6,7 @@ import {
 import { expose } from "comlink";
 import _flatten from "lodash/flatten";
 
-import { PoolPortal } from "@giz/explorer-web";
+import { Author, PoolPortal } from "@giz/explorer-web";
 
 const log = (...args: any[]) => console.log(...args);
 const error = (...args: any[]) => console.error(...args);
@@ -72,13 +72,13 @@ export class DatabaseWorker {
   async init(port: MessagePort) {
     this.portal = new PoolPortal(port);
     log("Loading and initializing SQLite3 module...");
-    sqlite3InitModule({
+    return sqlite3InitModule({
       print: log,
       printErr: error,
     }).then((sqlite3) => {
       try {
         log("Done initializing. Running demo...");
-        this.run(sqlite3);
+        return this.run(sqlite3);
       } catch (error_: any) {
         error(error_.name, error_.message);
       }
@@ -101,6 +101,17 @@ export class DatabaseWorker {
     db.exec(COMMITS_FILES_TABLE);
 
     return db;
+  }
+
+  async queryAuthors(offset: number, limit: number): Promise<Author[]> {
+    const result = await this.db.exec({
+      sql: "SELECT id, name, email, gravatar FROM authors LIMIT (?) OFFSET (?);",
+      returnValue: "resultRows",
+      rowMode: "object",
+      bind: [limit, offset],
+    });
+
+    return result as any;
   }
 
   async loadAuthors() {
@@ -211,9 +222,10 @@ export class DatabaseWorker {
 
     console.log("Loading authors ...");
     await this.loadAuthors();
-    console.log("Loading commits ...");
-    const count = await this.loadCommits();
-    console.log(`Database ready! Indexed ${count} commits.`);
+    //console.log("Loading commits ...");
+    //const count = await this.loadCommits();
+    //console.log(`Database ready! Indexed ${count} commits.`);
+    console.log(`Database ready!`);
 
     return;
 

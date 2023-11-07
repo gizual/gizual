@@ -13,7 +13,7 @@ const commitHash = child.execSync("git rev-parse --short HEAD").toString();
 export default defineConfig({
   optimizeDeps: {
     include: ["@xtuc/asyncify-wasm"],
-    exclude: ["@sqlite.org/sqlite-wasm"],
+    exclude: ["@sqlite.org/sqlite-wasm", "@tanstack/react-query", "@trpc/react-query"],
   },
   define: {
     __COMMIT_HASH__: JSON.stringify(commitHash),

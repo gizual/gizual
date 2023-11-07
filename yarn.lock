@@ -1031,6 +1031,10 @@ __metadata:
     "@giz/file-renderer": "workspace:*"
     "@lezer/highlight": ^1.1.6
     "@lezer/lr": ^1.3.9
+    "@tanstack/react-query": 4.36.1
+    "@trpc/client": 10.43.1
+    "@trpc/react-query": ^10.43.1
+    "@trpc/server": next
     "@types/d3-interpolate": ^3.0.1
     "@types/d3-scale": ^4.0.3
     "@types/lodash": ^4.14.194
@@ -1087,6 +1091,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@giz/maestro@workspace:packages/maestro":
+  version: 0.0.0-use.local
+  resolution: "@giz/maestro@workspace:packages/maestro"
+  dependencies:
+    "@swc/core": 1.3.70
+    "@trpc/client": 10.43.1
+    "@trpc/server": 10.43.1
+    comlink: 4.4.1
+    eslint: 8.45.0
+    eventemitter3: 5.0.1
+    tsup: 7.1.0
+    typescript: 5.0.4
+    zod: 3.22.4
+  languageName: unknown
+  linkType: soft
+
 "@giz/please@workspace:*, @giz/please@workspace:tools/please":
   version: 0.0.0-use.local
   resolution: "@giz/please@workspace:tools/please"
@@ -1100,6 +1120,15 @@ __metadata:
     vite-node: 0.34.6
   bin:
     please: ./cli.js
+  languageName: unknown
+  linkType: soft
+
+"@giz/trpc-webworker@workspace:packages/trpc-webworker":
+  version: 0.0.0-use.local
+  resolution: "@giz/trpc-webworker@workspace:packages/trpc-webworker"
+  dependencies:
+    "@trpc/client": 10.43.1
+    "@trpc/server": 10.43.1
   languageName: unknown
   linkType: soft
 
@@ -1890,6 +1919,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:4.36.1":
+  version: 4.36.1
+  resolution: "@tanstack/query-core@npm:4.36.1"
+  checksum: 47672094da20d89402d9fe03bb7b0462be73a76ff9ca715169738bc600a719d064d106d083a8eedae22a2c22de22f87d5eb5d31ef447aba771d9190f2117ed10
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:4.36.1":
+  version: 4.36.1
+  resolution: "@tanstack/react-query@npm:4.36.1"
+  dependencies:
+    "@tanstack/query-core": 4.36.1
+    use-sync-external-store: ^1.2.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-native: "*"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: 1aff0a476859386f8d32253fa0d0bde7b81769a6d4d4d9cbd78778f0f955459a3bdb7ee27a0d2ee7373090f12998b45df80db0b5b313bd0a7a39d36c6e8e51c5
+  languageName: node
+  linkType: hard
+
 "@toml-tools/lexer@npm:^1.0.0":
   version: 1.0.0
   resolution: "@toml-tools/lexer@npm:1.0.0"
@@ -1913,6 +1968,42 @@ __metadata:
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
   checksum: ad87447820dd3f24825d2d947ebc03072b20a42bfc96cbafec16bff8bbda6c1a81fcb0be56d5b21968560c5359a0af4038a68ba150c3e1694fe4c109a063bed8
+  languageName: node
+  linkType: hard
+
+"@trpc/client@npm:10.43.1":
+  version: 10.43.1
+  resolution: "@trpc/client@npm:10.43.1"
+  peerDependencies:
+    "@trpc/server": 10.43.1
+  checksum: 44877dcf2f8cf20b90841678dc7dad8466fe0ebb572bb78edd7a970fd7555e830bcb26454bfed89c82c64980b5d64fd9db964e5a3e7ba29096b8b06cf28d15f8
+  languageName: node
+  linkType: hard
+
+"@trpc/react-query@npm:^10.43.1":
+  version: 10.43.1
+  resolution: "@trpc/react-query@npm:10.43.1"
+  peerDependencies:
+    "@tanstack/react-query": ^4.18.0
+    "@trpc/client": 10.43.1
+    "@trpc/server": 10.43.1
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 3c9eeae2baf253a5cacaab001157498b3f64c4456aadd98f7a4987aa3007589110db74f08b4ceab89bbee7fe5614aa4a60a1f43ed8ea888373939fd2f23bac5a
+  languageName: node
+  linkType: hard
+
+"@trpc/server@npm:10.43.1":
+  version: 10.43.1
+  resolution: "@trpc/server@npm:10.43.1"
+  checksum: 37f76c4fa1243ce5033027e3747c1fbfd32a63ede909a84aed3afbec67a4b86be61f5a9ac8980ab4318d5890f77502a4a6d04696be08b2e313f37a4cf45334c5
+  languageName: node
+  linkType: hard
+
+"@trpc/server@npm:next":
+  version: 11.0.0-alpha-next-2023-11-03-11-28-35.97
+  resolution: "@trpc/server@npm:11.0.0-alpha-next-2023-11-03-11-28-35.97"
+  checksum: f8b5d09d9db2315052e87aa0d0074d4ac1d2ba363d64b4cf06aa3cb2541d56869df06fd6a24e0f24e4a7e2ea7e1a47775ec2bbc075cccef924bddbab3f088a03
   languageName: node
   linkType: hard
 
@@ -4684,6 +4775,13 @@ __metadata:
     stream-combiner: ~0.0.4
     through: ~2.3.1
   checksum: 80b467820b6daf824d9fb4345d2daf115a056e5c104463f2e98534e92d196a27f2df5ea2aa085624db26f4c45698905499e881d13bc7c01f7a13eac85be72a22
+  languageName: node
+  linkType: hard
+
+"eventemitter3@npm:5.0.1":
+  version: 5.0.1
+  resolution: "eventemitter3@npm:5.0.1"
+  checksum: 543d6c858ab699303c3c32e0f0f47fc64d360bf73c3daf0ac0b5079710e340d6fe9f15487f94e66c629f5f82cd1a8678d692f3dbb6f6fcd1190e1b97fcad36f8
   languageName: node
   linkType: hard
 
@@ -10790,6 +10888,13 @@ __metadata:
   version: 1.0.0
   resolution: "yocto-queue@npm:1.0.0"
   checksum: 2cac84540f65c64ccc1683c267edce396b26b1e931aa429660aefac8fbe0188167b7aee815a3c22fa59a28a58d898d1a2b1825048f834d8d629f4c2a5d443801
+  languageName: node
+  linkType: hard
+
+"zod@npm:3.22.4":
+  version: 3.22.4
+  resolution: "zod@npm:3.22.4"
+  checksum: 80bfd7f8039b24fddeb0718a2ec7c02aa9856e4838d6aa4864335a047b6b37a3273b191ef335bf0b2002e5c514ef261ffcda5a589fb084a48c336ffc4cdbab7f
   languageName: node
   linkType: hard
 

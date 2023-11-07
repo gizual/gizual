@@ -1,0 +1,11 @@
+{
+  "name": "@giz/trpc-webworker",
+  "exports": {
+    "./adapter": "./src/adapter.ts",
+    "./link": "./src/link.ts"
+  },
+  "dependencies": {
+    "@trpc/client": "10.43.1",
+    "@trpc/server": "10.43.1"
+  }
+}

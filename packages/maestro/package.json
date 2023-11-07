@@ -1,0 +1,41 @@
+{
+  "name": "@giz/maestro",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@trpc/client": "10.43.1",
+    "@trpc/server": "10.43.1",
+    "comlink": "4.4.1",
+    "eventemitter3": "5.0.1",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@swc/core": "1.3.70",
+    "eslint": "8.45.0",
+    "tsup": "7.1.0",
+    "typescript": "5.0.4"
+  },
+  "scripts": {
+    "run-local": "bun ./tests/main.ts",
+    "clean": "rimraf dist",
+    "lint": "eslint .",
+    "type-check": "tsc"
+  },
+  "please": {
+    "build": {
+      "input": "src/*"
+    }
+  },
+  "tsup": {
+    "entry": {
+      "index": "src/index.ts",
+      "backend-worker": "src/maestro-worker.ts"
+    },
+    "external": [],
+    "format": "esm",
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "keepNames": true,
+    "dts": true
+  }
+}
