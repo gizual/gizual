@@ -10,7 +10,12 @@ import wasm from "vite-plugin-wasm";
 const commitHash = child.execSync("git rev-parse --short HEAD").toString();
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(() => ({
+  build: {
+    rollupOptions: {
+      logLevel: process.platform === "win32" ? "silent" : "warn",
+    },
+  },
   optimizeDeps: {
     include: ["@xtuc/asyncify-wasm", "zod", "eventemitter3", "tslog"],
     exclude: [
@@ -53,4 +58,4 @@ export default defineConfig({
       enabledMode: ["development", "production"],
     }),
   ],
-});
+}));

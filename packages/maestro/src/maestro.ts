@@ -1,15 +1,13 @@
-import { createTRPCProxyClient } from "@trpc/client";
 import { Remote, transfer, wrap } from "comlink";
 import { makeObservable, observable, runInAction } from "mobx";
 
 import { webworkerLink } from "@giz/trpc-webworker/link";
 
-import type { AppRouter, MaestroWorker } from "./maestro-worker";
+import type { MaestroWorker } from "./maestro-worker";
 
 export class Maestro {
   rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
-  trpc!: ReturnType<typeof createTRPCProxyClient<AppRouter>>;
   link!: ReturnType<typeof webworkerLink>[0];
   dispose!: () => void;
   @observable state: "init" | "ready" | "loading" = "init";
@@ -44,20 +42,5 @@ export class Maestro {
     runInAction(() => {
       this.state = "ready";
     });
-  }
-
-  async run() {
-    if (this.state !== "ready") {
-      throw new Error("Maestro not ready");
-    }
-    console.log("Maestro run");
-    return this.trpc.authorList
-      .query({
-        limit: 10,
-        offset: 0,
-      })
-      .then((users) => {
-        console.log("Authors:", users);
-      });
   }
 }
