@@ -414,13 +414,25 @@ export class WASI {
         }
         return wasi.ERRNO_BADF;
       },
-      fd_write(fd: number, iovs_ptr: number, iovs_len: number, nwritten_ptr: number): number {
+      fd_write(
+        fd: number,
+        iovs_ptr: number,
+        iovs_len: number,
+        nwritten_ptr: number,
+      ): number | Promise<number> {
         const buffer = new DataView(self.memory.buffer);
         const buffer8 = new Uint8Array(self.memory.buffer);
         if (self.hasFd(fd)) {
           const iovecs = wasi.Iovec.from_bytes_array(buffer, iovs_ptr, iovs_len);
           const { ret, nwritten } = self.getFd(fd).fd_write(buffer8, iovecs);
           buffer.setUint32(nwritten_ptr, nwritten, true);
+
+          if (fd === wasi.FD_STDOUT) {
+            // we need to give the thread a chance to flush stdout to the pool-master before
+            // continuing. Otherwise stdout may be stuck until the next yield.
+            return new Promise((resolve) => setTimeout(resolve, 0)).then(() => ret);
+          }
+
           return ret;
         }
         return wasi.ERRNO_BADF;

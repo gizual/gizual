@@ -6,7 +6,7 @@ import _ from "lodash";
 import { makeAutoObservable, runInAction } from "mobx";
 import React from "react";
 
-import { FileIcon, FileTree, getFileIcon } from "@giz/explorer";
+import { FileIcon, FileTree, getFileIcon } from "@giz/explorer-web";
 
 export type FileTreeDataNode = DataNode &
   FileNodeInfos & {

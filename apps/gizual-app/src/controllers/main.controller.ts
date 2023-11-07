@@ -2,10 +2,11 @@ import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import dayjs from "dayjs";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 
-import { FileTree, Repository } from "@giz/explorer";
+import { FileTree, Repository } from "@giz/explorer-web";
 import { FileRendererPool } from "@giz/file-renderer";
+import { Maestro } from "@giz/maestro";
 
 import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
@@ -27,6 +28,7 @@ export class MainController {
   @observable _settingsController: SettingsController;
   @observable _repoController: RepoController;
   @observable _fileRendererPool: FileRendererPool;
+  _maestro: Maestro;
   @observable _activeRenderWorkers = new Set<string>();
   @observable _isBusy = false;
   @observable _repoName = "";
@@ -42,7 +44,7 @@ export class MainController {
 
   @observable private _pendingTransition = false;
 
-  constructor() {
+  constructor(maestro: Maestro) {
     makeObservable(this, undefined, { autoBind: true });
 
     this._repo = new Repository();
@@ -55,6 +57,7 @@ export class MainController {
     this._selectedEndDate = new GizDate("1970-01-01");
     this._repoController = new RepoController(this);
     this._fileRendererPool = new FileRendererPool();
+    this._maestro = maestro;
   }
 
   get repoController() {
@@ -196,17 +199,18 @@ export class MainController {
 
   @computed
   get isLoading() {
-    return this._repo.state === "loading";
+    return this._repo.state === "loading" || this._maestro.state === "loading";
   }
 
   @action.bound
   async openRepository() {
     const handle = await window.showDirectoryPicker();
     this.setRepoName(handle.name);
+
     await this._repo.setup(handle);
-    runInAction(() => {
-      this._pendingTransition = true;
-    });
+    const port = await this._repo.controller?.createPort();
+    await this._maestro.openRepo(port!);
+    this.setPage("main");
   }
 
   showFilePicker(type: "directory" | "zip" = "directory") {
@@ -263,9 +267,9 @@ export class MainController {
 
     this.setRepoName("?");
     await this._repo.setup(source);
-    runInAction(() => {
-      this._pendingTransition = true;
-    });
+    const port = await this._repo.controller?.createPort();
+    await this._maestro.openRepo(port!);
+    this.setPage("main");
   }
 
   get page() {

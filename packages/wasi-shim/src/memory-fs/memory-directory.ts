@@ -76,6 +76,14 @@ export class OpenMemoryDirectory extends Fd {
     this.dir = dir;
   }
 
+  path_filestat_get(flags: number, path: string): { ret: number; filestat: wasi.Filestat | null } {
+    const entry = this.dir.get_entry_for_path(path);
+    if (entry == null) {
+      return { ret: wasi.ERRNO_NOENT, filestat: null };
+    }
+    return { ret: 0, filestat: entry.stat() };
+  }
+
   fd_fdstat_get(): { ret: number; fdstat: wasi.Fdstat | null } {
     return { ret: 0, fdstat: new wasi.Fdstat(wasi.FILETYPE_DIRECTORY, 0) };
   }

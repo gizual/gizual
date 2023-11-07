@@ -171,7 +171,7 @@ export class FileRendererWorker {
         ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
         : fileContext.visualizationConfig.colors.notLoaded;
     } else {
-      const author = fileContext.authors.find((a) => a.id === line.commit?.authorId);
+      const author = fileContext.authors.find((a) => a.id === line.commit?.aid);
       return getBandColorScale(
         fileContext.authors.map((a) => a.id),
         BAND_COLOR_RANGE,

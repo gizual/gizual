@@ -10,9 +10,23 @@ import wasm from "vite-plugin-wasm";
 const commitHash = child.execSync("git rev-parse --short HEAD").toString();
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(() => ({
+  build: {
+    rollupOptions: {
+      logLevel: process.platform === "win32" ? "silent" : "warn",
+    },
+  },
   optimizeDeps: {
-    include: ["@xtuc/asyncify-wasm"],
+    include: ["@xtuc/asyncify-wasm", "zod", "eventemitter3", "tslog"],
+    exclude: [
+      "@sqlite.org/sqlite-wasm",
+      "@tanstack/react-query",
+      "@trpc/react-query",
+      "@trpc/client",
+      "@trpc/server",
+      "@giz/database",
+      "@giz/maestro",
+    ],
   },
   define: {
     __COMMIT_HASH__: JSON.stringify(commitHash),
@@ -24,6 +38,16 @@ export default defineConfig({
     },
   },
   plugins: [
+    {
+      name: "isolation",
+      configureServer(server) {
+        server.middlewares.use((_req, res, next) => {
+          res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+          res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+          next();
+        });
+      },
+    },
     svgr(),
     react({
       tsDecorators: true,
@@ -34,4 +58,4 @@ export default defineConfig({
       enabledMode: ["development", "production"],
     }),
   ],
-});
+}));

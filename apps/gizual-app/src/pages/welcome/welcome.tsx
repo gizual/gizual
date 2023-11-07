@@ -3,7 +3,6 @@ import { AnimatedLogo, Button } from "@app/primitives";
 import { isSupportedBrowser, useWindowSize } from "@app/utils";
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
-import React from "react";
 
 import style from "./welcome.module.scss";
 
@@ -11,14 +10,6 @@ export const WelcomePage = observer(() => {
   const mainController = useMainController();
   const [width, _] = useWindowSize();
   const isLargeScreen = width > 1200;
-
-  React.useEffect(() => {
-    if (!mainController.isLoading && mainController.repoName !== "") {
-      setTimeout(() => {
-        mainController.setPage("main");
-      }, 800);
-    }
-  }, [mainController.isLoading]);
 
   return (
     <div className={style.App}>

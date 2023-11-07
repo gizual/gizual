@@ -1,0 +1,14 @@
+[package]
+name = "explorer_node"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+name = "explorer_node"
+path = "src/lib.rs"
+
+[dependencies]
+explorer = { path = "../explorer", default-features = false }
+napi = { version = "2", features = ["napi4", "compat-mode"] }
+napi-derive = { version = "2" }

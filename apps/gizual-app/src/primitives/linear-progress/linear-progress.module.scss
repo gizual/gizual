@@ -1,0 +1,44 @@
+.Progress {
+  height: 8px;
+  :global(.ant-progress-inner) {
+    background-color: var(--background-tertiary);
+  }
+  :global(.ant-progress-bg) {
+    position: relative;
+    background: linear-gradient(to right, #1890ff 30%, #40a9ff 50%, #1890ff 70%);
+    // Animate left to right, unless we're in reduced motion
+    @media (prefers-reduced-motion: no-preference) {
+      animation: indeterminate 2s linear infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      left: 25%;
+      right: 25%;
+      transform: scaleX(2);
+      animation: reducedIndeterminate 1s linear infinite;
+    }
+  }
+}
+
+@keyframes reducedIndeterminate {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes indeterminate {
+  0% {
+    left: -50%;
+    right: 100%;
+  }
+  100% {
+    left: 100%;
+    right: -50%;
+  }
+}

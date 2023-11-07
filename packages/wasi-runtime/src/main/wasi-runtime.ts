@@ -7,7 +7,7 @@ import type { WasiRuntimeWorker } from "../worker/wasi-runtime-worker";
 import { createWorker } from "./create-worker";
 
 export type ExtendedWasiRuntimeOpts = {
-  folderMappings: Record<string, FileSystemDirectoryHandle>;
+  folderMappings: Record<string, FileSystemDirectoryHandle | Uint8Array>;
 } & WasiRuntimeOpts;
 
 let COUNTER = 0;
@@ -29,7 +29,12 @@ export class WasiRuntime {
 
   async init() {
     for (const [key, value] of Object.entries(this.opts.folderMappings)) {
-      await this.worker.addFolderMapping(key, value);
+      if (value instanceof Uint8Array) {
+        const zipCopy = new Uint8Array(value);
+        await this.worker.addFolderMapping(key, Comlink.transfer(zipCopy, [zipCopy.buffer]));
+      } else {
+        await this.worker.addFolderMapping(key, value);
+      }
     }
 
     let bytes: Uint8Array;

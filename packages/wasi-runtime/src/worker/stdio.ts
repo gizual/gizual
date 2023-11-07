@@ -10,6 +10,7 @@ export class StdIoPipe {
     parentLogger?: Logger,
   ) {
     this.logger = (parentLogger ?? LOG).getSubLogger({ name: identifier });
+    this.logger.settings.minLevel = 0;
   }
 
   public readBytes(numBytes: number): Promise<string> {

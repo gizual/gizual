@@ -1,0 +1,13 @@
+[package]
+name = "explorer-web"
+version = "0.0.0"
+edition = "2021"
+
+[[bin]]
+name = "explorer-web"
+path = "src/main.rs"
+
+[dependencies]
+explorer = { path = "../explorer", default-features = false }
+
+[dev-dependencies]

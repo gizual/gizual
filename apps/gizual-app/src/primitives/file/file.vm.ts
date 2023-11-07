@@ -2,12 +2,12 @@ import { FileModel, MainController } from "@app/controllers";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
 
-import { CommitInfo } from "@giz/explorer";
+import { GitGraphCommitInfo } from "@giz/explorer";
 import { type FileContext, VisualizationDefaults } from "@giz/file-renderer";
 
 export type Line = {
   content: string;
-  commit?: CommitInfo;
+  commit?: GitGraphCommitInfo;
   color?: string;
 };
 

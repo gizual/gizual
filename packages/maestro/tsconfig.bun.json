@@ -1,0 +1,4 @@
+{
+  "extends": "@giz/tsconfig/tsconfig.bun.json",
+  "include": ["tests/**/*.ts"]
+}
