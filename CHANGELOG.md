@@ -1,3 +1,19 @@
+## Gizual 3.0.0-alpha.x (xx.xx.2023)
+
+### Features
+
+- **app:search-bar** implement advanced query builder
+- **app:search-bar** add new simple-search implementation
+
+### Changes
+
+- **app:general** enable transparent color selections
+- **app:canvas** implement new rendering modes
+- **app:canvas** change SVG default font family to `Courier New`
+- **app:canvas** adjust file title truncation based on minimum browser font size
+
+---
+
 ## Gizual 3.0.0-alpha.8 (07.11.2023)
 
 ### Features

@@ -12,7 +12,7 @@ import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
-import { FileContext, FileRendererWorker } from "@giz/file-renderer";
+import { FileContext, FileLinesContext, FileRendererWorker, RenderType } from "@giz/file-renderer";
 
 export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 3;
@@ -116,8 +116,9 @@ export class CanvasViewModel {
     return Object.entries(ColoringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
-  getDrawingContext(file: FileModel) {
+  getDrawingContext(file: FileModel): Partial<FileLinesContext> {
     return {
+      type: RenderType.FileLines,
       authors: this._mainController.authors.map((a) => toJS(a)),
       fileContent: toJS(file.data.lines),
       earliestTimestamp: toJS(file.data.earliestTimestamp),
@@ -217,7 +218,7 @@ export class CanvasViewModel {
       appearance === "light"
         ? this._mainController.getStyle("--color-white")
         : this._mainController.getStyle("--color-darkgray")
-    }"`;
+    };font-family: Courier New;font-size: 0.5rem;"`;
     const svg = `<svg ${styleTag} ${style} viewBox="0 0 ${width} ${masonry.maxHeight}">${svgChildren
       .map((c) => c.render())
       .join("")}</svg>`;

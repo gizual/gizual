@@ -36,10 +36,10 @@ export const MasonryGrid = observer(
     }, [children, childInfo]);
 
     return (
-      <div className={clsx(style.Row, className)} style={{ ...css }}>
+      <div className={clsx(style.Row, className)} style={{ ...css }} key="masonry">
         {sortedColumns &&
           sortedColumns.map((c) => {
-            if (c.content.length === 0) return <></>;
+            if (c.content.length === 0) return <React.Fragment key={"empty"}></React.Fragment>;
             return (
               <div className={style.Column} key={c.index}>
                 {c.content.map((e, index) => (

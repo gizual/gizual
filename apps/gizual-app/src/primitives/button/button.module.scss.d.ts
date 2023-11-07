@@ -3,5 +3,8 @@ declare const classNames: {
   readonly ButtonFilled: "ButtonFilled";
   readonly ButtonGray: "ButtonGray";
   readonly ButtonOutline: "ButtonOutline";
+  readonly ButtonSmall: "ButtonSmall";
+  readonly ButtonRegular: "ButtonRegular";
+  readonly ButtonLarge: "ButtonLarge";
 };
 export = classNames;

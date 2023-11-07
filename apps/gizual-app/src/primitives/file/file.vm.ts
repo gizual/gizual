@@ -1,9 +1,10 @@
 import { FileModel, MainController } from "@app/controllers";
+import { VisualizationDefaults } from "@app/utils";
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import React from "react";
 
 import { GitGraphCommitInfo } from "@giz/explorer";
-import { type FileLinesContext, RenderType, VisualizationDefaults } from "@giz/file-renderer";
+import { type FileLinesContext, RenderType } from "@giz/file-renderer";
 
 export type Line = {
   content: string;
@@ -223,13 +224,7 @@ export class FileViewModel {
 
     const rect = this._canvasRef.current.getBoundingClientRect();
     rect.width = rect.width * (1 / scale);
-
-    const nColumns = 1;
-
-    rect.height = Math.min(
-      nColumns > 1 ? VisualizationDefaults.maxLineCount * 10 : this.fileContent.length * 10,
-      VisualizationDefaults.maxLineCount * 10,
-    );
+    rect.height = Math.min(this.fileContent.length * 10, VisualizationDefaults.maxLineCount * 10);
 
     if (this._canvasRef?.current) {
       this._canvasRef.current.style.width = `${rect.width}px`;

@@ -21,6 +21,7 @@
   },
   "scripts": {
     "dev": "yarn please @giz/gizual-app#dev",
+    "storybook": "yarn please @giz/gizual-app#storybook",
     "build": "yarn please @giz/gizual-app#build",
     "preview": "yarn please @giz/gizual-app#preview",
     "playground": "yarn please @giz/wasi-playground-app#dev",

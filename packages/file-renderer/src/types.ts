@@ -5,7 +5,7 @@ import type { Author } from "@giz/explorer";
 import type { Line } from "@giz/gizual-app/controllers";
 import type { VisualizationConfig } from "@giz/gizual-app/types";
 
-export type RenderingMode = "canvas" | "svg";
+export type RenderingMode = "canvas" | "svg" | "annotations";
 
 export type BaseContext = {
   dpr: number;
@@ -32,7 +32,7 @@ export type FileInfo = {
 
 export type AuthorContribution = {
   commitHash: string;
-  timestamp: number;
+  timestamp: string;
 };
 
 export enum RenderType {
@@ -40,6 +40,7 @@ export enum RenderType {
   AuthorContributions = "author-contributions",
   FileLines = "file-lines",
   FileMosaic = "file-mosaic",
+  Bar = "bar",
 }
 
 export type AuthorContributionsContext = {
@@ -74,10 +75,16 @@ export type FileMosaicContext = {
 } & BaseContext &
   BaseMosaicContext;
 
+export type BarContext = {
+  type: RenderType.Bar;
+  values: { id: string; value: number }[];
+} & BaseContext;
+
 export type RendererContext =
   | AuthorMosaicContext
   | AuthorContributionsContext
   | FileLinesContext
-  | FileMosaicContext;
+  | FileMosaicContext
+  | BarContext;
 
 export type RenderingResult = Promise<string | SvgBaseElement[]>;

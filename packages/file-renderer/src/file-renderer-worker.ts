@@ -1,28 +1,47 @@
+import { VisualizationDefaults } from "@app/utils/defaults";
 import { expose } from "comlink";
 
 import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
-import { SvgBaseElement } from "@giz/gizual-app/utils";
-
-import { BaseRenderer, CanvasRenderer, SvgRenderer } from "./file-renderer";
-import { VisualizationDefaults } from "./file-renderer";
 import {
+  convertTimestampToMs,
+  enforceAlphaChannel,
+  getDaysBetween,
+  getStringDate,
+  GizDate,
+  isDateBetween,
+  SvgBaseElement,
+  SvgElement,
+} from "@giz/gizual-app/utils";
+
+import {
+  AnnotationObject,
+  AnnotationRenderer,
+  BaseRenderer,
+  CanvasRenderer,
+  SvgRenderer,
+  ValidContext,
+} from "./renderer-backend";
+import {
+  AuthorContributionsContext,
   AuthorMosaicContext,
+  BarContext,
   FileLinesContext,
   FileMosaicContext,
   RendererContext,
   RenderingMode,
   RenderType,
 } from "./types";
-import { interpolateColor, interpolateColorBetween } from "./utils";
+import {
+  calculateDimensions,
+  interpolateBandColor,
+  interpolateColor,
+  interpolateColorBetween,
+} from "./utils";
 
 export class FileRendererWorker {
   fontsPrepared = false;
 
   constructor() {}
-
-  //async registerCanvas(canvas: OffscreenCanvas) {
-  //  this._offscreen = canvas;
-  //}
 
   async prepareFont() {
     if (this.fontsPrepared) return;
@@ -52,20 +71,32 @@ export class FileRendererWorker {
   async draw(
     fileCtx: RendererContext,
     mode: "canvas",
+    renderCtx?: OffscreenCanvas,
   ): Promise<{ result: string; colors: string[] }>;
   async draw(
     fileCtx: RendererContext,
     mode: "svg",
+    renderCtx?: SvgElement,
   ): Promise<{ result: SvgBaseElement[]; colors: string[] }>;
-  async draw(ctx: RendererContext, mode: RenderingMode = "canvas") {
+  async draw(
+    fileCtx: RendererContext,
+    mode: "annotations",
+    renderCtx?: AnnotationObject[],
+  ): Promise<{ result: AnnotationObject[]; colors: string[] }>;
+  async draw(ctx: RendererContext, mode: RenderingMode = "canvas", renderCtx?: ValidContext) {
     await this.prepareFont();
 
-    let renderer: CanvasRenderer | SvgRenderer | undefined;
+    let renderer: BaseRenderer | undefined;
     if (mode === "canvas") renderer = new CanvasRenderer();
     if (mode === "svg") renderer = new SvgRenderer();
+    if (mode === "annotations") renderer = new AnnotationRenderer();
     if (!renderer) throw new Error("Renderer not initialized. Provided mode: " + mode);
 
-    renderer.prepareContext(ctx.rect.width, ctx.rect.height, ctx.dpr);
+    if (renderCtx) {
+      renderer.assignContext(renderCtx);
+    } else {
+      renderer.prepareContext(ctx.rect.width, ctx.rect.height, ctx.dpr);
+    }
 
     switch (ctx.type) {
       case RenderType.FileLines: {
@@ -77,18 +108,29 @@ export class FileRendererWorker {
       case RenderType.AuthorMosaic: {
         return this.drawAuthorMosaic(ctx, renderer);
       }
+      case RenderType.AuthorContributions: {
+        return this.drawAuthorContributionsGraph(ctx, renderer);
+      }
+      case RenderType.Bar: {
+        return this.drawBar(ctx, renderer);
+      }
+      default: {
+        console.log("Unknown render type:", ctx);
+        throw new Error("Panic - Unknown render type!");
+      }
     }
   }
 
   async drawAuthorMosaic(ctx: AuthorMosaicContext, renderer: BaseRenderer) {
-    const rowHeight = 10 * ctx.dpr;
-    const canvasWidth = ctx.rect.width * ctx.dpr;
-    const tileWidth = canvasWidth / ctx.tilesPerRow;
+    const { width, height } = calculateDimensions(ctx.dpr, ctx.rect);
+    const numRows = Math.ceil(ctx.files.length / ctx.tilesPerRow);
+    const rowHeight = height / numRows;
+    const tileWidth = width / ctx.tilesPerRow;
     const colors: string[] = [];
 
     let currentX = 0;
     let currentY = 0;
-    for (const [index, file] of ctx.files.entries()) {
+    for (const file of ctx.files) {
       const color = interpolateColorBetween(
         file.modifiedAt * 1000,
         ctx.selectedStartDate.getTime(),
@@ -107,7 +149,7 @@ export class FileRendererWorker {
       });
 
       currentX += tileWidth;
-      if (currentX >= canvasWidth) {
+      if (currentX >= width) {
         currentX = 0;
         currentY += rowHeight;
       }
@@ -116,7 +158,7 @@ export class FileRendererWorker {
     if (ctx.highlightLastModifiedByAuthor) {
       currentX = 0;
       currentY = 0;
-      for (const [index, file] of ctx.files.entries()) {
+      for (const file of ctx.files) {
         renderer.drawRect({
           x: currentX,
           y: currentY,
@@ -128,7 +170,7 @@ export class FileRendererWorker {
         });
 
         currentX += tileWidth;
-        if (currentX >= canvasWidth) {
+        if (currentX >= width) {
           currentX = 0;
           currentY += rowHeight;
         }
@@ -139,10 +181,78 @@ export class FileRendererWorker {
     return { result, colors };
   }
 
+  async drawAuthorContributionsGraph(ctx: AuthorContributionsContext, renderer: BaseRenderer) {
+    const numDays = getDaysBetween(
+      new GizDate(ctx.selectedStartDate),
+      new GizDate(ctx.selectedEndDate),
+    );
+    const { width, height } = calculateDimensions(ctx.dpr, ctx.rect);
+    const numTilesPerRow = 7; // one row per day of the week
+    const numRows = Math.ceil(numDays / numTilesPerRow);
+    const rowHeight = height / numRows;
+    const tileWidth = width / numTilesPerRow;
+    const startDate = new GizDate(ctx.selectedStartDate.getTime()).discardTimeComponent();
+    const endDate = new GizDate(ctx.selectedEndDate.getTime()).discardTimeComponent();
+
+    let currentX = 0;
+    let currentY = 0;
+    const contributionsPerDay: Map<string, number> = new Map();
+
+    for (const contribution of ctx.contributions) {
+      const contributionDay = new GizDate(convertTimestampToMs(contribution.timestamp));
+      const dateString = getStringDate(contributionDay);
+
+      if (isDateBetween(contributionDay, startDate, endDate)) {
+        const existingContributions = contributionsPerDay.get(dateString) ?? 0;
+        contributionsPerDay.set(dateString, existingContributions + 1);
+      }
+    }
+
+    for (let day = 0; day < numDays; day++) {
+      const currentDay = new GizDate(ctx.selectedStartDate.getTime())
+        .addDays(day)
+        .discardTimeComponent();
+
+      const color = interpolateColorBetween(
+        currentDay.getTime(),
+        startDate.getTime(),
+        endDate.getTime(),
+        [
+          enforceAlphaChannel(ctx.visualizationConfig.colors.oldest),
+          enforceAlphaChannel(ctx.visualizationConfig.colors.newest),
+        ], // These colors have a forced transparency channel since they're drawn on top of each other
+      );
+
+      for (
+        let contribution = 0;
+        contribution < (contributionsPerDay.get(getStringDate(currentDay)) ?? 0);
+        contribution++
+      ) {
+        renderer.drawRect({
+          x: currentX,
+          y: currentY,
+          width: tileWidth,
+          height: rowHeight,
+          fill: color,
+        });
+      }
+
+      currentX += tileWidth;
+      if (currentX >= width) {
+        currentX = 0;
+        currentY += rowHeight;
+      }
+    }
+
+    const result = await renderer.getReturnValue();
+    return { result };
+  }
+
   async drawFileMosaic(ctx: FileMosaicContext, renderer: BaseRenderer) {
-    const rowHeight = 10 * ctx.dpr;
-    const canvasWidth = ctx.rect.width * ctx.dpr;
-    const tileWidth = canvasWidth / ctx.tilesPerRow;
+    const { width, height } = calculateDimensions(ctx.dpr, ctx.rect);
+    const numRows = Math.ceil(ctx.fileContent.length / ctx.tilesPerRow);
+    const rowHeight = height / numRows;
+    const tileWidth = width / ctx.tilesPerRow;
     const colors: string[] = [];
 
     let currentX = 0;
@@ -169,7 +279,7 @@ export class FileRendererWorker {
       });
 
       currentX += tileWidth;
-      if (currentX >= canvasWidth) {
+      if (currentX >= width) {
         currentX = 0;
         currentY += rowHeight;
       }
@@ -179,37 +289,34 @@ export class FileRendererWorker {
     return { result, colors };
   }
 
-  async drawFilesLines(fileCtx: FileLinesContext, renderer: BaseRenderer) {
+  async drawFilesLines(ctx: FileLinesContext, renderer: BaseRenderer) {
     const colors: string[] = [];
-
-    const lineHeight = 10 * fileCtx.dpr;
+    const { width, height } = calculateDimensions(ctx.dpr, ctx.rect);
+    const lineHeight = 10 * ctx.dpr;
 
     let currentY = 0;
+    const widthPerCharacter = width / VisualizationDefaults.maxLineLength;
 
-    const scaledCanvasWidth = fileCtx.rect.width * fileCtx.dpr;
-
-    const widthPerCharacter = scaledCanvasWidth / VisualizationDefaults.maxLineLength;
-
-    for (const [index, line] of fileCtx.fileContent.entries()) {
+    for (const [index, line] of ctx.fileContent.entries()) {
       if (index + 1 > VisualizationDefaults.maxLineCount) break;
       const lineLength = line.content.length;
 
-      let rectWidth = scaledCanvasWidth;
+      let rectWidth = width;
       let lineOffsetScaled = 0;
 
-      if (fileCtx.backgroundWidth === "lineLength") {
+      if (ctx.backgroundWidth === "lineLength") {
         lineOffsetScaled =
           (line.content.length - line.content.trimStart().length) * widthPerCharacter;
         rectWidth = Math.min(
           lineLength * widthPerCharacter - lineOffsetScaled,
-          scaledCanvasWidth - lineOffsetScaled,
+          width - lineOffsetScaled,
         );
       }
 
       const color =
-        line.commit && !fileCtx.isPreview
-          ? interpolateColor(line, fileCtx)
-          : fileCtx.visualizationConfig.colors.notLoaded;
+        line.commit && !ctx.isPreview
+          ? interpolateColor(line, ctx)
+          : ctx.visualizationConfig.colors.notLoaded;
 
       line.color = color;
       colors.push(line.color ?? "#000");
@@ -233,6 +340,38 @@ export class FileRendererWorker {
 
     const result = await renderer.getReturnValue();
 
+    return {
+      result,
+      colors,
+    };
+  }
+
+  async drawBar(ctx: BarContext, renderer: BaseRenderer) {
+    const colors: string[] = [];
+    const { width, height } = calculateDimensions(ctx.dpr, ctx.rect);
+
+    const total = ctx.values.reduce((acc, val) => acc + val.value, 0);
+
+    let currentX = 0;
+    for (const value of ctx.values) {
+      const percentage = value.value / total;
+      const color = interpolateBandColor(
+        ctx.values.map((v) => v.id),
+        value.id,
+      );
+
+      renderer.drawRect({
+        x: currentX,
+        y: 0,
+        width: width * percentage,
+        height: height,
+        fill: color,
+      });
+
+      currentX += width * percentage;
+    }
+
+    const result = await renderer.getReturnValue();
     return {
       result,
       colors,

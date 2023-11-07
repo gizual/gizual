@@ -33,6 +33,10 @@ export function interpolateColor(line: Line, ctx: FileLinesContext | FileMosaicC
   }
 }
 
+export function interpolateBandColor(values: string[], value: string) {
+  return getBandColorScale(values, BAND_COLOR_RANGE)(value);
+}
+
 export function interpolateColorBetween(
   value: number,
   start: number,
@@ -41,4 +45,10 @@ export function interpolateColorBetween(
 ) {
   const colorRange: [string, string] = colors;
   return getColorScale([start, end], colorRange)(value);
+}
+
+export function calculateDimensions(dpr: number, rect: DOMRect) {
+  const width = rect.width * dpr;
+  const height = rect.height * dpr;
+  return { width, height };
 }

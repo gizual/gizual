@@ -92,6 +92,6 @@ export function getStringDate(date: GizDate) {
   return `${year}/${month}/${day}`;
 }
 
-function isDateBetween(date: GizDate, start: GizDate, end: GizDate) {
+export function isDateBetween(date: GizDate, start: GizDate, end: GizDate) {
   return date.getTime() >= start.getTime() && date.getTime() <= end.getTime();
 }

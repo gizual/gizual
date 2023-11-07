@@ -1,10 +1,12 @@
-import { useTheme } from "@app/utils";
+import { useMainController } from "@app/controllers";
+import { DATE_FORMAT, GizDate, useTheme } from "@app/utils";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
+import dayjs from "dayjs";
 import * as ejs from "ejs";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { defaultQuery, getSchema } from "../../advanced-query";
+import { getSchema } from "../../advanced-query";
 import { Validator } from "../../advanced-query/validator";
 import { Button } from "../../button";
 import { SearchBarViewModel } from "../search-bar.vm";
@@ -41,8 +43,16 @@ function handleEditorDidMount(editor: Monaco) {
 }
 
 export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
+  const mainController = useMainController();
+  const getDefaultQuery = () => {
+    return `{
+  "time": {
+    "rangeByDate": ["${mainController.selectedStartDate.toString()}","${mainController.selectedEndDate.toString()}"]
+  }
+}`;
+  };
   const [validationOutput, setValidationOutput] = React.useState<string[]>([]);
-  const [editorContent, setEditorContent] = React.useState<string>("");
+  const [editorContent, setEditorContent] = React.useState<string>(getDefaultQuery());
   const monacoInstance = useMonaco();
   const theme = useTheme();
 
@@ -80,7 +90,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
       <Editor
         className={style.AdvancedEditor}
         defaultLanguage="json"
-        defaultValue={defaultQuery}
+        defaultValue={getDefaultQuery()}
         onValidate={handleEditorValidation}
         beforeMount={handleEditorWillMount}
         onMount={(_e, m) => handleEditorDidMount(m)}
@@ -94,7 +104,31 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
         <Button
           variant="filled"
           disabled={validationOutput.length > 0}
-          onClick={() => Validator.validate(editorContent)}
+          onClick={() => {
+            // Proof of concept for advanced-search queries
+            const result = Validator.validate(editorContent);
+            if (result !== undefined) {
+              // eslint-disable-next-line unicorn/no-lonely-if
+              if (result.time && "rangeByDate" in result.time) {
+                if (typeof result.time.rangeByDate === "string") {
+                  const date = dayjs(result.time.rangeByDate, DATE_FORMAT);
+                  if (date && date.isValid()) {
+                    mainController.setSelectedStartDate(new GizDate(date.toDate()));
+                  }
+                } else {
+                  const [startDate, endDate] = result.time.rangeByDate;
+                  const parsedStartDate = dayjs(startDate, DATE_FORMAT);
+                  if (parsedStartDate && parsedStartDate.isValid()) {
+                    mainController.setSelectedStartDate(new GizDate(parsedStartDate.toDate()));
+                  }
+                  const parsedEndDate = dayjs(endDate, DATE_FORMAT);
+                  if (parsedEndDate && parsedEndDate.isValid()) {
+                    mainController.setSelectedEndDate(new GizDate(parsedEndDate.toDate()));
+                  }
+                }
+              }
+            }
+          }}
         >
           Run query
         </Button>

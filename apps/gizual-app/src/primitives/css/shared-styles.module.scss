@@ -129,6 +129,7 @@
 
 .colorPicker {
   font-family: "Iosevka Extended" !important;
+  white-space: nowrap !important;
 }
 
 @mixin inline-row {

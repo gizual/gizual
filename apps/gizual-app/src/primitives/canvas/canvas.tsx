@@ -144,9 +144,8 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                 <p className={style["ControlWithLabel__Label"]}>Old changes:</p>
                 <ColorPicker
                   value={settingsController.settings.visualizationSettings.colors.old.value}
-                  showText
                   size="small"
-                  format="hex"
+                  showText
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
                       settingsController.settings.visualizationSettings.colors.old,
@@ -161,9 +160,8 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                 <p className={style["ControlWithLabel__Label"]}>New changes:</p>
                 <ColorPicker
                   value={settingsController.settings.visualizationSettings.colors.new.value}
-                  showText
                   size="small"
-                  format="hex"
+                  showText
                   onChangeComplete={(e) => {
                     settingsController.updateValue(
                       settingsController.settings.visualizationSettings.colors.new,

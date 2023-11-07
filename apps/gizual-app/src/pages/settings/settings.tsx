@@ -179,7 +179,7 @@ export const RenderedSettingsEntry = observer(
               <ColorPicker
                 showText
                 value={entry.value}
-                format="hex"
+                disabledAlpha={false}
                 onChange={(e) => {
                   onChange!(`#${e.toHex(false)}`);
                 }}

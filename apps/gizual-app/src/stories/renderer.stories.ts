@@ -10,16 +10,16 @@ const meta = {
   component: Renderer,
   parameters: {
     layout: "centered",
-    //backgrounds: [{ name: "dark", value: "#000", default: true }],
   },
-  tags: ["autodocs"],
+  //tags: ["autodocs"],
   argTypes: {
+    visualizationStyle: { control: "inline-radio", options: ["lineLength", "full"] },
     colorNewest: { control: "color" },
     colorOldest: { control: "color" },
-    visualizationStyle: { control: "inline-radio", options: ["lineLength", "full"] },
     tilesPerRow: { control: "number" },
     highlightLastModifiedByAuthor: { control: "boolean" },
-  },
+    numDays: { control: "number" },
+  }, // Each type is it's own story
 } satisfies Meta<typeof Renderer>;
 
 export default meta;
@@ -32,6 +32,11 @@ export const FileLines: Story = {
     colorOldest: LINEAR_COLOR_RANGE[1],
     visualizationStyle: "lineLength",
   },
+  parameters: {
+    controls: {
+      include: ["visualizationStyle", "colorOldest", "colorNewest"],
+    },
+  },
 };
 
 export const FileMosaic: Story = {
@@ -40,6 +45,11 @@ export const FileMosaic: Story = {
     colorNewest: LINEAR_COLOR_RANGE[0],
     colorOldest: LINEAR_COLOR_RANGE[1],
     tilesPerRow: 10,
+  },
+  parameters: {
+    controls: {
+      include: ["tilesPerRow", "colorOldest", "colorNewest"],
+    },
   },
 };
 
@@ -52,5 +62,46 @@ export const AuthorMosaic: Story = {
     strokeColor: "green",
     strokeWidth: 0.5,
     highlightLastModifiedByAuthor: false,
+    mockFiles: 330,
+  },
+  parameters: {
+    controls: {
+      include: [
+        "colorOldest",
+        "colorNewest",
+        "tilesPerRow",
+        "strokeColor",
+        "strokeWidth",
+        "highlightLastModifiedByAuthor",
+        "mockFiles",
+      ],
+    },
+  },
+};
+
+export const AuthorContributions: Story = {
+  args: {
+    type: RenderType.AuthorContributions,
+    colorNewest: LINEAR_COLOR_RANGE[0],
+    colorOldest: LINEAR_COLOR_RANGE[1],
+    mockContributions: 100,
+    numDays: 365,
+  },
+  parameters: {
+    controls: {
+      include: ["colorOldest", "colorNewest", "mockContributions", "numDays"],
+    },
+  },
+};
+
+export const Bar: Story = {
+  args: {
+    type: RenderType.Bar,
+    mockValues: 10,
+  },
+  parameters: {
+    controls: {
+      include: ["mockValues"],
+    },
   },
 };
