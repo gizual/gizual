@@ -1,9 +1,20 @@
+## Gizual 3.0.0-alpha.8 (07.11.2023)
+
+### Features
+
+- **app:explorer:** reimplement explorer to support multiple environments (web-workers, native node module)
+- **app:maestro:** implement foundation of @giz/maestro and trpc-based api to the frontend
+- **app:general:** update to vite@5.0.0-beta.16 to support interdependent web-worker builds in production mode
+- **app:frontend:** modify author-panel to use tanstack-query as data source
+
+---
+
 ## Gizual 3.0.0-alpha.7 (28.10.2023)
 
 ### Features
 
-- **backend:general** implement multiple alternatives for loading local repositories by importing the files to OPFS
-- **app:general** enable Firefox support
+- **app:backend:** implement multiple alternatives for loading local repositories by importing the files to OPFS
+- **app:general:** enable Firefox support
 
 ---
 
