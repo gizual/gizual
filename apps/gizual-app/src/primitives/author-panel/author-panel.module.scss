@@ -4,3 +4,20 @@
   @include panel;
   border-left: 1px solid var(--border-primary);
 }
+
+.Progress {
+  padding: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.PaddedPlaceholder {
+  padding: 1rem;
+}
+
+.Table {
+  position: relative;
+  width: 100%;
+}

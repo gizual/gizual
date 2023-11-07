@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { keepPreviousData, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CreateTRPCReact, createTRPCReact } from "@trpc/react-query";
 import React from "react";
 
@@ -15,7 +15,9 @@ export const TrpcContext: React.Context<CreateTRPCReact<AppRouter, unknown, "">>
 
 export function MaestroProvider({ maestro, children }: MaestroProvidersOpts) {
   const [trpc] = React.useState(() => createTRPCReact<AppRouter>());
-  const [queryClient] = React.useState(() => new QueryClient());
+  const [queryClient] = React.useState(
+    () => new QueryClient({ defaultOptions: { queries: { placeholderData: keepPreviousData } } }),
+  );
   const [trpcClient] = React.useState(() =>
     trpc.createClient({
       links: [maestro.link],

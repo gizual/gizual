@@ -10,6 +10,7 @@ export { FontIcon } from "./font-icon";
 export * from "./font-icon";
 export { Footer } from "./footer";
 export { IconButton } from "./icon-button";
+export { LinearProgress } from "./linear-progress";
 export { RepoPanel } from "./repo-panel";
 export { SearchBar } from "./search-bar";
 export { Select } from "./select";

@@ -16,13 +16,13 @@ const AUTHORS_TABLE = `
         id VARCHAR(20) PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT NOT NULL,
-        gravatar TEXT NOT NULL,
+        gravatarHash TEXT NOT NULL,
         UNIQUE(name, email)
     );
 `;
 
 const INSERT_AUTHORS_TABLE = `
-    INSERT INTO authors (id, name, email, gravatar) VALUES (?, ?, ?, ?);
+    INSERT INTO authors (id, name, email, gravatarHash) VALUES (?, ?, ?, ?);
 `;
 
 const COMMITS_TABLE = `
@@ -105,7 +105,7 @@ export class DatabaseWorker {
 
   async queryAuthors(offset: number, limit: number): Promise<Author[]> {
     const result = await this.db.exec({
-      sql: "SELECT id, name, email, gravatar FROM authors LIMIT (?) OFFSET (?);",
+      sql: "SELECT id, name, email, gravatarHash FROM authors LIMIT (?) OFFSET (?);",
       returnValue: "resultRows",
       rowMode: "object",
       bind: [limit, offset],
