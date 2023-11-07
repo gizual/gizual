@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "eslint": "8.45.0",
+    "rimraf": "5.0.1",
     "turbowatch": "2.29.4",
     "typescript": "5.0.4"
   },

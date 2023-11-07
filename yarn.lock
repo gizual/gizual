@@ -941,6 +941,7 @@ __metadata:
     "@swc/core": 1.3.70
     comlink: 4.4.1
     eslint: 8.45.0
+    rimraf: 5.0.1
     tsup: 7.1.0
     typescript: 5.0.4
   languageName: unknown
@@ -969,6 +970,7 @@ __metadata:
     "@napi-rs/cli": 2.16.5
     eslint: 8.45.0
     node-addon-api: "*"
+    rimraf: 5.0.1
     ts-node: 10.9.1
     vitest: 0.34.6
     zx: 7.2.3
@@ -992,6 +994,7 @@ __metadata:
   resolution: "@giz/explorer@workspace:packages/explorer"
   dependencies:
     eslint: 8.45.0
+    rimraf: 5.0.1
     zx: 7.2.3
   languageName: unknown
   linkType: soft
@@ -1003,6 +1006,7 @@ __metadata:
     "@swc/core": 1.3.70
     comlink: 4.4.1
     eslint: 8.45.0
+    rimraf: 5.0.1
     tsup: 7.1.0
     typescript: 5.0.4
   languageName: unknown
@@ -1101,6 +1105,7 @@ __metadata:
     comlink: 4.4.1
     eslint: 8.45.0
     eventemitter3: 5.0.1
+    rimraf: 5.0.1
     tsup: 7.1.0
     typescript: 5.0.4
     zod: 3.22.4
@@ -1171,6 +1176,7 @@ __metadata:
     "@xtuc/asyncify-wasm": 2.0.0
     comlink: 4.4.1
     eslint: 8.45.0
+    rimraf: 5.0.1
     tsup: 7.1.0
     turbowatch: 2.29.4
     typescript: 5.0.4

@@ -16,6 +16,7 @@
     "@napi-rs/cli": "2.16.5",
     "eslint": "8.45.0",
     "node-addon-api": "*",
+    "rimraf": "5.0.1",
     "ts-node": "10.9.1",
     "vitest": "0.34.6",
     "zx": "7.2.3"

@@ -6,3 +6,4 @@ build/
 cmake-build*
 .yarn/
 .eslintrc.js
+**/generated.ts
