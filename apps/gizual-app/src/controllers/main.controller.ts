@@ -11,7 +11,9 @@ import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-type Panel = "welcome" | "explore" | "analyze" | "settings";
+export const PANELS = ["welcome", "explore", "analyze", "settings"] as const;
+type Panel = (typeof PANELS)[number];
+
 type Page = "welcome" | "main";
 
 export class MainController {

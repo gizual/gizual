@@ -7,7 +7,7 @@ export { ReactComponent as IconClock } from "./clock.svg";
 export { ReactComponent as IconClose } from "./close.svg";
 export { ReactComponent as IconCloseBox } from "./close-box.svg";
 export { ReactComponent as IconCloseFilled } from "./close-filled.svg";
-export { ReactComponent as Collapse } from "./collapse.svg";
+export { ReactComponent as IconCollapse } from "./collapse.svg";
 export { ReactComponent as IconCommandLine } from "./command-line.svg";
 export { ReactComponent as IconDownload } from "./download.svg";
 export { ReactComponent as IconDragVertical } from "./drag-vertical.svg";

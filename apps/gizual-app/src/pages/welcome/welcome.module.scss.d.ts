@@ -21,13 +21,14 @@ declare const classNames: {
   readonly DetailColumn: "DetailColumn";
   readonly Grow: "Grow";
   readonly CollapseIcon: "CollapseIcon";
+  readonly BackIcon: "BackIcon";
   readonly Collapsible: "Collapsible";
   readonly CollapsibleHeader: "CollapsibleHeader";
   readonly CollapsibleHeaderText: "CollapsibleHeaderText";
   readonly CollapsibleContent: "CollapsibleContent";
   readonly OpenRow: "OpenRow";
+  readonly OpenRow__Selected: "OpenRow__Selected";
   readonly OpenRowLeft: "OpenRowLeft";
-  readonly OpenRowRight: "OpenRowRight";
   readonly OpenRowTitle: "OpenRowTitle";
   readonly RepoRowLeft: "RepoRowLeft";
   readonly RepoRowRight: "RepoRowRight";
@@ -39,5 +40,11 @@ declare const classNames: {
   readonly BrowserIcon: "BrowserIcon";
   readonly DetailHeader: "DetailHeader";
   readonly DetailDescription: "DetailDescription";
+  readonly AdvancedConfigurationTitle: "AdvancedConfigurationTitle";
+  readonly Radio: "Radio";
+  readonly "ant-radio": "ant-radio";
+  readonly NotSupportedText: "NotSupportedText";
+  readonly GifPanel: "GifPanel";
+  readonly LoadButton: "LoadButton";
 };
 export = classNames;

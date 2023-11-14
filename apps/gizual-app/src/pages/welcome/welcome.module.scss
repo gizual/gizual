@@ -131,36 +131,55 @@
 }
 
 .Column {
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
-  width: 33%;
-  max-width: 450px;
-  min-width: 380px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+
   padding: 1rem 0;
+  @include md {
+    width: 33%;
+    max-width: 450px;
+    min-width: 380px;
+  }
 }
 
 .DetailColumn {
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
   flex-grow: 1;
   padding: 1rem 0;
 }
 
 .Grow {
-  display: flex;
   flex-grow: 1;
-  flex-direction: column;
 }
 
 .CollapseIcon {
-  transition: transform 0.5s;
+  transition: transform 0.3s;
+}
+
+.BackIcon {
+  transform: rotate(-180deg);
+  width: 1rem;
+  height: 1rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+  animation-name: rotate-left;
+  animation-duration: 0.3s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes rotate-left {
+  from {
+    transform: rotate(-180deg);
+  }
+  to {
+    transform: rotate(-90deg);
+  }
 }
 
 .Collapsible {
-  display: flex;
-  flex-direction: column;
   gap: 0.25rem;
 }
 
@@ -196,24 +215,22 @@
 }
 
 .OpenRow {
-  display: flex;
-  flex-direction: row;
   gap: 1rem;
+}
+
+.OpenRow__Selected {
+  @include rounded;
+  border-width: 0;
+  transition: background-color 0.25s;
+  background-color: var(--background-tertiary);
 }
 
 .OpenRowLeft {
   flex-grow: 1;
   flex-shrink: 0;
-  display: inline-flex;
-  flex-direction: row;
   gap: 0.5rem;
   position: relative;
 }
-
-.OpenRowRight {
-  @include shared.right-aligned-group;
-}
-
 
 .OpenRowTitle {
   @include text-base;
@@ -312,4 +329,42 @@
   font-weight: 300;
   text-align: left;
   color: var(--foreground-primary);
+}
+
+.AdvancedConfigurationTitle {
+  @include text-lg;
+}
+
+.Radio {
+  :global .ant-radio {
+    align-self: flex-start !important;
+    margin-top: 2px; // Custom offset to account for the line-height of the text.
+  }
+}
+
+.NotSupportedText {
+  @include text-sm;
+  font-weight: 300;
+  text-align: left;
+  color: var(--color-tomato);
+  font-style: italic;
+}
+
+.GifPanel {
+  --_aspect-ratio: 1.7777777778;
+  --_width: 400px; 
+  --_min-width: 200px; 
+  @include rounded;
+
+  min-width: var(--_min-width);
+  min-height: calc(var(--_min-width) / var(--_aspect-ratio));
+  aspect-ratio: var(--_aspect-ratio);
+
+  max-width: var(--_width);
+  max-height: calc(var(--_width) / var(--_aspect-ratio));
+  background-color: var(--background-secondary);
+}
+
+.LoadButton {
+  width: 200px;
 }
