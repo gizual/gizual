@@ -1,4 +1,5 @@
 @use "@/mixins" as *;
+@use "@/shared" as shared;
 
 .EmphasizedContainer {
   background-color: var(--background-red);
@@ -98,4 +99,217 @@
     pointer-events: none;
     color: var(--foreground-primary);
   }
+}
+
+.Page {
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.TitleBarContainer {
+  position: relative;
+}
+
+.Body {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  min-height: 0;
+}
+
+.SplitPanel {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-grow: 1;
+  padding: 0 1rem;
+}
+
+.Column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 33%;
+  max-width: 450px;
+  min-width: 380px;
+  padding: 1rem 0;
+}
+
+.DetailColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-grow: 1;
+  padding: 1rem 0;
+}
+
+.Grow {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+.CollapseIcon {
+  transition: transform 0.5s;
+}
+
+.Collapsible {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.CollapsibleHeader {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: flex-start;
+  cursor: pointer;
+  > svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+}
+
+.CollapsibleHeaderText {
+  @include text-2xl;
+  font-weight: 500;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+}
+
+.CollapsibleContent {
+  @include rounded;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: var(--background-secondary);
+  padding: 0.5rem;
+}
+
+.OpenRow {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.OpenRowLeft {
+  flex-grow: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.OpenRowRight {
+  @include shared.right-aligned-group;
+}
+
+
+.OpenRowTitle {
+  @include text-base;
+  font-weight: 300;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--foreground-link);
+}
+
+.RepoRowLeft {
+  flex-grow: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: flex-start;
+  flex-direction: row;
+  gap: 0.5rem;
+  position: relative;
+  pointer-events: none;
+
+  > svg {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.RepoRowRight {
+  @include shared.right-aligned-group;
+  gap: 1rem;
+  pointer-events: none;
+}
+
+.RepoRow {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  background-color: unset;
+  border: unset;
+  align-items: center;
+  pointer-events: all;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.25s;
+
+  &:hover {
+    background-color: var(--background-tertiary);
+  }
+}
+
+.RepoRowName {
+  @include text-base;
+  font-weight: 600;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--foreground-link);
+  text-decoration: none;
+}
+
+.RepoRowSource {
+  @include text-xs;
+  font-family: 'Iosevka Extended';
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--foreground-disabled);
+  text-decoration: none;
+  margin-top: -2px;
+}
+
+.RepoRowMetrics {
+  @include text-xs;
+  color: var(--foreground-primary);
+}
+
+.VerticalRule {
+  height: 100%;
+  width: 1px;
+  background-color: var(--border-primary);
+}
+
+@layer components {
+  .BrowserIcon > path {
+    fill: revert-layer;
+  }
+}
+
+.DetailHeader {
+  @include text-2xl;
+  font-weight: 500;
+  text-align: left;
+}
+
+.DetailDescription {
+  @include text-base;
+  font-weight: 300;
+  text-align: left;
+  color: var(--foreground-primary);
 }

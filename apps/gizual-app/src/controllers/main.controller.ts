@@ -11,7 +11,7 @@ import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-type Panel = "explore" | "analyze" | "settings";
+type Panel = "welcome" | "explore" | "analyze" | "settings";
 type Page = "welcome" | "main";
 
 export class MainController {
@@ -21,7 +21,7 @@ export class MainController {
   @observable _coloringMode: ColoringMode = "age";
   @observable _fileTreeRoot?: FileTree;
   @observable _page: Page = "welcome";
-  @observable _selectedPanel: Panel = "explore";
+  @observable _selectedPanel: Panel = "welcome";
 
   @observable _vmController = new ViewModelController(this);
   @observable _settingsController: SettingsController;
