@@ -17,15 +17,13 @@ export default defineConfig(() => ({
     },
   },
   optimizeDeps: {
-    include: ["@xtuc/asyncify-wasm", "zod", "eventemitter3", "tslog"],
+    include: ["@xtuc/asyncify-wasm", "zod", "eventemitter3", "tslog", "lodash/flatten"],
     exclude: [
       "@sqlite.org/sqlite-wasm",
       "@tanstack/react-query",
       "@trpc/react-query",
       "@trpc/client",
       "@trpc/server",
-      "@giz/database",
-      "@giz/maestro",
     ],
   },
   define: {

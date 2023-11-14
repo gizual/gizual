@@ -4,6 +4,7 @@ import { makeObservable, observable, runInAction } from "mobx";
 import { webworkerLink } from "@giz/trpc-webworker/link";
 
 import type { MaestroWorker } from "./maestro-worker";
+import MaestroWorkerURL from "./maestro-worker?worker&url";
 
 export class Maestro {
   rawWorker!: Worker;
@@ -15,9 +16,10 @@ export class Maestro {
   constructor() {
     console.log("Maestro constructor");
 
-    this.rawWorker = new Worker(new URL("maestro-worker.mjs", import.meta.url), {
+    this.rawWorker = new Worker(MaestroWorkerURL, {
       type: "module",
     });
+
     this.worker = wrap<MaestroWorker>(this.rawWorker);
 
     this.state = "init";
