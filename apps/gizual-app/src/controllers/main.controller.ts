@@ -11,10 +11,8 @@ import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-export const PANELS = ["welcome", "explore", "analyze", "settings"] as const;
+export const PANELS = ["explore", "analyze", "settings"] as const;
 type Panel = (typeof PANELS)[number];
-
-type Page = "welcome" | "main";
 
 export class MainController {
   @observable _favoriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
@@ -22,8 +20,7 @@ export class MainController {
 
   @observable _coloringMode: ColoringMode = "age";
   @observable _fileTreeRoot?: FileTree;
-  @observable _page: Page = "welcome";
-  @observable _selectedPanel: Panel = "welcome";
+  @observable _selectedPanel: Panel = "explore";
 
   @observable _vmController = new ViewModelController(this);
   @observable _settingsController: SettingsController;
@@ -203,21 +200,10 @@ export class MainController {
   async openRepository(name: string, port: MessagePort) {
     await this._repo.setup(port);
     this.setRepoName(name);
-    this.setPage("main");
-  }
-
-  get page() {
-    return this._page;
   }
 
   get isPendingTransition() {
     return this._pendingTransition;
-  }
-
-  @action.bound
-  setPage(page: Page) {
-    this._page = page;
-    this._pendingTransition = false;
   }
 
   @action.bound
@@ -330,7 +316,6 @@ export class MainController {
 
   @action.bound
   closeRepository() {
-    this.setPage("welcome");
     this.setRepoName("");
     this._repo = new Repository();
   }

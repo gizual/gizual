@@ -5,6 +5,7 @@ import { App, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
+import { useScreen } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
@@ -31,25 +32,18 @@ const DesktopTitleBar = observer(() => {
   const setSelectedPanel = mainController.setPanel;
 
   const { modal } = App.useApp();
+  const screen = useScreen();
 
   return (
     <>
       <div className={style.Left}>
-        {selectedPanel === "welcome" && (
-          <div
-            className={clsx(
-              style.MenuItem,
-              selectedPanel === "welcome" ? style.Selected : undefined,
-            )}
-          >
-            <a className={style.MenuItemText} onClick={() => setSelectedPanel("welcome")}>
-              {" "}
-              Welcome
-            </a>
+        {screen === "welcome" && (
+          <div className={clsx(style.MenuItem, screen === "welcome" ? style.Selected : undefined)}>
+            <a className={style.MenuItemText}> Welcome</a>
           </div>
         )}
 
-        {selectedPanel !== "welcome" && (
+        {screen !== "welcome" && (
           <>
             <div
               className={clsx(
@@ -87,7 +81,7 @@ const DesktopTitleBar = observer(() => {
           </>
         )}
       </div>
-      {selectedPanel !== "welcome" && (
+      {screen !== "welcome" && (
         <div className={style.Right}>
           <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
           <Tooltip title="Close repository">
