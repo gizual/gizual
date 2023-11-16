@@ -7,7 +7,7 @@ import { expose, transfer } from "comlink";
 import { EventEmitter } from "eventemitter3";
 
 import { Database } from "@giz/database";
-import { PoolPortal } from "@giz/explorer-web";
+import { PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
 import { t } from "./trpc-worker";
@@ -17,11 +17,15 @@ if (typeof window !== "undefined") {
 }
 
 const DB = new Database();
+let EXP_CONTROLLER: PoolController | undefined;
+// eslint-disable-next-line unused-imports/no-unused-vars
 let EXP: PoolPortal | undefined;
 
 const EE = new EventEmitter<{ "update-global-state": State }>();
 
 const STATE = {
+  screen: "welcome" as "welcome" | "initial-load" | "main",
+  repoLoaded: false,
   authorsLoaded: false,
   commitsIndexed: false,
   filesIndexed: false,
@@ -113,12 +117,44 @@ async function setup(): Promise<{
   );
 }
 
-async function openRepo(explorerPort: MessagePort): Promise<void> {
-  DB.init(explorerPort).then(() => {
+async function setupPool(opts: PoolControllerOpts) {
+  if (EXP_CONTROLLER) {
+    throw new Error("Already setup");
+  }
+
+  updateGlobalState({ screen: "initial-load" });
+
+  EXP_CONTROLLER = await PoolController.create(opts);
+
+  EXP_CONTROLLER.on("metrics-update", (metrics) => {
+    updateGlobalState({
+      numExplorerJobs: metrics.numJobsInQueue,
+      numExplorerWorkersBusy: metrics.numBusyWorkers,
+      numExplorerWorkersTotal: metrics.numTotalWorkers,
+    });
+  });
+
+  const explorerPort1 = await EXP_CONTROLLER.createPort();
+  EXP = new PoolPortal(explorerPort1);
+  const explorerPort2 = await EXP_CONTROLLER.createPort();
+
+  DB.init(explorerPort2).then(() => {
     updateGlobalState({
       authorsLoaded: true,
     });
   });
+
+  // TODO: this port is just for legacy reasons to support the old architecture within the main thread
+  const legacy_explorerPort3 = await EXP_CONTROLLER.createPort();
+
+  updateGlobalState({ repoLoaded: true, screen: "main" });
+
+  return transfer(
+    {
+      legacy_explorerPort: legacy_explorerPort3,
+    },
+    [legacy_explorerPort3],
+  );
 }
 
 /*
@@ -144,7 +180,7 @@ async function openRepo(explorerPort: MessagePort): Promise<void> {
 
 const exports = {
   setup,
-  openRepo,
+  setupPool,
 };
 
 export type MaestroWorker = typeof exports;

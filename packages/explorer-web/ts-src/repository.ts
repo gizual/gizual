@@ -2,13 +2,12 @@ import { action, computed, makeObservable, observable, runInAction } from "mobx"
 
 import { BlameView } from "./blame-view";
 import { FileTreeView } from "./file-tree-view";
-import { PoolController, PoolControllerOpts, PoolPortal } from "./pool";
+import { PoolPortal } from "./pool";
 import { PromiseObserver } from "./promise-observer";
 import { Aid, Author, GitGraph } from "./types";
 
 export class Repository {
   portal?: PoolPortal;
-  controller?: PoolController;
 
   _state: "uninitialized" | "loading" | "ready" | "error" = "uninitialized";
 
@@ -41,18 +40,6 @@ export class Repository {
     });
   }
 
-  getMetrics() {
-    if (!this.portal) throw new Error("No backend");
-
-    const metrics = this.controller?.metrics;
-
-    return {
-      numWorkers: metrics!.numAvailableWorkers ?? 0,
-      numJobsInQueue: metrics!.numJobsInQueue ?? 0,
-      numBusyWorkers: metrics!.numBusyWorkers ?? 0,
-    };
-  }
-
   get authors() {
     return [...this._authors.values()];
   }
@@ -65,54 +52,17 @@ export class Repository {
     this._state = state;
   }
 
-  async setup(source: FileSystemDirectoryHandle | FileList | DataTransferItemList) {
+  /**
+   * @deprecated
+   */
+  async setup(port: MessagePort) {
     if (this.portal) {
       throw new Error("Already setup");
     }
 
     this._setState("loading");
+    this.portal = new PoolPortal(port);
 
-    const opts: PoolControllerOpts = {};
-
-    if (source instanceof FileList) {
-      if (source.length === 1) {
-        const file = source[0];
-        if (file.type === "application/zip") {
-          opts.zipFile = file;
-        } else {
-          throw new Error("Unknown file type");
-        }
-      } else if (source.length > 1) {
-        opts.fileList = source;
-      } else {
-        throw new Error("No files selected");
-      }
-    } else if (source instanceof DataTransferItemList) {
-      const item = source[0];
-      if (item.kind === "file" && item.type === "application/zip") {
-        opts.zipFile = item.getAsFile()!;
-      } else if (item.kind === "file" && item.type === "") {
-        const entry = item.webkitGetAsEntry()! as FileSystemDirectoryEntry;
-        if (!entry.isDirectory) {
-          throw new Error("Unknown file type");
-        }
-        opts.directoryEntry = entry;
-      } else {
-        throw new Error("Unknown file type");
-      }
-    } else {
-      opts.directoryHandle = source;
-    }
-
-    try {
-      this.controller = await PoolController.create(opts);
-
-      const port = await this.controller.createPort();
-      this.portal = new PoolPortal(port);
-    } catch (error) {
-      this._setState("error");
-      throw error;
-    }
     const branches = await this.portal.getBranches();
 
     const defaultBranch =

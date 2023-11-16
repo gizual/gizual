@@ -13,6 +13,8 @@ export type MaestroProvidersOpts = {
 export const TrpcContext: React.Context<CreateTRPCReact<AppRouter, unknown, "">> =
   React.createContext<CreateTRPCReact<AppRouter, unknown, "">>(undefined!);
 
+export const MaestroContext = React.createContext<Maestro>(undefined!);
+
 export function MaestroProvider({ maestro, children }: MaestroProvidersOpts) {
   const [trpc] = React.useState(() => createTRPCReact<AppRouter>());
   const [queryClient] = React.useState(
@@ -25,10 +27,12 @@ export function MaestroProvider({ maestro, children }: MaestroProvidersOpts) {
   );
 
   return (
-    <TrpcContext.Provider value={trpc}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      </trpc.Provider>
-    </TrpcContext.Provider>
+    <MaestroContext.Provider value={maestro}>
+      <TrpcContext.Provider value={trpc}>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        </trpc.Provider>
+      </TrpcContext.Provider>
+    </MaestroContext.Provider>
   );
 }
