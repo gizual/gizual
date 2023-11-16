@@ -27,47 +27,57 @@ export function useAuthorList(limit?: number, offset?: number) {
 
 export type FileLoaderDragAndDrop = {
   id: "drag-and-drop";
+  name: string;
   load: (file: FileSystemDirectoryEntry) => void;
 };
 
 // Tauri only
 export type FileLoaderNativeFilePicker = {
   id: "native-file-picker";
+  name: string;
   openFilePicker: () => void;
 };
 
 export type FileLoaderInputField = {
   id: "input-field";
+  name: string;
   load: (file: FileList) => void;
 };
 
 export type FileLoaderFSA = {
   id: "fsa";
+  name: string;
   load: (handle: FileSystemDirectoryHandle) => void;
 };
 
 export type FileLoaderZipFile = {
   id: "zip-file";
+  name: string;
   load: (file: File) => void;
 };
 
 export type FileLoaderUrl = {
   id: "url";
+  name: string;
   load: (url: string) => void;
 };
 
-export type FileLoader =
+export type FileLoaderLocal =
   | FileLoaderNativeFilePicker
   | FileLoaderFSA
-  | FileLoaderDragAndDrop
   | FileLoaderInputField
-  | FileLoaderZipFile
-  | FileLoaderUrl;
+  | FileLoaderDragAndDrop;
 
-export function useFileLoaders(): FileLoader[] {
+export type FileLoaders = {
+  local: FileLoaderLocal[];
+  url: FileLoaderUrl;
+  zip: FileLoaderZipFile;
+};
+
+export type FileLoader = FileLoaderLocal[] | FileLoaderUrl | FileLoaderZipFile;
+
+export function useFileLoaders(): FileLoaders {
   const maestro = useMaestro();
-
-  const loaders: FileLoader[] = [];
 
   const fsaCallback = React.useCallback(
     (directoryHandle: FileSystemDirectoryHandle) => {
@@ -97,27 +107,26 @@ export function useFileLoaders(): FileLoader[] {
     [maestro],
   );
 
+  const localLoaders: FileLoaderLocal[] = [];
+
   if (isSupportedBrowser()) {
-    loaders.push({
-      id: "fsa",
-      load: fsaCallback,
-    });
+    localLoaders.push({ id: "fsa", load: fsaCallback, name: "File System Access" });
   }
 
-  loaders.push(
-    {
-      id: "drag-and-drop",
-      load: dragAndDropCallback,
-    },
-    {
-      id: "input-field",
-      load: inputFieldCallback,
-    },
-    {
-      id: "zip-file",
-      load: zipFileCallback,
-    },
+  localLoaders.push(
+    { id: "drag-and-drop", load: dragAndDropCallback, name: "Drag and drop" },
+    { id: "input-field", load: inputFieldCallback, name: "HTML Input" },
   );
+
+  const loaders: FileLoaders = {
+    local: localLoaders,
+    url: {
+      id: "url",
+      name: "From URL",
+      load: (url: string) => console.warn("Not implemented. Called with URL:", url),
+    },
+    zip: { id: "zip-file", name: "From .zip file", load: zipFileCallback },
+  };
 
   return loaders;
 }

@@ -80,12 +80,10 @@
 }
 
 .DropZone {
+  flex-grow: 0;
+  align-self: flex-start;
   border: 2px dashed var(--foreground-secondary);
   text-align: center;
-  width: 220px;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  height: 40px;
   margin: 1px;
 
   &.DropZoneActive {
@@ -137,7 +135,7 @@
   min-width: 100%;
 
   padding: 1rem 0;
-  @include md {
+  @include lg {
     width: 33%;
     max-width: 450px;
     min-width: 380px;
@@ -360,11 +358,14 @@
   min-height: calc(var(--_min-width) / var(--_aspect-ratio));
   aspect-ratio: var(--_aspect-ratio);
 
+  width: var(--_width);
+
   max-width: var(--_width);
   max-height: calc(var(--_width) / var(--_aspect-ratio));
   background-color: var(--background-secondary);
 }
 
 .LoadButton {
-  width: 200px;
+  width: 400px;
+  min-width: 200px;
 }

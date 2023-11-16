@@ -1,0 +1,10 @@
+{
+  "header": "Open remote repository (from URL)",
+  "description": [
+    "Load a public repository from the given URL.",
+    "The URL must point to a valid repository on Github, Bitbucket or Gitlab. Only a limited amount of repositories can be cloned within a given time period. Due to this limitation, this operation might fail."
+  ],
+  "hasConfigPanel": false,
+  "hasGif": true,
+  "button": "Load from URL"
+}

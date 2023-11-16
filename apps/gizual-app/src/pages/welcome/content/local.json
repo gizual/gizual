@@ -1,0 +1,10 @@
+{
+  "header": "Open from local file system",
+  "description": [
+    "Open a folder from your local file system. None of your files will be uploaded anywhere, all your data is processed locally on your own device.",
+    "You can pick a custom loader configuration below, or leave it default to choose the best loader for your current browser context."
+  ],
+  "hasConfigPanel": true,
+  "hasGif": true,
+  "button": "Load repository"
+}
