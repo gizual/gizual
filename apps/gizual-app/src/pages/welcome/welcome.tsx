@@ -9,7 +9,6 @@ import {
   IconIos,
   IconSafari,
 } from "@app/assets";
-import { useMainController } from "@app/controllers";
 import { Button, TitleBar } from "@app/primitives";
 import shared from "@app/primitives/css/shared-styles.module.scss";
 import { useWindowSize } from "@app/utils";

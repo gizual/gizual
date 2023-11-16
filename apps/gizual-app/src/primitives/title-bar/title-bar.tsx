@@ -27,34 +27,37 @@ export const TitleBar = observer(() => {
 
 const DesktopTitleBar = observer(() => {
   const mainController = useMainController();
+  const selectedPanel = mainController._selectedPanel;
+  const setSelectedPanel = mainController.setPanel;
+
   const { modal } = App.useApp();
 
   return (
     <>
       <div className={style.Left}>
-        {mainController._selectedPanel === "welcome" && (
+        {selectedPanel === "welcome" && (
           <div
             className={clsx(
               style.MenuItem,
-              mainController._selectedPanel === "welcome" ? style.Selected : undefined,
+              selectedPanel === "welcome" ? style.Selected : undefined,
             )}
           >
-            <a className={style.MenuItemText} onClick={() => mainController.setPanel("welcome")}>
+            <a className={style.MenuItemText} onClick={() => setSelectedPanel("welcome")}>
               {" "}
               Welcome
             </a>
           </div>
         )}
 
-        {mainController._selectedPanel !== "welcome" && (
+        {selectedPanel !== "welcome" && (
           <>
             <div
               className={clsx(
                 style.MenuItem,
-                mainController._selectedPanel === "explore" ? style.Selected : undefined,
+                selectedPanel === "explore" ? style.Selected : undefined,
               )}
             >
-              <a className={style.MenuItemText} onClick={() => mainController.setPanel("explore")}>
+              <a className={style.MenuItemText} onClick={() => setSelectedPanel("explore")}>
                 {" "}
                 Explore
               </a>
@@ -63,10 +66,10 @@ const DesktopTitleBar = observer(() => {
             <div
               className={clsx(
                 style.MenuItem,
-                mainController._selectedPanel === "analyze" ? style.Selected : undefined,
+                selectedPanel === "analyze" ? style.Selected : undefined,
               )}
             >
-              <a className={style.MenuItemText} onClick={() => mainController.setPanel("analyze")}>
+              <a className={style.MenuItemText} onClick={() => setSelectedPanel("analyze")}>
                 Analyze
               </a>
             </div>
@@ -74,17 +77,17 @@ const DesktopTitleBar = observer(() => {
             <div
               className={clsx(
                 style.MenuItem,
-                mainController._selectedPanel === "settings" ? style.Selected : undefined,
+                selectedPanel === "settings" ? style.Selected : undefined,
               )}
             >
-              <a className={style.MenuItemText} onClick={() => mainController.setPanel("settings")}>
+              <a className={style.MenuItemText} onClick={() => setSelectedPanel("settings")}>
                 Settings
               </a>
             </div>
           </>
         )}
       </div>
-      {mainController._selectedPanel !== "welcome" && (
+      {selectedPanel !== "welcome" && (
         <div className={style.Right}>
           <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
           <Tooltip title="Close repository">
@@ -115,13 +118,15 @@ const DesktopTitleBar = observer(() => {
 
 const MobileTitleBar = observer(() => {
   const mainController = useMainController();
+  const selectedPanel = mainController._selectedPanel;
+  const setSelectedPanel = mainController.setPanel;
   return (
     <div className={style.Right}>
       <Select
-        value={mainController._selectedPanel}
+        value={selectedPanel}
         icon={<IconCollapse className={style.SelectIcon} />}
         size="large"
-        onChange={(e) => mainController.setPanel(e)}
+        onChange={(e) => setSelectedPanel(e)}
         options={PANELS.map((p) => {
           const opt = p.charAt(0).toUpperCase() + p.slice(1);
           return { label: opt, value: p };

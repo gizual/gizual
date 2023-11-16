@@ -88,6 +88,7 @@
     "rimraf": "5.0.1",
     "sass": "1.60.0",
     "storybook": "^7.5.2",
+    "storybook-dark-mode": "^3.0.1",
     "storybook-react-context": "^0.6.0",
     "turbowatch": "2.29.4",
     "typescript": "5.0.4",
