@@ -1,4 +1,5 @@
 import * as Comlink from "comlink";
+import { isEqual } from "lodash";
 
 import { PoolNode } from "./pool-node";
 import { JobWithOrigin, PoolTask } from "./types";
@@ -34,6 +35,15 @@ export class PoolMaster {
   ports: MessagePort[] = [];
   jobs: JobWithOrigin[] = [];
 
+  previousMetrics: PoolMetrics = {
+    numTotalWorkers: 0,
+    numAvailableWorkers: 0,
+    numIdleWorkers: 0,
+    numBusyWorkers: 0,
+    numJobsInQueue: 0,
+    numOpenPorts: 0,
+  };
+
   constructor() {
     this.onPortMessage = this.onPortMessage.bind(this);
     this.onPortMessageError = this.onPortMessageError.bind(this);
@@ -48,14 +58,18 @@ export class PoolMaster {
   }
 
   updateMetrics() {
-    self.postMessage({
+    const metrics: PoolMetrics = {
       numTotalWorkers: this.totalWorkersCount,
       numAvailableWorkers: this.availableWorkersCount,
       numIdleWorkers: this.idleWorkersCount,
       numBusyWorkers: this.busyWorkersCount,
       numOpenPorts: this.ports.length,
       numJobsInQueue: this.jobs.length,
-    });
+    };
+    if (!isEqual(metrics, this.previousMetrics)) {
+      this.previousMetrics = metrics;
+      self.postMessage(metrics);
+    }
   }
 
   setMaxConcurrency(num: number) {

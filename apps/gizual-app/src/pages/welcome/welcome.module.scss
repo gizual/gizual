@@ -1,4 +1,5 @@
 @use "@/mixins" as *;
+@use "@/shared" as shared;
 
 .EmphasizedContainer {
   background-color: var(--background-red);
@@ -79,12 +80,10 @@
 }
 
 .DropZone {
+  flex-grow: 0;
+  align-self: flex-start;
   border: 2px dashed var(--foreground-secondary);
   text-align: center;
-  width: 220px;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  height: 40px;
   margin: 1px;
 
   &.DropZoneActive {
@@ -98,4 +97,275 @@
     pointer-events: none;
     color: var(--foreground-primary);
   }
+}
+
+.Page {
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.TitleBarContainer {
+  position: relative;
+}
+
+.Body {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  min-height: 0;
+}
+
+.SplitPanel {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-grow: 1;
+  padding: 0 1rem;
+}
+
+.Column {
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+
+  padding: 1rem 0;
+  @include lg {
+    width: 33%;
+    max-width: 450px;
+    min-width: 380px;
+  }
+}
+
+.DetailColumn {
+  gap: 1rem;
+  flex-grow: 1;
+  padding: 1rem 0;
+}
+
+.Grow {
+  flex-grow: 1;
+}
+
+.CollapseIcon {
+  transition: transform 0.3s;
+}
+
+.BackIcon {
+  transform: rotate(-180deg);
+  width: 1rem;
+  height: 1rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+  animation-name: rotate-left;
+  animation-duration: 0.3s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes rotate-left {
+  from {
+    transform: rotate(-180deg);
+  }
+  to {
+    transform: rotate(-90deg);
+  }
+}
+
+.Collapsible {
+  gap: 0.25rem;
+}
+
+.CollapsibleHeader {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: flex-start;
+  cursor: pointer;
+  > svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+}
+
+.CollapsibleHeaderText {
+  @include text-2xl;
+  font-weight: 500;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+}
+
+.CollapsibleContent {
+  @include rounded;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: var(--background-secondary);
+  padding: 0.5rem;
+}
+
+.OpenRow {
+  gap: 1rem;
+}
+
+.OpenRow__Selected {
+  @include rounded;
+  border-width: 0;
+  transition: background-color 0.25s;
+  background-color: var(--background-tertiary);
+}
+
+.OpenRowLeft {
+  flex-grow: 1;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.OpenRowTitle {
+  @include text-base;
+  font-weight: 300;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--foreground-link);
+}
+
+.RepoRowLeft {
+  flex-grow: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: flex-start;
+  flex-direction: row;
+  gap: 0.5rem;
+  position: relative;
+  pointer-events: none;
+
+  > svg {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.RepoRowRight {
+  @include shared.right-aligned-group;
+  gap: 1rem;
+  pointer-events: none;
+}
+
+.RepoRow {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  background-color: unset;
+  border: unset;
+  align-items: center;
+  pointer-events: all;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.25s;
+
+  &:hover {
+    background-color: var(--background-tertiary);
+  }
+}
+
+.RepoRowName {
+  @include text-base;
+  font-weight: 600;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--foreground-link);
+  text-decoration: none;
+}
+
+.RepoRowSource {
+  @include text-xs;
+  font-family: "Iosevka Extended";
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--foreground-disabled);
+  text-decoration: none;
+  margin-top: -2px;
+}
+
+.RepoRowMetrics {
+  @include text-xs;
+  color: var(--foreground-primary);
+}
+
+.VerticalRule {
+  height: 100%;
+  width: 1px;
+  background-color: var(--border-primary);
+}
+
+@layer components {
+  .BrowserIcon > path {
+    fill: revert-layer;
+  }
+}
+
+.DetailHeader {
+  @include text-2xl;
+  font-weight: 500;
+  text-align: left;
+}
+
+.DetailDescription {
+  @include text-base;
+  font-weight: 300;
+  text-align: left;
+  color: var(--foreground-primary);
+}
+
+.AdvancedConfigurationTitle {
+  @include text-lg;
+}
+
+.Radio {
+  :global .ant-radio {
+    align-self: flex-start !important;
+    margin-top: 2px; // Custom offset to account for the line-height of the text.
+  }
+}
+
+.NotSupportedText {
+  @include text-sm;
+  font-weight: 300;
+  text-align: left;
+  color: var(--color-tomato);
+  font-style: italic;
+}
+
+.GifPanel {
+  --_aspect-ratio: 1.7777777778;
+  --_width: 400px;
+  --_min-width: 200px;
+  @include rounded;
+
+  min-width: var(--_min-width);
+  min-height: calc(var(--_min-width) / var(--_aspect-ratio));
+  aspect-ratio: var(--_aspect-ratio);
+
+  width: var(--_width);
+
+  max-width: var(--_width);
+  max-height: calc(var(--_width) / var(--_aspect-ratio));
+  background-color: var(--background-secondary);
+}
+
+.LoadButton {
+  width: 400px;
+  min-width: 200px;
 }

@@ -1,16 +1,29 @@
+## Gizual 3.0.0-alpha.10 (17.11.2023)
+
+### Features
+
+- **app:general:** implement trpc subscriptions for web worker links and maestro hooks
+- **app:frontend:** implement new welcome screen
+
+### Changes
+
+- **app:general:** reduce amount of intermediate build steps for typescript packages @giz/database and @giz/maestro
+
+---
+
 ## Gizual 3.0.0-alpha.9 (07.11.2023)
 
 ### Features
 
-- **app:search-bar** implement advanced query builder
-- **app:search-bar** add new simple-search implementation
+- **app:search-bar:** implement advanced query builder
+- **app:search-bar:** add new simple-search implementation
 
 ### Changes
 
-- **app:general** enable transparent color selections
-- **app:canvas** implement new rendering modes
-- **app:canvas** change SVG default font family to `Courier New`
-- **app:canvas** adjust file title truncation based on minimum browser font size
+- **app:general:** enable transparent color selections
+- **app:canvas:** implement new rendering modes
+- **app:canvas:** change SVG default font family to `Courier New`
+- **app:canvas:** adjust file title truncation based on minimum browser font size
 
 ---
 

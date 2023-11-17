@@ -1,14 +1,13 @@
 import * as Comlink from "comlink";
 
 import type { DatabaseWorker } from "./database-worker";
+import DatabaseWorkerURL from "./database-worker?worker&url";
 
 export class Database {
   worker: Comlink.Remote<DatabaseWorker>;
 
   constructor() {
-    this.worker = Comlink.wrap(
-      new Worker(new URL("database-worker.mjs", import.meta.url), { type: "module" }),
-    );
+    this.worker = Comlink.wrap(new Worker(DatabaseWorkerURL, { type: "module" }));
   }
 
   async init(port: MessagePort) {

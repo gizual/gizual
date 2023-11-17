@@ -1,81 +1,104 @@
-import { useMainController } from "@app/controllers";
-import { AnimatedLogo, Button } from "@app/primitives";
-import { isSupportedBrowser, useWindowSize } from "@app/utils";
-import { Spin } from "antd";
+import { TitleBar } from "@app/primitives";
+import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
+import React from "react";
+import { match } from "ts-pattern";
 
+import {
+  FileLoaderLocal,
+  FileLoaderUrl,
+  FileLoaderZipFile,
+  useFileLoaders,
+} from "@giz/maestro/react";
+
+import { FilesDetailPanel } from "./components/detail-panels/files-detail-panel";
+import { UrlDetailPanel } from "./components/detail-panels/url-detail-panel";
+import { ZipDetailPanel } from "./components/detail-panels/zip-detail-panel";
+import { SelectionPanel } from "./components/selection-panel";
 import style from "./welcome.module.scss";
+import { prepareSelectedLoaders, RepoSource, WelcomeViewModel } from "./welcome.vm";
 
 export const WelcomePage = observer(() => {
-  const mainController = useMainController();
+  const vm: WelcomeViewModel = React.useMemo(() => {
+    return new WelcomeViewModel();
+  }, []);
+
   const [width, _] = useWindowSize();
-  const isLargeScreen = width > 1200;
+  const isLargeScreen = width > 1024;
+  const [selectedSource, setSelectedSource] = React.useState<RepoSource | undefined>("local");
+  const [currentPanel, setCurrentPanel] = React.useState<"left" | "right">("left");
+  const loaders = useFileLoaders();
+  const selectedLoader = prepareSelectedLoaders(loaders, selectedSource);
+
+  const onBackArrow = () => {
+    setCurrentPanel("left");
+    setSelectedSource(undefined);
+  };
 
   return (
-    <div className={style.App}>
-      <div className={style.Container}>
-        {isLargeScreen && (
-          <>
-            <AnimatedLogo className={style.WelcomeAnimation} />
-            <p>Welcome to Gizual!</p>
-          </>
-        )}
-        {!isLargeScreen && (
-          <>
-            <img className={style.WelcomeImage} src="./giz.png" alt="Gizual Logo" />
-            <h1 className={style.Header}>Gizual</h1>
-            <p className={style.WelcomeParagraph}>Welcome to Gizual!</p>
-          </>
-        )}
-        <div className={style.Card}>
-          {mainController.isLoading || mainController.isPendingTransition ? (
-            <Spin size={"large"} style={{ margin: "auto", marginBottom: "1rem" }}></Spin>
-          ) : (
+    <div className={style.Page}>
+      <div className={style.TitleBarContainer}>
+        <TitleBar />
+      </div>
+
+      <div className={style.Body}>
+        <div className={style.SplitPanel}>
+          {isLargeScreen && (
             <>
-              {isSupportedBrowser() && (
-                <Button
-                  variant="filled"
-                  onClick={() => mainController.openRepository()}
-                  className={style.Button}
-                >
-                  Load Repository (fsa)
-                </Button>
+              <SelectionPanel
+                selectedSource={selectedSource}
+                setSelectedSource={(s) => setSelectedSource(s)}
+              />
+              <div className={style.VerticalRule}></div>
+              {match(selectedSource)
+                .with("local", () => (
+                  <FilesDetailPanel loaders={selectedLoader as FileLoaderLocal[]} vm={vm} />
+                ))
+                .with("url", () => <UrlDetailPanel loader={selectedLoader as FileLoaderUrl} />)
+                .with("zip", () => <ZipDetailPanel loader={selectedLoader as FileLoaderZipFile} />)
+                .otherwise(() => (
+                  <div></div>
+                ))}
+            </>
+          )}
+          {!isLargeScreen && (
+            <>
+              {currentPanel === "left" && (
+                <SelectionPanel
+                  selectedSource={selectedSource}
+                  setSelectedSource={(s) => {
+                    setSelectedSource(s);
+                    setCurrentPanel("right");
+                  }}
+                />
               )}
 
-              <Button
-                variant="filled"
-                onClick={() => mainController.openRepositoryLegacy("directory")}
-                className={style.Button}
-              >
-                Load Repository (input-directory)
-              </Button>
-
-              <Button
-                variant="filled"
-                onClick={() => mainController.openRepositoryLegacy("zip")}
-                className={style.Button}
-              >
-                Load Repository (input-zip)
-              </Button>
-
-              <div
-                className={style.DropZone}
-                onDragOver={(e) => e.preventDefault()}
-                onDragEnter={(e) => {
-                  e.currentTarget.classList.add(style.DropZoneActive);
-                }}
-                onDragLeave={(e) => {
-                  e.currentTarget.classList.remove(style.DropZoneActive);
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  mainController.openRepositoryLegacy(e.dataTransfer.items);
-                }}
-              >
-                <div className={style.DropZoneText}>
-                  Drag .git folder <br /> or .zip file here
-                </div>
-              </div>
+              {match(selectedSource)
+                .with("local", () => (
+                  <FilesDetailPanel
+                    loaders={selectedLoader as FileLoaderLocal[]}
+                    vm={vm}
+                    backArrow
+                    onBackArrow={onBackArrow}
+                  />
+                ))
+                .with("url", () => (
+                  <UrlDetailPanel
+                    loader={selectedLoader as FileLoaderUrl}
+                    backArrow
+                    onBackArrow={onBackArrow}
+                  />
+                ))
+                .with("zip", () => (
+                  <ZipDetailPanel
+                    loader={selectedLoader as FileLoaderZipFile}
+                    backArrow
+                    onBackArrow={onBackArrow}
+                  />
+                ))
+                .otherwise(() => (
+                  <div></div>
+                ))}
             </>
           )}
         </div>
@@ -83,26 +106,5 @@ export const WelcomePage = observer(() => {
     </div>
   );
 });
-
-function _UnsupportedBrowser() {
-  return (
-    <div className={style.EmphasizedContainer}>
-      <h2 className={style.EmphasizedHeader}>🚫</h2>
-      <p>{"It looks like you're using an unsupported browser."}</p>
-      <p>
-        {"Gizual requires an implementation of "}
-        <code>showDirectoryPicker</code>
-        {"."}
-      </p>
-      <p>
-        {"This feature is currently only "}
-        <a href="https://caniuse.com/?search=showDirectoryPicker" target="_blank" rel="noreferrer">
-          {"supported in Chromium based browsers"}
-        </a>
-        {"."}
-      </p>
-    </div>
-  );
-}
 
 export default WelcomePage;

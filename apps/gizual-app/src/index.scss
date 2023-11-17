@@ -256,6 +256,10 @@
     @include text-lg;
     font-weight: medium;
   }
+
+  hr {
+    border-color: var(--border-primary);
+  }
 }
 
 .overlay {

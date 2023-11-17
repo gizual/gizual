@@ -11,8 +11,8 @@ import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
-type Panel = "explore" | "analyze" | "settings";
-type Page = "welcome" | "main";
+export const PANELS = ["explore", "analyze", "settings"] as const;
+type Panel = (typeof PANELS)[number];
 
 export class MainController {
   @observable _favoriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
@@ -20,7 +20,6 @@ export class MainController {
 
   @observable _coloringMode: ColoringMode = "age";
   @observable _fileTreeRoot?: FileTree;
-  @observable _page: Page = "welcome";
   @observable _selectedPanel: Panel = "explore";
 
   @observable _vmController = new ViewModelController(this);
@@ -73,13 +72,6 @@ export class MainController {
     if (this._notification === undefined) return;
 
     this._notification.open(args);
-  }
-
-  get backendMetrics() {
-    if (this._repo.state !== "ready")
-      return { numBusyWorkers: 0, numWorkers: 0, numJobsInQueue: 0 };
-
-    return this._repo.getMetrics();
   }
 
   @computed
@@ -201,88 +193,17 @@ export class MainController {
     return this._repo.state === "loading" || this._maestro.state === "loading";
   }
 
+  /**
+   * @deprecated
+   */
   @action.bound
-  async openRepository() {
-    const handle = await window.showDirectoryPicker();
-    this.setRepoName(handle.name);
-
-    await this._repo.setup(handle);
-    const port = await this._repo.controller?.createPort();
-    await this._maestro.openRepo(port!);
-    this.setPage("main");
-  }
-
-  showFilePicker(type: "directory" | "zip" = "directory") {
-    const input = document.createElement("input");
-    input.style.display = "none";
-    input.style.visibility = "hidden";
-    input.type = "file";
-    if (type === "directory") {
-      //input.multiple = true;
-      input.webkitdirectory = true;
-    } else {
-      input.accept = ".zip";
-    }
-
-    document.body.append(input);
-
-    const remove = () => {
-      try {
-        input.remove();
-      } catch {
-        // noop
-      }
-    };
-
-    const promise = new Promise<FileList>((resolve, reject) => {
-      input.onchange = async () => {
-        if (input.files && input.files.length > 0) {
-          resolve(input.files);
-        } else {
-          reject("No files selected");
-        }
-
-        remove();
-      };
-
-      input.oncancel = () => {
-        reject("User cancelled");
-        remove();
-      };
-    });
-    input.click();
-    return promise;
-  }
-
-  @action.bound
-  async openRepositoryLegacy(
-    source: "directory" | "zip" | DataTransferItemList | FileList = "directory",
-  ) {
-    if (typeof source === "string") {
-      source = await this.showFilePicker(source);
-    }
-
-    if (source.length === 0) return;
-
-    this.setRepoName("?");
-    await this._repo.setup(source);
-    const port = await this._repo.controller?.createPort();
-    await this._maestro.openRepo(port!);
-    this.setPage("main");
-  }
-
-  get page() {
-    return this._page;
+  async openRepository(name: string, port: MessagePort) {
+    await this._repo.setup(port);
+    this.setRepoName(name);
   }
 
   get isPendingTransition() {
     return this._pendingTransition;
-  }
-
-  @action.bound
-  setPage(page: Page) {
-    this._page = page;
-    this._pendingTransition = false;
   }
 
   @action.bound
@@ -395,7 +316,6 @@ export class MainController {
 
   @action.bound
   closeRepository() {
-    this.setPage("welcome");
     this.setRepoName("");
     this._repo = new Repository();
   }

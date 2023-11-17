@@ -184,3 +184,87 @@
     background-color: var(--color-tomato);
   }
 }
+
+.FlexColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.FlexRow {
+  display: flex;
+  flex-direction: row;
+}
+
+.InlineFlexRow {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.Grow {
+  flex-grow: 1;
+}
+
+.Grow0 {
+  flex-grow: 0;
+}
+
+.Shrink0 {
+  flex-shrink: 0;
+}
+
+.Shrink {
+  flex-shrink: 1;
+}
+
+.Gap-1 {
+  gap: 0.25rem;
+}
+
+.Gap-2 {
+  gap: 0.5rem;
+}
+
+.Gap-3 {
+  gap: 0.75rem;
+}
+
+.Gap-4 {
+  gap: 1rem;
+}
+
+.Text-Xs {
+  @include text-xs;
+}
+
+.Text-Sm {
+  @include text-sm;
+}
+
+.Text-Base {
+  @include text-base;
+}
+
+.Text-Lg {
+  @include text-lg;
+}
+
+.Text-Xl {
+  @include text-xl;
+}
+
+.Text-Left {
+  text-align: left;
+}
+
+.Text-Italic {
+  font-style: italic;
+}
+
+.Pointer-None {
+  pointer-events: none;
+  * {
+    pointer-events: none;
+  }
+}
+
+/* Media queries */

@@ -1,9 +1,21 @@
 /// <reference lib="webworker" />
-import { AnyRouter, callProcedure, ProcedureType, getTRPCErrorFromUnknown } from "@trpc/server";
+import {
+  AnyRouter,
+  callProcedure,
+  ProcedureType,
+  getTRPCErrorFromUnknown,
+  TRPCError,
+} from "@trpc/server";
+import { isObservable, Unsubscribable } from "@trpc/server/observable";
 
-import { parseTRPCMessage, TRPCClientOutgoingMessage } from "@trpc/server/rpc";
+import {
+  JSONRPC2,
+  parseTRPCMessage,
+  TRPCClientOutgoingMessage,
+  TRPCResponseMessage,
+} from "@trpc/server/rpc";
 
-import { getErrorShape } from "@trpc/server/shared";
+import { getErrorShape, transformTRPCResponse } from "@trpc/server/shared";
 
 export type WebWorkerHandlerOptions<TRouter extends AnyRouter> = {
   router: TRouter;
@@ -15,29 +27,61 @@ export function applyWebWorkerHandler<TRouter extends AnyRouter>(
 ) {
   const { router, port: worker } = opts;
   const { transformer } = router._def._config;
+  const clientSubscriptions = new Map<number | string, Unsubscribable>();
+
+  function respond(untransformedJSON: TRPCResponseMessage) {
+    worker.postMessage(transformTRPCResponse(router._def._config, untransformedJSON));
+  }
+
+  function stopSubscription(
+    subscription: Unsubscribable,
+    { id, jsonrpc }: JSONRPC2.BaseEnvelope & { id: JSONRPC2.RequestId },
+  ) {
+    subscription.unsubscribe();
+
+    respond({
+      id,
+      jsonrpc,
+      result: {
+        type: "stopped",
+      },
+    });
+  }
 
   async function handleRequest(msg: TRPCClientOutgoingMessage) {
-    if (msg.method === "subscription.stop") {
-      // nothing prevents us to implement subscriptions here,
-      // but I can't see a use case for it now
+    const { id, method, jsonrpc } = msg;
+
+    if (id === null) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "`id` is required",
+      });
+    }
+
+    if (method === "subscription.stop") {
+      const sub = clientSubscriptions.get(id);
+      if (sub) {
+        stopSubscription(sub, { id, jsonrpc });
+      }
+      clientSubscriptions.delete(id);
       return;
     }
 
-    const { id, method, params, jsonrpc } = msg;
+    const { params } = msg;
     const { path, input } = params;
     const type = method as ProcedureType;
 
-    try {
-      const result = await callProcedure({
-        procedures: router._def.procedures,
-        path,
-        getRawInput: () => Promise.resolve(input),
-        //rawInput: input,
-        ctx: undefined,
-        type,
-      });
+    const result = await callProcedure({
+      procedures: router._def.procedures,
+      path,
+      getRawInput: () => Promise.resolve(input),
+      //rawInput: input,
+      ctx: undefined,
+      type,
+    });
 
-      worker.postMessage({
+    if (type !== "subscription") {
+      respond({
         id,
         jsonrpc,
         result: {
@@ -45,21 +89,71 @@ export function applyWebWorkerHandler<TRouter extends AnyRouter>(
           data: transformer.output.serialize(result),
         },
       });
-    } catch (cause) {
-      const error = getTRPCErrorFromUnknown(cause);
-      worker.postMessage({
-        id,
-        jsonrpc,
-        error: getErrorShape({
-          config: router._def._config,
-          error,
-          type,
-          path,
-          input,
-          ctx: undefined,
-        }),
+      return;
+    }
+
+    if (!isObservable(result)) {
+      throw new TRPCError({
+        message: `Subscription ${path} did not return an observable`,
+        code: "INTERNAL_SERVER_ERROR",
       });
     }
+
+    const observable = result;
+    const sub = observable.subscribe({
+      next(data) {
+        respond({
+          id,
+          jsonrpc,
+          result: {
+            type: "data",
+            data,
+          },
+        });
+      },
+      error(err) {
+        const error = getTRPCErrorFromUnknown(err);
+        respond({
+          id,
+          jsonrpc,
+          error: getErrorShape({
+            config: router._def._config,
+            error,
+            type,
+            path,
+            input,
+            ctx: undefined,
+          }),
+        });
+      },
+      complete() {
+        respond({
+          id,
+          jsonrpc,
+          result: {
+            type: "stopped",
+          },
+        });
+      },
+    });
+
+    if (clientSubscriptions.has(id)) {
+      // duplicate request ids for client
+      stopSubscription(sub, { id, jsonrpc });
+      throw new TRPCError({
+        message: `Duplicate id ${id}`,
+        code: "BAD_REQUEST",
+      });
+    }
+    clientSubscriptions.set(id, sub);
+
+    respond({
+      id,
+      jsonrpc,
+      result: {
+        type: "started",
+      },
+    });
   }
 
   worker.onmessage = async (event) => {
@@ -67,7 +161,7 @@ export function applyWebWorkerHandler<TRouter extends AnyRouter>(
       await handleRequest(parseTRPCMessage(event.data, transformer));
     } catch (cause) {
       const error = getTRPCErrorFromUnknown(cause);
-      worker.postMessage({
+      respond({
         id: null,
         jsonrpc: "2.0",
         error: getErrorShape({

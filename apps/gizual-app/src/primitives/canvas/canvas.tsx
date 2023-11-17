@@ -112,7 +112,8 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           <InputNumber
             value={currentZoomLevel}
             suffix={"%"}
-            onChange={(i) => vm.zoomTo(i)}
+            onBlur={(i) => vm.zoomTo(Number(i.currentTarget.value))}
+            onKeyDown={(e) => e.key === "Enter" && vm.zoomTo(Number(e.currentTarget.value))}
             size={"large"}
             controls={false}
           />

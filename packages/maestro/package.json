@@ -2,10 +2,9 @@
   "name": "@giz/maestro",
   "main": "src/index.ts",
   "exports": {
-    ".": "./dist/index.mjs",
-    "./react": "./dist/react.mjs"
+    ".": "./src/index.ts",
+    "./react": "./src/react/index.ts"
   },
-  "types": "./dist/index.d.ts",
   "dependencies": {
     "@giz/database": "workspace:*",
     "@giz/explorer-web": "workspace:*",
@@ -18,47 +17,19 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
-    "@swc/core": "1.3.70",
     "eslint": "8.45.0",
-    "rimraf": "5.0.1",
-    "tsup": "7.1.0",
     "typescript": "5.0.4"
   },
   "scripts": {
-    "build": "tsup",
     "run-local": "bun ./tests/main.ts",
-    "clean": "rimraf dist",
     "lint": "eslint .",
     "type-check": "tsc"
   },
   "please": {
     "build": {
-      "input": "src/*",
       "dependsOn": [
         "build"
       ]
     }
-  },
-  "tsup": {
-    "entry": {
-      "index": "src/index.ts",
-      "maestro-worker": "src/maestro-worker.ts",
-      "react": "src/react/index.ts"
-    },
-    "external": [
-      "@tanstack/react-query",
-      "@trpc/react-query",
-      "@trpc/server",
-      "@trpc/client",
-      "react",
-      "eventemitter3",
-      "comlink"
-    ],
-    "format": "esm",
-    "splitting": false,
-    "sourcemap": true,
-    "clean": true,
-    "keepNames": true,
-    "dts": true
   }
 }

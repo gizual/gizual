@@ -2,6 +2,7 @@ import { useMainController } from "@app/controllers";
 import { Spin } from "antd";
 import { observer } from "mobx-react-lite";
 
+import { useGlobalState } from "@giz/maestro/react";
 import ChangelogMd from "../../../../../CHANGELOG.md?raw";
 import { DialogProvider } from "../dialog-provider";
 import { MarkdownViewer } from "../markdown-viewer";
@@ -15,10 +16,12 @@ function paddedNumber(num: number, length = 2) {
 export const Footer = observer(() => {
   const mainController = useMainController();
 
+  const state = useGlobalState();
+
   const explorer = {
-    jobs: paddedNumber(mainController.backendMetrics.numJobsInQueue, 3),
-    busyWorkers: paddedNumber(mainController.backendMetrics.numBusyWorkers, 2),
-    totalWorkers: paddedNumber(mainController.backendMetrics.numWorkers, 2),
+    jobs: paddedNumber(state.numExplorerJobs, 3),
+    busyWorkers: paddedNumber(state.numExplorerWorkersBusy, 2),
+    totalWorkers: paddedNumber(state.numExplorerWorkersTotal, 2),
   };
 
   const renderer = {
@@ -32,7 +35,7 @@ export const Footer = observer(() => {
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.9 - Build #{__COMMIT_HASH__}</p>}
+          trigger={<p>Gizual v3.0.0-alpha.10 - Build #{__COMMIT_HASH__}</p>}
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>

@@ -6,6 +6,8 @@ import { SeedToken } from "antd/es/theme/interface";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
+import { useScreen } from "@giz/maestro/react";
+
 import style from "./app.module.scss";
 import { useMainController } from "./controllers";
 import { MainPage } from "./pages/main";
@@ -61,6 +63,8 @@ function App() {
     mainController.attachNotificationInstance(notification);
   }, [notification]);
 
+  const screen = useScreen();
+
   return (
     <ConfigProvider theme={config}>
       <AntdApp>
@@ -68,8 +72,8 @@ function App() {
           {notificationProvider}
           <div className={style.App}>
             <div className={style.Main}>
-              {mainController.page === "welcome" && <WelcomePage />}
-              {mainController.page === "main" && <MainPage />}
+              {screen === "welcome" && <WelcomePage />}
+              {screen === "main" && <MainPage />}
             </div>
             <Footer />
           </div>
