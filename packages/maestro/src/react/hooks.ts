@@ -125,7 +125,7 @@ export function useFileLoaders(): FileLoaders {
       name: "From URL",
       load: (url: string) => console.warn("Not implemented. Called with URL:", url),
     },
-    zip: { id: "zip-file", name: "From .zip file", load: zipFileCallback },
+    zip: { id: "zip-file", name: ".zip file", load: zipFileCallback },
   };
 
   return loaders;

@@ -15,7 +15,7 @@ import {
 } from "@giz/maestro/react";
 import { Content } from "../content/type";
 import style from "../welcome.module.scss";
-import { prepareFileLoaderLocal, showFilePicker, WelcomeViewModel } from "../welcome.vm";
+import { getLoaderForConfig, showFilePicker, WelcomeViewModel } from "../welcome.vm";
 
 import { AdvancedConfigurationPanel } from "./advanced-configuration";
 import { DragHandler } from "./drag-handler";
@@ -39,16 +39,13 @@ export const DetailPanel = observer(
     vm,
   }: DetailPanelProps) => {
     const actionStyle: "drag" | "button" =
-      source === "local" && vm.selectedFileLoaderConfig === "drag" ? "drag" : "button";
+      source === "local" && vm.selectedFileLoaderConfig === "drag-and-drop" ? "drag" : "button";
 
     let selectedLoader: FileLoaderLocal | FileLoaderZipFile | FileLoaderUrl | undefined;
     if (source === "local") {
-      selectedLoader = prepareFileLoaderLocal(
-        loader as FileLoaderLocal[],
-        vm.selectedFileLoaderConfig,
-      );
-    } else {
-      selectedLoader = loader as any;
+      selectedLoader = getLoaderForConfig(loader as FileLoaderLocal[], vm.selectedFileLoaderConfig);
+    } else if (!Array.isArray(loader)) {
+      selectedLoader = loader;
     }
 
     const onAction = (e: any) => {
@@ -57,11 +54,11 @@ export const DetailPanel = observer(
           window.showDirectoryPicker().then((handle) => {
             (selectedLoader as FileLoaderFSA).load(handle);
           });
-        } else if (content?.hasConfigPanel && vm.selectedFileLoaderConfig === "html") {
+        } else if (content?.hasConfigPanel && vm.selectedFileLoaderConfig === "input-field") {
           showFilePicker("directory").then((files) => {
             (selectedLoader as FileLoaderInputField).load(files);
           });
-        } else if (content?.hasConfigPanel && vm.selectedFileLoaderConfig === "drag") {
+        } else if (content?.hasConfigPanel && vm.selectedFileLoaderConfig === "drag-and-drop") {
           if (!e) return;
           (selectedLoader as FileLoaderDragAndDrop).load(e as any); // TODO: Fix that any! :)
         }
@@ -89,7 +86,9 @@ export const DetailPanel = observer(
           </p>
         ))}
 
-        {content.hasConfigPanel && <AdvancedConfigurationPanel vm={vm} />}
+        {content.hasConfigPanel && (
+          <AdvancedConfigurationPanel vm={vm} loader={loader as FileLoaderLocal[]} />
+        )}
 
         {actionStyle === "button" && content.hasGif && <div className={style.GifPanel} />}
         {actionStyle === "drag" && content.hasGif && (

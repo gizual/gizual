@@ -11,7 +11,7 @@ const local: Content = _local;
 const zip: Content = _zip;
 const url: Content = _url;
 
-export type AdvancedConfigurationSelection = "fsa" | "html" | "drag";
+export type AdvancedConfigurationSelection = "fsa" | "input-field" | "drag-and-drop";
 
 export type RepoMetrics = {
   stars: number;
@@ -32,21 +32,11 @@ export class WelcomeViewModel {
   }
 }
 
-export function prepareFileLoaderLocal(
+export function getLoaderForConfig(
   loaders: FileLoaderLocal[],
   config: AdvancedConfigurationSelection,
 ) {
-  switch (config) {
-    case "fsa": {
-      return loaders.find((l) => l.id === "fsa");
-    }
-    case "html": {
-      return loaders.find((l) => l.id === "input-field");
-    }
-    case "drag": {
-      return loaders.find((l) => l.id === "drag-and-drop");
-    }
-  }
+  return loaders.find((l) => l.id === config);
 }
 
 export function mapSourceToContent(source?: RepoSource): Content | undefined {
