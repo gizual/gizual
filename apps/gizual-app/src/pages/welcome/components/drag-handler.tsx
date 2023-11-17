@@ -1,7 +1,7 @@
 import style from "../welcome.module.scss";
 
 type DragHandlerProps = {
-  onDrag: (files: DataTransferItemList) => void;
+  onDrag: (file: FileSystemDirectoryEntry) => void;
   children: React.ReactNode;
 };
 export function DragHandler({ onDrag, children }: DragHandlerProps) {
@@ -17,7 +17,15 @@ export function DragHandler({ onDrag, children }: DragHandlerProps) {
       }}
       onDrop={(e) => {
         e.preventDefault();
-        onDrag(e.dataTransfer.items);
+
+        const items = e.dataTransfer.items;
+        if (items.length > 0) {
+          const item = items[0].webkitGetAsEntry();
+          if (item && item.isDirectory) {
+            onDrag(item as FileSystemDirectoryEntry);
+          }
+          // TODO: Error states
+        }
       }}
     >
       {children}

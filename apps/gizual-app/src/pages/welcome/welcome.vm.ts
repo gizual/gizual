@@ -2,15 +2,6 @@ import { action, makeAutoObservable, observable } from "mobx";
 
 import { FileLoaderLocal, FileLoaders } from "@giz/maestro/react";
 
-import _local from "./content/local.json";
-import { Content } from "./content/type";
-import _url from "./content/url.json";
-import _zip from "./content/zip.json";
-
-const local: Content = _local;
-const zip: Content = _zip;
-const url: Content = _url;
-
 export type AdvancedConfigurationSelection = "fsa" | "input-field" | "drag-and-drop";
 
 export type RepoMetrics = {
@@ -37,22 +28,6 @@ export function getLoaderForConfig(
   config: AdvancedConfigurationSelection,
 ) {
   return loaders.find((l) => l.id === config);
-}
-
-export function mapSourceToContent(source?: RepoSource): Content | undefined {
-  switch (source) {
-    case "local": {
-      return local;
-    }
-    case "url": {
-      return url;
-    }
-    case "zip": {
-      return zip;
-    }
-  }
-
-  return;
 }
 
 export function prepareSelectedLoaders(loaders: FileLoaders, source?: RepoSource) {

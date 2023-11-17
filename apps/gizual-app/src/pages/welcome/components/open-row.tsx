@@ -1,6 +1,4 @@
-import { IconAndroid, IconChromium, IconFirefox, IconIos, IconSafari } from "@app/assets";
 import shared from "@app/primitives/css/shared-styles.module.scss";
-import { Tooltip } from "antd";
 import clsx from "clsx";
 
 import style from "../welcome.module.scss";
@@ -14,13 +12,7 @@ type OpenRowProps = {
   onSelect?: () => void;
 };
 
-export function OpenRow({
-  icon,
-  title,
-  supportedBy,
-  isSelected = false,
-  onSelect = () => {},
-}: OpenRowProps) {
+export function OpenRow({ icon, title, isSelected = false, onSelect = () => {} }: OpenRowProps) {
   return (
     <div className={clsx(style.OpenRow, shared.FlexRow, isSelected && style.OpenRow__Selected)}>
       <div className={clsx(style.OpenRowLeft, shared.InlineFlexRow)}>
@@ -30,7 +22,7 @@ export function OpenRow({
         </a>
       </div>
 
-      <div className={shared.RightAlignedGroup}>
+      {/*<div className={shared.RightAlignedGroup}>
         {supportedBy.map((browser) => {
           switch (browser) {
             case "chromium": {
@@ -70,7 +62,7 @@ export function OpenRow({
             }
           }
         })}
-      </div>
+      </div>*/}
     </div>
   );
 }

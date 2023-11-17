@@ -290,7 +290,7 @@
 
 .RepoRowSource {
   @include text-xs;
-  font-family: 'Iosevka Extended';
+  font-family: "Iosevka Extended";
   flex-grow: 1;
   flex-shrink: 0;
   text-align: left;
@@ -350,8 +350,8 @@
 
 .GifPanel {
   --_aspect-ratio: 1.7777777778;
-  --_width: 400px; 
-  --_min-width: 200px; 
+  --_width: 400px;
+  --_min-width: 200px;
   @include rounded;
 
   min-width: var(--_min-width);
