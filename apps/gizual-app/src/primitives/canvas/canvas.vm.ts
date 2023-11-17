@@ -66,7 +66,7 @@ export class CanvasViewModel {
   zoomTo(n: number | null) {
     if (!this.canvasContainerRef?.current || !n) return;
     n = n / 100;
-    if (n < MIN_ZOOM || n > MAX_ZOOM) return;
+    n = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, n));
 
     this.canvasContainerRef.current.zoomOut(this._mainController.scale - n, 0);
   }
