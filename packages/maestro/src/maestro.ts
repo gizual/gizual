@@ -7,7 +7,13 @@ import { webWorkerLink } from "@giz/trpc-webworker/link";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "./fileio-utils";
+import {
+  importDirectoryEntry,
+  importFromFileList,
+  importZipFile,
+  printFileTree,
+  seekRepo,
+} from "./fileio-utils";
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
 
@@ -58,6 +64,30 @@ export class Maestro {
     this.dispose = dispose;
   }
 
+  async openRepoFromURL(service: string, repoName: string) {
+    this.state = "loading";
+
+    const response = await fetch(`http://localhost:5172/clone/${service}/${repoName}`);
+
+    const data = await response.arrayBuffer();
+
+    const opts: PoolControllerOpts = {};
+
+    opts.directoryHandle = await importZipFile(data);
+    opts.directoryHandle = await seekRepo(opts.directoryHandle!);
+    await printFileTree(opts.directoryHandle!);
+
+    const result = await this.worker.setupPool(opts);
+
+    const legacy_explorerPort = result.legacy_explorerPort;
+
+    await mainController.openRepository("?", legacy_explorerPort);
+
+    runInAction(() => {
+      this.state = "ready";
+    });
+  }
+
   async openRepo(opts: RepoSetupOpts) {
     this.state = "loading";
 
@@ -75,7 +105,7 @@ export class Maestro {
         const zipDataArray = new Uint8Array(zipData);
         opts2.zipFile = zipDataArray;
       } else {
-        opts2.directoryHandle = await importZipFile(opts.zipFile!);
+        opts2.directoryHandle = await importZipFile(await opts.zipFile.arrayBuffer());
       }
     } else if (opts.directoryHandle) {
       opts2.directoryHandle = opts.directoryHandle;
@@ -83,6 +113,7 @@ export class Maestro {
 
     if (opts2.directoryHandle) {
       opts2.directoryHandle = await seekRepo(opts2.directoryHandle!);
+      await printFileTree(opts2.directoryHandle!);
     }
 
     let legacy_explorerPort: MessagePort;
@@ -102,8 +133,6 @@ export class Maestro {
     runInAction(() => {
       this.state = "ready";
     });
-
-    return legacy_explorerPort;
   }
 
   debugPrint() {

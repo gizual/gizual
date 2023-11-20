@@ -64,6 +64,7 @@ export class Repository {
     this.portal = new PoolPortal(port);
 
     const branches = await this.portal.getBranches();
+    console.log("branches", branches);
 
     const defaultBranch =
       branches.find((branch) => branch === "master" || branch === "main" || branch === "develop") ||

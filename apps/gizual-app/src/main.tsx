@@ -14,6 +14,8 @@ import "./icons/colors.css";
 
 const maestro = new Maestro();
 
+(window as any).maestro = maestro;
+
 await maestro.setup();
 
 const mainController = new MainController(maestro);
