@@ -6,8 +6,20 @@ import { findRoot } from "@manypkg/find-root";
 import { getPackages, Package } from "@manypkg/get-packages";
 import chalk from "chalk";
 import chokidar from "chokidar";
-import concurrently from "concurrently";
+import concurrently, { type ConcurrentlyCommandInput } from "concurrently";
 import { debounce } from "debounce";
+
+const COLORS = ["green", "yellow", "blue", "magenta", "cyan"];
+
+function randomColors(num: number) {
+  const res: string[] = [];
+
+  for (let i = 0; i < num; i++) {
+    res.push(COLORS[i % COLORS.length]);
+  }
+
+  return res;
+}
 
 function log(...args: any[]) {
   console.log(chalk.red("LOG:"), ...args);
@@ -62,6 +74,7 @@ class DependencyGraph {
   tasks: Task[] = [];
 
   watchers: chokidar.FSWatcher[] = [];
+  disposers: (() => void)[] = [];
 
   constructor(
     public rootDir: string,
@@ -176,13 +189,13 @@ class DependencyGraph {
     this.tasks = sortedTasks;
   }
 
-  async execute(originalTaskId: string) {
+  async execute(originalTaskIds: string[]) {
     const tasks = this.tasks
       .filter((task) => !task.transparent)
-      .filter((task) => task.id !== originalTaskId);
+      .filter((task) => !originalTaskIds.includes(task.id));
 
     for (const task of tasks) {
-      await this.runTask(task);
+      await this.runTask([task]);
     }
 
     const watchTasks = this.tasks.filter((task) => task.input);
@@ -191,51 +204,76 @@ class DependencyGraph {
       this.setupWatchTask(task);
     }
 
-    const t = this.tasks.find((task) => task.id === originalTaskId);
+    const t = this.tasks.filter((task) => originalTaskIds.includes(task.id));
 
-    if (!t) {
-      throw new Error(`Task ${originalTaskId} not found`);
-    }
-
-    return this.runTask(t, "green");
+    return this.runTask(t);
   }
 
-  async runTask(task: Task, prefixColor = "gray") {
-    const prettyTaskId = `${chalk.blue(task.pkg.packageJson.name)}#${chalk.yellow(task.taskName)}`;
-    const { pkg, taskName } = task;
-    const packageJSON: any = pkg.packageJson;
-    const script = packageJSON.scripts?.[taskName];
-
-    if (!script) {
-      throw new Error(`No script found for task ${prettyTaskId}`);
+  async runTask(tasks: Task[], prefixColor?: string) {
+    if (tasks.length === 0) {
+      throw new Error("No tasks provided");
     }
 
-    log(`Running task ${prettyTaskId}`);
+    if (tasks.length <= 1 && !prefixColor) {
+      prefixColor = "gray";
+    }
 
-    const res = concurrently(
-      [
-        {
-          command: `yarn run ${taskName}`,
-          name: `${pkg.packageJson.name}#${taskName}`,
-          cwd: pkg.dir,
-          prefixColor,
-        },
-      ],
-      {
-        killOthers: ["failure", "success"],
-        restartTries: 0,
-      },
-    );
+    const commands: ConcurrentlyCommandInput[] = [];
+
+    const colors = randomColors(tasks.length);
+
+    const ids: string[] = [];
+
+    for (const [i, task] of tasks.entries()) {
+      const prettyTaskId = `${chalk.blue(task.pkg.packageJson.name)}#${chalk.yellow(
+        task.taskName,
+      )}`;
+
+      ids.push(prettyTaskId);
+
+      const { pkg, taskName } = task;
+      const packageJSON: any = pkg.packageJson;
+      const script = packageJSON.scripts?.[taskName];
+
+      if (!script) {
+        throw new Error(`No script found for task ${prettyTaskId}`);
+      }
+
+      commands.push({
+        command: `yarn run ${taskName}`,
+        name: `${pkg.packageJson.name}#${taskName}`,
+        cwd: pkg.dir,
+        prefixColor: prefixColor || colors[i],
+      });
+    }
+
+    log(`Running tasks ${ids.join(", ")}`);
+
+    const res = concurrently(commands, {
+      killOthers: ["failure", "success"],
+      restartTries: 0,
+    });
+
+    const disposer = () => {
+      for (const c of res.commands) {
+        c.kill();
+      }
+    };
+
+    this.disposers.push(disposer);
 
     await res.result;
-    log(`Finished task ${chalk.blue(prettyTaskId)}`);
+
+    this.disposers = this.disposers.filter((d) => d !== disposer);
+
+    log(`Finished tasks ${ids.join(", ")}`);
   }
 
   setupWatchTask(task: Task) {
     const debouncedRunTask = debounce(
       (filePath) => {
         log(`change detected for ${task.id}: ${filePath}`);
-        this.runTask(task);
+        this.runTask([task]);
       },
       500,
       false,
@@ -262,54 +300,70 @@ class DependencyGraph {
     return pkg;
   }
 
-  dispose() {
+  dispose(error?: boolean) {
     for (const watcher of this.watchers) {
       watcher.close();
     }
 
+    for (const disposer of this.disposers) {
+      disposer();
+    }
+
+    this.disposers = [];
     this.watchers = [];
     this.tasks = [];
     this.packages = [];
+
+    process.exit(error ? 1 : 0);
   }
 }
 
 const main = async () => {
   const graph = await DependencyGraph.create(process.cwd());
 
-  const arg2 = process.argv[2];
+  const otherArgs = process.argv.slice(2);
 
-  if (!arg2) {
-    throw new Error("No task name provided");
+  if (otherArgs.length === 0) {
+    throw new Error("No task names provided");
   }
 
-  let pkg: Package | undefined;
-  let taskName: string | undefined;
-  if (arg2.includes("#")) {
-    const [pkgName, tName] = arg2.split("#");
-    taskName = tName;
-    pkg = graph.getPackage(pkgName);
-  } else {
-    pkg = await findNearestPackage(process.cwd());
-    taskName = arg2;
-  }
+  const primaryTasks: string[] = [];
 
-  const id = await graph.addTask(pkg, taskName);
+  for (const arg of otherArgs) {
+    let pkg: Package | undefined;
+    let taskName: string | undefined;
+    if (arg.includes("#")) {
+      const [pkgName, tName] = arg.split("#");
+      taskName = tName;
+      pkg = graph.getPackage(pkgName);
+    } else {
+      pkg = await findNearestPackage(process.cwd());
+      taskName = arg;
+    }
+    const id = await graph.addTask(pkg, taskName);
+
+    if (!id) {
+      throw new Error(`Task ${arg} not found`);
+    }
+
+    primaryTasks.push(id);
+  }
 
   graph.sortTasks();
 
   process.on("SIGINT", () => {
-    graph.dispose();
+    graph.dispose(true);
   });
 
   process.on("SIGTERM", () => {
-    graph.dispose();
+    graph.dispose(true);
   });
 
   process.on("exit", () => {
     graph.dispose();
   });
 
-  graph.execute(id!).then(() => {
+  graph.execute(primaryTasks).then(() => {
     log("All tasks are done 🔥");
     graph.dispose();
   });

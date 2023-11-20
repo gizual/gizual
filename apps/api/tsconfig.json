@@ -1,3 +1,4 @@
 {
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "extends": "@giz/tsconfig/tsconfig.node.json",
+  "include": ["src/**/*.ts", "src/**/*.mts"]
 }

@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+
 import * as archiver from "archiver";
 import express, { Express, Request, Response } from "express";
 import { simpleGit } from "simple-git";
@@ -83,5 +84,5 @@ app.route("/clone/:service/:org/:repo").get(async (req: Request, res: Response) 
 });
 
 app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+  console.log(`Backend-Server is running at http://localhost:${port}`);
 });

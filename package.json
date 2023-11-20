@@ -32,7 +32,7 @@
     "typescript": "5.0.4"
   },
   "scripts": {
-    "dev": "yarn please @giz/gizual-app#dev",
+    "dev": "yarn please @giz/api#start @giz/gizual-app#dev",
     "storybook": "yarn please @giz/gizual-app#storybook",
     "build": "yarn please @giz/gizual-app#build",
     "preview": "yarn please @giz/gizual-app#preview",
