@@ -160,8 +160,20 @@
   height: 100%;
 }
 
-.Pointer {
+.CursorDefault {
+  cursor: default;
+}
+
+.CursorPointer {
   cursor: pointer;
+}
+
+.CursorCanDrag {
+  cursor: grab;
+}
+
+.CursorDragging {
+  cursor: grabbing;
 }
 
 /* Overlay that covers things beneath a Popover */
@@ -267,4 +279,7 @@
   }
 }
 
-/* Media queries */
+.Separator {
+  width: 1px;
+  border-right: 1px solid var(--border-primary);
+}

@@ -5,10 +5,10 @@ import {
   IconMagnifyPlus,
   IconPeople,
 } from "@app/assets";
-import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
+import { useMainController, useViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
 import { createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
-import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Tooltip } from "antd";
+import { Dropdown, InputNumber, MenuProps, Modal, Radio, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -29,7 +29,6 @@ export type CanvasProps = {
 function Canvas({ vm: externalVm }: CanvasProps) {
   const mainController = useMainController();
   const vmController = useViewModelController();
-  const settingsController = useSettingsController();
 
   const visibleTimeline =
     mainController.settingsController.settings.timelineSettings.displayMode.value === "visible";
@@ -93,6 +92,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
 
   const currentTheme = useTheme();
   const [selectedAppearance, setSelectedAppearance] = useState(currentTheme);
+  const [isPanning, setIsPanning] = useState(false);
 
   return (
     <div className={style.Stage}>
@@ -137,43 +137,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               <IconLayout className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-
-          {mainController._coloringMode === "age" && (
-            <>
-              <div className={style.Separator}></div>
-              <div className={style.ControlWithLabel}>
-                <p className={style["ControlWithLabel__Label"]}>Old changes:</p>
-                <ColorPicker
-                  value={settingsController.settings.visualizationSettings.colors.old.value}
-                  size="small"
-                  showText
-                  onChangeComplete={(e) => {
-                    settingsController.updateValue(
-                      settingsController.settings.visualizationSettings.colors.old,
-                      `#${e.toHex(false)}`,
-                    );
-                  }}
-                  className={sharedStyle.colorPicker}
-                />
-              </div>
-              <div className={style.Separator}></div>
-              <div className={style.ControlWithLabel}>
-                <p className={style["ControlWithLabel__Label"]}>New changes:</p>
-                <ColorPicker
-                  value={settingsController.settings.visualizationSettings.colors.new.value}
-                  size="small"
-                  showText
-                  onChangeComplete={(e) => {
-                    settingsController.updateValue(
-                      settingsController.settings.visualizationSettings.colors.new,
-                      `#${e.toHex(false)}`,
-                    );
-                  }}
-                  className={sharedStyle.colorPicker}
-                />
-              </div>
-            </>
-          )}
         </div>
         <div className={sharedStyle.InlineRow}>
           <div className={style.ControlWithLabel}>
@@ -192,7 +155,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               ))}
             </Radio.Group>
           </div>
-          <div className={style.Separator}></div>
+          <div className={sharedStyle.Separator}></div>
           <Tooltip title={"Show author panel"}>
             <IconButton
               onClick={() => vmController.toggleAuthorPanelVisibility()}
@@ -249,6 +212,12 @@ function Canvas({ vm: externalVm }: CanvasProps) {
               limitToBounds={false}
               panning={{ velocityDisabled: true }}
               ref={ref}
+              onPanningStart={() => {
+                setIsPanning(true);
+              }}
+              onPanningStop={() => {
+                setIsPanning(false);
+              }}
               onTransformed={(
                 ref: ReactZoomPanPinchRef,
                 state: {
@@ -273,6 +242,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   width: "100%",
                   height: "100%",
                 }}
+                contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
               >
                 <FileCanvas vm={vm} wrapper={ref.current?.instance.wrapperComponent} />
               </TransformComponent>

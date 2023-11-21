@@ -130,10 +130,12 @@ const SearchInput = observer(({ vm }: Required<SearchBarProps>) => {
             title="Advanced Query Builder"
             trigger={
               <Tooltip title="Open advanced query builder">
-                <IconCommandLine className={style.AdvancedSearchIcon} />
+                <IconButton aria-label="Advanced Query Builder">
+                  <IconCommandLine className={style.AdvancedSearchIcon} />
+                </IconButton>
               </Tooltip>
             }
-            triggerClassName={style.AdvancedSearchIconContainer}
+            triggerClassName={undefined}
           >
             <AdvancedEditor vm={vm} />
           </DialogProvider>

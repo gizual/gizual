@@ -99,4 +99,8 @@ export class Maestro {
 
     return legacy_explorerPort;
   }
+
+  debugPrint() {
+    this.worker.debugPrint();
+  }
 }

@@ -178,9 +178,16 @@ async function setupPool(opts: PoolControllerOpts) {
   }
   */
 
+function debugPrint() {
+  if (EXP_CONTROLLER) {
+    EXP_CONTROLLER.debugPrint();
+  }
+}
+
 const exports = {
   setup,
   setupPool,
+  debugPrint,
 };
 
 export type MaestroWorker = typeof exports;

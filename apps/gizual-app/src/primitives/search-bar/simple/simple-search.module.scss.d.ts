@@ -1,7 +1,8 @@
 declare const classNames: {
   readonly Container: "Container";
   readonly Clickable: "Clickable";
-  readonly AdvancedSearchIconContainer: "AdvancedSearchIconContainer";
+  readonly AdvancedSearchIconTrigger: "AdvancedSearchIconTrigger";
+  readonly AdvancedSearchIconButton: "AdvancedSearchIconButton";
   readonly AdvancedSearchIcon: "AdvancedSearchIcon";
   readonly Content: "Content";
   readonly SearchModule: "SearchModule";
@@ -14,5 +15,8 @@ declare const classNames: {
   readonly IconToggled: "IconToggled";
   readonly IconUnToggled: "IconUnToggled";
   readonly FileTreeWrapper: "FileTreeWrapper";
+  readonly ControlWithLabel: "ControlWithLabel";
+  readonly ControlWithLabel__Label: "ControlWithLabel__Label";
+  readonly SpacedSmall: "SpacedSmall";
 };
 export = classNames;

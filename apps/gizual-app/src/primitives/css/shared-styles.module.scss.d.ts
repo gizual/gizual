@@ -15,7 +15,10 @@ declare const classNames: {
   readonly FullWidth: "FullWidth";
   readonly ToolbarIcon: "ToolbarIcon";
   readonly FlexGrow: "FlexGrow";
-  readonly Pointer: "Pointer";
+  readonly CursorDefault: "CursorDefault";
+  readonly CursorPointer: "CursorPointer";
+  readonly CursorCanDrag: "CursorCanDrag";
+  readonly CursorDragging: "CursorDragging";
   readonly PopoverUnderlay: "PopoverUnderlay";
   readonly PopoverMax: "PopoverMax";
   readonly CloseButton: "CloseButton";
@@ -38,5 +41,6 @@ declare const classNames: {
   readonly "Text-Left": "Text-Left";
   readonly "Text-Italic": "Text-Italic";
   readonly "Pointer-None": "Pointer-None";
+  readonly Separator: "Separator";
 };
 export = classNames;

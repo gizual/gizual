@@ -11,6 +11,7 @@ const commitHash = child.execSync("git rev-parse --short HEAD").toString();
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
+  base: "./",
   build: {
     rollupOptions: {
       logLevel: process.platform === "win32" ? "silent" : "warn",

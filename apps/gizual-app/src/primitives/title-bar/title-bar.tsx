@@ -5,7 +5,7 @@ import { App, Tooltip } from "antd";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
-import { useScreen } from "@giz/maestro/react";
+import { Screen, useScreen } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
@@ -14,25 +14,31 @@ import style from "./title-bar.module.scss";
 
 export const TitleBar = observer(() => {
   const [width] = useWindowSize();
+  const screen = useScreen();
 
   return (
     <div className={style.TitleBar}>
-      <div className={style.Branding}>
+      <a href="/" className={clsx(style.Link, style.Branding)}>
         <img className={style.Logo} src="./giz-icon.svg" alt="Gizual Logo" />
         <h1 className={style.Title}>gizual</h1>
+      </a>
+      <div className={style.Menu}>
+        {width > 768 ? <DesktopTitleBar screen={screen} /> : <MobileTitleBar screen={screen} />}
       </div>
-      <div className={style.Menu}>{width > 768 ? <DesktopTitleBar /> : <MobileTitleBar />}</div>
     </div>
   );
 });
 
-const DesktopTitleBar = observer(() => {
+type TitleBarProps = {
+  screen: Screen;
+};
+
+const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
   const mainController = useMainController();
   const selectedPanel = mainController._selectedPanel;
   const setSelectedPanel = mainController.setPanel;
 
   const { modal } = App.useApp();
-  const screen = useScreen();
 
   return (
     <>
@@ -110,23 +116,31 @@ const DesktopTitleBar = observer(() => {
   );
 });
 
-const MobileTitleBar = observer(() => {
+const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
   const mainController = useMainController();
   const selectedPanel = mainController._selectedPanel;
   const setSelectedPanel = mainController.setPanel;
+
   return (
     <div className={style.Right}>
-      <Select
-        value={selectedPanel}
-        icon={<IconCollapse className={style.SelectIcon} />}
-        size="large"
-        onChange={(e) => setSelectedPanel(e)}
-        options={PANELS.map((p) => {
-          const opt = p.charAt(0).toUpperCase() + p.slice(1);
-          return { label: opt, value: p };
-        })}
-        suffixIcon={false}
-      />
+      {screen === "welcome" && (
+        <div className={clsx(style.MenuItem, style.Selected)}>
+          <a className={style.MenuItemText}>Welcome</a>
+        </div>
+      )}
+      {screen !== "welcome" && (
+        <Select
+          value={selectedPanel}
+          icon={<IconCollapse className={style.SelectIcon} />}
+          size="large"
+          onChange={(e) => setSelectedPanel(e)}
+          options={PANELS.map((p) => {
+            const opt = p.charAt(0).toUpperCase() + p.slice(1);
+            return { label: opt, value: p };
+          })}
+          suffixIcon={false}
+        />
+      )}
     </div>
   );
 });

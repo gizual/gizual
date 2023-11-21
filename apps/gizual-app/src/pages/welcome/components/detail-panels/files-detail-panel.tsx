@@ -72,12 +72,16 @@ export const FilesDetailPanel = observer(
         {match(selectedLoader)
           .with({ id: "drag-and-drop" }, () => (
             <DragHandler onDrag={onDragAction}>
-              <div className={style.GifPanel} />
+              <div className={style.GifPanel}>
+                <img src="fsa.gif" className={style.Gif} />
+              </div>
             </DragHandler>
           ))
           .otherwise(() => (
             <>
-              <div className={style.GifPanel} />
+              <div className={style.GifPanel}>
+                <img src="fsa.gif" className={style.Gif} />
+              </div>
 
               <Button className={style.LoadButton} variant="filled" onClick={onButtonAction}>
                 {`Load with ${vm.selectedFileLoaderConfig}`}
