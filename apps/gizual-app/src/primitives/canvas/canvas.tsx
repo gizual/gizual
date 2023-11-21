@@ -5,10 +5,10 @@ import {
   IconMagnifyPlus,
   IconPeople,
 } from "@app/assets";
-import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
+import { useMainController, useViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
 import { createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
-import { ColorPicker, Dropdown, InputNumber, MenuProps, Modal, Radio, Tooltip } from "antd";
+import { Dropdown, InputNumber, MenuProps, Modal, Radio, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -29,7 +29,6 @@ export type CanvasProps = {
 function Canvas({ vm: externalVm }: CanvasProps) {
   const mainController = useMainController();
   const vmController = useViewModelController();
-  const settingsController = useSettingsController();
 
   const visibleTimeline =
     mainController.settingsController.settings.timelineSettings.displayMode.value === "visible";

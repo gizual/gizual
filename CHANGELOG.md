@@ -1,3 +1,18 @@
+## Gizual 3.0.0-alpha.11 (21.11.2023)
+
+### Changes
+
+- **app:canvas:** implement css logic to exchange pointer style according to current user motion
+- **app:frontend:** link logo back to home page
+- **app:general:** adjust base path for static deployment
+
+### Bug Fixes
+
+- **app:frontend:** fix author table hover state in light mode
+- **app:canvas:** fix behavior of "Zoom To" button
+
+---
+
 ## Gizual 3.0.0-alpha.10 (17.11.2023)
 
 ### Features

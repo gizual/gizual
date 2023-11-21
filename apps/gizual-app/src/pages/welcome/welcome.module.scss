@@ -85,6 +85,7 @@
   border: 2px dashed var(--foreground-secondary);
   text-align: center;
   margin: 1px;
+  padding: 2px;
 
   &.DropZoneActive {
     background-color: gray;

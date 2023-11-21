@@ -11,5 +11,6 @@ declare const classNames: {
   readonly MenuItemText: "MenuItemText";
   readonly InfoText: "InfoText";
   readonly SelectIcon: "SelectIcon";
+  readonly Link: "Link";
 };
 export = classNames;
