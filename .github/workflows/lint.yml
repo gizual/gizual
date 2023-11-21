@@ -24,7 +24,7 @@ jobs:
           node-version: 18
           cache: "yarn"
       - run: yarn --immutable
-      - uses: actions-rs/toolchain@v1
+      - uses: moonrepo/setup-rust@v1
         with:
           toolchain: stable
           components: clippy
