@@ -68,11 +68,12 @@ export class CanvasViewModel {
     n = n / 100;
     n = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, n));
 
-    this.canvasContainerRef.current.zoomOut(this._mainController.scale - n, 0);
+    const { positionX = 0, positionY = 0 } = this.canvasContainerRef.current.state ?? {};
+    this.canvasContainerRef.current.setTransform(positionX, positionY, n);
   }
 
   zoomToFile(_fileName: string) {
-    const el = undefined; // TODO: this.getFileRef(fileName)?.current;
+    const el = undefined; // TODO: Attach to file after maestro rework
     if (!el) return;
 
     this.canvasContainerRef?.current?.zoomToElement(el, 0);

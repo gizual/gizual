@@ -25,6 +25,7 @@ export { ReactComponent as IconLayout } from "./layout.svg";
 export { ReactComponent as IconMagnifyMinus } from "./magnify-minus-outline.svg";
 export { ReactComponent as IconMagnifyPlus } from "./magnify-plus-outline.svg";
 export { ReactComponent as IconOpen } from "./open.svg";
+export { ReactComponent as IconPalette } from "./palette.svg";
 export { ReactComponent as IconPeople } from "./people.svg";
 export { ReactComponent as IconPlus } from "./plus.svg";
 export { ReactComponent as IconSafari } from "./safari.svg";

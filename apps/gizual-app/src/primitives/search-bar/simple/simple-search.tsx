@@ -5,14 +5,17 @@ import {
   IconFile,
   IconGitBranchLine,
   IconGitFork,
+  IconPalette,
 } from "@app/assets";
-import { useMainController } from "@app/controllers";
+import { useMainController, useSettingsController } from "@app/controllers";
 import { Button } from "@app/primitives/button";
+import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { FileTree } from "@app/primitives/file-tree";
+import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
 import { DATE_FORMAT, GizDate } from "@app/utils";
-import { DatePicker, Tooltip } from "antd";
+import { ColorPicker, DatePicker, Tooltip } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
@@ -34,8 +37,8 @@ export type SimpleSearchBarProps = {
 
 export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProps) => {
   const mainController = useMainController();
-  const isTimelineOpen =
-    mainController.settingsController.timelineSettings.displayMode.value === "visible";
+  const settingsController = useSettingsController();
+  const isTimelineOpen = settingsController.timelineSettings.displayMode.value === "visible";
 
   const vm: SearchBarViewModel = React.useMemo(() => {
     return externalVm || new SearchBarViewModel(mainController);
@@ -60,7 +63,7 @@ export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProp
             })}
             icon={<IconGitBranchLine />}
           />
-          <SimpleSearchModule icon={<IconClock />} title={"Range:"} hasRemoveIcon>
+          <SimpleSearchModule icon={<IconClock />} title={"Time Range:"} hasRemoveIcon>
             <div className={style.SpacedChildren}>
               <DatePicker
                 size="small"
@@ -93,8 +96,9 @@ export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProp
                 )}
                 onClick={() => {
                   runInAction(() => {
-                    mainController.settingsController.timelineSettings.displayMode.value =
-                      isTimelineOpen ? "collapsed" : "visible";
+                    settingsController.timelineSettings.displayMode.value = isTimelineOpen
+                      ? "collapsed"
+                      : "visible";
                   });
                 }}
               />
@@ -120,18 +124,61 @@ export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProp
               </DialogProvider>
             </div>
           </SimpleSearchModule>
+          <SimpleSearchModule icon={<IconPalette />} title={"Palette by Age:"} hasRemoveIcon>
+            <div className={style.SpacedChildren}>
+              <div className={style.SpacedSmall}>
+                <div className={style.ControlWithLabel}>
+                  <p className={style["ControlWithLabel__Label"]}>Old:</p>
+                  <ColorPicker
+                    value={settingsController.settings.visualizationSettings.colors.old.value}
+                    size="small"
+                    showText
+                    onChangeComplete={(e) => {
+                      settingsController.updateValue(
+                        settingsController.settings.visualizationSettings.colors.old,
+                        `#${e.toHex(false)}`,
+                      );
+                    }}
+                    className={sharedStyle.colorPicker}
+                  />
+                </div>
+                <div className={sharedStyle.Separator}></div>
+                <div className={style.ControlWithLabel}>
+                  <p className={style["ControlWithLabel__Label"]}>New:</p>
+                  <ColorPicker
+                    value={settingsController.settings.visualizationSettings.colors.new.value}
+                    size="small"
+                    showText
+                    onChangeComplete={(e) => {
+                      settingsController.updateValue(
+                        settingsController.settings.visualizationSettings.colors.new,
+                        `#${e.toHex(false)}`,
+                      );
+                    }}
+                    className={sharedStyle.colorPicker}
+                  />
+                </div>
+              </div>
+            </div>
+          </SimpleSearchModule>
+
+          <DialogProvider
+            title="Advanced Query Builder"
+            trigger={
+              <Tooltip title="Open advanced query builder">
+                <IconButton
+                  aria-label="Advanced Query Builder"
+                  className={style.AdvancedSearchIconButton}
+                >
+                  <IconCommandLine className={style.AdvancedSearchIcon} />
+                </IconButton>
+              </Tooltip>
+            }
+            triggerClassName={style.AdvancedSearchIconTrigger}
+          >
+            <AdvancedEditor vm={vm} />
+          </DialogProvider>
         </div>
-        <DialogProvider
-          title="Advanced Query Builder"
-          trigger={
-            <Tooltip title="Open advanced query builder">
-              <IconCommandLine className={style.AdvancedSearchIcon} />
-            </Tooltip>
-          }
-          triggerClassName={style.AdvancedSearchIconContainer}
-        >
-          <AdvancedEditor vm={vm} />
-        </DialogProvider>
       </div>
     </div>
   );

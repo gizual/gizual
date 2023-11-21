@@ -46,5 +46,6 @@ declare const classNames: {
   readonly NotSupportedText: "NotSupportedText";
   readonly GifPanel: "GifPanel";
   readonly LoadButton: "LoadButton";
+  readonly Gif: "Gif";
 };
 export = classNames;
