@@ -1,20 +1,24 @@
-name: Create and publish gizual-app
+name: build-webapp
 on:
-  push:
+  pull_request:
     branches: ["main"]
+  push:
+    branches: ["main", "cicd-improve"]
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}-webapp
 
 jobs:
-  build-and-push-app-image:
+  build:
     runs-on: ubuntu-22.04
-
-    permissions:
-      contents: read
-      packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,13 +27,37 @@ jobs:
         with:
           node-version: 18
           cache: "yarn"
+
       - run: yarn --immutable
+
       - uses: moonrepo/setup-rust@v1
         with:
           toolchain: stable
+          channel: "1.73.0"
           components: clippy
+          targets: "wasm32-wasi"
+
       - name: Build the app
         run: yarn build
+
+      - name: Store the build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: webapp-dist
+          path: apps/gizual-app/dist
+          retention-days: 1
+
+  push:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve the build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: webapp-dist
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -43,9 +71,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=auto
-            prefix=web-app--,onlatest=true
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
