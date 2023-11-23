@@ -24,16 +24,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       - name: Delete image
         uses: bots-house/ghcr-delete-image-action@v1.1.0
         with:
           owner: ${{ github.repository_owner }}
           name: ${{ env.IMAGE_NAME }}
-          tag: ${{ steps.meta.outputs.tags }}
+          tag: pr-${{github.event.pull_request.number}}
           token: ${{ secrets.GITHUB_TOKEN }}
