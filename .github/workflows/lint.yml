@@ -9,23 +9,28 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: "yarn"
+
       - run: yarn --immutable
+
       - run: yarn prettier:check
   lint:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: "yarn"
+
       - run: yarn --immutable
-      - uses: moonrepo/setup-rust@v1
-        with:
-          toolchain: stable
-          components: clippy
+
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
       - run: yarn lint
