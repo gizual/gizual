@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { action, computed, makeObservable, observable } from "mobx";
 import React from "react";
 
-import { QueryManager } from "../advanced-query";
+import { QueryManager } from "@giz/query";
 
 import {
   AvailableTagId,

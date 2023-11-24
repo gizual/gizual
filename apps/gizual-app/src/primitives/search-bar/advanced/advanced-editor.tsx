@@ -6,8 +6,8 @@ import * as ejs from "ejs";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { getSchema } from "../../advanced-query";
-import { Validator } from "../../advanced-query/validator";
+import { getSchema } from "@giz/query";
+import { Validator } from "@giz/query/validator";
 import { Button } from "../../button";
 import { SearchBarViewModel } from "../search-bar.vm";
 

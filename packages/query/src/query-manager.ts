@@ -1,4 +1,4 @@
-import { LocalStorage } from "@app/utils";
+import { LocalStorage } from "./local-storage";
 
 const LOCAL_STORAGE_QUERY_PREFIX = "gizual.query-manager.query";
 const LOCAL_STORAGE_QUERIES = "gizual.query-manager.queries";

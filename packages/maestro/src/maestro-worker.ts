@@ -8,6 +8,7 @@ import { EventEmitter } from "eventemitter3";
 
 import { Database } from "@giz/database";
 import { PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
+import { SearchQueryType } from "@giz/query";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
 import { t } from "./trpc-worker";
@@ -21,10 +22,30 @@ let EXP_CONTROLLER: PoolController | undefined;
 // eslint-disable-next-line unused-imports/no-unused-vars
 let EXP: PoolPortal | undefined;
 
-const EE = new EventEmitter<{ "update-global-state": State }>();
+const EE = new EventEmitter<{ "update-global-state": State; "update-query": SearchQueryType }>();
 
-const STATE = {
+let QUERY: SearchQueryType = {};
+
+export type State = {
+  screen: "welcome" | "initial-load" | "main";
+  queryValid: boolean;
+  repoLoaded: boolean;
+  authorsLoaded: boolean;
+  commitsIndexed: boolean;
+  filesIndexed: boolean;
+
+  numExplorerWorkersTotal: number;
+  numExplorerWorkersBusy: number;
+  numExplorerJobs: number;
+
+  numRendererWorkers: number;
+  numRendererWorkersBusy: number;
+  numRendererJobs: number;
+};
+
+const STATE: State = {
   screen: "welcome" as "welcome" | "initial-load" | "main",
+  queryValid: false,
   repoLoaded: false,
   authorsLoaded: false,
   commitsIndexed: false,
@@ -39,7 +60,15 @@ const STATE = {
   numRendererJobs: 0,
 };
 
-export type State = typeof STATE;
+function setQuery(partial: SearchQueryType) {
+  QUERY = partial;
+  EE.emit("update-query", STATE);
+}
+
+function updateQuery(partial: Partial<SearchQueryType>) {
+  Object.assign(QUERY, partial);
+  EE.emit("update-query", STATE);
+}
 
 function updateGlobalState(update: Partial<State>) {
   Object.assign(STATE, update);
@@ -74,6 +103,37 @@ const router = t.router({
       };
     });
   }),
+  query: t.procedure.subscription(() => {
+    return observable<SearchQueryType>((emit) => {
+      const onUpdate = (data: SearchQueryType) => {
+        emit.next(data);
+      };
+      EE.on("update-query", onUpdate);
+
+      return () => {
+        EE.off("update-query", onUpdate);
+      };
+    });
+  }),
+  setQuery: t.procedure
+    .input(
+      z.object({
+        input: z.any(), // TODO: make type safe
+      }),
+    )
+    .mutation(({ input }) => {
+      setQuery(input.input);
+    }),
+  updateQuery: t.procedure
+    .input(
+      z.object({
+        input: z.any(), // TODO: make type safe
+      }),
+    )
+    .mutation(({ input }) => {
+      updateQuery(input.input);
+    }),
+
   authorList: t.procedure
     .input(
       z.object({

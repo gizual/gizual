@@ -2,8 +2,9 @@ import type { CanvasViewModel } from "@app/primitives/canvas";
 import type { FileTreeViewModel } from "@app/primitives/file-tree";
 import { SearchBarViewModel } from "@app/primitives/search-bar/search-bar.vm";
 import { TimelineViewModel } from "@app/primitives/timeline/timeline.vm";
-import { LocalStorage } from "@app/utils";
 import { makeAutoObservable, runInAction } from "mobx";
+
+import { LocalStorage } from "@giz/query";
 
 import type { MainController } from "./main.controller";
 

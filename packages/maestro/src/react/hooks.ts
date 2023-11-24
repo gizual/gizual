@@ -2,6 +2,7 @@ import { CreateTRPCReact } from "@trpc/react-query";
 import React from "react";
 
 import { CommitInfo } from "@giz/explorer-web";
+import { SearchQueryType } from "@giz/query";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
 
@@ -152,19 +153,55 @@ export function useCommits(_startDate: Date, _endDate: Date): CommitInfo[] {
   throw new Error("not implemented");
 }
 
-export type Query = {
-  query: string;
-  mutate: (input: string) => void;
+export type UseQueryResult = {
+  query: SearchQueryType;
+  updateQuery: (input: Partial<SearchQueryType>) => void;
+  setQuery: (input: SearchQueryType) => void;
 };
 
-export function useQuery(): Query {
-  throw new Error("Not implemented");
+export function useQuery(): UseQueryResult {
+  const trpc = useTrpc();
+
+  const [query, setQueryCache] = React.useState<SearchQueryType>({});
+
+  trpc.query.useSubscription(undefined, {
+    onData: (data) => {
+      setQueryCache(data);
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
+
+  const setMutation = trpc.setQuery.useMutation();
+  const updateMutation = trpc.updateQuery.useMutation();
+
+  const updateQuery = React.useCallback(
+    (input: Partial<SearchQueryType>) => {
+      updateMutation.mutate({ input });
+    },
+    [updateMutation.mutate],
+  );
+
+  const setQuery = React.useCallback(
+    (input: SearchQueryType) => {
+      setMutation.mutate({ input });
+    },
+    [setMutation.mutate],
+  );
+
+  return { query, updateQuery, setQuery };
+}
+
+export function useQueryIsValid(): boolean {
+  return useGlobalState().queryValid;
 }
 
 export type Screen = "welcome" | "initial-load" | "main" | "error";
 
 export type GlobalState = {
   screen: Screen;
+  queryValid: boolean;
 
   // TODO: to be implemented
   //indexingStep: "not-started" | "authors" | "commits" | "files" | "done";
@@ -191,6 +228,7 @@ export function useScreen(): Screen {
 
 export function useGlobalState(): GlobalState {
   const [globalState, setGlobalState] = React.useState<GlobalState>({
+    queryValid: true,
     screen: "welcome",
     numExplorerWorkersTotal: 0,
     numExplorerWorkersBusy: 0,
