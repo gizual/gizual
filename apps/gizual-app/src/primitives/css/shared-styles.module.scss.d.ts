@@ -12,6 +12,7 @@ declare const classNames: {
   readonly block: "block";
   readonly colorPicker: "colorPicker";
   readonly InlineRow: "InlineRow";
+  readonly InlineColumn: "InlineColumn";
   readonly FullWidth: "FullWidth";
   readonly ToolbarIcon: "ToolbarIcon";
   readonly FlexGrow: "FlexGrow";

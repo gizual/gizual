@@ -47,7 +47,13 @@ const HighlightItem = Type.Object({
 
 const HighlightsQuery = Type.Array(HighlightItem);
 
+const ModeItem = Type.Object({
+  type: Type.Union([Type.Literal("gradient-age"), Type.Literal("palette-author")]),
+  values: Type.Optional(Type.Array(Type.String())),
+});
+
 export const SearchQuery = Type.Object({
+  mode: ModeItem,
   time: Type.Optional(TimeQuery),
   files: Type.Optional(FilesQuery),
   highlight: Type.Optional(HighlightsQuery),

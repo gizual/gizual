@@ -8,7 +8,7 @@ import {
 import { useMainController, useViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
 import { createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
-import { Dropdown, InputNumber, MenuProps, Modal, Radio, Tooltip } from "antd";
+import { Dropdown, MenuProps, Modal, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -44,7 +44,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
     vm.setCanvasContainerRef(ref);
   }, [ref]);
 
-  const currentZoomLevel = Math.floor(mainController.scale * 100);
+  //const currentZoomLevel = Math.floor(mainController.scale * 100);
 
   const dropdownItems: MenuProps["items"] = [
     {
@@ -103,20 +103,20 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         </>
       )}
       <div className={style.Toolbar}>
-        <div className={sharedStyle.InlineRow}>
+        <div className={sharedStyle.InlineColumn}>
           <Tooltip title={"Zoom out"}>
             <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
               <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <InputNumber
+          {/*<InputNumber
             value={currentZoomLevel}
             suffix={"%"}
             onBlur={(i) => vm.zoomTo(Number(i.currentTarget.value))}
             onKeyDown={(e) => e.key === "Enter" && vm.zoomTo(Number(e.currentTarget.value))}
             size={"large"}
             controls={false}
-          />
+          />*/}
           <Tooltip title={"Zoom in"}>
             <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
               <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
@@ -138,24 +138,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
             </IconButton>
           </Tooltip>
         </div>
-        <div className={sharedStyle.InlineRow}>
-          <div className={style.ControlWithLabel}>
-            <p className={style["ControlWithLabel__Label"]}>Coloring mode:</p>
-            <Radio.Group
-              buttonStyle={"solid"}
-              value={mainController.coloringMode}
-              onChange={(n) => vm.onColoringModeChange(n.target.value)}
-              size="small"
-              style={{ display: "flex", flexDirection: "row" }}
-            >
-              {vm.toggleColoringValues.map((v) => (
-                <Radio.Button key={v.value} value={v.value} style={{ whiteSpace: "nowrap" }}>
-                  {v.label}
-                </Radio.Button>
-              ))}
-            </Radio.Group>
-          </div>
-          <div className={sharedStyle.Separator}></div>
+        <div className={sharedStyle.InlineColumn}>
           <Tooltip title={"Show author panel"}>
             <IconButton
               onClick={() => vmController.toggleAuthorPanelVisibility()}

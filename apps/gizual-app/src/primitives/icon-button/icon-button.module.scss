@@ -7,6 +7,7 @@
     @include rounded;
     @include transition-bg;
     padding: 0.25rem;
+    position: relative;
     cursor: pointer;
     background-color: var(--background-tertiary);
     width: auto;

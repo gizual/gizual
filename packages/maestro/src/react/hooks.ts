@@ -258,5 +258,4 @@ useAuthorList(limit, offset)  =>  PaginatedList<Author>
 useBlockHeights() => { blocks: { id: string, height: number }[] }
 useSetCanvasScale() => { setScale: (scale: number) => void }
 useRenderImage(id, scale) => { url: string, width: number, height: number, setViewIntersectionPercentage: (inter: number) => void }
-
 */

@@ -62,12 +62,12 @@ const STATE: State = {
 
 function setQuery(partial: SearchQueryType) {
   QUERY = partial;
-  EE.emit("update-query", STATE);
+  EE.emit("update-query", QUERY);
 }
 
 function updateQuery(partial: Partial<SearchQueryType>) {
   Object.assign(QUERY, partial);
-  EE.emit("update-query", STATE);
+  EE.emit("update-query", QUERY);
 }
 
 function updateGlobalState(update: Partial<State>) {

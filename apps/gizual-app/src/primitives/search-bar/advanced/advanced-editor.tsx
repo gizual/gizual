@@ -1,11 +1,11 @@
 import { useMainController } from "@app/controllers";
-import { DATE_FORMAT, GizDate, useTheme } from "@app/utils";
+import { useTheme } from "@app/utils";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
-import dayjs from "dayjs";
 import * as ejs from "ejs";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
+import { useQuery } from "@giz/maestro/react";
 import { getSchema } from "@giz/query";
 import { Validator } from "@giz/query/validator";
 import { Button } from "../../button";
@@ -43,6 +43,7 @@ function handleEditorDidMount(editor: Monaco) {
 }
 
 export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
+  const query = useQuery();
   const mainController = useMainController();
   const getDefaultQuery = () => {
     return `{
@@ -90,7 +91,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
       <Editor
         className={style.AdvancedEditor}
         defaultLanguage="json"
-        defaultValue={getDefaultQuery()}
+        defaultValue={JSON.stringify(query.query)}
         onValidate={handleEditorValidation}
         beforeMount={handleEditorWillMount}
         onMount={(_e, m) => handleEditorDidMount(m)}
@@ -105,30 +106,9 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
           variant="filled"
           disabled={validationOutput.length > 0}
           onClick={() => {
-            // Proof of concept for advanced-search queries
             const result = Validator.validate(editorContent);
             if (result !== undefined) {
-              // eslint-disable-next-line unicorn/no-lonely-if
-              if (result.time && "rangeByDate" in result.time) {
-                if (typeof result.time.rangeByDate === "string") {
-                  const date = dayjs(result.time.rangeByDate, DATE_FORMAT);
-                  if (date && date.isValid()) {
-                    mainController.setSelectedStartDate(new GizDate(date.toDate()));
-                  }
-                } else {
-                  const [startDate, endDate] = result.time.rangeByDate;
-                  const parsedStartDate = dayjs(startDate, DATE_FORMAT);
-                  if (parsedStartDate && parsedStartDate.isValid()) {
-                    mainController.setSelectedStartDate(new GizDate(parsedStartDate.toDate()));
-                    mainController.vmController.timelineViewModel?.initializePositionsFromSelection();
-                  }
-                  const parsedEndDate = dayjs(endDate, DATE_FORMAT);
-                  if (parsedEndDate && parsedEndDate.isValid()) {
-                    mainController.setSelectedEndDate(new GizDate(parsedEndDate.toDate()));
-                    mainController.vmController.timelineViewModel?.initializePositionsFromSelection();
-                  }
-                }
-              }
+              query.setQuery(result);
             }
           }}
         >

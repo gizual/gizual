@@ -144,12 +144,26 @@
   @include inline-row;
 }
 
+@mixin inline-col {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  flex: 0 0;
+}
+
+.InlineColumn {
+  @include inline-col;
+}
+
 .FullWidth {
   width: 100%;
 }
 
 .ToolbarIcon {
   @include svg-icon;
+  width: 90%;
+  height: 90%;
 }
 
 .FlexGrow {
