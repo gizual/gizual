@@ -78,3 +78,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: push
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Call Webhook
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK_WEB }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
