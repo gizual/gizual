@@ -3282,7 +3282,7 @@ __metadata:
     "@astrojs/check": ^0.3.1
     "@astrojs/react": ^3.0.6
     "@astrojs/tailwind": ^5.0.2
-    "@giz/shared-ui": "workspace:*"
+    "@giz/ui": "workspace:*"
     astro: ^3.6.1
     prettier: ^3.0.3
     prettier-plugin-astro: ^0.12.1
@@ -3335,12 +3335,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@giz/shared-ui@workspace:*, @giz/shared-ui@workspace:packages/shared-ui":
-  version: 0.0.0-use.local
-  resolution: "@giz/shared-ui@workspace:packages/shared-ui"
-  languageName: unknown
-  linkType: soft
-
 "@giz/trpc-webworker@workspace:packages/trpc-webworker":
   version: 0.0.0-use.local
   resolution: "@giz/trpc-webworker@workspace:packages/trpc-webworker"
@@ -3356,6 +3350,12 @@ __metadata:
   dependencies:
     "@types/wicg-file-system-access": 2020.9.8
     bun-types: 1.0.3
+  languageName: unknown
+  linkType: soft
+
+"@giz/ui@workspace:*, @giz/ui@workspace:packages/ui":
+  version: 0.0.0-use.local
+  resolution: "@giz/ui@workspace:packages/ui"
   languageName: unknown
   linkType: soft
 

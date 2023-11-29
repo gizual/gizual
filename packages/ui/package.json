@@ -1,5 +1,5 @@
 {
-  "name": "@giz/shared-ui",
+  "name": "@giz/ui",
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts"
