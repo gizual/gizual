@@ -148,6 +148,9 @@ __metadata:
 "@app/utils@workspace:*, @app/utils@workspace:apps/gizual-app/src/utils":
   version: 0.0.0-use.local
   resolution: "@app/utils@workspace:apps/gizual-app/src/utils"
+  dependencies:
+    "@giz/maestro": "workspace:*"
+    "@giz/query": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3350,7 +3353,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@giz/query@workspace:packages/query":
+"@giz/query@workspace:*, @giz/query@workspace:packages/query":
   version: 0.0.0-use.local
   resolution: "@giz/query@workspace:packages/query"
   dependencies:

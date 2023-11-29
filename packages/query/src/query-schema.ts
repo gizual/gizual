@@ -39,68 +39,42 @@ const AvailableTimeQueryConditions = [
 const TimeQuery = Type.Union(AvailableTimeQueryConditions);
 
 // Available query conditions for `highlights`
-const HighlightItem = Type.Object({
+const Styles = Type.Object({
   fill: Type.Optional(Type.String()),
   $if: Type.Optional(Type.String()),
   stroke: Type.Optional(Type.String()),
 });
 
-const HighlightsQuery = Type.Array(HighlightItem);
+const StylesQuery = Type.Array(Styles);
 
-const ModeItem = Type.Object({
-  type: Type.Union([Type.Literal("gradient-age"), Type.Literal("palette-author")]),
-  values: Type.Optional(Type.Array(Type.String())),
-});
+const RenderType = Type.Union([
+  Type.Literal("author-mosaic"),
+  Type.Literal("author-contributions"),
+  Type.Literal("file-lines"),
+  Type.Literal("file-mosaic"),
+  Type.Literal("file-bar"),
+  Type.Literal("author-bar"),
+]);
+
+const AvailablePresetConditions = [
+  Type.Object({ gradientByAge: Type.Array(Type.String(), { minItems: 2, maxItems: 2 }) }),
+  Type.Object({ paletteByAuthor: Type.Object({}) }),
+];
+
+const PresetQuery = Type.Union(AvailablePresetConditions);
 
 export const SearchQuery = Type.Object({
   branch: Type.String(),
-  mode: ModeItem,
+  type: RenderType,
+  preset: Type.Optional(PresetQuery),
   time: Type.Optional(TimeQuery),
   files: Type.Optional(FilesQuery),
-  highlight: Type.Optional(HighlightsQuery),
+  styles: Type.Optional(StylesQuery),
 });
 
 export type SearchQueryType = Static<typeof SearchQuery>;
+export type SearchQueryKeys = keyof SearchQueryType;
 
 export function getSchema(): any {
   return { ...Type.Strict(SearchQuery), additionalProperties: false };
 }
-
-export const defaultQuery = `{
-  "files": {
-    "changedInRef": "HEAD"
-  },
-  "time": {
-    "rangeByDate": ["2022-11-01", "2023-11-01"]
-  }, 
-  "highlight": [
-    {
-      "fill": "<%= _.gradient(_.age) %>"
-    }
-  ]
-}`;
-
-export const demoQuery = `{
-  "time": {
-    "rangeByDate": ["2020-01-01", "2020-01-02"]
-  },
-  "files": {
-    "$or": [
-      { "path": ["index.html", "index.js", "*.ts"] },
-      { "lastEditedBy": ["joe"] },
-      { "editedBy": ["joe"] },
-      { "createdBy": ["joe"] },
-      { "contains": "hello" }
-    ]
-  },
-  "highlight": [
-    {
-      "fill": "<%= _.gradient(_.age) %>"
-    },
-    {
-      "if": "<%= _.author === 'joe' %>",
-      "stroke": "green",
-      "fill": "<%= _.commitDate > '2020-01-01' ? 'red' : 'blue' %>"
-    }
-  ]
-}`;

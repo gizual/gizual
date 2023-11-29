@@ -1,4 +1,8 @@
 {
   "name": "@app/utils",
-  "main": "./index.ts"
+  "main": "./index.ts",
+  "dependencies": {
+    "@giz/maestro": "workspace:*",
+    "@giz/query": "workspace:*"
+  }
 }

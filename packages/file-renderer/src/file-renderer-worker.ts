@@ -109,7 +109,11 @@ export class FileRendererWorker {
       case RenderType.AuthorContributions: {
         return this.drawAuthorContributionsGraph(ctx, renderer);
       }
-      case RenderType.Bar: {
+      // TODO: Fix bar render type
+      case RenderType.AuthorBar: {
+        return this.drawBar(ctx, renderer);
+      }
+      case RenderType.FileBar: {
         return this.drawBar(ctx, renderer);
       }
       default: {

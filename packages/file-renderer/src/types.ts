@@ -40,7 +40,8 @@ export enum RenderType {
   AuthorContributions = "author-contributions",
   FileLines = "file-lines",
   FileMosaic = "file-mosaic",
-  Bar = "bar",
+  FileBar = "file-bar",
+  AuthorBar = "author-bar",
 }
 
 export type AuthorContributionsContext = {
@@ -76,15 +77,18 @@ export type FileMosaicContext = {
   BaseMosaicContext;
 
 export type BarContext = {
-  type: RenderType.Bar;
   values: { id: string; value: number }[];
 } & BaseContext;
+
+export type FileBarContext = { type: RenderType.FileBar } & BarContext;
+export type AuthorBarContext = { type: RenderType.AuthorBar } & BarContext;
 
 export type RendererContext =
   | AuthorMosaicContext
   | AuthorContributionsContext
   | FileLinesContext
   | FileMosaicContext
-  | BarContext;
+  | FileBarContext
+  | AuthorBarContext;
 
 export type RenderingResult = Promise<string | SvgBaseElement[]>;

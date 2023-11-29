@@ -6,11 +6,13 @@ import { Select } from "@app/primitives/select";
 import { Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { match, P } from "ts-pattern";
 
+import { useQuery } from "@giz/maestro/react";
 import { AdvancedEditor } from "../advanced/advanced-editor";
 import { SearchBarViewModel } from "../search-bar.vm";
 
-import { GlobModule } from "./modules";
+import { ChangedInRefModule } from "./modules/file/changed-in-ref-module";
 import { AgeGradientModule } from "./modules/highlights";
 import { TimeRangeModule } from "./modules/time";
 import style from "./simple-search.module.scss";
@@ -43,10 +45,7 @@ export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProp
             icon={<IconGitBranchLine />}
           />
 
-          {/* TODO: Simple way to attach default modules for now, should be handled in a provider. */}
-          <TimeRangeModule />
-          <GlobModule />
-          <AgeGradientModule />
+          <ModuleProvider />
 
           <DialogProvider
             title="Advanced Query Builder"
@@ -69,3 +68,52 @@ export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProp
     </div>
   );
 });
+
+export function ModuleProvider() {
+  const { query } = useQuery();
+
+  const presetMatch = match(query).with({ preset: { gradientByAge: P._ } }, () => {
+    return <AgeGradientModule />;
+  });
+
+  const timeMatch = match(query)
+    .with({ time: P.select() }, (time) => {
+      return match(time)
+        .with({ rangeByDate: P.array() }, () => {
+          return <TimeRangeModule />;
+        })
+        .otherwise(() => {
+          return <div>ABC</div>;
+        });
+    })
+    .with({ files: P.select() }, (files) => {
+      return match(files).with({ changedInRef: P._ }, () => {
+        return <ChangedInRefModule />;
+      });
+    })
+    .otherwise(() => {
+      return <div>No module matched.</div>;
+    });
+
+  const fileMatch = match(query)
+    .with({ files: P.select() }, (files) => {
+      return match(files)
+        .with({ changedInRef: P._ }, () => {
+          return <ChangedInRefModule />;
+        })
+        .otherwise(() => {
+          return <div>No valid option in file block.</div>;
+        });
+    })
+    .otherwise(() => {
+      return <div>No file block.</div>;
+    });
+
+  const stylesMatch = match(query).with({ styles: P.select() }, (styles) => {
+    match(styles).with(P.array(), () => {
+      return <></>;
+    });
+  });
+
+  return <>{[timeMatch, fileMatch]}</>;
+}

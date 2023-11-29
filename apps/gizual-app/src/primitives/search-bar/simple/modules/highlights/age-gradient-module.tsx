@@ -1,46 +1,44 @@
 import { IconPalette } from "@app/assets";
 import { useSettingsController } from "@app/controllers";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
+import { useLocalQuery } from "@app/utils";
 import { ColorPicker } from "antd";
 import { Color } from "antd/es/color-picker";
 
-import { useQuery } from "@giz/maestro/react";
 import { SimpleSearchModule } from "../base-module";
 import style from "../modules.module.scss";
 
 export function AgeGradientModule() {
   const settingsController = useSettingsController();
-  const query = useQuery();
+  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQuery();
   let colorOld = "#FFF";
   let colorNew = "#FFF";
   if (
-    "mode" in query.query &&
-    "type" in query.query.mode &&
-    query.query.mode.type === "gradient-age"
+    localQuery.preset &&
+    "gradientByAge" in localQuery.preset &&
+    Array.isArray(localQuery.preset.gradientByAge)
   ) {
     // TODO: For now, we only use the first and last array entry for the gradient
     colorOld =
-      query.query.mode.values?.at(0) ??
+      localQuery.preset.gradientByAge.at(0) ??
       settingsController.settings.visualizationSettings.colors.old.defaultValue;
     colorNew =
-      query.query.mode.values?.at(-1) ??
+      localQuery.preset.gradientByAge.at(-1) ??
       settingsController.settings.visualizationSettings.colors.new.defaultValue;
   }
 
   const onChangeColorOld = (e: Color) => {
-    query.updateQuery({
-      mode: {
-        type: "gradient-age",
-        values: [`#${e.toHex(false)}`, colorNew],
+    updateLocalQuery({
+      preset: {
+        gradientByAge: [`#${e.toHex(false)}`, colorNew],
       },
     });
   };
 
   const onChangeColorNew = (e: Color) => {
-    query.updateQuery({
-      mode: {
-        type: "gradient-age",
-        values: [colorOld, `#${e.toHex(false)}`],
+    updateLocalQuery({
+      preset: {
+        gradientByAge: [colorOld, `#${e.toHex(false)}`],
       },
     });
   };
@@ -52,10 +50,11 @@ export function AgeGradientModule() {
           <div className={style.ControlWithLabel}>
             <p className={style["ControlWithLabel__Label"]}>Old:</p>
             <ColorPicker
-              defaultValue={colorOld}
+              value={colorOld}
               size="small"
               showText
-              onChangeComplete={onChangeColorOld}
+              onChangeComplete={publishLocalQuery}
+              onChange={onChangeColorOld}
               className={sharedStyle.colorPicker}
             />
           </div>
@@ -63,10 +62,11 @@ export function AgeGradientModule() {
           <div className={style.ControlWithLabel}>
             <p className={style["ControlWithLabel__Label"]}>New:</p>
             <ColorPicker
-              defaultValue={colorNew}
+              value={colorNew}
               size="small"
               showText
-              onChangeComplete={onChangeColorNew}
+              onChangeComplete={publishLocalQuery}
+              onChange={onChangeColorNew}
               className={sharedStyle.colorPicker}
             />
           </div>

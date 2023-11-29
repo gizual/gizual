@@ -28,9 +28,7 @@ const EE = new EventEmitter<{ "update-global-state": State; "update-query": Sear
 
 let QUERY: SearchQueryType = {
   branch: "main",
-  mode: {
-    type: "gradient-age",
-  },
+  type: "file-lines",
 };
 
 export type State = {
@@ -116,6 +114,8 @@ const router = t.router({
         emit.next(data);
       };
       EE.on("update-query", onUpdate);
+
+      onUpdate(QUERY);
 
       return () => {
         EE.off("update-query", onUpdate);
@@ -220,11 +220,12 @@ async function setupPool(opts: PoolControllerOpts) {
 
   const query: SearchQueryType = {
     branch: initial_data.currentBranch,
-    mode: {
-      type: "gradient-age",
-    },
+    type: "file-lines",
     time: {
       rangeByDate: [getStringDate(startDate), getStringDate(endDate)],
+    },
+    files: {
+      changedInRef: initial_data.currentBranch,
     },
   };
   setQuery(query);
