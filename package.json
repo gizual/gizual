@@ -11,7 +11,11 @@
     "./apps/gizual-app/src/*"
   ],
   "devDependencies": {
+    "@astro/check": "portal:./packages/noop",
+    "@astro/react": "portal:./packages/noop",
+    "@astro/tailwind": "portal:./packages/noop",
     "@giz/please": "workspace:*",
+    "astro": "portal:./packages/noop",
     "husky": "8.0.3",
     "lint-staged": "13.2.3",
     "prettier": "3.0.0",

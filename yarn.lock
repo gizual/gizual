@@ -157,6 +157,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@astro/check@portal:./packages/noop::locator=gizual%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@astro/check@portal:./packages/noop::locator=gizual%40workspace%3A."
+  languageName: node
+  linkType: soft
+
+"@astro/react@portal:./packages/noop::locator=gizual%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@astro/react@portal:./packages/noop::locator=gizual%40workspace%3A."
+  languageName: node
+  linkType: soft
+
+"@astro/tailwind@portal:./packages/noop::locator=gizual%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@astro/tailwind@portal:./packages/noop::locator=gizual%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "@astrojs/check@npm:^0.3.1":
   version: 0.3.1
   resolution: "@astrojs/check@npm:0.3.1"
@@ -8163,6 +8181,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"astro@portal:./packages/noop::locator=gizual%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "astro@portal:./packages/noop::locator=gizual%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "async-limiter@npm:~1.0.0":
   version: 1.0.1
   resolution: "async-limiter@npm:1.0.1"
@@ -11876,7 +11900,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "gizual@workspace:."
   dependencies:
+    "@astro/check": "portal:./packages/noop"
+    "@astro/react": "portal:./packages/noop"
+    "@astro/tailwind": "portal:./packages/noop"
     "@giz/please": "workspace:*"
+    astro: "portal:./packages/noop"
     husky: 8.0.3
     lint-staged: 13.2.3
     prettier: 3.0.0
@@ -15501,6 +15529,12 @@ __metadata:
   checksum: 17ec8f315dba62710cae71a8dad3cd0288ba943d2ece43504b3b1aa8625bf138637798ab470b1d9035b0545996f63000a8a926e0f6d35d0996424f8b6d36dda3
   languageName: node
   linkType: hard
+
+"noop@workspace:packages/noop":
+  version: 0.0.0-use.local
+  resolution: "noop@workspace:packages/noop"
+  languageName: unknown
+  linkType: soft
 
 "nopt@npm:^6.0.0":
   version: 6.0.0
