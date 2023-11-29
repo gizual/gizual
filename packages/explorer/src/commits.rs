@@ -13,11 +13,11 @@ pub struct StreamCommitsParams {}
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Commit {
-    oid: String,
-    aid: String,
-    message: String,
-    files: Vec<String>,
-    timestamp: String,
+    pub oid: String,
+    pub aid: String,
+    pub message: String,
+    pub files: Vec<String>,
+    pub timestamp: String,
 }
 
 impl Explorer {

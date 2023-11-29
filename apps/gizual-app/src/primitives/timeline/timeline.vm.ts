@@ -1,5 +1,10 @@
 import { MainController } from "@app/controllers";
 import { BranchInfo, CInfo } from "@app/types";
+import { MOUSE_ZOOM_FACTOR } from "@app/utils";
+import { MenuProps } from "antd";
+import { makeAutoObservable } from "mobx";
+import { RefObject } from "react";
+
 import {
   convertDaysToMs,
   convertTimestampToMs,
@@ -7,11 +12,7 @@ import {
   getDateFromTimestamp,
   getDaysBetweenAbs,
   GizDate,
-  MOUSE_ZOOM_FACTOR,
-} from "@app/utils";
-import { MenuProps } from "antd";
-import { makeAutoObservable } from "mobx";
-import { RefObject } from "react";
+} from "@giz/utils/gizdate";
 
 import { TimelineEventHandler } from "./event-handler";
 

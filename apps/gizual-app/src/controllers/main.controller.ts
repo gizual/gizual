@@ -1,11 +1,12 @@
 import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
-import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
+import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer-web";
 import { FileRendererPool } from "@giz/file-renderer";
 import { Maestro } from "@giz/maestro";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";

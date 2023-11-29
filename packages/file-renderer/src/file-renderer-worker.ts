@@ -2,16 +2,14 @@ import { VisualizationDefaults } from "@app/utils/defaults";
 import { expose } from "comlink";
 
 import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
+import { enforceAlphaChannel, SvgBaseElement, SvgElement } from "@giz/gizual-app/utils";
 import {
   convertTimestampToMs,
-  enforceAlphaChannel,
   getDaysBetween,
   getStringDate,
   GizDate,
   isDateBetween,
-  SvgBaseElement,
-  SvgElement,
-} from "@giz/gizual-app/utils";
+} from "@giz/utils/gizdate";
 
 import {
   AnnotationObject,

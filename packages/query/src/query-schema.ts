@@ -53,6 +53,7 @@ const ModeItem = Type.Object({
 });
 
 export const SearchQuery = Type.Object({
+  branch: Type.String(),
   mode: ModeItem,
   time: Type.Optional(TimeQuery),
   files: Type.Optional(FilesQuery),

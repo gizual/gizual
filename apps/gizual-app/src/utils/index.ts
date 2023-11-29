@@ -5,7 +5,6 @@ export * from "./decorators";
 export * from "./defaults";
 export * from "./errors";
 export * from "./fonts";
-export * from "./gizdate";
 export * from "./hooks";
 export * from "./masonry";
 export * from "./mouse";

@@ -1,5 +1,4 @@
 import { MainController } from "@app/controllers";
-import { DATE_FORMAT, getDaysBetweenAbs, getStringDate, GizDate } from "@app/utils";
 import { EditorState } from "@codemirror/state";
 import { EditorView, ViewUpdate } from "@codemirror/view";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
@@ -8,6 +7,7 @@ import { action, computed, makeObservable, observable } from "mobx";
 import React from "react";
 
 import { QueryManager } from "@giz/query";
+import { DATE_FORMAT, getDaysBetweenAbs, getStringDate, GizDate } from "@giz/utils/gizdate";
 
 import {
   AvailableTagId,

@@ -1,6 +1,5 @@
 import { IconClock, IconGitFork } from "@app/assets";
 import { useSettingsController } from "@app/controllers";
-import { DATE_FORMAT } from "@app/utils";
 import { DatePicker } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -9,6 +8,7 @@ import weekday from "dayjs/plugin/weekday";
 import { runInAction } from "mobx";
 
 import { useQuery } from "@giz/maestro/react";
+import { DATE_FORMAT } from "@giz/utils/gizdate";
 import { SimpleSearchModule } from "../base-module";
 import style from "../modules.module.scss";
 dayjs.extend(weekday);

@@ -1,0 +1,6 @@
+{
+  "name": "@giz/utils",
+  "exports": {
+    "./gizdate": "./src/gizdate.ts"
+  }
+}

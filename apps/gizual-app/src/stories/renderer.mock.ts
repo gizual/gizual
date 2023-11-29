@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/no-null */
-import { GizDate } from "@app/utils";
+import { GizDate } from "@giz/utils/gizdate";
 
 //const mockAuthors: Author[] = [
 //  { id: "1", name: "Mock Author 1", email: "mock@author.com", gravatarHash: "" },

@@ -7,9 +7,11 @@ import { expose, transfer } from "comlink";
 import { EventEmitter } from "eventemitter3";
 
 import { Database } from "@giz/database";
+import { InitialDataResult } from "@giz/explorer";
 import { PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
 import { SearchQueryType } from "@giz/query";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
+import { getDateFromTimestamp, getStringDate } from "@giz/utils/gizdate";
 
 import { t } from "./trpc-worker";
 
@@ -24,7 +26,12 @@ let EXP: PoolPortal | undefined;
 
 const EE = new EventEmitter<{ "update-global-state": State; "update-query": SearchQueryType }>();
 
-let QUERY: SearchQueryType = {};
+let QUERY: SearchQueryType = {
+  branch: "main",
+  mode: {
+    type: "gradient-age",
+  },
+};
 
 export type State = {
   screen: "welcome" | "initial-load" | "main";
@@ -203,6 +210,24 @@ async function setupPool(opts: PoolControllerOpts) {
       authorsLoaded: true,
     });
   });
+
+  const initial_data = await EXP.execute<InitialDataResult>("get_initial_data", {}).promise;
+  // TODO: determine name of repo from remote urls if possible
+
+  const endDate = getDateFromTimestamp(initial_data.commit.timestamp);
+
+  const startDate = endDate.subtractDays(365);
+
+  const query: SearchQueryType = {
+    branch: initial_data.currentBranch,
+    mode: {
+      type: "gradient-age",
+    },
+    time: {
+      rangeByDate: [getStringDate(startDate), getStringDate(endDate)],
+    },
+  };
+  setQuery(query);
 
   // TODO: this port is just for legacy reasons to support the old architecture within the main thread
   const legacy_explorerPort3 = await EXP_CONTROLLER.createPort();

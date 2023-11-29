@@ -3386,6 +3386,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@giz/utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@giz/utils@workspace:packages/utils"
+  languageName: unknown
+  linkType: soft
+
 "@giz/wasi-playground-app@workspace:apps/wasi-playground-app":
   version: 0.0.0-use.local
   resolution: "@giz/wasi-playground-app@workspace:apps/wasi-playground-app"

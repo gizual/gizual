@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-array-push-push */
 
 import { CInfo, FileNodeInfos } from "@app/types";
-import { getDateFromTimestamp, getStringDate, GizDate, VisualizationDefaults } from "@app/utils";
+import { VisualizationDefaults } from "@app/utils";
 import _ from "lodash";
 import {
   action,
@@ -17,6 +17,7 @@ import {
 
 import { Blame, CommitInfo } from "@giz/explorer";
 import { BlameView } from "@giz/explorer-web";
+import { getDateFromTimestamp, getStringDate, GizDate } from "@giz/utils/gizdate";
 
 import type { MainController } from "./main.controller";
 

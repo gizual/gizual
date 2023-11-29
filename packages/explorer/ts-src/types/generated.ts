@@ -34,6 +34,8 @@ export type HistoryGraph = { commit_indices: { [key in string]: number }; commit
 
 export type Infallible = never
 
+export type InitialDataResult = { currentBranch: string; commit: Commit }
+
 export type NoParams = Record<string, never>
 
 export type OpenRepositoryParams = { path: string }

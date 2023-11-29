@@ -38,6 +38,7 @@ type FinalCallbackPayloadMap = {
   get_blame: gen.Blame;
   get_file_content: string;
   get_commits_for_branch: gen.Commit[];
+  get_initial_data: gen.InitialDataResult;
   shutdown: void;
 };
 

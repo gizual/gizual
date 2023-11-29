@@ -1,4 +1,4 @@
-import { getPrettyConsoleCSS, GizDate, LINEAR_COLOR_RANGE } from "@app/utils";
+import { getPrettyConsoleCSS, LINEAR_COLOR_RANGE } from "@app/utils";
 import React from "react";
 
 import {
@@ -8,6 +8,7 @@ import {
   FileRendererWorker,
   RenderType,
 } from "@giz/file-renderer";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { testPackageJSON } from "./renderer.mock";
 

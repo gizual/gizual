@@ -1,7 +1,8 @@
 import { CInfo } from "@app/types";
-import { GizDate } from "@app/utils";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
+
+import { GizDate } from "@giz/utils/gizdate";
 
 import style from "./timeline.module.scss";
 import { TimelineViewModel } from "./timeline.vm";
