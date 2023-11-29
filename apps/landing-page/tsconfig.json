@@ -1,4 +1,4 @@
 {
   "extends": ["astro/tsconfigs/strict", "@giz/tsconfig/tsconfig.web.json"],
-  "include": ["src"],
+  "include": ["src"]
 }
