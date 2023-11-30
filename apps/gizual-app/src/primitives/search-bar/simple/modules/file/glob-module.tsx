@@ -17,7 +17,15 @@ export function GlobModule() {
   const value = getGlobEntry(localQuery);
 
   return (
-    <SimpleSearchModule icon={<IconFile />} title={"Pattern:"} hasRemoveIcon>
+    <SimpleSearchModule
+      icon={<IconFile />}
+      title={"Pattern:"}
+      hasRemoveIcon
+      onRemove={() => {
+        updateLocalQuery({ files: undefined });
+        publishLocalQuery();
+      }}
+    >
       <div className={style.SpacedChildren}>
         <Input
           onBlur={() => publishLocalQuery()}

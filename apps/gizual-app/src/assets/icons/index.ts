@@ -32,6 +32,7 @@ export { ReactComponent as IconSafari } from "./safari.svg";
 export { ReactComponent as IconSave } from "./save.svg";
 export { ReactComponent as IconSearch } from "./search.svg";
 export { ReactComponent as IconSettings } from "./settings.svg";
+export { ReactComponent as IconSettingsOutline } from "./settings-outline.svg";
 export { ReactComponent as IconSource } from "./source.svg";
 export { ReactComponent as IconStarFilled } from "./star-filled.svg";
 export { ReactComponent as IconStarOutline } from "./star-outline.svg";

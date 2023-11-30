@@ -10,6 +10,20 @@
   align-items: center;
   position: relative;
   flex-shrink: 0;
+  color: var(--foreground-primary);
+}
+
+.SearchModulePlaceholder {
+  border-style: dashed;
+  border-width: 2px;
+  background-color: var(--background-secondary);
+  color: var(--foreground-tertiary);
+  cursor: pointer;
+
+  transition: background-color 0.25s;
+  &:hover {
+    background-color: var(--background-tertiary);
+  }
 }
 
 .SearchModuleIcon {
@@ -19,7 +33,6 @@
 
 .SearchModuleTitle {
   @include text-base;
-  color: var(--foreground-primary);
   text-align: left;
 }
 

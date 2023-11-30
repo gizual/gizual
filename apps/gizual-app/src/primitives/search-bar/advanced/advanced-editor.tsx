@@ -43,7 +43,7 @@ function handleEditorDidMount(editor: Monaco) {
 }
 
 export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
-  const query = useQuery();
+  const { query, setQuery } = useQuery();
   const mainController = useMainController();
   const getDefaultQuery = () => {
     return `{
@@ -91,7 +91,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
       <Editor
         className={style.AdvancedEditor}
         defaultLanguage="json"
-        defaultValue={JSON.stringify(query.query)}
+        defaultValue={JSON.stringify(query, undefined, 1)}
         onValidate={handleEditorValidation}
         beforeMount={handleEditorWillMount}
         onMount={(_e, m) => handleEditorDidMount(m)}
@@ -108,7 +108,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
           onClick={() => {
             const result = Validator.validate(editorContent);
             if (result !== undefined) {
-              query.setQuery(result);
+              setQuery(result);
             }
           }}
         >

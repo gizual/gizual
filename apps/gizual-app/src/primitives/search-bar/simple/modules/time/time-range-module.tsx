@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import weekday from "dayjs/plugin/weekday";
 import { runInAction } from "mobx";
+import { observer } from "mobx-react-lite";
 
 import { DATE_FORMAT } from "@giz/utils/gizdate";
 import { SimpleSearchModule } from "../base-module";
@@ -14,7 +15,7 @@ import style from "../modules.module.scss";
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 
-export function TimeRangeModule() {
+export const TimeRangeModule = observer(() => {
   const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQuery();
 
   const settingsController = useSettingsController();
@@ -55,7 +56,15 @@ export function TimeRangeModule() {
   };
 
   return (
-    <SimpleSearchModule icon={<IconClock />} title={"Time Range:"} hasRemoveIcon>
+    <SimpleSearchModule
+      icon={<IconClock />}
+      title={"Time Range:"}
+      hasRemoveIcon
+      onRemove={() => {
+        updateLocalQuery({ time: undefined });
+        publishLocalQuery();
+      }}
+    >
       <div className={style.SpacedChildren}>
         <DatePicker
           size="small"
@@ -88,4 +97,4 @@ export function TimeRangeModule() {
       </div>
     </SimpleSearchModule>
   );
-}
+});

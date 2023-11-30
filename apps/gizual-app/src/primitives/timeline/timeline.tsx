@@ -255,13 +255,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     vm.setViewBoxWidth(timelineSvgWrapperWidth * PRERENDER_MULTIPLIER);
     vm.updateSelectionStartCoords();
     vm.updateSelectionEndCoords();
-  }, [
-    timelineContainerRef,
-    vmController.isRepoPanelVisible,
-    vmController.isAuthorPanelVisible,
-    vm.commitsForBranch,
-    width,
-  ]);
+  }, [timelineContainerRef, vmController.isAuthorPanelVisible, vm.commitsForBranch, width]);
 
   return (
     <div className={style.TimelineComponent} id={"TimelineComponent"}>

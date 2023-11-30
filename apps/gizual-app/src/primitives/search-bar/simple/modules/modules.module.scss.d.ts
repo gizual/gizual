@@ -1,5 +1,6 @@
 declare const classNames: {
   readonly SearchModule: "SearchModule";
+  readonly SearchModulePlaceholder: "SearchModulePlaceholder";
   readonly SearchModuleIcon: "SearchModuleIcon";
   readonly SearchModuleTitle: "SearchModuleTitle";
   readonly SearchModuleIconWithText: "SearchModuleIconWithText";

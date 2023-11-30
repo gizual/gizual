@@ -13,18 +13,27 @@ function getChangedInRefEntry(query: SearchQueryType) {
 }
 
 export function ChangedInRefModule() {
-  const query = useLocalQuery();
-  const value = getChangedInRefEntry(query.localQuery);
+  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
+  const value = getChangedInRefEntry(localQuery);
 
   return (
-    <SimpleSearchModule icon={<IconFile />} title={"Changed in ref:"} hasRemoveIcon>
+    <SimpleSearchModule
+      icon={<IconFile />}
+      title={"Changed in ref:"}
+      hasRemoveIcon
+      onRemove={() => {
+        updateLocalQuery({ files: undefined });
+        publishLocalQuery();
+      }}
+    >
       <div className={style.SpacedChildren}>
         <Select
-          onBlur={() => query.publishLocalQuery()}
-          onChange={(e) => query.updateLocalQuery({ files: { path: e } })}
+          onBlur={() => publishLocalQuery()}
+          onChange={(e) => updateLocalQuery({ files: { path: e } })}
           value={value}
           options={[{ label: "HEAD", value: "HEAD" }]}
           size="small"
+          style={{ minWidth: 80 }}
         />
       </div>
     </SimpleSearchModule>

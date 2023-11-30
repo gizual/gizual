@@ -96,12 +96,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
 
   return (
     <div className={style.Stage}>
-      {visibleTimeline && (
-        <>
-          <Timeline vm={mainController.vmController.timelineViewModel} />
-          <hr />
-        </>
-      )}
       <div className={style.Toolbar}>
         <div className={sharedStyle.InlineColumn}>
           <Tooltip title={"Zoom out"}>
@@ -150,89 +144,98 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           </Tooltip>
         </div>
       </div>
-      <div className={style.CanvasWrapper}>
-        <Modal
-          title="Export to SVG"
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          okText="Export"
-        >
-          <RenderedSettingsEntry
-            entry={createNumberSetting(
-              "View-box width",
-              "The width of the SVG view-box. Influences the number of columns within the grid.",
-              selectedWidth,
-            )}
-            onChange={setSelectedWidth}
-            onResetToDefault={() => setSelectedWidth(vm.canvasWidth)}
-            isDefault={() => selectedWidth === vm.canvasWidth}
-          />
-          <RenderedSettingsEntry
-            entry={createSelectSetting(
-              "Appearance",
-              "Controls the background and font colors of the exported SVG.",
-              selectedAppearance,
-              [
-                { value: "dark", label: "Light text on dark background" },
-                { value: "light", label: "Dark text on light background" },
-              ],
-            )}
-            onChange={setSelectedAppearance}
-            onResetToDefault={() => setSelectedAppearance(currentTheme)}
-            isDefault={() => selectedAppearance === currentTheme}
-          />
-        </Modal>
-        <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
-          <div className={style.Canvas} ref={canvasRef}>
-            <TransformWrapper
-              initialScale={1}
-              minScale={MIN_ZOOM}
-              maxScale={MAX_ZOOM}
-              initialPositionX={0}
-              initialPositionY={0}
-              wheel={{ smoothStep: 0.001 }}
-              limitToBounds={false}
-              panning={{ velocityDisabled: true }}
-              ref={ref}
-              onPanningStart={() => {
-                setIsPanning(true);
-              }}
-              onPanningStop={() => {
-                setIsPanning(false);
-              }}
-              onTransformed={(
-                ref: ReactZoomPanPinchRef,
-                state: {
-                  scale: number;
-                  positionX: number;
-                  positionY: number;
-                },
-              ) => {
-                mainController.setScale(state.scale);
-              }}
-            >
-              <TransformComponent
-                wrapperStyle={{
-                  width: "100%",
-                  height: "100%",
+
+      <div className={style.StageRow}>
+        {visibleTimeline && (
+          <>
+            <Timeline vm={mainController.vmController.timelineViewModel} />
+            <hr />
+          </>
+        )}
+        <div className={style.CanvasWrapper}>
+          <Modal
+            title="Export to SVG"
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+            okText="Export"
+          >
+            <RenderedSettingsEntry
+              entry={createNumberSetting(
+                "View-box width",
+                "The width of the SVG view-box. Influences the number of columns within the grid.",
+                selectedWidth,
+              )}
+              onChange={setSelectedWidth}
+              onResetToDefault={() => setSelectedWidth(vm.canvasWidth)}
+              isDefault={() => selectedWidth === vm.canvasWidth}
+            />
+            <RenderedSettingsEntry
+              entry={createSelectSetting(
+                "Appearance",
+                "Controls the background and font colors of the exported SVG.",
+                selectedAppearance,
+                [
+                  { value: "dark", label: "Light text on dark background" },
+                  { value: "light", label: "Dark text on light background" },
+                ],
+              )}
+              onChange={setSelectedAppearance}
+              onResetToDefault={() => setSelectedAppearance(currentTheme)}
+              isDefault={() => selectedAppearance === currentTheme}
+            />
+          </Modal>
+          <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
+            <div className={style.Canvas} ref={canvasRef}>
+              <TransformWrapper
+                initialScale={1}
+                minScale={MIN_ZOOM}
+                maxScale={MAX_ZOOM}
+                initialPositionX={0}
+                initialPositionY={0}
+                wheel={{ smoothStep: 0.001 }}
+                limitToBounds={false}
+                panning={{ velocityDisabled: true }}
+                ref={ref}
+                onPanningStart={() => {
+                  setIsPanning(true);
                 }}
-                contentStyle={{
-                  flexFlow: "row wrap",
-                  alignItems: "flex-start",
-                  justifyContent: "center",
-                  gap: "1rem",
-                  width: "100%",
-                  height: "100%",
+                onPanningStop={() => {
+                  setIsPanning(false);
                 }}
-                contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
+                onTransformed={(
+                  ref: ReactZoomPanPinchRef,
+                  state: {
+                    scale: number;
+                    positionX: number;
+                    positionY: number;
+                  },
+                ) => {
+                  mainController.setScale(state.scale);
+                }}
               >
-                <FileCanvas vm={vm} wrapper={ref.current?.instance.wrapperComponent} />
-              </TransformComponent>
-            </TransformWrapper>
-          </div>
-        </Dropdown>
-        {vmController.isAuthorPanelVisible && <AuthorPanel />}
+                <TransformComponent
+                  wrapperStyle={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  contentStyle={{
+                    flexFlow: "row wrap",
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    gap: "1rem",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
+                >
+                  <FileCanvas vm={vm} wrapper={ref.current?.instance.wrapperComponent} />
+                </TransformComponent>
+              </TransformWrapper>
+            </div>
+          </Dropdown>
+          {vmController.isAuthorPanelVisible && <AuthorPanel />}
+        </div>
       </div>
     </div>
   );

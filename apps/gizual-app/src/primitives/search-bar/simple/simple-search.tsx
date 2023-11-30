@@ -12,9 +12,9 @@ import { useQuery } from "@giz/maestro/react";
 import { AdvancedEditor } from "../advanced/advanced-editor";
 import { SearchBarViewModel } from "../search-bar.vm";
 
-import { ChangedInRefModule } from "./modules/file/changed-in-ref-module";
-import { AgeGradientModule } from "./modules/highlights";
-import { TimeRangeModule } from "./modules/time";
+import { ChangedInRefModule, FilePlaceholderModule, GlobModule } from "./modules/file";
+import { TimePlaceholderModule, TimeRangeModule } from "./modules/time";
+import { TypeModule, TypePlaceholderModule } from "./modules/type";
 import style from "./simple-search.module.scss";
 
 export type SimpleSearchBarProps = {
@@ -72,41 +72,44 @@ export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProp
 export function ModuleProvider() {
   const { query } = useQuery();
 
-  const presetMatch = match(query).with({ preset: { gradientByAge: P._ } }, () => {
-    return <AgeGradientModule />;
-  });
+  const presetMatch = match(query)
+    .with({ type: P.select() }, (type) => {
+      if (type) return <TypeModule />;
+      return <TypePlaceholderModule />;
+    })
+    .otherwise(() => {
+      return <TypePlaceholderModule />;
+    });
 
   const timeMatch = match(query)
     .with({ time: P.select() }, (time) => {
       return match(time)
-        .with({ rangeByDate: P.array() }, () => {
+        .with({ rangeByDate: P.select() }, () => {
           return <TimeRangeModule />;
         })
         .otherwise(() => {
-          return <div>ABC</div>;
+          return <TimePlaceholderModule />;
         });
     })
-    .with({ files: P.select() }, (files) => {
-      return match(files).with({ changedInRef: P._ }, () => {
-        return <ChangedInRefModule />;
-      });
-    })
     .otherwise(() => {
-      return <div>No module matched.</div>;
+      return <TimePlaceholderModule />;
     });
 
   const fileMatch = match(query)
     .with({ files: P.select() }, (files) => {
       return match(files)
-        .with({ changedInRef: P._ }, () => {
+        .with({ changedInRef: P.select() }, () => {
           return <ChangedInRefModule />;
         })
+        .with({ path: P.select() }, () => {
+          return <GlobModule />;
+        })
         .otherwise(() => {
-          return <div>No valid option in file block.</div>;
+          return <FilePlaceholderModule />;
         });
     })
     .otherwise(() => {
-      return <div>No file block.</div>;
+      return <FilePlaceholderModule />;
     });
 
   const stylesMatch = match(query).with({ styles: P.select() }, (styles) => {
@@ -115,5 +118,5 @@ export function ModuleProvider() {
     });
   });
 
-  return <>{[timeMatch, fileMatch]}</>;
+  return <>{[presetMatch, timeMatch, fileMatch]}</>;
 }
