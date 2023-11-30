@@ -1,6 +1,16 @@
 declare const classNames: {
   readonly SearchModule: "SearchModule";
   readonly SearchModulePlaceholder: "SearchModulePlaceholder";
+  readonly SearchModulePlaceholderTrigger: "SearchModulePlaceholderTrigger";
+  readonly TypeSteps: "TypeSteps";
+  readonly TypeDialog: "TypeDialog";
+  readonly TypeDialogGrid: "TypeDialogGrid";
+  readonly TypeDialogGridItemTile: "TypeDialogGridItemTile";
+  readonly TypeDialogGridItem: "TypeDialogGridItem";
+  readonly TypeDialogGridItemImage: "TypeDialogGridItemImage";
+  readonly TypeDialogGridItemContent: "TypeDialogGridItemContent";
+  readonly TypeDialogGridItemTitle: "TypeDialogGridItemTitle";
+  readonly TypeDialogGridItemDescription: "TypeDialogGridItemDescription";
   readonly SearchModuleIcon: "SearchModuleIcon";
   readonly SearchModuleTitle: "SearchModuleTitle";
   readonly SearchModuleIconWithText: "SearchModuleIconWithText";

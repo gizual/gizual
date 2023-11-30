@@ -1,5 +1,5 @@
 import { IconFile } from "@app/assets";
-import { useLocalQuery } from "@app/utils";
+import { useLocalQueryCtx } from "@app/utils";
 import { Input } from "antd";
 
 import { SearchQueryType } from "@giz/query";
@@ -13,7 +13,7 @@ function getGlobEntry(query: SearchQueryType) {
 }
 
 export function GlobModule() {
-  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
+  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
   const value = getGlobEntry(localQuery);
 
   return (
@@ -28,10 +28,12 @@ export function GlobModule() {
     >
       <div className={style.SpacedChildren}>
         <Input
-          onBlur={() => publishLocalQuery()}
-          onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
           value={value}
           size="small"
+          placeholder="Example: *.tsx"
+          onBlur={() => publishLocalQuery()}
+          onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
+          onPressEnter={(e) => e.currentTarget.blur()}
         />
       </div>
     </SimpleSearchModule>

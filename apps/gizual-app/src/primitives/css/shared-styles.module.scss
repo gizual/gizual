@@ -286,6 +286,26 @@
   font-style: italic;
 }
 
+.Text-Bold {
+  font-weight: bold;
+}
+
+.Text-Medium {
+  font-weight: medium;
+}
+
+.Text-Normal {
+  font-weight: normal;
+}
+
+.Text-Accent {
+  color: var(--accent-main);
+}
+
+.Items-Center {
+  align-items: center;
+}
+
 .Pointer-None {
   pointer-events: none;
   * {

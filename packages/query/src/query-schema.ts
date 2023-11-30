@@ -58,7 +58,7 @@ const RenderType = Type.Union([
 
 const AvailablePresetConditions = [
   Type.Object({ gradientByAge: Type.Array(Type.String(), { minItems: 2, maxItems: 2 }) }),
-  Type.Object({ paletteByAuthor: Type.Object({}) }),
+  Type.Object({ paletteByAuthor: Type.Array(Type.String()) }),
 ];
 
 const PresetQuery = Type.Union(AvailablePresetConditions);

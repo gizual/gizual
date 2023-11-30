@@ -41,6 +41,11 @@ declare const classNames: {
   readonly "Text-Xl": "Text-Xl";
   readonly "Text-Left": "Text-Left";
   readonly "Text-Italic": "Text-Italic";
+  readonly "Text-Bold": "Text-Bold";
+  readonly "Text-Medium": "Text-Medium";
+  readonly "Text-Normal": "Text-Normal";
+  readonly "Text-Accent": "Text-Accent";
+  readonly "Items-Center": "Items-Center";
   readonly "Pointer-None": "Pointer-None";
   readonly Separator: "Separator";
 };

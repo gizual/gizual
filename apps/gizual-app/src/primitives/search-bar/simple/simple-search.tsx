@@ -3,6 +3,7 @@ import { useMainController } from "@app/controllers";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
+import { LocalQueryContext, useLocalQuery } from "@app/utils";
 import { Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -71,45 +72,46 @@ export const SimpleSearchBar = observer(({ vm: externalVm }: SimpleSearchBarProp
 
 export function ModuleProvider() {
   const { query } = useQuery();
+  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
 
   const presetMatch = match(query)
     .with({ type: P.select() }, (type) => {
-      if (type) return <TypeModule />;
-      return <TypePlaceholderModule />;
+      if (type) return <TypeModule key="type-module" />;
+      return <TypePlaceholderModule key="type-placeholder-module" />;
     })
     .otherwise(() => {
-      return <TypePlaceholderModule />;
+      return <TypePlaceholderModule key="type-placeholder-module" />;
     });
 
   const timeMatch = match(query)
     .with({ time: P.select() }, (time) => {
       return match(time)
         .with({ rangeByDate: P.select() }, () => {
-          return <TimeRangeModule />;
+          return <TimeRangeModule key="time-range-module" />;
         })
         .otherwise(() => {
-          return <TimePlaceholderModule />;
+          return <TimePlaceholderModule key="time-placeholder-module" />;
         });
     })
     .otherwise(() => {
-      return <TimePlaceholderModule />;
+      return <TimePlaceholderModule key="time-placeholder-module" />;
     });
 
   const fileMatch = match(query)
     .with({ files: P.select() }, (files) => {
       return match(files)
         .with({ changedInRef: P.select() }, () => {
-          return <ChangedInRefModule />;
+          return <ChangedInRefModule key="changed-in-ref-module" />;
         })
         .with({ path: P.select() }, () => {
-          return <GlobModule />;
+          return <GlobModule key="glob-module" />;
         })
         .otherwise(() => {
-          return <FilePlaceholderModule />;
+          return <FilePlaceholderModule key="file-placeholder-module" />;
         });
     })
     .otherwise(() => {
-      return <FilePlaceholderModule />;
+      return <FilePlaceholderModule key="file-placeholder-module" />;
     });
 
   const stylesMatch = match(query).with({ styles: P.select() }, (styles) => {
@@ -118,5 +120,9 @@ export function ModuleProvider() {
     });
   });
 
-  return <>{[presetMatch, timeMatch, fileMatch]}</>;
+  return (
+    <LocalQueryContext.Provider value={{ localQuery, updateLocalQuery, publishLocalQuery }}>
+      {[presetMatch, timeMatch, fileMatch]}
+    </LocalQueryContext.Provider>
+  );
 }

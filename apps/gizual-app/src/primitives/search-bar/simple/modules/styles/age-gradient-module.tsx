@@ -1,7 +1,7 @@
 import { IconPalette } from "@app/assets";
 import { useSettingsController } from "@app/controllers";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
-import { useLocalQuery } from "@app/utils";
+import { useLocalQueryCtx } from "@app/utils";
 import { ColorPicker } from "antd";
 import { Color } from "antd/es/color-picker";
 
@@ -10,7 +10,7 @@ import style from "../modules.module.scss";
 
 export function AgeGradientModule() {
   const settingsController = useSettingsController();
-  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQuery();
+  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
   let colorOld = "#FFF";
   let colorNew = "#FFF";
   if (

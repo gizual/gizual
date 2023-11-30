@@ -1,6 +1,6 @@
 import { IconClock, IconGitFork } from "@app/assets";
 import { useSettingsController } from "@app/controllers";
-import { useLocalQuery } from "@app/utils";
+import { useLocalQueryCtx } from "@app/utils";
 import { DatePicker } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -16,7 +16,7 @@ dayjs.extend(weekday);
 dayjs.extend(localeData);
 
 export const TimeRangeModule = observer(() => {
-  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQuery();
+  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
 
   const settingsController = useSettingsController();
   const isTimelineOpen = settingsController.timelineSettings.displayMode.value === "visible";

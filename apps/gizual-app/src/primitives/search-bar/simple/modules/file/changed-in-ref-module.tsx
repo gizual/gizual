@@ -1,5 +1,5 @@
 import { IconFile } from "@app/assets";
-import { useLocalQuery } from "@app/utils";
+import { useLocalQueryCtx } from "@app/utils";
 import { Select } from "antd";
 
 import { SearchQueryType } from "@giz/query";
@@ -13,7 +13,7 @@ function getChangedInRefEntry(query: SearchQueryType) {
 }
 
 export function ChangedInRefModule() {
-  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
+  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
   const value = getChangedInRefEntry(localQuery);
 
   return (
