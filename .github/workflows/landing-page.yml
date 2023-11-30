@@ -1,0 +1,87 @@
+name: landing-page
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}-landing-page
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "yarn"
+
+      - run: yarn --immutable
+
+      - name: Build the landing-page
+        run: yarn workspace @giz/landing-page build
+
+      - name: Store the build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: landing-page-dist
+          path: apps/landing-page/dist/
+          retention-days: 1
+
+  push:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve the build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: landing-page-dist
+          path: apps/landing-page/dist/
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          file: Dockerfile.landing-page
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: push
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Call Webhook
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK_LANDING_PAGE }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
