@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-Bold.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-SemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-Italic.woff2") format("woff2");
+    font-weight: normal;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-BoldItalic.woff2") format("woff2");
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-MediumItalic.woff2") format("woff2");
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "FiraGO";
+    src: url("@giz/fonts/FiraGO-SemiBoldItalic.woff2") format("woff2");
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Noto Sans";
+    src: url("@giz/fonts/NotoSans-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Noto Sans";
+    src: url("@giz/fonts/NotoSans-Bold.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Noto Sans";
+    src: url("@giz/fonts/NotoSans-Italic.woff2") format("woff2");
+    font-weight: normal;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Noto Sans";
+    src: url("@giz/fonts/NotoSans-BoldItalic.woff2") format("woff2");
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Iosevka Extended";
+    src: url("@giz/fonts/Iosevka-Extended.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  :root {
+    /* Main colors */
+    --color-lightgray: #ececef;
+    --color-darkgray: #13161a;
+    --color-white: #fff;
+    --color-black: #000;
+    --color-zinc: #dedede;
+    --color-gunmetal: #2b303a;
+    --color-gray: #cecece;
+    --color-darkslate: #35404e;
+    --color-disabled: #8d8d8d;
+    --color-darkred: #200202;
+    --color-peach: #fbe5eb;
+
+    /* Accent colors */
+    --color-gizblue: #007acc;
+    --color-gizblue-dark: #005086;
+    --color-tomato: #e94f37;
+    --color-lavender: #d4cdf4;
+    --color-plum: #5c29af;
+    --color-gold: #ffb800;
+
+    /* Color definitions */
+    @media (prefers-color-scheme: light) {
+      --background-primary: var(--color-white);
+      --background-secondary: var(--color-lightgray);
+      --background-tertiary: var(--color-zinc);
+      --background-red: var(--color-peach);
+      --foreground-primary: var(--color-darkgray);
+      --foreground-secondary: var(--color-black);
+      --foreground-tertiary: var(--color-gunmetal);
+      --foreground-disabled: var(--color-disabled);
+      --foreground-link: #0069c2;
+
+      --accent-main: var(--color-gizblue);
+      --accent-main-dark: var(--color-gizblue-dark);
+      --accent-main-fg: var(--color-white);
+      --accent-secondary: var(--color-lavender);
+      --accent-secondary-fg: var(--color-black);
+      --accent-tertiary: var(--color-tomato);
+      --accent-tertiary-fg: var(--color-white);
+
+      --border-primary: var(--color-gray);
+      --border-secondary: var(--color-darkslate);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      --background-primary: var(--color-darkgray);
+      --background-secondary: var(--color-black);
+      --background-tertiary: var(--color-gunmetal);
+      --background-red: var(--color-darkred);
+      --foreground-primary: var(--color-lightgray);
+      --foreground-secondary: var(--color-white);
+      --foreground-tertiary: var(--color-zinc);
+      --foreground-disabled: var(--color-disabled);
+      --foreground-link: #8cb4ff;
+
+      --accent-main: var(--color-gizblue);
+      --accent-main-dark: var(--color-gizblue-dark);
+      --accent-main-fg: var(--color-white);
+      --accent-secondary: var(--color-plum);
+      --accent-secondary-fg: var(--color-white);
+      --accent-tertiary: var(--color-tomato);
+      --accent-tertiary-fg: var(--color-white);
+
+      --border-primary: var(--color-darkslate);
+      --border-secondary: var(--color-gray);
+    }
+  }
+}

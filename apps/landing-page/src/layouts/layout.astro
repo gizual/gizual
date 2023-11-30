@@ -1,0 +1,44 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+import "../../base.css";
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="canonical" href="https://gizual.com" />
+
+    <!-- Content Meta -->
+		<meta name="description" content="Gizual - Platform-agnostic git repository visualization and exploration for the web, desktop and mobile." />
+		<meta name="viewport" content="width=device-width" />
+
+    <!-- OpenGraph SEO -->
+    <meta property="og:title" content="Gizual">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gizual.com/">
+    <meta property="og:locale" content="en">
+    <meta property="og:description" content="Platform-agnostic git repository visualization and exploration for the web, desktop and mobile.">
+    <meta property="og:site_name" content="Gizual">
+    <meta property="og:image" content="https://gizual.com/seo/gizual.jpg">
+    <meta property="og:image:alt" content="Gizual - Platform-agnostic git repository visualization.">
+
+    <!-- Twitter SEO -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="gizual">
+    <meta name="twitter:title" content="Gizual">
+    <meta name="twitter:description" content="Platform-agnostic git repository visualization and exploration.">
+    <meta name="twitter:image" content="https://gizual.com/seo/gizual.jpg">
+    <meta name="twitter:image:alt" content="Gizual - Platform-agnostic git repository visualization.">
+
+		<title>{title}</title>
+	</head>
+	<body class="bg-background-primary text-foreground-primary">
+		<slot />
+	</body>
+</html>

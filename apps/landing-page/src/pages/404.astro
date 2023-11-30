@@ -1,0 +1,24 @@
+---
+import { Image } from "astro:assets";
+
+import Layout from "../layouts/layout.astro";
+
+import logo from "../assets/logo.png";
+---
+
+<Layout title="Gizual">
+  <div class="flex min-h-screen w-full flex-col">
+    <div class="mx-auto flex flex-col items-center gap-2 p-8">
+      <Image src={logo} alt="Gizual Logo" class="max-w-sm" />
+      <p class="justify-start text-base">
+        The requested page could not be found.
+      </p>
+
+      <a
+        href="/"
+        class="mt-8 rounded border-2 border-action-primary bg-action-secondary p-3 text-[black] text-foreground-primary transition-colors hover:bg-action-secondary-hover"
+        >Home</a
+      >
+    </div>
+  </div>
+</Layout>

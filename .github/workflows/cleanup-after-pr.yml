@@ -11,10 +11,12 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-web
 
 jobs:
   remove-images:
+    strategy:
+      matrix:
+        IMAGE_NAME: ["${{ github.repository }}-web", "${{ github.repository }}-landing-page"]
     runs-on: ubuntu-22.04
     steps:
       - name: Log in to the Container registry
@@ -28,6 +30,6 @@ jobs:
         uses: bots-house/ghcr-delete-image-action@v1.1.0
         with:
           owner: ${{ github.repository_owner }}
-          name: ${{ env.IMAGE_NAME }}
+          name: ${{ env.IMAGE_NAME_WEB }}
           tag: pr-${{github.event.pull_request.number}}
           token: ${{ secrets.GITHUB_TOKEN }}

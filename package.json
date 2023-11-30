@@ -11,10 +11,16 @@
     "./apps/gizual-app/src/*"
   ],
   "devDependencies": {
+    "@astro/check": "portal:./packages/noop",
+    "@astro/react": "portal:./packages/noop",
+    "@astro/tailwind": "portal:./packages/noop",
     "@giz/please": "workspace:*",
+    "astro": "portal:./packages/noop",
     "husky": "8.0.3",
     "lint-staged": "13.2.3",
     "prettier": "3.0.0",
+    "prettier-plugin-astro": "0.12.1",
+    "prettier-plugin-tailwindcss": "0.5.7",
     "prettier-plugin-toml": "1.0.0",
     "turbo": "1.10.9",
     "typescript": "5.0.4"
