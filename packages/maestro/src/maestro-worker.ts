@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import { z } from "zod";
 
 declare const self: DedicatedWorkerGlobalScope;
@@ -5,9 +6,10 @@ declare const self: DedicatedWorkerGlobalScope;
 import { observable } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
 import { EventEmitter } from "eventemitter3";
+import { minimatch } from "minimatch";
 
 import { Database } from "@giz/database";
-import { InitialDataResult } from "@giz/explorer";
+import { FileTreeNode, InitialDataResult } from "@giz/explorer";
 import { PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
 import { SearchQueryType } from "@giz/query";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
@@ -24,7 +26,12 @@ let EXP_CONTROLLER: PoolController | undefined;
 // eslint-disable-next-line unused-imports/no-unused-vars
 let EXP: PoolPortal | undefined;
 
-const EE = new EventEmitter<{ "update-global-state": State; "update-query": SearchQueryType }>();
+const EE = new EventEmitter<{
+  "update-global-state": State;
+  "update-query": SearchQueryType;
+  "update-selected-files": Array<FileTreeNode>;
+  "update-blocks": Array<Block>;
+}>();
 
 let QUERY: SearchQueryType = {
   branch: "main",
@@ -39,6 +46,7 @@ export type State = {
   commitsIndexed: boolean;
   filesIndexed: boolean;
 
+  numSelectedFiles: number;
   numExplorerWorkersTotal: number;
   numExplorerWorkersBusy: number;
   numExplorerJobs: number;
@@ -56,6 +64,7 @@ const STATE: State = {
   commitsIndexed: false,
   filesIndexed: false,
 
+  numSelectedFiles: 0,
   numExplorerWorkersTotal: 0,
   numExplorerWorkersBusy: 0,
   numExplorerJobs: 0,
@@ -64,20 +73,95 @@ const STATE: State = {
   numRendererWorkersBusy: 0,
   numRendererJobs: 0,
 };
+type Block = {
+  id: string;
+  height: number;
+};
 
-function setQuery(partial: SearchQueryType) {
-  QUERY = partial;
-  EE.emit("update-query", QUERY);
+let currentFileTree: FileTreeNode[] | undefined = undefined;
+let currentSelectedFiles: FileTreeNode[] = [];
+let currentBlocks: Block[] = [];
+
+function setCurrentSelectedFiles(files: FileTreeNode[]) {
+  EE.emit("update-selected-files", ...files);
+  updateGlobalState({
+    numSelectedFiles: files.length,
+  });
+  currentSelectedFiles = files;
+}
+
+function setCurrentBlocks(blocks: Block[]) {
+  EE.emit("update-blocks", ...blocks);
+  currentBlocks = blocks;
+}
+
+async function onUpdateQuery(query: SearchQueryType) {
+  console.log("onUpdateQuery", query);
+  const { branch, time, files } = query;
+
+  if (branch !== QUERY.branch || !isEqual(time, QUERY.time) || !currentFileTree) {
+    // update file tree
+    // TODO: support time range
+    const tree = await EXP?.getFileTree(branch);
+    if (tree) {
+      currentFileTree = tree;
+    }
+  }
+
+  if (!files || !("path" in files)) {
+    return;
+  }
+
+  const globPatterns = Array.isArray(files.path) ? files.path : [files.path];
+
+  if (!currentFileTree) {
+    return;
+  }
+
+  const selectedFiles = currentFileTree.filter((node) => {
+    if (node.kind === "folder") {
+      return false;
+    }
+    const result = globPatterns.some((p) => minimatch(node.path.join("/"), p, { matchBase: true }));
+    return result;
+  });
+
+  setCurrentSelectedFiles(selectedFiles);
+
+  const fileContentLengths = await Promise.all(
+    selectedFiles.map(
+      (file) =>
+        EXP?.getFileContent(branch, file.path.join("/")).then((c) => c.split("\n").length) ?? 0,
+    ),
+  );
+
+  const newBlocks: Block[] = selectedFiles.map((file, i) => ({
+    id: file.path.join("/"),
+    height: fileContentLengths[i] * 10,
+  }));
+
+  setCurrentBlocks(newBlocks);
+}
+
+EE.on("update-query", onUpdateQuery);
+
+function setQuery(newQuery: SearchQueryType) {
+  EE.emit("update-query", newQuery);
+  QUERY = newQuery;
 }
 
 function updateQuery(partial: Partial<SearchQueryType>) {
-  Object.assign(QUERY, partial);
-  EE.emit("update-query", QUERY);
+  const copy = { ...QUERY };
+  Object.assign(copy, partial);
+  EE.emit("update-query", copy);
+  QUERY = copy;
 }
 
 function updateGlobalState(update: Partial<State>) {
+  const copy = { ...STATE };
+  Object.assign(copy, update);
+  EE.emit("update-global-state", copy);
   Object.assign(STATE, update);
-  EE.emit("update-global-state", STATE);
 }
 
 async function untilState<K extends keyof State>(key: K, value: State[K]) {
@@ -140,7 +224,34 @@ const router = t.router({
     .mutation(({ input }) => {
       updateQuery(input.input);
     }),
+  selectedFiles: t.procedure.subscription(() => {
+    return observable<FileTreeNode[]>((emit) => {
+      const onUpdate = (...data: FileTreeNode[]) => {
+        emit.next(data);
+      };
+      EE.on("update-selected-files", onUpdate);
 
+      onUpdate(...currentSelectedFiles);
+
+      return () => {
+        EE.off("update-selected-files", onUpdate);
+      };
+    });
+  }),
+  blocks: t.procedure.subscription(() => {
+    return observable<Block[]>((emit) => {
+      const onUpdate = (...data: Block[]) => {
+        emit.next(data);
+      };
+      EE.on("update-blocks", onUpdate);
+
+      onUpdate(...currentBlocks);
+
+      return () => {
+        EE.off("update-blocks", onUpdate);
+      };
+    });
+  }),
   authorList: t.procedure
     .input(
       z.object({
@@ -225,7 +336,8 @@ async function setupPool(opts: PoolControllerOpts) {
       rangeByDate: [getStringDate(startDate), getStringDate(endDate)],
     },
     files: {
-      changedInRef: initial_data.currentBranch,
+      //changedInRef: initial_data.currentBranch,
+      path: "*.ts",
     },
   };
   setQuery(query);

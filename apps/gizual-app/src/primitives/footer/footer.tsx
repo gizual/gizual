@@ -42,7 +42,7 @@ export const Footer = observer(() => {
       </div>
       <div className={style.RightSection}>
         <Spin spinning={mainController.isBusy} />
-        <p>{mainController.selectedFiles.length} files selected</p>
+        <p>{state.numSelectedFiles} files selected</p>
         <p>
           explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
         </p>

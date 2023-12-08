@@ -1,7 +1,7 @@
 import { CreateTRPCReact } from "@trpc/react-query";
 import React from "react";
 
-import { CommitInfo } from "@giz/explorer-web";
+import { CommitInfo, FileTreeNode } from "@giz/explorer";
 import { SearchQueryType } from "@giz/query";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
@@ -205,7 +205,7 @@ export type GlobalState = {
 
   // TODO: to be implemented
   //indexingStep: "not-started" | "authors" | "commits" | "files" | "done";
-  //numSelectedFiles: number;
+  numSelectedFiles: number;
 
   numExplorerWorkersTotal: number;
   numExplorerWorkersBusy: number;
@@ -230,6 +230,8 @@ export function useGlobalState(): GlobalState {
   const [globalState, setGlobalState] = React.useState<GlobalState>({
     queryValid: true,
     screen: "welcome",
+
+    numSelectedFiles: 0,
     numExplorerWorkersTotal: 0,
     numExplorerWorkersBusy: 0,
     numExplorerJobs: 0,
@@ -254,8 +256,40 @@ export function useGlobalState(): GlobalState {
 }
 
 /*
-useAuthorList(limit, offset)  =>  PaginatedList<Author>
-useBlockHeights() => { blocks: { id: string, height: number }[] }
 useSetCanvasScale() => { setScale: (scale: number) => void }
 useRenderImage(id, scale) => { url: string, width: number, height: number, setViewIntersectionPercentage: (inter: number) => void }
 */
+
+export function useSelectedFiles(): FileTreeNode[] {
+  const trpc = useTrpc();
+
+  const [selectedFiles, setSelectedFiles] = React.useState<FileTreeNode[]>([]);
+
+  trpc.selectedFiles.useSubscription(undefined, {
+    onData: (data) => {
+      setSelectedFiles(data);
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
+
+  return selectedFiles;
+}
+
+export function useBlockHeights(): { id: string; height: number }[] {
+  const trpc = useTrpc();
+
+  const [blocks, setBlocks] = React.useState<{ id: string; height: number }[]>([]);
+
+  trpc.blocks.useSubscription(undefined, {
+    onData: (data) => {
+      setBlocks(data);
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
+
+  return blocks;
+}

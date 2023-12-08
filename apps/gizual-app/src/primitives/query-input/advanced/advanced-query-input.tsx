@@ -40,15 +40,15 @@ function handleEditorDidMount(editor: Monaco) {
 export const AdvancedEditor = observer(() => {
   const { query, setQuery } = useQuery();
   const mainController = useMainController();
-  const getDefaultQuery = () => {
-    return `{
-  "time": {
-    "rangeByDate": ["${mainController.selectedStartDate.toString()}","${mainController.selectedEndDate.toString()}"]
-  }
-}`;
-  };
   const [validationOutput, setValidationOutput] = React.useState<string[]>([]);
-  const [editorContent, _] = React.useState<string>(getDefaultQuery());
+  const [editorContent, setEditorContent] = React.useState<string>(
+    JSON.stringify(query, undefined, 1),
+  );
+
+  React.useEffect(() => {
+    setEditorContent(JSON.stringify(query, undefined, 1));
+  }, [query]);
+
   const monacoInstance = useMonaco();
 
   const theme = useTheme();
@@ -56,6 +56,11 @@ export const AdvancedEditor = observer(() => {
     setValidationOutput([]);
     for (const marker of markers)
       setValidationOutput([...validationOutput, marker.message as string]);
+  }
+
+  function parseInput(e: string | undefined) {
+    if (e === undefined) return;
+    setEditorContent(e);
   }
 
   const containsErrors = validationOutput.length > 0;
@@ -71,6 +76,7 @@ export const AdvancedEditor = observer(() => {
         onValidate={handleEditorValidation}
         beforeMount={handleEditorWillMount}
         onMount={(_e, m) => handleEditorDidMount(m)}
+        onChange={(e) => parseInput(e)}
         width="unset"
         theme={theme === "light" ? "light" : "vs-dark"}
         height="unset" // Populated through CSS
