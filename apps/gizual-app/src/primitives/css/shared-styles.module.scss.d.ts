@@ -47,6 +47,7 @@ declare const classNames: {
   readonly "Text-Accent": "Text-Accent";
   readonly "Items-Center": "Items-Center";
   readonly "Pointer-None": "Pointer-None";
+  readonly Pointer: "Pointer";
   readonly Separator: "Separator";
 };
 export = classNames;

@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useBlockHeights } from "@giz/maestro/react";
-import { File } from "../../file";
+import { FileBlock } from "../../file/block";
 import { MasonryGrid } from "../../masonry";
 import { CanvasViewModel } from "../canvas.vm";
 
@@ -32,10 +32,17 @@ export const FileCanvas = observer(({ vm, wrapper }: FileCanvasProps) => {
           return { id: f.id, height: f.height + 26 };
         })}
       >
-        {vm.loadedFiles.map((file, index) => {
-          if (!wrapper || !file.isValid) return <React.Fragment key={index}></React.Fragment>;
+        {blocks.map((block, index) => {
+          if (!wrapper) return <React.Fragment key={index}></React.Fragment>;
 
-          return <File file={file} key={index} parentContainer={wrapper} />;
+          return (
+            <FileBlock
+              key={block.id}
+              parentContainer={wrapper}
+              id={block.id}
+              height={block.height}
+            />
+          );
         })}
       </MasonryGrid>
     </>
