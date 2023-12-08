@@ -134,8 +134,10 @@
   width: 100%;
   max-width: 100%;
   min-width: calc(100vw - 2rem);
-
   padding: 1rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+
   @include lg {
     width: 33%;
     max-width: 450px;
@@ -147,6 +149,8 @@
   gap: 1rem;
   flex-grow: 1;
   padding: 1rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .Grow {

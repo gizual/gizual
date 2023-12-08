@@ -18,6 +18,7 @@ const meta = {
     colorOldest: { control: "color" },
     tilesPerRow: { control: "number" },
     highlightLastModifiedByAuthor: { control: "boolean" },
+    showContent: { control: "boolean" },
     numDays: { control: "number" },
   }, // Each type is it's own story
 } satisfies Meta<typeof Renderer>;
@@ -31,10 +32,11 @@ export const FileLines: Story = {
     colorNewest: LINEAR_COLOR_RANGE[0],
     colorOldest: LINEAR_COLOR_RANGE[1],
     visualizationStyle: "lineLength",
+    showContent: true,
   },
   parameters: {
     controls: {
-      include: ["visualizationStyle", "colorOldest", "colorNewest"],
+      include: ["visualizationStyle", "colorOldest", "colorNewest", "showContent"],
     },
   },
 };
@@ -94,9 +96,9 @@ export const AuthorContributions: Story = {
   },
 };
 
-export const Bar: Story = {
+export const AuthorBar: Story = {
   args: {
-    type: RenderType.Bar,
+    type: RenderType.AuthorBar,
     mockValues: 10,
   },
   parameters: {

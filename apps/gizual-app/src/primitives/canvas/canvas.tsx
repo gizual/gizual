@@ -96,55 +96,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
 
   return (
     <div className={style.Stage}>
-      <div className={style.Toolbar}>
-        <div className={sharedStyle.InlineColumn}>
-          <Tooltip title={"Zoom out"}>
-            <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
-              <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-          {/*<InputNumber
-            value={currentZoomLevel}
-            suffix={"%"}
-            onBlur={(i) => vm.zoomTo(Number(i.currentTarget.value))}
-            onKeyDown={(e) => e.key === "Enter" && vm.zoomTo(Number(e.currentTarget.value))}
-            size={"large"}
-            controls={false}
-          />*/}
-          <Tooltip title={"Zoom in"}>
-            <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
-              <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={"Center"}>
-            <IconButton onClick={() => vm.center(1)} aria-label="Center">
-              <IconCenterFocus className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={"Reflow"}>
-            <IconButton
-              onClick={() => {
-                vm.reflow();
-              }}
-              aria-label="Reflow"
-            >
-              <IconLayout className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-        </div>
-        <div className={sharedStyle.InlineColumn}>
-          <Tooltip title={"Show author panel"}>
-            <IconButton
-              onClick={() => vmController.toggleAuthorPanelVisibility()}
-              aria-label="Toggle author panel"
-              colored={vmController.isAuthorPanelVisible}
-            >
-              <IconPeople className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-        </div>
-      </div>
-
       <div className={style.StageRow}>
         {visibleTimeline && (
           <>
@@ -153,6 +104,55 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           </>
         )}
         <div className={style.CanvasWrapper}>
+          <div className={style.Toolbar}>
+            <div className={sharedStyle.InlineColumn}>
+              <Tooltip title={"Zoom out"}>
+                <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
+                  <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
+                </IconButton>
+              </Tooltip>
+              {/*<InputNumber
+            value={currentZoomLevel}
+            suffix={"%"}
+            onBlur={(i) => vm.zoomTo(Number(i.currentTarget.value))}
+            onKeyDown={(e) => e.key === "Enter" && vm.zoomTo(Number(e.currentTarget.value))}
+            size={"large"}
+            controls={false}
+          />*/}
+              <Tooltip title={"Zoom in"}>
+                <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
+                  <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={"Center"}>
+                <IconButton onClick={() => vm.center(1)} aria-label="Center">
+                  <IconCenterFocus className={sharedStyle.ToolbarIcon} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={"Reflow"}>
+                <IconButton
+                  onClick={() => {
+                    vm.reflow();
+                  }}
+                  aria-label="Reflow"
+                >
+                  <IconLayout className={sharedStyle.ToolbarIcon} />
+                </IconButton>
+              </Tooltip>
+            </div>
+            <div className={sharedStyle.InlineColumn}>
+              <Tooltip title={"Show author panel"}>
+                <IconButton
+                  onClick={() => vmController.toggleAuthorPanelVisibility()}
+                  aria-label="Toggle author panel"
+                  colored={vmController.isAuthorPanelVisible}
+                >
+                  <IconPeople className={sharedStyle.ToolbarIcon} />
+                </IconButton>
+              </Tooltip>
+            </div>
+          </div>
+
           <Modal
             title="Export to SVG"
             open={isModalOpen}

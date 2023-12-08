@@ -1,3 +1,9 @@
+## Gizual 3.0.0-alpha.12 (XX.XX.XXXX)
+
+### Bug Fixes
+
+- **app:frontend:** fix bug that caused the file-loader default selection to be set to an invalid value
+
 ## Gizual 3.0.0-alpha.11 (21.11.2023)
 
 ### Changes

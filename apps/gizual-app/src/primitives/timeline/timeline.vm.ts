@@ -167,8 +167,8 @@ export class TimelineViewModel {
     }
   }
 
-  triggerSearchBarUpdate(force = true) {
-    this.mainController.triggerSearchBarUpdate(force);
+  triggerSearchBarUpdate(_ = true) {
+    //TODO: This is where we used to update the search bar. This can be removed once the timeline is attached to the query.
   }
 
   // -------------------------------------------------------------------------- //

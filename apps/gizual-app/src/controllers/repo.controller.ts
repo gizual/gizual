@@ -247,7 +247,6 @@ export class RepoController {
     this._defaultEndDate = newSelectedEndDate;
 
     this.mainController.vmController.timelineViewModel?.initializePositionsFromSelection();
-    this.mainController.triggerSearchBarUpdate(true);
   }
 
   @action.bound
@@ -255,19 +254,6 @@ export class RepoController {
     if (this._selectedFiles.has(name)) {
       this._selectedFiles.delete(name);
     } else this._selectedFiles.set(name, info);
-
-    this.updateFileTag();
-  }
-
-  @action.bound
-  updateFileTag() {
-    // TODO: Cleanup the tag and file synchronization issues.
-    const numSelFiles = this._selectedFiles.size;
-    this.mainController.vmController.searchBarViewModel?.updateTag(
-      "file",
-      numSelFiles > 0 ? '"..."' : "",
-      true,
-    );
   }
 
   @action.bound

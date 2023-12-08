@@ -1,10 +1,25 @@
 import { Line } from "@app/controllers";
+import ejs from "ejs";
 
-import { BAND_COLOR_RANGE, getBandColorScale, getColorScale } from "@giz/gizual-app/utils";
+import {
+  BAND_COLOR_RANGE,
+  ColorManager,
+  getBandColorScale,
+  getColorScale,
+} from "@giz/gizual-app/utils";
 
-import type { FileLinesContext, FileMosaicContext } from "./types";
+import {
+  FileLinesContext,
+  FileMosaicContext,
+  InternalContextItems,
+  RendererContext,
+} from "./types";
 
-export function interpolateColor(line: Line, ctx: FileLinesContext | FileMosaicContext) {
+export function interpolateColor(
+  line: Line,
+  ctx: FileLinesContext | FileMosaicContext,
+  colorManager?: ColorManager,
+) {
   const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
 
   // If the line was updated before the start or after the end date, grey it out.
@@ -27,10 +42,10 @@ export function interpolateColor(line: Line, ctx: FileLinesContext | FileMosaicC
   } else {
     const author = ctx.authors.find((a) => a.id === line.commit?.authorId);
 
-    return getBandColorScale(
-      ctx.authors.map((a) => a.id),
-      BAND_COLOR_RANGE,
-    )(author?.id ?? "");
+    if (!colorManager)
+      throw new Error("`interpolateColor` requires an instance of `ColorManager`.");
+
+    return colorManager.getBandColor(author?.id ?? "");
   }
 }
 
@@ -52,4 +67,37 @@ export function calculateDimensions(dpr: number, rect: DOMRect) {
   const width = rect.width * dpr;
   const height = rect.height * dpr;
   return { width, height };
+}
+
+export function getFillColor(ctx: RendererContext) {
+  return "green";
+}
+
+function parseEjsTemplate(ctx: RendererContext) {
+  const { ejsTemplate: template } = ctx;
+  if (!template) return;
+
+  let ejsContext = {};
+
+  // Populate with all "allowed" context items that are not functions or internal.
+  for (const [key, value] of Object.entries(ctx).filter(
+    ([key, value]) => typeof value !== "function" && !InternalContextItems.includes(key as any),
+  )) {
+    ejsContext = {
+      ...ejsContext,
+      [key]: value,
+    };
+  }
+
+  // Shift the context one level up to make it accessible in the template.
+  ejsContext = { _: { ...ejsContext } };
+
+  const ejsResult = ejs.render(template, ejsContext);
+  console.log(
+    "`parseEjsTemplate` (template, ctx, result)",
+    template,
+    ctx,
+    ejsResult,
+  ); /* TODO: Remove log */
+  return ejsResult;
 }

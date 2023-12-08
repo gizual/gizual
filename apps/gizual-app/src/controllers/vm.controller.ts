@@ -1,6 +1,5 @@
 import type { CanvasViewModel } from "@app/primitives/canvas";
 import type { FileTreeViewModel } from "@app/primitives/file-tree";
-import { SearchBarViewModel } from "@app/primitives/search-bar/search-bar.vm";
 import { TimelineViewModel } from "@app/primitives/timeline/timeline.vm";
 import { makeAutoObservable, runInAction } from "mobx";
 
@@ -11,7 +10,6 @@ import type { MainController } from "./main.controller";
 export class ViewModelController {
   _canvasViewModel?: CanvasViewModel;
   _fileTreeViewModel?: FileTreeViewModel;
-  _searchBarViewModel?: SearchBarViewModel;
   _timelineViewModel?: TimelineViewModel;
 
   _mainController: MainController;
@@ -35,14 +33,6 @@ export class ViewModelController {
       });
     }
     return this._timelineViewModel;
-  }
-
-  setSearchBarViewModel(vm: SearchBarViewModel) {
-    this._searchBarViewModel = vm;
-  }
-
-  get searchBarViewModel(): SearchBarViewModel | undefined {
-    return this._searchBarViewModel;
   }
 
   setCanvasViewModel(vm: CanvasViewModel) {

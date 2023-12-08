@@ -1,0 +1,23 @@
+.MessageBar {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  background-color: var(--background-primary);
+  padding: 0.5rem 0.5rem;
+  height: 1.5rem;
+  margin: 0 auto;
+}
+
+.Message {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  position: relative;
+  align-items: center;
+}
+
+.Bar {
+  height: 100%;
+  width: 8px;
+  border-radius: 2px;
+}

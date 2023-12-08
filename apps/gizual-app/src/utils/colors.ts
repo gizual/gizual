@@ -1,3 +1,4 @@
+import { hcl, HCLColor } from "d3-color";
 import { ScaleLinear, scaleLinear, ScaleOrdinal, scaleOrdinal } from "d3-scale";
 
 export const LINEAR_COLOR_RANGE: [string, string] = ["#581c87", "#f0abfc"];
@@ -106,4 +107,88 @@ export function enforceAlphaChannel(hex: string): string {
   const transparentA = Math.min(a, 0.4);
   const out = `rgba(${r},${g},${b},${transparentA})`;
   return out;
+}
+
+const WARN_MIN_BAND_COLORS = 10;
+
+type ColorSetDefinition = {
+  excludedColors?: HCLColor[];
+  assignedColors?: Map<string, string>;
+  domain: string[];
+  bandLength?: number;
+};
+
+/**
+ * Manages the color selection for a specific domain of values.
+ */
+export class ColorManager {
+  // The band of all colors that are available for default use.
+  colorBand: string[] = [];
+
+  // Ordinal scale that maps identifiers to colors.
+  colorScale?: ScaleOrdinal<string, string, never>;
+
+  // The target domain of the color band.
+  domain: string[] = [];
+
+  // Colors the user has explicitly excluded from the color band.
+  excludedColors: HCLColor[] = [];
+
+  // Colors the user has explicitly assigned to a specific identifier.
+  assignedColors: Map<string, string> = new Map();
+
+  // The length of the color band
+  bandLength = 16;
+
+  constructor({ excludedColors, assignedColors, domain, bandLength }: ColorSetDefinition) {
+    if (excludedColors) this.excludedColors = excludedColors;
+    if (assignedColors) this.assignedColors = assignedColors;
+    if (bandLength) this.bandLength = bandLength;
+
+    this.domain = domain;
+    this.initializeColorBand();
+  }
+
+  assignColor(identifier: string, color: string) {
+    this.assignedColors.set(identifier, color);
+  }
+
+  excludeColor(color: string) {
+    this.excludedColors.push(ColorManager.stringToHcl(color));
+    this.initializeColorBand();
+  }
+
+  /** Creates a set of perceptually uniform colors for default use */
+  initializeColorBand() {
+    for (let i = 0; i < this.bandLength; i++) {
+      const hclColor = hcl((i * 360) / this.bandLength, 100, 65);
+      if (!this.excludedColors.includes(hclColor))
+        this.colorBand.push(hcl((i * 360) / this.bandLength, 100, 65).toString());
+    }
+
+    this.colorScale = getBandColorScale(this.domain, this.colorBand);
+
+    if (this.colorBand.length < WARN_MIN_BAND_COLORS) {
+      console.warn(
+        `Color band is limited to only ${this.colorBand.length} colors. WARN_MIN_BAND_COLORS = ${WARN_MIN_BAND_COLORS}`,
+      );
+    }
+  }
+
+  getBandColor(identifier: string): string {
+    if (this.assignedColors.has(identifier)) {
+      return this.assignedColors.get(identifier)!;
+    }
+    if (!this.colorScale) throw new Error("No color scale was initialized.");
+
+    return this.colorScale(identifier);
+  }
+
+  static stringToHcl(color: string): HCLColor {
+    return hcl(color);
+  }
+
+  static hclToRgb(color: HCLColor): string {
+    return color.toString();
+  }
 }

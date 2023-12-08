@@ -7,17 +7,22 @@ import type { VisualizationConfig } from "@giz/gizual-app/types";
 
 export type RenderingMode = "canvas" | "svg" | "annotations";
 
-export type BaseContext = {
+export const InternalContextItems = ["dpr", "rect", "ejsTemplate"] as const;
+
+export type InternalContext = {
   dpr: number;
   rect: DOMRect;
+  ejsTemplate?: string;
+};
+
+export type BaseContext = {
   isPreview: boolean;
   visualizationConfig: VisualizationConfig;
-
   earliestTimestamp: number;
   latestTimestamp: number;
   selectedStartDate: Date;
   selectedEndDate: Date;
-};
+} & InternalContext;
 
 export type BaseMosaicContext = {
   tilesPerRow: number;
@@ -66,6 +71,7 @@ export type FileLinesContext = {
   lineLengthMax: number;
   coloringMode: ColoringMode;
   authors: Author[];
+  showContent: boolean;
 } & BaseContext;
 
 export type FileMosaicContext = {
@@ -90,5 +96,12 @@ export type RendererContext =
   | FileMosaicContext
   | FileBarContext
   | AuthorBarContext;
+
+export function isContextOfType<T extends RendererContext>(
+  ctx: RendererContext,
+  type: RenderType,
+): ctx is T {
+  return ctx.type === type;
+}
 
 export type RenderingResult = Promise<string | SvgBaseElement[]>;

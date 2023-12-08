@@ -326,11 +326,6 @@ export class MainController {
     this._numFiles = n;
   }
 
-  @action.bound
-  triggerSearchBarUpdate(force = false) {
-    this.vmController._searchBarViewModel?.triggerDateTimeUpdate(force);
-  }
-
   get numFiles() {
     return this._numFiles;
   }

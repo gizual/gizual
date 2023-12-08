@@ -2,7 +2,12 @@ import { VisualizationDefaults } from "@app/utils/defaults";
 import { expose } from "comlink";
 
 import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
-import { enforceAlphaChannel, SvgBaseElement, SvgElement } from "@giz/gizual-app/utils";
+import {
+  ColorManager,
+  enforceAlphaChannel,
+  SvgBaseElement,
+  SvgElement,
+} from "@giz/gizual-app/utils";
 import {
   convertTimestampToMs,
   getDaysBetween,
@@ -38,6 +43,7 @@ import {
 
 export class FileRendererWorker {
   fontsPrepared = false;
+  colorManager?: ColorManager;
 
   constructor() {}
 
@@ -96,9 +102,14 @@ export class FileRendererWorker {
       renderer.prepareContext(ctx.rect.width, ctx.rect.height, ctx.dpr);
     }
 
+    const requiresDomainColorBand = ctx.type === RenderType.FileLines && ctx.coloringMode === "age";
+    if (requiresDomainColorBand) {
+      this.colorManager = new ColorManager({ domain: ctx.authors.map((a) => a.id) });
+    }
+
     switch (ctx.type) {
       case RenderType.FileLines: {
-        return this.drawFilesLines(ctx, renderer);
+        return this.drawFileLines(ctx, renderer);
       }
       case RenderType.FileMosaic: {
         return this.drawFileMosaic(ctx, renderer);
@@ -262,10 +273,8 @@ export class FileRendererWorker {
     for (const [index, line] of ctx.fileContent.entries()) {
       if (index + 1 > VisualizationDefaults.maxLineCount) break;
 
-      const color =
-        line.commit && !ctx.isPreview
-          ? interpolateColor(line, ctx)
-          : ctx.visualizationConfig.colors.notLoaded;
+      let color = ctx.visualizationConfig.colors.notLoaded;
+      if (line.commit && !ctx.isPreview) color = interpolateColor(line, ctx, this.colorManager);
 
       line.color = color;
       colors.push(line.color ?? "#000");
@@ -291,7 +300,7 @@ export class FileRendererWorker {
     return { result, colors };
   }
 
-  async drawFilesLines(ctx: FileLinesContext, renderer: BaseRenderer) {
+  async drawFileLines(ctx: FileLinesContext, renderer: BaseRenderer) {
     const colors: string[] = [];
     const { width } = calculateDimensions(ctx.dpr, ctx.rect);
     const lineHeight = 10 * ctx.dpr;
@@ -330,12 +339,14 @@ export class FileRendererWorker {
         height: lineHeight,
         fill: color,
       });
-      renderer.drawText(line.content, {
-        x: 0,
-        y: currentY + lineHeight / 1.5,
-        fontSize: "4",
-        fill: "white",
-      });
+
+      if (ctx.showContent)
+        renderer.drawText(line.content, {
+          x: 0,
+          y: currentY + lineHeight / 1.5,
+          fontSize: "4",
+          fill: "white",
+        });
 
       currentY += lineHeight + VisualizationDefaults.lineSpacing;
     }
