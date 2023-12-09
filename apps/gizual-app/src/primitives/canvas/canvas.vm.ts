@@ -12,9 +12,10 @@ import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
-import { FileContext, FileLinesContext, FileRendererWorker, RenderType } from "@giz/file-renderer";
+import { FileLinesContext, RendererContext, RenderType } from "@giz/file-renderer";
+import { FileRendererWorker } from "@giz/file-renderer/worker";
 
-export const MIN_ZOOM = 0.25;
+export const MIN_ZOOM = 0.05;
 export const MAX_ZOOM = 3;
 
 export class CanvasViewModel {
@@ -144,7 +145,7 @@ export class CanvasViewModel {
     for (const file of this.loadedFiles) {
       if (file.data.lines.length === 0) continue;
 
-      const ctx: FileContext = {
+      const ctx: RendererContext = {
         ...this.getDrawingContext(file),
         dpr: 1,
         redrawCount: 0,

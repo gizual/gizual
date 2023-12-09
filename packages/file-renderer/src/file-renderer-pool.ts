@@ -118,7 +118,7 @@ export class FileRendererPool {
   @action.bound
   setupPool() {
     for (let i = 0; i < this.poolSize; i++) {
-      const worker = new Worker(new URL("file-renderer-worker.mjs", import.meta.url), {
+      const worker = new Worker(new URL("file-renderer-worker.ts", import.meta.url), {
         type: "module",
       });
 

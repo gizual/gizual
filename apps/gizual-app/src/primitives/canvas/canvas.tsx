@@ -188,7 +188,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
             <div className={style.Canvas} ref={canvasRef}>
               <TransformWrapper
-                initialScale={1}
+                initialScale={MIN_ZOOM}
                 minScale={MIN_ZOOM}
                 maxScale={MAX_ZOOM}
                 initialPositionX={0}

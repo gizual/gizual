@@ -293,3 +293,46 @@ export function useBlockHeights(): { id: string; height: number }[] {
 
   return blocks;
 }
+
+export type UseBlockImageResult = {
+  url: string;
+  isPreview: boolean;
+  setPriority: (inter: number) => void;
+};
+
+export function useBlockImage(id: string) {
+  const trpc = useTrpc();
+
+  const setPriorityMutation = trpc.setPriority.useMutation();
+
+  const setPriority = React.useCallback(
+    (priority: number) => {
+      setPriorityMutation.mutate({ id, priority });
+    },
+    [setPriorityMutation.mutate],
+  );
+
+  const [blockImage, setBlockImage] = React.useState({
+    url: "",
+    isPreview: false,
+  });
+
+  trpc.blockImages.useSubscription(
+    { id },
+    {
+      onData: (data) => {
+        setBlockImage(data);
+      },
+
+      onError: (err) => {
+        console.error(err);
+      },
+    },
+  );
+
+  return {
+    url: blockImage.url,
+    isPreview: blockImage.isPreview,
+    setPriority,
+  };
+}

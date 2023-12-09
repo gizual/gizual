@@ -1,4 +1,4 @@
-import { SvgAttributes, SvgBaseElement, SvgElement, SvgRectElement } from "@app/utils";
+import { SvgAttributes, SvgBaseElement, SvgElement, SvgRectElement } from "@app/utils/svg";
 
 import { BaseRenderer } from "./base";
 

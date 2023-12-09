@@ -1,5 +1,5 @@
 import type { ColoringMode } from "@app/types";
-import { SvgBaseElement } from "@app/utils";
+import type { SvgBaseElement } from "@app/utils";
 
 import type { Author } from "@giz/explorer";
 import type { Line } from "@giz/gizual-app/controllers";

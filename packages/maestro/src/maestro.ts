@@ -1,3 +1,4 @@
+import type { VisualizationSettings } from "@app/controllers";
 import { Remote, transfer, wrap } from "comlink";
 import { makeObservable, observable, runInAction } from "mobx";
 
@@ -44,7 +45,9 @@ export class Maestro {
   }
 
   async setup() {
-    const { trpcPort } = await this.worker.setup();
+    const { trpcPort } = await this.worker.setup({
+      devicePixelRatio: window.devicePixelRatio,
+    });
 
     const [link, dispose] = webWorkerLink({ port: trpcPort });
 
@@ -102,5 +105,9 @@ export class Maestro {
 
   debugPrint() {
     this.worker.debugPrint();
+  }
+
+  setVisualizationSettings(settings: VisualizationSettings) {
+    this.worker.setVisualizationSettings(JSON.parse(JSON.stringify(settings)));
   }
 }

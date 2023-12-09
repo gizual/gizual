@@ -47,7 +47,7 @@ export class MainController {
     makeObservable(this, undefined, { autoBind: true });
 
     this._repo = new Repository();
-    this.setScale(1);
+    this.setScale(0.05);
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
     this._startDate = new GizDate("2023-01-01");
@@ -57,6 +57,16 @@ export class MainController {
     this._repoController = new RepoController(this);
     this._fileRendererPool = new FileRendererPool();
     this._maestro = maestro;
+
+    /* TODO:
+    this._settingsController.on("change", () => {
+      this._maestro.setVisualizationSettings(
+        this.settingsController.settings.visualizationSettings,
+      );
+    });
+    */
+
+    this._maestro.setVisualizationSettings(this.settingsController.settings.visualizationSettings);
   }
 
   get repoController() {

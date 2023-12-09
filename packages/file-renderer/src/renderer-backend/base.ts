@@ -1,4 +1,4 @@
-import { SvgAttributes, SvgBaseElement, SvgElement } from "@giz/gizual-app/utils";
+import { SvgAttributes, SvgBaseElement, SvgElement } from "@app/utils/svg";
 
 export type AnnotationContext = Object;
 

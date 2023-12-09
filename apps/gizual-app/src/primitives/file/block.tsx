@@ -4,6 +4,7 @@ import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { Skeleton, Spin, Tooltip } from "antd";
 import React from "react";
 
+import { useBlockImage } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { DialogProvider } from "../dialog-provider";
 import { FontIcon } from "../font-icon";
@@ -17,13 +18,15 @@ type FileBlockProps = {
 };
 
 export function FileBlock({ id, height, parentContainer }: FileBlockProps) {
-  //const block = useBlockImage(id);
-  const block = { url: "./block.png", isPreview: false, setPriority: (_: number) => {} };
+  const block = useBlockImage(id);
+  //const block = { url: "./block.png", isPreview: false, setPriority: (_: number) => {} };
+  console.log(block);
   const { isPreview, url, setPriority } = block;
   const ref = React.useRef<HTMLImageElement>(null);
   const settingsController = useSettingsController();
 
   // Attach IntersectionObserver on load, detach on dispose.
+
   React.useEffect(() => {
     if (!ref || !ref.current) return;
 
@@ -50,7 +53,7 @@ export function FileBlock({ id, height, parentContainer }: FileBlockProps) {
       <BlockHeader isPreview={isPreview} path={id} />
       <div className={style.FileBody}>
         {!url && <Skeleton active paragraph={false} />}
-        {url && <img className={style.FileCanvas} alt={id} height={height} src={url} ref={ref} />}
+        <img className={style.FileCanvas} alt={url ? id : ""} height={height} src={url} ref={ref} />
       </div>
     </div>
   );

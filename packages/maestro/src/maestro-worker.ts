@@ -3,14 +3,16 @@ import { z } from "zod";
 
 declare const self: DedicatedWorkerGlobalScope;
 
-import { observable } from "@trpc/server/observable";
+import type { VisualizationSettings } from "@app/controllers";
+import { observable, Observer } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
 import { EventEmitter } from "eventemitter3";
 import { minimatch } from "minimatch";
 
 import { Database } from "@giz/database";
-import { FileTreeNode, InitialDataResult } from "@giz/explorer";
-import { PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
+import { Author, FileTreeNode, InitialDataResult } from "@giz/explorer";
+import { Blame, JobRef, PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
+import { FileRendererPool, RenderType } from "@giz/file-renderer";
 import { SearchQueryType } from "@giz/query";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 import { getDateFromTimestamp, getStringDate } from "@giz/utils/gizdate";
@@ -20,11 +22,21 @@ import { t } from "./trpc-worker";
 if (typeof window !== "undefined") {
   throw new TypeError("Must be run in a worker");
 }
+type WindowVariables = {
+  devicePixelRatio: number;
+};
+
+const windowVars: WindowVariables = {
+  devicePixelRatio: 1,
+};
+
+const VISUAL_SETTINGS: VisualizationSettings = {} as any;
 
 const DB = new Database();
 let EXP_CONTROLLER: PoolController | undefined;
 // eslint-disable-next-line unused-imports/no-unused-vars
 let EXP: PoolPortal | undefined;
+const RENDER_POOL = new FileRendererPool();
 
 const EE = new EventEmitter<{
   "update-global-state": State;
@@ -78,6 +90,12 @@ type Block = {
   height: number;
 };
 
+type BlockImage = {
+  url: string;
+  isPreview: boolean;
+};
+
+let authorList: Author[] = [];
 let currentFileTree: FileTreeNode[] | undefined = undefined;
 let currentSelectedFiles: FileTreeNode[] = [];
 let currentBlocks: Block[] = [];
@@ -93,6 +111,7 @@ function setCurrentSelectedFiles(files: FileTreeNode[]) {
 function setCurrentBlocks(blocks: Block[]) {
   EE.emit("update-blocks", ...blocks);
   currentBlocks = blocks;
+  blockManager.refresh(currentSelectedFiles);
 }
 
 async function onUpdateQuery(query: SearchQueryType) {
@@ -178,6 +197,130 @@ async function untilState<K extends keyof State>(key: K, value: State[K]) {
     EE.on("update-global-state", onStateUpdate);
   });
 }
+type BlockData = {
+  url: string;
+  isPreview: boolean;
+  priority: number;
+  emit?: Observer<BlockImage, unknown>;
+  blameJobRef?: JobRef<Blame>;
+};
+
+class BlockManager {
+  private readonly blocks = new Map<string, BlockData>();
+
+  constructor() {}
+
+  refresh(files: FileTreeNode[]) {
+    this.blocks.clear();
+
+    for (const file of files) {
+      this.blocks.set(file.path.join("/"), {
+        url: "",
+        isPreview: false,
+        priority: 0,
+      });
+    }
+  }
+
+  getBlock(id: string) {
+    return this.blocks.get(id);
+  }
+
+  registerSubscription(id: string, emit: Observer<BlockImage, unknown>) {
+    const block = this.blocks.get(id);
+    if (!block) {
+      throw new Error("Block not found");
+    }
+    block.emit = emit;
+
+    block.blameJobRef = EXP!.getBlame(QUERY.branch, id, false);
+
+    block.blameJobRef?.promise.then(async (blame) => {
+      const fileContent = blame.lines;
+
+      const { result } = await RENDER_POOL.renderCanvas({
+        type: RenderType.FileLines,
+        backgroundWidth: VISUAL_SETTINGS.style.lineLength.value,
+        fileContent,
+        lineLengthMax: 12,
+        coloringMode: "age",
+        authors: authorList,
+        showContent: true,
+        dpr: 4,
+        earliestTimestamp: 0,
+        latestTimestamp: 0,
+        selectedStartDate: getDateFromTimestamp((QUERY.time as any)?.rangeByDate?.[0]),
+        selectedEndDate: getDateFromTimestamp((QUERY.time as any)?.rangeByDate?.[1]),
+        rect: new DOMRect(0, 0, 300, fileContent.length * 10),
+        isPreview: false,
+        visualizationConfig: {
+          colors: {
+            newest: VISUAL_SETTINGS.colors.new.value,
+            oldest: VISUAL_SETTINGS.colors.old.value,
+            notLoaded: VISUAL_SETTINGS.colors.notLoaded.value,
+          },
+          style: {
+            lineLength: VISUAL_SETTINGS.style.lineLength.value,
+          },
+        },
+      });
+
+      block.url = result;
+      emit.next({
+        url: result,
+        isPreview: false,
+      });
+    });
+
+    return () => {
+      this.dispose(id);
+    };
+  }
+
+  setBlockPriority(id: string, priority: number) {
+    const block = this.blocks.get(id);
+    if (!block) {
+      throw new Error("Block not found");
+    }
+    block.priority = priority;
+    if (!block.emit) {
+      console.warn("No emit for", id);
+      return;
+    }
+
+    if (!block.blameJobRef) {
+      console.warn("No blame job ref for", id);
+    }
+
+    block.blameJobRef?.setPriority(priority);
+  }
+
+  dispose(id: string) {
+    const block = this.blocks.get(id);
+    if (!block) {
+      throw new Error("Block not found");
+    }
+    block.emit = undefined;
+    if (block.url) {
+      URL.revokeObjectURL(block.url);
+      block.url = "";
+    }
+  }
+
+  setBlock(id: string, data: BlockData) {
+    this.blocks.set(id, data);
+  }
+
+  deleteBlock(id: string) {
+    this.blocks.delete(id);
+  }
+
+  clear() {
+    this.blocks.clear();
+  }
+}
+
+const blockManager = new BlockManager();
 
 const router = t.router({
   globalState: t.procedure.subscription(() => {
@@ -224,6 +367,11 @@ const router = t.router({
     .mutation(({ input }) => {
       updateQuery(input.input);
     }),
+  setPriority: t.procedure
+    .input(z.object({ id: z.string(), priority: z.number().positive() }))
+    .mutation(async ({ input }) => {
+      blockManager.setBlockPriority(input.id, input.priority);
+    }),
   selectedFiles: t.procedure.subscription(() => {
     return observable<FileTreeNode[]>((emit) => {
       const onUpdate = (...data: FileTreeNode[]) => {
@@ -252,6 +400,12 @@ const router = t.router({
       };
     });
   }),
+  blockImages: t.procedure.input(z.object({ id: z.string() })).subscription(({ input }) => {
+    return observable<BlockImage>((emit) => {
+      const dispose = blockManager.registerSubscription(input.id, emit);
+      return dispose;
+    });
+  }),
   authorList: t.procedure
     .input(
       z.object({
@@ -278,9 +432,10 @@ const router = t.router({
 // NOT the router itself.
 export type AppRouter = typeof router;
 
-async function setup(): Promise<{
+async function setup(vars: WindowVariables): Promise<{
   trpcPort: MessagePort;
 }> {
+  Object.assign(windowVars, vars);
   const { port1, port2 } = new MessageChannel();
 
   const _ = applyWebWorkerHandler({
@@ -316,10 +471,12 @@ async function setupPool(opts: PoolControllerOpts) {
   EXP = new PoolPortal(explorerPort1);
   const explorerPort2 = await EXP_CONTROLLER.createPort();
 
-  DB.init(explorerPort2).then(() => {
+  DB.init(explorerPort2).then(async () => {
     updateGlobalState({
       authorsLoaded: true,
     });
+    const authorsCount = await DB.countAuthors();
+    authorList = await DB.queryAuthors(0, authorsCount);
   });
 
   const initial_data = await EXP.execute<InitialDataResult>("get_initial_data", {}).promise;
@@ -337,7 +494,7 @@ async function setupPool(opts: PoolControllerOpts) {
     },
     files: {
       //changedInRef: initial_data.currentBranch,
-      path: "*.ts",
+      path: "*.js",
     },
   };
   setQuery(query);
@@ -379,13 +536,21 @@ async function setupPool(opts: PoolControllerOpts) {
 function debugPrint() {
   if (EXP_CONTROLLER) {
     EXP_CONTROLLER.debugPrint();
+  } else {
+    console.log("No pool controller");
   }
+}
+
+function setVisualizationSettings(settings: VisualizationSettings) {
+  console.log("setVisualizationSettings", settings);
+  Object.assign(VISUAL_SETTINGS, settings);
 }
 
 const exports = {
   setup,
   setupPool,
   debugPrint,
+  setVisualizationSettings,
 };
 
 export type MaestroWorker = typeof exports;

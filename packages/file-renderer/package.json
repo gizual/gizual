@@ -1,43 +1,19 @@
 {
   "name": "@giz/file-renderer",
-  "module": "dist/index.mjs",
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.mts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./worker": "./src/file-renderer-worker.ts"
+  },
   "dependencies": {
     "comlink": "4.4.1",
     "ejs": "3.1.9"
   },
   "devDependencies": {
-    "@swc/core": "1.3.70",
     "eslint": "8.45.0",
-    "rimraf": "5.0.1",
-    "tsup": "7.1.0",
     "typescript": "5.0.4"
   },
   "scripts": {
-    "build": "tsup",
-    "clean": "rimraf dist",
     "lint": "eslint .",
     "type-check": "tsc"
-  },
-  "please": {
-    "build": {
-      "input": "src/*"
-    }
-  },
-  "tsup": {
-    "entry": {
-      "index": "src/index.ts",
-      "file-renderer-worker": "src/file-renderer-worker.ts"
-    },
-    "external": [
-      "@giz/fonts"
-    ],
-    "format": "esm",
-    "splitting": false,
-    "sourcemap": true,
-    "clean": true,
-    "keepNames": true,
-    "dts": true
   }
 }

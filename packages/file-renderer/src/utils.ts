@@ -1,12 +1,11 @@
-import { Line } from "@app/controllers";
-import ejs from "ejs";
-
+import type { Line } from "@app/controllers";
 import {
   BAND_COLOR_RANGE,
   ColorManager,
   getBandColorScale,
   getColorScale,
-} from "@giz/gizual-app/utils";
+} from "@app/utils/colors";
+import ejs from "ejs";
 
 import {
   FileLinesContext,

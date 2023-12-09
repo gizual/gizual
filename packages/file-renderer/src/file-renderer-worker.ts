@@ -1,13 +1,9 @@
+import { ColorManager, enforceAlphaChannel } from "@app/utils/colors";
 import { VisualizationDefaults } from "@app/utils/defaults";
+import { SvgBaseElement, SvgElement } from "@app/utils/svg";
 import { expose } from "comlink";
 
 import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
-import {
-  ColorManager,
-  enforceAlphaChannel,
-  SvgBaseElement,
-  SvgElement,
-} from "@giz/gizual-app/utils";
 import {
   convertTimestampToMs,
   getDaysBetween,
@@ -309,7 +305,7 @@ export class FileRendererWorker {
     const widthPerCharacter = width / VisualizationDefaults.maxLineLength;
 
     for (const [index, line] of ctx.fileContent.entries()) {
-      if (index + 1 > VisualizationDefaults.maxLineCount) break;
+      //if (index + 1 > VisualizationDefaults.maxLineCount) break;
       const lineLength = line.content.length;
 
       let rectWidth = width;
