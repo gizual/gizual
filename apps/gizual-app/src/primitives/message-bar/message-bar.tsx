@@ -9,7 +9,8 @@ export type MessageContent = {
 };
 
 export function MessageBar() {
-  const content: MessageContent[] = [{ message: "TODO: This is a test message :)", type: "info" }];
+  //const content: MessageContent[] = [{ message: "TODO: This is a test message :)", type: "info" }];
+  const content: MessageContent[] = [];
 
   if (content.length === 0) return <></>;
 

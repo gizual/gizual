@@ -66,7 +66,6 @@ export type AuthorMosaicContext = {
 export type FileLineBackgroundWidth = "full" | "lineLength";
 export type FileLinesContext = {
   type: RenderType.FileLines;
-  backgroundWidth: FileLineBackgroundWidth;
   fileContent: Line[];
   lineLengthMax: number;
   coloringMode: ColoringMode;

@@ -7,7 +7,7 @@ import {
 } from "@app/assets";
 import { useMainController, useViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
-import { createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
+import { CanvasScale, createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
 import { Dropdown, MenuProps, Modal, Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
@@ -19,7 +19,7 @@ import { IconButton } from "../icon-button";
 import { Timeline } from "../timeline";
 
 import style from "./canvas.module.scss";
-import { CanvasViewModel, MAX_ZOOM, MIN_ZOOM } from "./canvas.vm";
+import { CanvasViewModel } from "./canvas.vm";
 import { FileCanvas } from "./file-canvas";
 
 export type CanvasProps = {
@@ -188,15 +188,16 @@ function Canvas({ vm: externalVm }: CanvasProps) {
           <Dropdown menu={{ items: dropdownItems }} trigger={["contextMenu"]}>
             <div className={style.Canvas} ref={canvasRef}>
               <TransformWrapper
-                initialScale={MIN_ZOOM}
-                minScale={MIN_ZOOM}
-                maxScale={MAX_ZOOM}
+                initialScale={CanvasScale.default}
+                minScale={CanvasScale.min}
+                maxScale={CanvasScale.max}
                 initialPositionX={0}
                 initialPositionY={0}
                 wheel={{ smoothStep: 0.001 }}
                 limitToBounds={false}
                 panning={{ velocityDisabled: true }}
                 ref={ref}
+                onInit={() => vm.reflow()}
                 onPanningStart={() => {
                   setIsPanning(true);
                 }}
@@ -204,7 +205,7 @@ function Canvas({ vm: externalVm }: CanvasProps) {
                   setIsPanning(false);
                 }}
                 onTransformed={(
-                  ref: ReactZoomPanPinchRef,
+                  _ref: ReactZoomPanPinchRef,
                   state: {
                     scale: number;
                     positionX: number;

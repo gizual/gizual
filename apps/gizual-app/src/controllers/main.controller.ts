@@ -1,5 +1,6 @@
 import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
+import { CanvasScale } from "@app/utils/defaults";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import { action, computed, makeObservable, observable } from "mobx";
 
@@ -47,7 +48,7 @@ export class MainController {
     makeObservable(this, undefined, { autoBind: true });
 
     this._repo = new Repository();
-    this.setScale(0.05);
+    this.setScale(CanvasScale.default);
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
     this._startDate = new GizDate("2023-01-01");

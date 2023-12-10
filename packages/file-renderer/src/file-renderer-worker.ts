@@ -302,16 +302,16 @@ export class FileRendererWorker {
     const lineHeight = 10 * ctx.dpr;
 
     let currentY = 0;
-    const widthPerCharacter = width / VisualizationDefaults.maxLineLength;
+    const widthPerCharacter = width / ctx.lineLengthMax;
 
-    for (const [index, line] of ctx.fileContent.entries()) {
+    for (const line of ctx.fileContent) {
       //if (index + 1 > VisualizationDefaults.maxLineCount) break;
       const lineLength = line.content.length;
 
       let rectWidth = width;
       let lineOffsetScaled = 0;
 
-      if (ctx.backgroundWidth === "lineLength") {
+      if (ctx.visualizationConfig.style.lineLength === "lineLength") {
         lineOffsetScaled =
           (line.content.length - line.content.trimStart().length) * widthPerCharacter;
         rectWidth = Math.min(

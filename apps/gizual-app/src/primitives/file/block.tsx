@@ -1,7 +1,7 @@
 import { IconSource } from "@app/assets";
 import { useSettingsController } from "@app/controllers";
 import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
-import { Skeleton, Spin, Tooltip } from "antd";
+import { Skeleton, Spin } from "antd";
 import React from "react";
 
 import { useBlockImage } from "@giz/maestro/react";
@@ -20,7 +20,6 @@ type FileBlockProps = {
 export function FileBlock({ id, height, parentContainer }: FileBlockProps) {
   const block = useBlockImage(id);
   //const block = { url: "./block.png", isPreview: false, setPriority: (_: number) => {} };
-  console.log(block);
   const { isPreview, url, setPriority } = block;
   const ref = React.useRef<HTMLImageElement>(null);
   const settingsController = useSettingsController();
@@ -84,11 +83,9 @@ function BlockHeader({ isPreview, path, icon, iconColor }: BlockHeaderProps) {
       <div className={style.FileActions}>
         <DialogProvider
           trigger={
-            <Tooltip title="Show file content">
-              <div className={sharedStyle.Pointer}>
-                <IconSource className={style.FileIcon} />
-              </div>
-            </Tooltip>
+            <div className={sharedStyle.Pointer}>
+              <IconSource className={style.FileIcon} />
+            </div>
           }
           title={truncateSmart(path, 80)}
         >

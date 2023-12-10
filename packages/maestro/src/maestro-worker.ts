@@ -10,12 +10,14 @@ import { EventEmitter } from "eventemitter3";
 import { minimatch } from "minimatch";
 
 import { Database } from "@giz/database";
+import { Blame, CommitInfo } from "@giz/explorer";
 import { Author, FileTreeNode, InitialDataResult } from "@giz/explorer";
-import { Blame, JobRef, PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
+import { JobRef, PoolController, PoolControllerOpts, PoolPortal } from "@giz/explorer-web";
 import { FileRendererPool, RenderType } from "@giz/file-renderer";
 import { SearchQueryType } from "@giz/query";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 import { getDateFromTimestamp, getStringDate } from "@giz/utils/gizdate";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { t } from "./trpc-worker";
 
@@ -233,25 +235,39 @@ class BlockManager {
     }
     block.emit = emit;
 
-    block.blameJobRef = EXP!.getBlame(QUERY.branch, id, false);
+    block.blameJobRef = EXP!.getBlame(QUERY.branch, id, false) as any;
 
     block.blameJobRef?.promise.then(async (blame) => {
-      const fileContent = blame.lines;
+      const { lines, maxLineLength } = parseLines(blame);
+      const { earliestTimestamp, latestTimestamp } = parseCommitTimestamps(blame);
+
+      const selectedStartDate =
+        QUERY.time && "rangeByDate" in QUERY.time
+          ? new GizDate(QUERY.time.rangeByDate[0])
+          : getDateFromTimestamp(earliestTimestamp.toString());
+
+      const selectedEndDate =
+        QUERY.time && "rangeByDate" in QUERY.time
+          ? new GizDate(QUERY.time.rangeByDate[1])
+          : getDateFromTimestamp(latestTimestamp.toString());
+
+      if (lines.length === 0) {
+        return;
+      }
 
       const { result } = await RENDER_POOL.renderCanvas({
         type: RenderType.FileLines,
-        backgroundWidth: VISUAL_SETTINGS.style.lineLength.value,
-        fileContent,
-        lineLengthMax: 12,
+        fileContent: lines,
+        lineLengthMax: maxLineLength,
         coloringMode: "age",
         authors: authorList,
         showContent: true,
         dpr: 4,
-        earliestTimestamp: 0,
-        latestTimestamp: 0,
-        selectedStartDate: getDateFromTimestamp((QUERY.time as any)?.rangeByDate?.[0]),
-        selectedEndDate: getDateFromTimestamp((QUERY.time as any)?.rangeByDate?.[1]),
-        rect: new DOMRect(0, 0, 300, fileContent.length * 10),
+        earliestTimestamp,
+        latestTimestamp,
+        selectedStartDate,
+        selectedEndDate,
+        rect: new DOMRect(0, 0, 300, lines.length * 10),
         isPreview: false,
         visualizationConfig: {
           colors: {
@@ -544,6 +560,43 @@ function debugPrint() {
 function setVisualizationSettings(settings: VisualizationSettings) {
   console.log("setVisualizationSettings", settings);
   Object.assign(VISUAL_SETTINGS, settings);
+}
+
+function parseCommitTimestamps(blame: Blame): {
+  earliestTimestamp: number;
+  latestTimestamp: number;
+} {
+  let earliestTimestamp = Number.MAX_SAFE_INTEGER;
+  let latestTimestamp = Number.MIN_SAFE_INTEGER;
+
+  for (const commit of Object.values(blame.commits)) {
+    earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
+    latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
+  }
+
+  return { earliestTimestamp, latestTimestamp };
+}
+
+export type Line = {
+  content: string;
+  commit?: CommitInfo;
+  color?: string;
+};
+
+function parseLines(blame: Blame) {
+  let lenMax = 0;
+  const lines: Line[] = blame.lines.map((l) => {
+    const commit = blame.commits[l.commitId];
+
+    lenMax = Math.max(l.content.length, lenMax);
+    return {
+      content: l.content,
+      commit,
+    };
+  });
+  const maxLineLength = Math.min(lenMax, 200);
+
+  return { lines, maxLineLength };
 }
 
 const exports = {
