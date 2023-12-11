@@ -111,7 +111,7 @@ const InteractiveCanvas = observer(
           },
           {
             key: "2",
-            label: "Unload all",
+            label: "Unselect all",
             onClick: () => {
               vm.unloadAllFiles();
             },
@@ -184,6 +184,7 @@ const InnerCanvas = observer(({ vm, canvasRef, interactiveRef }: InnerCanvasProp
           wrapperStyle={{
             width: "100%",
             height: "100%",
+            cursor: isPanning ? "grabbing" : "grab",
           }}
           contentStyle={{
             flexFlow: "row wrap",

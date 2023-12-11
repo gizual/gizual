@@ -260,6 +260,20 @@
   hr {
     border-color: var(--border-primary);
   }
+
+  select {
+    background-color: var(--background-tertiary);
+    color: var(--foreground-primary);
+    outline-color: var(--border-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 2px;
+    height: 24px;
+    font-family: "Iosevka Extended", monospace;
+  }
+  
+  select:focus {
+    outline: 2px solid var(--accent-main);
+  }
 }
 
 .overlay {

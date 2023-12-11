@@ -228,52 +228,59 @@ export type StepItemWithButtonsProps = {
   previousButtonDisabled?: boolean;
 };
 
-export function StepItemWithButtons({
-  step,
-  currentStep,
-  maxSteps,
-  children,
-  onNext,
-  onPrevious,
-  nextButtonDisabled,
-  previousButtonDisabled,
-}: StepItemWithButtonsProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    if (currentStep === step && ref.current) {
-      // Get the top level element for that step item, so the title is also in view.
-      ref.current.parentElement?.parentElement &&
-        ref.current.parentElement.parentElement.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [currentStep]);
+export const StepItemWithButtons = React.memo(
+  ({
+    step,
+    currentStep,
+    maxSteps,
+    children,
+    onNext,
+    onPrevious,
+    nextButtonDisabled,
+    previousButtonDisabled,
+  }: StepItemWithButtonsProps) => {
+    const ref = React.useRef<HTMLDivElement>(null);
+    React.useEffect(() => {
+      if (currentStep === step && ref.current) {
+        // Get the top level element for that step item, so the title is also in view.
+        ref.current.parentElement?.parentElement &&
+          ref.current.parentElement.parentElement.scrollIntoView({ behavior: "smooth" });
+      }
+    }, [currentStep]);
 
-  if (currentStep < step) return <></>;
+    if (currentStep < step) return <></>;
 
-  return (
-    <div className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-2"])} ref={ref}>
-      {children}
-      {step === currentStep && (
-        <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-2"])}>
-          {step > 0 && step < maxSteps - 1 && (
-            <Button size="regular" onClick={onNext} variant="filled" disabled={nextButtonDisabled}>
-              Next
-            </Button>
-          )}
-          {step > 0 && step < maxSteps - 1 && (
-            <Button
-              size="regular"
-              onClick={onPrevious}
-              variant="gray"
-              disabled={previousButtonDisabled}
-            >
-              Previous
-            </Button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+    return (
+      <div className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-2"])} ref={ref}>
+        {children}
+        {step === currentStep && (
+          <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-2"])}>
+            {step > 0 && step < maxSteps - 1 && (
+              <Button
+                size="regular"
+                onClick={onNext}
+                variant="filled"
+                disabled={nextButtonDisabled}
+              >
+                Next
+              </Button>
+            )}
+            {step > 0 && step < maxSteps - 1 && (
+              <Button
+                size="regular"
+                onClick={onPrevious}
+                variant="gray"
+                disabled={previousButtonDisabled}
+              >
+                Previous
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  },
+);
 
 export type TypeSelectionGridItemProps = {
   type: Type;
@@ -285,41 +292,43 @@ export type TypeSelectionGridItemProps = {
   imageSrc?: string;
 };
 
-export function TypeSelectionGridItem({
-  type,
-  checked,
-  onChange,
-  imageSrc,
-  imageAlt,
-  title,
-  description,
-}: TypeSelectionGridItemProps) {
-  return (
-    <label className={style.TypeDialogGridItem}>
-      <input
-        type="radio"
-        name="type"
-        checked={checked}
-        onChange={() => onChange(type)}
-        onClick={() => onChange(type)}
-      />
-      <div className={style.TypeDialogGridItemTile}>
-        <img className={style.TypeDialogGridItemImage} alt={imageAlt} src={imageSrc} />
-        <div className={style.TypeDialogGridItemContent}>
-          <h3 className={style.TypeDialogGridItemTitle}>{title}</h3>
-          <p className={style.TypeDialogGridItemDescription}>{description}</p>
+export const TypeSelectionGridItem = React.memo(
+  ({
+    type,
+    checked,
+    onChange,
+    imageSrc,
+    imageAlt,
+    title,
+    description,
+  }: TypeSelectionGridItemProps) => {
+    return (
+      <label className={style.TypeDialogGridItem}>
+        <input
+          type="radio"
+          name="type"
+          checked={checked}
+          onChange={() => onChange(type)}
+          onClick={() => onChange(type)}
+        />
+        <div className={style.TypeDialogGridItemTile}>
+          <img className={style.TypeDialogGridItemImage} alt={imageAlt} src={imageSrc} />
+          <div className={style.TypeDialogGridItemContent}>
+            <h3 className={style.TypeDialogGridItemTitle}>{title}</h3>
+            <p className={style.TypeDialogGridItemDescription}>{description}</p>
+          </div>
         </div>
-      </div>
-    </label>
-  );
-}
+      </label>
+    );
+  },
+);
 
 export type TypeSelectionGridProps = {
   type?: Type;
   onChange: (type: Type) => void;
 };
 
-export function TypeSelectionGrid({ type, onChange }: TypeSelectionGridProps) {
+export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGridProps) => {
   return (
     <div className={style.TypeDialogGrid}>
       <TypeSelectionGridItem
@@ -378,7 +387,7 @@ export function TypeSelectionGrid({ type, onChange }: TypeSelectionGridProps) {
       />
     </div>
   );
-}
+});
 
 export type DefaultStyleSelection = {
   selectedType?: Type;
@@ -386,33 +395,31 @@ export type DefaultStyleSelection = {
   selectedStyle?: Style;
 };
 
-export function DefaultStyleSelect({
-  selectedType: type,
-  onChange,
-  selectedStyle,
-}: DefaultStyleSelection) {
-  const onRadioChange = (e: RadioChangeEvent) => {
-    onChange(e.target.value);
-  };
+export const DefaultStyleSelect = React.memo(
+  ({ selectedType: type, onChange, selectedStyle }: DefaultStyleSelection) => {
+    const onRadioChange = (e: RadioChangeEvent) => {
+      onChange(e.target.value);
+    };
 
-  return (
-    <div className={sharedStyle.FlexColumn}>
-      {match(type)
-        .with("file-lines", () => (
-          <Radio.Group onChange={onRadioChange}>
-            {DefaultStyles.map((style) => {
-              return (
-                <Radio value={style} key={style} checked={style === selectedStyle}>
-                  {style}
-                </Radio>
-              );
-            })}
-          </Radio.Group>
-        ))
-        .otherwise(() => "TODO: No styles available for this type.")}
-    </div>
-  );
-}
+    return (
+      <div className={sharedStyle.FlexColumn}>
+        {match(type)
+          .with("file-lines", () => (
+            <Radio.Group onChange={onRadioChange}>
+              {DefaultStyles.map((style) => {
+                return (
+                  <Radio value={style} key={style} checked={style === selectedStyle}>
+                    {style}
+                  </Radio>
+                );
+              })}
+            </Radio.Group>
+          ))
+          .otherwise(() => "TODO: No styles available for this type.")}
+      </div>
+    );
+  },
+);
 
 export type ColorCustomizationProps = {
   selectedType?: Type;
@@ -421,30 +428,41 @@ export type ColorCustomizationProps = {
   onChange: (colors: string[]) => void;
 };
 
-export function ColorCustomization({ selectedColors, onChange }: ColorCustomizationProps) {
-  return (
-    <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-4"])}>
-      {selectedColors &&
-        selectedColors.map((color, index) => (
-          <div
-            className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-1"], sharedStyle["Items-Center"])}
-            key={index}
-          >
-            <p className={sharedStyle["Text-Base"]}>Color {index + 1}:</p>
-            <ColorPicker
-              value={color}
-              size="small"
-              showText
-              onChange={(e) => {
-                selectedColors[index] = `#${e.toHex(false)}`;
-                onChange([...selectedColors]);
-              }}
-            />
-          </div>
-        ))}
-    </div>
-  );
-}
+export const ColorCustomization = React.memo(
+  ({ selectedColors, onChange }: ColorCustomizationProps) => {
+    return (
+      <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-4"])}>
+        {selectedColors &&
+          selectedColors.length > 0 &&
+          selectedColors.map((color, index) => (
+            <div
+              className={clsx(
+                sharedStyle.FlexRow,
+                sharedStyle["Gap-1"],
+                sharedStyle["Items-Center"],
+              )}
+              key={index}
+            >
+              <p className={sharedStyle["Text-Base"]}>Color {index + 1}:</p>
+              <ColorPicker
+                value={color}
+                size="small"
+                showText
+                onChange={(e) => {
+                  selectedColors[index] = `#${e.toHex(false)}`;
+                  onChange([...selectedColors]);
+                }}
+              />
+            </div>
+          ))}
+        {!selectedColors ||
+          (selectedColors.length === 0 && (
+            <div>Open TODO: This selection does not allow for additional color customization.</div>
+          ))}
+      </div>
+    );
+  },
+);
 
 export type FinalizeChangesBlockProps = {
   selectedType?: Type;
@@ -455,48 +473,50 @@ export type FinalizeChangesBlockProps = {
   onDiscard: () => void;
 };
 
-export function FinalizeChangesBlock({
-  selectedType,
-  selectedStyle,
-  selectedColors,
-  showButtons,
-  onApply,
-  onDiscard,
-}: FinalizeChangesBlockProps) {
-  return (
-    <div className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-2"])}>
-      <div className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-1"])}>
-        <p className={clsx(sharedStyle["Text-Medium"], sharedStyle["Text-Left"])}>
-          Selected type:{" "}
-          <span className={clsx(sharedStyle["Text-Normal"], sharedStyle["Text-Accent"])}>
-            {selectedType}
-          </span>
-        </p>
+export const FinalizeChangesBlock = React.memo(
+  ({
+    selectedType,
+    selectedStyle,
+    selectedColors,
+    showButtons,
+    onApply,
+    onDiscard,
+  }: FinalizeChangesBlockProps) => {
+    return (
+      <div className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-2"])}>
+        <div className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-1"])}>
+          <p className={clsx(sharedStyle["Text-Medium"], sharedStyle["Text-Left"])}>
+            Selected type:{" "}
+            <span className={clsx(sharedStyle["Text-Normal"], sharedStyle["Text-Accent"])}>
+              {selectedType}
+            </span>
+          </p>
 
-        <p className={clsx(sharedStyle["Text-Medium"], sharedStyle["Text-Left"])}>
-          Selected default style:{" "}
-          <span className={clsx(sharedStyle["Text-Normal"], sharedStyle["Text-Accent"])}>
-            {selectedStyle}
-          </span>
-        </p>
+          <p className={clsx(sharedStyle["Text-Medium"], sharedStyle["Text-Left"])}>
+            Selected default style:{" "}
+            <span className={clsx(sharedStyle["Text-Normal"], sharedStyle["Text-Accent"])}>
+              {selectedStyle}
+            </span>
+          </p>
 
-        <p className={clsx(sharedStyle["Text-Medium"], sharedStyle["Text-Left"])}>
-          Selected colors:{" "}
-          <span className={clsx(sharedStyle["Text-Normal"], sharedStyle["Text-Accent"])}>
-            {selectedColors?.join(", ")}
-          </span>
-        </p>
-      </div>
-      {showButtons && (
-        <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-2"])}>
-          <Button variant="filled" size="regular" onClick={onApply}>
-            Apply
-          </Button>
-          <Button variant="gray" size="regular" onClick={onDiscard}>
-            Discard
-          </Button>
+          <p className={clsx(sharedStyle["Text-Medium"], sharedStyle["Text-Left"])}>
+            Selected colors:{" "}
+            <span className={clsx(sharedStyle["Text-Normal"], sharedStyle["Text-Accent"])}>
+              {selectedColors?.join(", ")}
+            </span>
+          </p>
         </div>
-      )}
-    </div>
-  );
-}
+        {showButtons && (
+          <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-2"])}>
+            <Button variant="filled" size="regular" onClick={onApply}>
+              Apply
+            </Button>
+            <Button variant="gray" size="regular" onClick={onDiscard}>
+              Discard
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  },
+);

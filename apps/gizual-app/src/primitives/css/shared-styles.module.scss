@@ -29,7 +29,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  cursor: default;
   line-height: 120%;
 }
 
@@ -179,15 +178,15 @@
 }
 
 .CursorPointer {
-  cursor: pointer;
+  cursor: pointer !important;
 }
 
 .CursorCanDrag {
-  cursor: grab;
+  cursor: grab !important;
 }
 
 .CursorDragging {
-  cursor: grabbing;
+  cursor: grabbing !important;
 }
 
 /* Overlay that covers things beneath a Popover */

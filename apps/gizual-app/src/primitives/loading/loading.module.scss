@@ -1,0 +1,54 @@
+@use "@/mixins" as *;
+
+.GlobalLoadingIndicator {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #000000bb;
+  opacity: 1;
+  z-index: 1000;
+
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.GlobalLoadingIndicator--inner {
+  @include rounded;
+  @include shadow-lg;
+  --_width: 200px;
+  --_height: 140px;
+  font-size: 1.25rem;
+  font-weight: bold;
+
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0.5rem 0 0.5rem;
+  top: calc(50% - var(--_height) / 2);
+  left: calc(50% - var(--_width) / 2);
+  right: 0;
+  height: var(--_height);
+  width: var(--_width);
+  background-color: var(--background-tertiary);
+  z-index: 1200;
+}
+
+.GlobalLoadingIndicator--innerLoaderContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  margin: auto;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

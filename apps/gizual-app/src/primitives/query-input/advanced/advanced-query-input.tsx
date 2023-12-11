@@ -1,4 +1,3 @@
-import { useMainController } from "@app/controllers";
 import { useTheme } from "@app/utils";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { Tooltip } from "antd";
@@ -39,7 +38,7 @@ function handleEditorDidMount(editor: Monaco) {
 
 export const AdvancedEditor = observer(() => {
   const { query, setQuery } = useQuery();
-  const mainController = useMainController();
+  console.log("AdvancedEditor", query);
   const [validationOutput, setValidationOutput] = React.useState<string[]>([]);
   const [editorContent, setEditorContent] = React.useState<string>(
     JSON.stringify(query, undefined, 1),
@@ -48,6 +47,8 @@ export const AdvancedEditor = observer(() => {
   React.useEffect(() => {
     setEditorContent(JSON.stringify(query, undefined, 1));
   }, [query]);
+
+  console.log("EditorContent", editorContent);
 
   const monacoInstance = useMonaco();
 
@@ -72,7 +73,7 @@ export const AdvancedEditor = observer(() => {
       <Editor
         className={style.AdvancedEditor}
         defaultLanguage="json"
-        defaultValue={JSON.stringify(query, undefined, 1)}
+        value={JSON.stringify(query, undefined, 1)}
         onValidate={handleEditorValidation}
         beforeMount={handleEditorWillMount}
         onMount={(_e, m) => handleEditorDidMount(m)}

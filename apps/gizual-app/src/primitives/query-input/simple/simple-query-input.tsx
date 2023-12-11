@@ -1,8 +1,6 @@
-import { IconCommandLine, IconGitBranchLine } from "@app/assets";
-import { useMainController } from "@app/controllers";
+import { IconCommandLine } from "@app/assets";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { IconButton } from "@app/primitives/icon-button";
-import { Select } from "@app/primitives/select";
 import { LocalQueryContext, useLocalQuery } from "@app/utils";
 import { Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
@@ -15,27 +13,13 @@ import { FileChangedInRefModule, FileGlobModule, FilePlaceholderModule } from ".
 import { TimePlaceholderModule, TimeRangeModule } from "./modules/time";
 import { TypeModule, TypePlaceholderModule } from "./modules/type";
 import style from "./simple-query-input.module.scss";
+import { BranchModule } from "./modules/branch";
 
 export const SimpleQueryInput = observer(() => {
-  const mainController = useMainController();
-
   return (
     <div className={style.Container}>
       <div className={style.Clickable}>
         <div className={style.Content}>
-          <Select
-            value={mainController.selectedBranch}
-            componentStyle={{ width: 229, height: "100%", margin: "auto 0" }}
-            onChange={(e) => {
-              mainController.setBranchByName(e);
-            }}
-            size="middle"
-            options={mainController.branchNames.map((b) => {
-              return { label: b, value: b };
-            })}
-            icon={<IconGitBranchLine />}
-          />
-
           <ModuleProvider />
 
           <DialogProvider
@@ -63,6 +47,8 @@ export const SimpleQueryInput = observer(() => {
 export function ModuleProvider() {
   const { query } = useQuery();
   const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
+
+  const branchQuery = <BranchModule key="branch-module" />;
 
   const presetMatch = match(query)
     .with({ type: P.select() }, (type) => {
@@ -112,7 +98,7 @@ export function ModuleProvider() {
 
   return (
     <LocalQueryContext.Provider value={{ localQuery, updateLocalQuery, publishLocalQuery }}>
-      {[presetMatch, timeMatch, fileMatch]}
+      {[branchQuery, presetMatch, timeMatch, fileMatch]}
     </LocalQueryContext.Provider>
   );
 }

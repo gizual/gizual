@@ -28,6 +28,7 @@ export { ReactComponent as IconOpen } from "./open.svg";
 export { ReactComponent as IconPalette } from "./palette.svg";
 export { ReactComponent as IconPeople } from "./people.svg";
 export { ReactComponent as IconPlus } from "./plus.svg";
+export { ReactComponent as IconRuler } from "./ruler.svg";
 export { ReactComponent as IconSafari } from "./safari.svg";
 export { ReactComponent as IconSave } from "./save.svg";
 export { ReactComponent as IconSearch } from "./search.svg";

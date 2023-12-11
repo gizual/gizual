@@ -1,12 +1,11 @@
-import { IconClock, IconGitFork } from "@app/assets";
-import { useSettingsController } from "@app/controllers";
+import { IconClock, IconRuler } from "@app/assets";
+import { useMainController, useSettingsController } from "@app/controllers";
 import { useLocalQueryCtx } from "@app/utils";
 import { DatePicker } from "antd";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import weekday from "dayjs/plugin/weekday";
-import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 
 import { DATE_FORMAT } from "@giz/utils/gizdate";
@@ -55,6 +54,8 @@ export const TimeRangeModule = observer(() => {
     });
   };
 
+  const mainController = useMainController(); /* TODO: Remove this after the timeline fix */
+
   return (
     <BaseQueryModule
       icon={<IconClock />}
@@ -84,14 +85,18 @@ export const TimeRangeModule = observer(() => {
           suffixIcon={false}
           format={DATE_FORMAT}
         />
-        <IconGitFork
+        <IconRuler
           className={clsx(style.IconBase, isTimelineOpen ? style.IconToggled : style.IconUnToggled)}
           onClick={() => {
-            runInAction(() => {
-              settingsController.timelineSettings.displayMode.value = isTimelineOpen
-                ? "collapsed"
-                : "visible";
+            mainController.displayNotification({
+              message: "Info: The timeline is disabled in this demo build.",
+              role: "alert",
             });
+            //runInAction(() => {
+            //  settingsController.timelineSettings.displayMode.value = isTimelineOpen
+            //    ? "collapsed"
+            //    : "visible";
+            //});
           }}
         />
       </div>
