@@ -62,6 +62,10 @@ export class CanvasViewModel {
     this.canvasContainerRef.current.setTransform(0, 0, scale ?? this._mainController.scale);
   }
 
+  resetScale() {
+    this.center(1);
+  }
+
   zoomTo(n: number | null) {
     if (!this.canvasContainerRef?.current || !n) return;
     n = n / 100;

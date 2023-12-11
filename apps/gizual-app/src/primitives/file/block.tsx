@@ -17,8 +17,9 @@ type FileBlockProps = {
   parentContainer: Element | null;
 };
 
-export function FileBlock({ id, height, parentContainer }: FileBlockProps) {
+export const FileBlock = React.memo(({ id, height, parentContainer }: FileBlockProps) => {
   const block = useBlockImage(id);
+  console.log(block);
   //const block = { url: "./block.png", isPreview: false, setPriority: (_: number) => {} };
   const { isPreview, url, setPriority } = block;
   const ref = React.useRef<HTMLImageElement>(null);
@@ -56,7 +57,7 @@ export function FileBlock({ id, height, parentContainer }: FileBlockProps) {
       </div>
     </div>
   );
-}
+});
 
 type BlockHeaderProps = {
   isPreview: boolean;

@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import React from "react";
 
 import style from "./icon-button.module.scss";
 
@@ -11,7 +12,7 @@ export type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   border?: "right";
 };
 
-export function IconButton({
+function IconButtonI({
   className,
   onClick,
   colored,
@@ -36,3 +37,5 @@ export function IconButton({
     </button>
   );
 }
+
+export const IconButton = React.memo(IconButtonI);
