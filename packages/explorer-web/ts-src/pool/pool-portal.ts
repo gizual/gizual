@@ -266,8 +266,9 @@ export class PoolPortal {
     });
   }
 
-  getFileTree(branch: string) {
-    return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", { branch }).promise;
+  getFileTree(branch: string, timerange?: [string, string]) {
+    return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", { branch, timerange })
+      .promise;
   }
 
   streamCommits(

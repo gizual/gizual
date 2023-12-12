@@ -4,6 +4,7 @@ import { z } from "zod";
 declare const self: DedicatedWorkerGlobalScope;
 
 import type { VisualizationSettings } from "@app/controllers";
+import type { VisualizationConfig } from "@app/types";
 import { observable, Observer } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
 import { EventEmitter } from "eventemitter3";
@@ -113,17 +114,42 @@ function setCurrentSelectedFiles(files: FileTreeNode[]) {
 function setCurrentBlocks(blocks: Block[]) {
   EE.emit("update-blocks", ...blocks);
   currentBlocks = blocks;
-  blockManager.refresh(currentSelectedFiles);
+  blockManager.reset(currentSelectedFiles);
 }
 
 async function onUpdateQuery(query: SearchQueryType) {
   console.log("onUpdateQuery", query);
-  const { branch, time, files } = query;
+  const { branch, time, files, type, preset } = query;
+  if (!type) {
+    blockManager.clear();
+    setCurrentSelectedFiles([]);
+    setCurrentBlocks([]);
+    return;
+  }
 
-  if (branch !== QUERY.branch || !isEqual(time, QUERY.time) || !currentFileTree) {
-    // update file tree
-    // TODO: support time range
-    const tree = await EXP?.getFileTree(branch);
+  const typeChanged = !isEqual(type, QUERY.type);
+  const presetChanged = !isEqual(preset, QUERY.preset);
+  const timeChanged = !isEqual(time, QUERY.time);
+  const branchChanged = branch !== QUERY.branch;
+  const initial = !currentFileTree;
+
+  if (typeChanged || branchChanged || timeChanged || presetChanged || initial) {
+    const timerange: [string, string] | undefined = undefined;
+    /* TODO: this is not working yet because the blames do not respect  the timerange yet
+
+    if (time && "rangeByDate" in time) {
+      const startDate = new GizDate(time.rangeByDate[0]);
+      const endDate = new GizDate(time.rangeByDate[1]);
+
+      timerange = [
+        `${Math.round(startDate.getTime() / 1000)}`,
+        `${Math.round(endDate.getTime() / 1000)}`,
+      ];
+    }
+      */
+
+    const tree = await EXP?.getFileTree(branch, timerange);
+
     if (tree) {
       currentFileTree = tree;
     }
@@ -147,7 +173,14 @@ async function onUpdateQuery(query: SearchQueryType) {
     return result;
   });
 
-  setCurrentSelectedFiles(selectedFiles);
+  const selectedFilesChanged = !isEqual(selectedFiles, currentSelectedFiles);
+  if (timeChanged || presetChanged || typeChanged) {
+    blockManager.rerenderAll(query);
+  }
+
+  if (selectedFilesChanged) {
+    setCurrentSelectedFiles(selectedFiles);
+  }
 
   const fileContentLengths = await Promise.all(
     selectedFiles.map(
@@ -161,7 +194,9 @@ async function onUpdateQuery(query: SearchQueryType) {
     height: fileContentLengths[i] * 10,
   }));
 
-  setCurrentBlocks(newBlocks);
+  if (!isEqual(newBlocks, currentBlocks)) {
+    setCurrentBlocks(newBlocks);
+  }
 }
 
 EE.on("update-query", onUpdateQuery);
@@ -212,7 +247,92 @@ class BlockManager {
 
   constructor() {}
 
-  refresh(files: FileTreeNode[]) {
+  rerenderAll(query?: SearchQueryType) {
+    if (this.blocks.size === 0) {
+      console.log("no blocks");
+      return;
+    }
+    for (const id of this.blocks.keys()) {
+      this.rerenderBlock(id, query);
+    }
+  }
+
+  rerenderBlock(id: string, query: SearchQueryType = QUERY) {
+    const block = this.blocks.get(id);
+
+    if (!block) {
+      throw new Error("Block not found");
+    }
+
+    block.blameJobRef = EXP!.getBlame(query.branch, id, false) as any;
+
+    block.blameJobRef?.promise.then(async (blame) => {
+      const { lines, maxLineLength } = parseLines(blame);
+      const { earliestTimestamp, latestTimestamp } = parseCommitTimestamps(blame);
+
+      const selectedStartDate =
+        query.time && "rangeByDate" in query.time
+          ? new GizDate(query.time.rangeByDate[0])
+          : getDateFromTimestamp(earliestTimestamp.toString());
+
+      const selectedEndDate =
+        query.time && "rangeByDate" in query.time
+          ? new GizDate(query.time.rangeByDate[1])
+          : getDateFromTimestamp(latestTimestamp.toString());
+
+      if (lines.length === 0) {
+        return;
+      }
+      const visualizationConfig: VisualizationConfig = {
+        colors: {
+          newest: VISUAL_SETTINGS.colors.new.value,
+          oldest: VISUAL_SETTINGS.colors.old.value,
+          notLoaded: VISUAL_SETTINGS.colors.notLoaded.value,
+        },
+        style: {
+          lineLength: VISUAL_SETTINGS.style.lineLength.value,
+        },
+      };
+
+      let coloringMode: "age" | "author" = "age";
+
+      if (query.preset && "gradientByAge" in query.preset) {
+        visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
+        visualizationConfig.colors.newest = query.preset.gradientByAge[1];
+      } else if (query.preset && "gradientByAuthor" in query.preset) {
+        coloringMode = "author";
+      }
+
+      const { result } = await RENDER_POOL.renderCanvas({
+        type: RenderType.FileLines,
+        fileContent: lines,
+        lineLengthMax: maxLineLength,
+        coloringMode,
+        authors: authorList,
+        showContent: true,
+        dpr: 4,
+        earliestTimestamp,
+        latestTimestamp,
+        selectedStartDate,
+        selectedEndDate,
+        rect: new DOMRect(0, 0, 300, lines.length * 10),
+        isPreview: false,
+        visualizationConfig,
+      });
+
+      block.url = result;
+      if (!block.emit) {
+        console.warn("No emit for", id);
+        return;
+      }
+      block.emit?.next({
+        url: result,
+        isPreview: false,
+      });
+    });
+  }
+
+  reset(files: FileTreeNode[]) {
     this.blocks.clear();
 
     for (const file of files) {
@@ -235,58 +355,7 @@ class BlockManager {
     }
     block.emit = emit;
 
-    block.blameJobRef = EXP!.getBlame(QUERY.branch, id, false) as any;
-
-    block.blameJobRef?.promise.then(async (blame) => {
-      const { lines, maxLineLength } = parseLines(blame);
-      const { earliestTimestamp, latestTimestamp } = parseCommitTimestamps(blame);
-
-      const selectedStartDate =
-        QUERY.time && "rangeByDate" in QUERY.time
-          ? new GizDate(QUERY.time.rangeByDate[0])
-          : getDateFromTimestamp(earliestTimestamp.toString());
-
-      const selectedEndDate =
-        QUERY.time && "rangeByDate" in QUERY.time
-          ? new GizDate(QUERY.time.rangeByDate[1])
-          : getDateFromTimestamp(latestTimestamp.toString());
-
-      if (lines.length === 0) {
-        return;
-      }
-
-      const { result } = await RENDER_POOL.renderCanvas({
-        type: RenderType.FileLines,
-        fileContent: lines,
-        lineLengthMax: maxLineLength,
-        coloringMode: "age",
-        authors: authorList,
-        showContent: true,
-        dpr: 4,
-        earliestTimestamp,
-        latestTimestamp,
-        selectedStartDate,
-        selectedEndDate,
-        rect: new DOMRect(0, 0, 300, lines.length * 10),
-        isPreview: false,
-        visualizationConfig: {
-          colors: {
-            newest: VISUAL_SETTINGS.colors.new.value,
-            oldest: VISUAL_SETTINGS.colors.old.value,
-            notLoaded: VISUAL_SETTINGS.colors.notLoaded.value,
-          },
-          style: {
-            lineLength: VISUAL_SETTINGS.style.lineLength.value,
-          },
-        },
-      });
-
-      block.url = result;
-      emit.next({
-        url: result,
-        isPreview: false,
-      });
-    });
+    this.rerenderBlock(id);
 
     return () => {
       this.dispose(id);
@@ -511,6 +580,12 @@ async function setupPool(opts: PoolControllerOpts) {
     files: {
       //changedInRef: initial_data.currentBranch,
       path: "*.js",
+    },
+    preset: {
+      gradientByAge: [
+        VISUAL_SETTINGS.colors.old.defaultValue,
+        VISUAL_SETTINGS.colors.new.defaultValue,
+      ],
     },
   };
   setQuery(query);

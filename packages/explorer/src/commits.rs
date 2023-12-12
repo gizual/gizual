@@ -1,6 +1,7 @@
 use crate::explorer::Explorer;
 use crate::git_graph::to_string_oid;
 use crate::utils::get_author_id;
+use git2::Oid;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "bindings")]
@@ -21,6 +22,34 @@ pub struct Commit {
 }
 
 impl Explorer {
+
+    pub fn pick_last_commit_by_time(&self, branch: &str, start_seconds: i64, end_seconds: i64) -> Option<Oid> {
+        let repo = self.repo.as_ref().unwrap();
+        
+
+        let branch = repo.find_branch(branch, git2::BranchType::Local).expect("Failed to find branch").get().peel_to_commit().expect("Failed to peel to commit").id();
+
+        let mut walk = repo.revwalk().expect("Failed to create revwalk");
+
+        walk.set_sorting(git2::Sort::TOPOLOGICAL | git2::Sort::TIME)
+            .expect("Failed to set sorting");
+
+        walk.push(branch).expect("Failed to push glob");
+        for _oid in walk {
+            if _oid.is_err() {
+                continue;
+            }
+
+            let oid = _oid.unwrap();
+            let commit = repo.find_commit(oid).expect("Failed to find commit");
+            let timestamp = commit.time().seconds();
+            if timestamp >= start_seconds && timestamp <= end_seconds {
+                return Some(oid);
+            }
+        }
+        None
+    }
+
     pub fn cmd_stream_commits(&mut self) {
         match self.stream_commits() {
             Ok(_) => {}
