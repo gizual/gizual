@@ -322,7 +322,7 @@ export class FileRendererWorker {
 
       const color =
         line.commit && !ctx.isPreview
-          ? interpolateColor(line, ctx)
+          ? interpolateColor(line, ctx, this.colorManager)
           : ctx.visualizationConfig.colors.notLoaded;
 
       line.color = color;

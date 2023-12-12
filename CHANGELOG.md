@@ -1,8 +1,20 @@
-## Gizual 3.0.0-alpha.12 (XX.XX.XXXX)
+## Gizual 3.0.0-alpha.12 (12.12.2023)
+
+### Features
+
+- **app:general:** migrate to new worker-based architecture for query and rendering management
+- **app:frontend:** rework search-bar into modular query-based architecture, add first set of modules
+
+### Changes
+
+- **app:frontend:** add new color picker
+- **app:frontend:** move canvas toolbar to the left of the canvas
+- **app:frontend:** add static image placeholder to welcome gif
 
 ### Bug Fixes
 
 - **app:frontend:** fix bug that caused the file-loader default selection to be set to an invalid value
+- **app:frontend:** fix pointer style on canvas
 
 ## Gizual 3.0.0-alpha.11 (21.11.2023)
 

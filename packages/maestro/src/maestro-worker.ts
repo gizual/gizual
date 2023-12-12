@@ -299,7 +299,7 @@ class BlockManager {
       if (query.preset && "gradientByAge" in query.preset) {
         visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
         visualizationConfig.colors.newest = query.preset.gradientByAge[1];
-      } else if (query.preset && "gradientByAuthor" in query.preset) {
+      } else if (query.preset && "paletteByAuthor" in query.preset) {
         coloringMode = "author";
       }
 
