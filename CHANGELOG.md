@@ -16,6 +16,8 @@
 - **app:frontend:** fix bug that caused the file-loader default selection to be set to an invalid value
 - **app:frontend:** fix pointer style on canvas
 
+---
+
 ## Gizual 3.0.0-alpha.11 (21.11.2023)
 
 ### Changes
