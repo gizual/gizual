@@ -12,6 +12,6 @@
     "chokidar": "3.5.3",
     "concurrently": "8.2.1",
     "debounce": "1.2.1",
-    "vite-node": "0.34.6"
+    "vite-node": "1.0.2"
   }
 }

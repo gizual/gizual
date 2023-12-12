@@ -4,7 +4,6 @@
   "dependencies": {
     "@app/assets": "workspace:*",
     "@app/types": "workspace:*",
-    "@app/utils": "workspace:*",
-    "@app/workers": "workspace:*"
+    "@app/utils": "workspace:*"
   }
 }

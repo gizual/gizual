@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-array-push-push */
 
 import { CInfo, FileNodeInfos } from "@app/types";
-import { getDateFromTimestamp, getStringDate, GizDate, VisualizationDefaults } from "@app/utils";
+import { VisualizationDefaults } from "@app/utils";
 import _ from "lodash";
 import {
   action,
@@ -17,6 +17,7 @@ import {
 
 import { Blame, CommitInfo } from "@giz/explorer";
 import { BlameView } from "@giz/explorer-web";
+import { getDateFromTimestamp, getStringDate, GizDate } from "@giz/utils/gizdate";
 
 import type { MainController } from "./main.controller";
 
@@ -246,7 +247,6 @@ export class RepoController {
     this._defaultEndDate = newSelectedEndDate;
 
     this.mainController.vmController.timelineViewModel?.initializePositionsFromSelection();
-    this.mainController.triggerSearchBarUpdate(true);
   }
 
   @action.bound
@@ -254,19 +254,6 @@ export class RepoController {
     if (this._selectedFiles.has(name)) {
       this._selectedFiles.delete(name);
     } else this._selectedFiles.set(name, info);
-
-    this.updateFileTag();
-  }
-
-  @action.bound
-  updateFileTag() {
-    // TODO: Cleanup the tag and file synchronization issues.
-    const numSelFiles = this._selectedFiles.size;
-    this.mainController.vmController.searchBarViewModel?.updateTag(
-      "file",
-      numSelFiles > 0 ? '"..."' : "",
-      true,
-    );
   }
 
   @action.bound

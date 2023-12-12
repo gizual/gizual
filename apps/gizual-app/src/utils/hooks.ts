@@ -1,6 +1,16 @@
 import { notification as antdNotification } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
-import { useEffect, useLayoutEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
+
+import { useQuery } from "@giz/maestro/react";
+import { SearchQueryType } from "@giz/query";
 
 export function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -53,4 +63,50 @@ export const useStyle = (key: string) => {
 export const useNotification = (): [NotificationInstance, React.ReactElement] => {
   const [notification, contextHolder] = antdNotification.useNotification();
   return [notification, contextHolder];
+};
+
+export const LocalQueryContext = createContext<
+  | {
+      localQuery: SearchQueryType;
+      updateLocalQuery: (partial: Partial<SearchQueryType>) => void;
+      publishLocalQuery: () => void;
+    }
+  | undefined
+>(undefined);
+
+export const useLocalQuery = () => {
+  const { query, setQuery } = useQuery();
+
+  const [localQuery, setLocalQuery] = useState<SearchQueryType>(query);
+
+  useEffect(() => {
+    setLocalQuery(query);
+  }, [query]);
+
+  const updateLocalQuery = useCallback(
+    (partial: Partial<SearchQueryType>) => {
+      setLocalQuery({ ...Object.assign(localQuery, partial) });
+    },
+    [setLocalQuery, localQuery],
+  );
+
+  const publishLocalQuery = useCallback(() => {
+    setQuery(localQuery);
+  }, [setLocalQuery, localQuery]);
+
+  const resetLocalQuery = useCallback(() => {
+    setLocalQuery(query);
+  }, [localQuery, query]);
+
+  return { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery };
+};
+
+export const useLocalQueryCtx = () => {
+  const ctx = useContext(LocalQueryContext);
+
+  if (!ctx) {
+    throw new Error("Unable to consume LocalQueryContext");
+  }
+
+  return ctx;
 };

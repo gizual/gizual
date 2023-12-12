@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 
 import { Maestro } from "@giz/maestro";
@@ -22,7 +23,9 @@ const mainController = new MainController(maestro);
 ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
   <MaestroProvider maestro={maestro}>
     <MainContext.Provider value={mainController}>
-      <App />
+      <StrictMode>
+        <App />
+      </StrictMode>
     </MainContext.Provider>
   </MaestroProvider>,
 );

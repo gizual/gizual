@@ -134,8 +134,10 @@
   width: 100%;
   max-width: 100%;
   min-width: calc(100vw - 2rem);
-
   padding: 1rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+
   @include lg {
     width: 33%;
     max-width: 450px;
@@ -147,6 +149,8 @@
   gap: 1rem;
   flex-grow: 1;
   padding: 1rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .Grow {
@@ -376,4 +380,22 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  opacity: 0;
+  animation: fadein 0.25s ease-in-out forwards;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.GifPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 1;
 }

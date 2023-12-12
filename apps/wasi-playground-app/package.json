@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "dependencies": {
     "@giz/explorer": "workspace:*",
-    "asyncify-wasm": "1.2.1",
     "normalize.css": "8.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
@@ -16,7 +15,7 @@
     "rimraf": "5.0.1",
     "turbowatch": "2.29.4",
     "typescript": "5.0.4",
-    "vite": "5.0.0-beta.16",
+    "vite": "5.0.6",
     "vite-plugin-top-level-await": "1.3.1",
     "vite-plugin-wasm": "3.2.2"
   },

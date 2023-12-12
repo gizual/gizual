@@ -1,5 +1,5 @@
 import type { ColoringMode } from "@app/types";
-import { SvgBaseElement } from "@app/utils";
+import type { SvgBaseElement } from "@app/utils";
 
 import type { Author } from "@giz/explorer";
 import type { Line } from "@giz/gizual-app/controllers";
@@ -7,17 +7,22 @@ import type { VisualizationConfig } from "@giz/gizual-app/types";
 
 export type RenderingMode = "canvas" | "svg" | "annotations";
 
-export type BaseContext = {
+export const InternalContextItems = ["dpr", "rect", "ejsTemplate"] as const;
+
+export type InternalContext = {
   dpr: number;
   rect: DOMRect;
+  ejsTemplate?: string;
+};
+
+export type BaseContext = {
   isPreview: boolean;
   visualizationConfig: VisualizationConfig;
-
   earliestTimestamp: number;
   latestTimestamp: number;
   selectedStartDate: Date;
   selectedEndDate: Date;
-};
+} & InternalContext;
 
 export type BaseMosaicContext = {
   tilesPerRow: number;
@@ -40,7 +45,8 @@ export enum RenderType {
   AuthorContributions = "author-contributions",
   FileLines = "file-lines",
   FileMosaic = "file-mosaic",
-  Bar = "bar",
+  FileBar = "file-bar",
+  AuthorBar = "author-bar",
 }
 
 export type AuthorContributionsContext = {
@@ -60,11 +66,11 @@ export type AuthorMosaicContext = {
 export type FileLineBackgroundWidth = "full" | "lineLength";
 export type FileLinesContext = {
   type: RenderType.FileLines;
-  backgroundWidth: FileLineBackgroundWidth;
   fileContent: Line[];
   lineLengthMax: number;
   coloringMode: ColoringMode;
   authors: Author[];
+  showContent: boolean;
 } & BaseContext;
 
 export type FileMosaicContext = {
@@ -76,15 +82,25 @@ export type FileMosaicContext = {
   BaseMosaicContext;
 
 export type BarContext = {
-  type: RenderType.Bar;
   values: { id: string; value: number }[];
 } & BaseContext;
+
+export type FileBarContext = { type: RenderType.FileBar } & BarContext;
+export type AuthorBarContext = { type: RenderType.AuthorBar } & BarContext;
 
 export type RendererContext =
   | AuthorMosaicContext
   | AuthorContributionsContext
   | FileLinesContext
   | FileMosaicContext
-  | BarContext;
+  | FileBarContext
+  | AuthorBarContext;
+
+export function isContextOfType<T extends RendererContext>(
+  ctx: RendererContext,
+  type: RenderType,
+): ctx is T {
+  return ctx.type === type;
+}
 
 export type RenderingResult = Promise<string | SvgBaseElement[]>;

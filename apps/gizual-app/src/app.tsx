@@ -1,4 +1,5 @@
 import { WelcomePage } from "@app/pages/welcome";
+import { Loading } from "@app/primitives/loading";
 import { ConfigProvider, theme as AntdTheme, ThemeConfig } from "antd";
 import { App as AntdApp } from "antd";
 import { notification as antdNotification } from "antd";
@@ -64,6 +65,7 @@ function App() {
   }, [notification]);
 
   const screen = useScreen();
+  const shouldDisplayLoadingIndicator = mainController.isLoading;
 
   return (
     <ConfigProvider theme={config}>
@@ -71,6 +73,7 @@ function App() {
         <>
           {notificationProvider}
           <div className={style.App}>
+            {shouldDisplayLoadingIndicator && <Loading />}
             <div className={style.Main}>
               {screen === "welcome" && <WelcomePage />}
               {screen === "main" && <MainPage />}

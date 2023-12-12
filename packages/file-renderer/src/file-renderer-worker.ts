@@ -1,17 +1,16 @@
+import { ColorManager, enforceAlphaChannel } from "@app/utils/colors";
 import { VisualizationDefaults } from "@app/utils/defaults";
+import { SvgBaseElement, SvgElement } from "@app/utils/svg";
 import { expose } from "comlink";
 
 import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
 import {
   convertTimestampToMs,
-  enforceAlphaChannel,
   getDaysBetween,
   getStringDate,
   GizDate,
   isDateBetween,
-  SvgBaseElement,
-  SvgElement,
-} from "@giz/gizual-app/utils";
+} from "@giz/utils/gizdate";
 
 import {
   AnnotationObject,
@@ -40,6 +39,7 @@ import {
 
 export class FileRendererWorker {
   fontsPrepared = false;
+  colorManager?: ColorManager;
 
   constructor() {}
 
@@ -98,9 +98,14 @@ export class FileRendererWorker {
       renderer.prepareContext(ctx.rect.width, ctx.rect.height, ctx.dpr);
     }
 
+    const requiresDomainColorBand = ctx.type === RenderType.FileLines && ctx.coloringMode === "age";
+    if (requiresDomainColorBand) {
+      this.colorManager = new ColorManager({ domain: ctx.authors.map((a) => a.id) });
+    }
+
     switch (ctx.type) {
       case RenderType.FileLines: {
-        return this.drawFilesLines(ctx, renderer);
+        return this.drawFileLines(ctx, renderer);
       }
       case RenderType.FileMosaic: {
         return this.drawFileMosaic(ctx, renderer);
@@ -111,7 +116,11 @@ export class FileRendererWorker {
       case RenderType.AuthorContributions: {
         return this.drawAuthorContributionsGraph(ctx, renderer);
       }
-      case RenderType.Bar: {
+      // TODO: Fix bar render type
+      case RenderType.AuthorBar: {
+        return this.drawBar(ctx, renderer);
+      }
+      case RenderType.FileBar: {
         return this.drawBar(ctx, renderer);
       }
       default: {
@@ -260,10 +269,8 @@ export class FileRendererWorker {
     for (const [index, line] of ctx.fileContent.entries()) {
       if (index + 1 > VisualizationDefaults.maxLineCount) break;
 
-      const color =
-        line.commit && !ctx.isPreview
-          ? interpolateColor(line, ctx)
-          : ctx.visualizationConfig.colors.notLoaded;
+      let color = ctx.visualizationConfig.colors.notLoaded;
+      if (line.commit && !ctx.isPreview) color = interpolateColor(line, ctx, this.colorManager);
 
       line.color = color;
       colors.push(line.color ?? "#000");
@@ -289,22 +296,22 @@ export class FileRendererWorker {
     return { result, colors };
   }
 
-  async drawFilesLines(ctx: FileLinesContext, renderer: BaseRenderer) {
+  async drawFileLines(ctx: FileLinesContext, renderer: BaseRenderer) {
     const colors: string[] = [];
     const { width } = calculateDimensions(ctx.dpr, ctx.rect);
     const lineHeight = 10 * ctx.dpr;
 
     let currentY = 0;
-    const widthPerCharacter = width / VisualizationDefaults.maxLineLength;
+    const widthPerCharacter = width / ctx.lineLengthMax;
 
-    for (const [index, line] of ctx.fileContent.entries()) {
-      if (index + 1 > VisualizationDefaults.maxLineCount) break;
+    for (const line of ctx.fileContent) {
+      //if (index + 1 > VisualizationDefaults.maxLineCount) break;
       const lineLength = line.content.length;
 
       let rectWidth = width;
       let lineOffsetScaled = 0;
 
-      if (ctx.backgroundWidth === "lineLength") {
+      if (ctx.visualizationConfig.style.lineLength === "lineLength") {
         lineOffsetScaled =
           (line.content.length - line.content.trimStart().length) * widthPerCharacter;
         rectWidth = Math.min(
@@ -315,7 +322,7 @@ export class FileRendererWorker {
 
       const color =
         line.commit && !ctx.isPreview
-          ? interpolateColor(line, ctx)
+          ? interpolateColor(line, ctx, this.colorManager)
           : ctx.visualizationConfig.colors.notLoaded;
 
       line.color = color;
@@ -328,12 +335,14 @@ export class FileRendererWorker {
         height: lineHeight,
         fill: color,
       });
-      renderer.drawText(line.content, {
-        x: 0,
-        y: currentY + lineHeight / 1.5,
-        fontSize: "4",
-        fill: "white",
-      });
+
+      if (ctx.showContent)
+        renderer.drawText(line.content, {
+          x: 0,
+          y: currentY + lineHeight / 1.5,
+          fontSize: "4",
+          fill: "white",
+        });
 
       currentY += lineHeight + VisualizationDefaults.lineSpacing;
     }

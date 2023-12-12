@@ -1,6 +1,7 @@
-import { getDaysBetweenAbs, GizDate } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
+
+import { getDaysBetweenAbs, GizDate } from "@giz/utils/gizdate";
 
 export type RulerTicksProps = {
   x: number;

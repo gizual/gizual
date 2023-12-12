@@ -1,5 +1,10 @@
 import { MainController } from "@app/controllers";
 import { BranchInfo, CInfo } from "@app/types";
+import { MOUSE_ZOOM_FACTOR } from "@app/utils";
+import { MenuProps } from "antd";
+import { makeAutoObservable } from "mobx";
+import { RefObject } from "react";
+
 import {
   convertDaysToMs,
   convertTimestampToMs,
@@ -7,11 +12,7 @@ import {
   getDateFromTimestamp,
   getDaysBetweenAbs,
   GizDate,
-  MOUSE_ZOOM_FACTOR,
-} from "@app/utils";
-import { MenuProps } from "antd";
-import { makeAutoObservable } from "mobx";
-import { RefObject } from "react";
+} from "@giz/utils/gizdate";
 
 import { TimelineEventHandler } from "./event-handler";
 
@@ -166,8 +167,8 @@ export class TimelineViewModel {
     }
   }
 
-  triggerSearchBarUpdate(force = true) {
-    this.mainController.triggerSearchBarUpdate(force);
+  triggerSearchBarUpdate(_ = true) {
+    //TODO: This is where we used to update the search bar. This can be removed once the timeline is attached to the query.
   }
 
   // -------------------------------------------------------------------------- //

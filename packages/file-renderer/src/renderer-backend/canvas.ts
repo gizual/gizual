@@ -1,4 +1,4 @@
-import { SvgAttributes } from "@app/utils";
+import { SvgAttributes } from "@app/utils/svg";
 
 import { BaseRenderer, evaluateTransform } from "./base";
 

@@ -1,6 +1,7 @@
 import shared from "@app/primitives/css/shared-styles.module.scss";
 import { Radio, RadioChangeEvent } from "antd";
 import clsx from "clsx";
+import React from "react";
 
 import { FileLoaderLocal } from "@giz/maestro/react";
 import style from "../welcome.module.scss";
@@ -21,6 +22,10 @@ export function AdvancedConfigurationPanel({ vm, loader }: AdvancedConfiguration
   const isFsaSupported = loader.some((l) => l.id === "fsa");
   const isDragAndDropSupported = loader.some((l) => l.id === "drag-and-drop");
   const isInputFieldSupported = loader.some((l) => l.id === "input-field");
+
+  React.useEffect(() => {
+    loader.length > 0 && vm.setSelectedFileLoaderConfig(loader.map((l) => l.id)[0]);
+  }, [loader]);
 
   return (
     <CollapsiblePanel title="Advanced configuration" titleStyle={style.AdvancedConfigurationTitle}>

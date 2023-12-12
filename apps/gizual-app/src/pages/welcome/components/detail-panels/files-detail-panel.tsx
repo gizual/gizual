@@ -3,11 +3,16 @@ import { Button } from "@app/primitives";
 import shared from "@app/primitives/css/shared-styles.module.scss";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
+import React from "react";
 import { match } from "ts-pattern";
 
 import { FileLoaderLocal } from "@giz/maestro/react";
 import style from "../../welcome.module.scss";
-import { getLoaderForConfig, showFilePicker } from "../../welcome.vm";
+import {
+  AdvancedConfigurationSelection,
+  getLoaderForConfig,
+  showFilePicker,
+} from "../../welcome.vm";
 import { AdvancedConfigurationPanel } from "../advanced-configuration";
 import { DragHandler } from "../drag-handler";
 
@@ -51,6 +56,8 @@ export const FilesDetailPanel = observer(
         });
     };
 
+    const [isHoveringImage, setHoveringImage] = React.useState(false);
+
     return (
       <div className={clsx(style.DetailColumn, shared.FlexColumn, style.Grow)}>
         <div className={style.CollapsibleHeader}>
@@ -73,22 +80,49 @@ export const FilesDetailPanel = observer(
           .with({ id: "drag-and-drop" }, () => (
             <DragHandler onDrag={onDragAction}>
               <div className={style.GifPanel}>
-                <img src="fsa.gif" className={style.Gif} />
+                <img
+                  src={isHoveringImage ? "fsa.gif" : "fsa.jpg"}
+                  className={isHoveringImage ? style.Gif : style.GifPreview}
+                  onMouseEnter={() => setHoveringImage(true)}
+                  onMouseLeave={() => setHoveringImage(false)}
+                  onClick={() => setHoveringImage(!isHoveringImage)}
+                />
               </div>
             </DragHandler>
           ))
           .otherwise(() => (
             <>
               <div className={style.GifPanel}>
-                <img src="fsa.gif" className={style.Gif} />
+                <img
+                  src={isHoveringImage ? "fsa.gif" : "fsa.jpg"}
+                  className={isHoveringImage ? style.Gif : style.GifPreview}
+                  onMouseEnter={() => setHoveringImage(true)}
+                  onMouseLeave={() => setHoveringImage(false)}
+                  onClick={() => setHoveringImage(!isHoveringImage)}
+                />
               </div>
 
               <Button className={style.LoadButton} variant="filled" onClick={onButtonAction}>
-                {`Load with ${vm.selectedFileLoaderConfig}`}
+                <LoadWithSelectedFileLoaderConfig selection={vm.selectedFileLoaderConfig} />
               </Button>
             </>
           ))}
       </div>
+    );
+  },
+);
+
+const LoadWithSelectedFileLoaderConfig = observer(
+  ({ selection }: { selection: AdvancedConfigurationSelection }) => {
+    return (
+      <>
+        {match(selection)
+          .with("fsa", () => "Load with File System Access API")
+          .with("input-field", () => "Select folder to load")
+          .with("native-file-picker", () => "Select folder to load")
+          .with("drag-and-drop", () => "Load via drag & drop")
+          .otherwise(() => "Load")}
+      </>
     );
   },
 );

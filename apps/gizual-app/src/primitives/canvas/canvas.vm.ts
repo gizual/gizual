@@ -1,6 +1,7 @@
 import { FileModel, MainController } from "@app/controllers";
 import { ColoringMode, ColoringModeLabels } from "@app/types";
 import {
+  CanvasScale,
   Masonry,
   SvgBaseElement,
   SvgGroupElement,
@@ -12,10 +13,8 @@ import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
-import { FileContext, FileLinesContext, FileRendererWorker, RenderType } from "@giz/file-renderer";
-
-export const MIN_ZOOM = 0.25;
-export const MAX_ZOOM = 3;
+import { FileLinesContext, RenderType } from "@giz/file-renderer";
+import { FileRendererWorker } from "@giz/file-renderer/worker";
 
 export class CanvasViewModel {
   @observable private _mainController: MainController;
@@ -63,10 +62,14 @@ export class CanvasViewModel {
     this.canvasContainerRef.current.setTransform(0, 0, scale ?? this._mainController.scale);
   }
 
+  resetScale() {
+    this.center();
+  }
+
   zoomTo(n: number | null) {
     if (!this.canvasContainerRef?.current || !n) return;
     n = n / 100;
-    n = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, n));
+    n = Math.max(CanvasScale.min, Math.min(CanvasScale.max, n));
 
     const { positionX = 0, positionY = 0 } = this.canvasContainerRef.current.state ?? {};
     this.canvasContainerRef.current.setTransform(positionX, positionY, n);
@@ -144,12 +147,11 @@ export class CanvasViewModel {
     for (const file of this.loadedFiles) {
       if (file.data.lines.length === 0) continue;
 
-      const ctx: FileContext = {
+      const ctx: FileLinesContext = {
         ...this.getDrawingContext(file),
         dpr: 1,
-        redrawCount: 0,
         rect: new DOMRect(0, 0, 300, file.calculatedHeight),
-      };
+      } as FileLinesContext;
 
       const titleHeight = 26;
       const result = await renderer.drawSingleSvg(ctx);

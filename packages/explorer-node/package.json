@@ -18,7 +18,7 @@
     "node-addon-api": "*",
     "rimraf": "5.0.1",
     "ts-node": "10.9.1",
-    "vitest": "0.34.6",
+    "vitest": "1.0.2",
     "zx": "7.2.3"
   },
   "dependencies": {

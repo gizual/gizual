@@ -1,0 +1,46 @@
+.ColorPreview {
+  background-color: "#123"; /* To be replaced in JS */
+  width: 24px;
+  height: 24px;
+}
+
+.PickerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  position: relative;
+  width: 300px;
+
+  :global(.react-colorful) {
+    width: 300px;
+  }
+}
+
+.ButtonRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.ColorBand {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.Swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border-primary);
+  cursor: pointer;
+}

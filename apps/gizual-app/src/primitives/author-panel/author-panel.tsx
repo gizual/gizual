@@ -1,5 +1,6 @@
 import { useMainController } from "@app/controllers";
 import { LinearProgress } from "@app/primitives/linear-progress";
+import { useWindowSize } from "@app/utils";
 import { Avatar, Skeleton, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import React from "react";
@@ -39,6 +40,7 @@ export function AuthorTable() {
   const columns = getAuthorColumns();
   const [page, setPage] = React.useState(1);
   const { data, isLoading, isPlaceholderData } = useAuthorList(10, (page - 1) * 10);
+  const [_, height] = useWindowSize();
 
   const authors = data?.authors.map((author) => {
     return {
@@ -69,10 +71,10 @@ export function AuthorTable() {
         dataSource={authors}
         columns={columns}
         pagination={{
-          pageSizeOptions: [10],
+          pageSizeOptions: [5, 10, 15],
           current: page,
           total: data!.total,
-          pageSize: 10,
+          pageSize: height < 850 ? 5 : 10,
           onChange(page, _pageSize) {
             setPage(page);
           },
@@ -130,6 +132,7 @@ function getAuthorColumns(): ColumnsType<AuthorType> {
               textAlign: "left",
               overflowWrap: "anywhere",
               fontSize: "1em",
+              lineHeight: "1em",
             }}
           >
             {record.name}
@@ -140,6 +143,8 @@ function getAuthorColumns(): ColumnsType<AuthorType> {
               textAlign: "left",
               overflowWrap: "anywhere",
               fontSize: "0.875em",
+              lineHeight: "0.875em",
+              paddingTop: "0.25rem",
             }}
           >
             {record.email}

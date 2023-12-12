@@ -2,7 +2,11 @@ import { action, makeAutoObservable, observable } from "mobx";
 
 import { FileLoaderLocal, FileLoaders } from "@giz/maestro/react";
 
-export type AdvancedConfigurationSelection = "fsa" | "input-field" | "drag-and-drop";
+export type AdvancedConfigurationSelection =
+  | "fsa"
+  | "input-field"
+  | "drag-and-drop"
+  | "native-file-picker";
 
 export type RepoMetrics = {
   stars: number;

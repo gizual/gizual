@@ -1,0 +1,41 @@
+@use "@/mixins" as *;
+
+.Container {
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid var(--border-primary);
+  padding: 0 0.5rem;
+  background-color: var(--background-secondary);
+}
+
+.Clickable {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+}
+
+.AdvancedSearchIconTrigger {
+  align-self: flex-end;
+}
+
+.AdvancedSearchIconButton {
+  height: 34px;
+  width: 34px;
+  cursor: pointer;
+}
+
+.AdvancedSearchIcon {
+  & > path {
+    stroke: var(--foreground-primary);
+    fill: var(--background-tertiary);
+  }
+}
+
+.Content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 2rem;
+}

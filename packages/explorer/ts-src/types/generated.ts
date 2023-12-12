@@ -26,13 +26,15 @@ export type GetCommitsForBranchParams = { branch: string }
 
 export type GetFileContentParams = { branch: string; path: string }
 
-export type GetFileTreeParams = { branch: string }
+export type GetFileTreeParams = { branch: string; timerange?: [string, string] | null }
 
 export type GitGraphCommitInfo = { oid: string; aid: string; timestamp: string; message: string; is_merge: boolean; parents: (string | null)[]; children: string[] }
 
 export type HistoryGraph = { commit_indices: { [key in string]: number }; commits: GitGraphCommitInfo[]; branches: BranchInfo[] }
 
 export type Infallible = never
+
+export type InitialDataResult = { currentBranch: string; commit: Commit }
 
 export type NoParams = Record<string, never>
 

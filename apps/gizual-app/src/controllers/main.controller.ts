@@ -1,11 +1,13 @@
 import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
-import { BAND_COLOR_RANGE, getBandColorScale, GizDate } from "@app/utils";
+import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
+import { CanvasScale } from "@app/utils/defaults";
 import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer-web";
 import { FileRendererPool } from "@giz/file-renderer";
 import { Maestro } from "@giz/maestro";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
@@ -46,7 +48,7 @@ export class MainController {
     makeObservable(this, undefined, { autoBind: true });
 
     this._repo = new Repository();
-    this.setScale(1);
+    this.setScale(CanvasScale.default);
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
     this._startDate = new GizDate("2023-01-01");
@@ -56,6 +58,16 @@ export class MainController {
     this._repoController = new RepoController(this);
     this._fileRendererPool = new FileRendererPool();
     this._maestro = maestro;
+
+    /* TODO:
+    this._settingsController.on("change", () => {
+      this._maestro.setVisualizationSettings(
+        this.settingsController.settings.visualizationSettings,
+      );
+    });
+    */
+
+    this._maestro.setVisualizationSettings(this.settingsController.settings.visualizationSettings);
   }
 
   get repoController() {
@@ -323,11 +335,6 @@ export class MainController {
   @action.bound
   setNumFiles(n: number) {
     this._numFiles = n;
-  }
-
-  @action.bound
-  triggerSearchBarUpdate(force = false) {
-    this.vmController._searchBarViewModel?.triggerDateTimeUpdate(force);
   }
 
   get numFiles() {

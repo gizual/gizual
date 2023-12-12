@@ -1,3 +1,4 @@
+import { FinalPayload } from "@giz/explorer";
 import { Author, Blame, FileTreeNode, GitGraph } from "../types";
 
 import { PoolResponse, PoolTask } from "./types";
@@ -263,6 +264,11 @@ export class PoolPortal {
       onEnd,
       onErr,
     });
+  }
+
+  getFileTree(branch: string, timerange?: [string, string]) {
+    return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", { branch, timerange })
+      .promise;
   }
 
   streamCommits(

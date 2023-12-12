@@ -29,7 +29,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  cursor: default;
   line-height: 120%;
 }
 
@@ -144,12 +143,26 @@
   @include inline-row;
 }
 
+@mixin inline-col {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  flex: 0 0;
+}
+
+.InlineColumn {
+  @include inline-col;
+}
+
 .FullWidth {
   width: 100%;
 }
 
 .ToolbarIcon {
   @include svg-icon;
+  width: 90%;
+  height: 90%;
 }
 
 .FlexGrow {
@@ -165,15 +178,15 @@
 }
 
 .CursorPointer {
-  cursor: pointer;
+  cursor: pointer !important;
 }
 
 .CursorCanDrag {
-  cursor: grab;
+  cursor: grab !important;
 }
 
 .CursorDragging {
-  cursor: grabbing;
+  cursor: grabbing !important;
 }
 
 /* Overlay that covers things beneath a Popover */
@@ -272,11 +285,35 @@
   font-style: italic;
 }
 
+.Text-Bold {
+  font-weight: bold;
+}
+
+.Text-Medium {
+  font-weight: medium;
+}
+
+.Text-Normal {
+  font-weight: normal;
+}
+
+.Text-Accent {
+  color: var(--accent-main);
+}
+
+.Items-Center {
+  align-items: center;
+}
+
 .Pointer-None {
   pointer-events: none;
   * {
     pointer-events: none;
   }
+}
+
+.Pointer {
+  cursor: pointer;
 }
 
 .Separator {

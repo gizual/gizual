@@ -1,4 +1,4 @@
 {
-  "cSpell.words": ["codemirror", "gizual", "keymap", "lezer", "tanstack", "trpc"],
+  "cSpell.words": ["codemirror", "gizdate", "gizual", "keymap", "lezer", "tanstack", "trpc"],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

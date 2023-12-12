@@ -12,6 +12,7 @@ declare const classNames: {
   readonly block: "block";
   readonly colorPicker: "colorPicker";
   readonly InlineRow: "InlineRow";
+  readonly InlineColumn: "InlineColumn";
   readonly FullWidth: "FullWidth";
   readonly ToolbarIcon: "ToolbarIcon";
   readonly FlexGrow: "FlexGrow";
@@ -40,7 +41,13 @@ declare const classNames: {
   readonly "Text-Xl": "Text-Xl";
   readonly "Text-Left": "Text-Left";
   readonly "Text-Italic": "Text-Italic";
+  readonly "Text-Bold": "Text-Bold";
+  readonly "Text-Medium": "Text-Medium";
+  readonly "Text-Normal": "Text-Normal";
+  readonly "Text-Accent": "Text-Accent";
+  readonly "Items-Center": "Items-Center";
   readonly "Pointer-None": "Pointer-None";
+  readonly Pointer: "Pointer";
   readonly Separator: "Separator";
 };
 export = classNames;

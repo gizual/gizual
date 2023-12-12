@@ -8,6 +8,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@xtuc/asyncify-wasm": "2.0.0",
     "fflate": "0.8.1"
   },
   "devDependencies": {

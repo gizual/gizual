@@ -19,7 +19,7 @@ type TimelineMode = (typeof TIMELINE_MODES)[number];
 const LINE_LENGTH_MODES = ["lineLength", "full"] as const;
 type LineLengthMode = (typeof LINE_LENGTH_MODES)[number];
 
-type VisualizationSettings = {
+export type VisualizationSettings = {
   colors: {
     old: SettingsEntry<string, "color">;
     new: SettingsEntry<string, "color">;

@@ -1,4 +1,4 @@
-import { getPrettyConsoleCSS, GizDate, LINEAR_COLOR_RANGE } from "@app/utils";
+import { getPrettyConsoleCSS, LINEAR_COLOR_RANGE } from "@app/utils";
 import React from "react";
 
 import {
@@ -8,6 +8,7 @@ import {
   FileRendererWorker,
   RenderType,
 } from "@giz/file-renderer";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { testPackageJSON } from "./renderer.mock";
 
@@ -19,6 +20,7 @@ type Colors = {
 type FileLinesProps = {
   type: RenderType.FileLines;
   visualizationStyle: "lineLength" | "full";
+  showContent: boolean;
 } & Colors;
 
 type FileMosaicProps = {
@@ -41,8 +43,13 @@ type AuthorContributionsProps = {
   numDays?: number;
 } & Colors;
 
-type BarProps = {
-  type: RenderType.Bar;
+type FileBarProps = {
+  type: RenderType.FileBar;
+  mockValues?: number;
+};
+
+type AuthorBarProps = {
+  type: RenderType.AuthorBar;
   mockValues?: number;
 };
 
@@ -51,7 +58,8 @@ type RendererProps =
   | FileMosaicProps
   | AuthorMosaicProps
   | AuthorContributionsProps
-  | BarProps;
+  | FileBarProps
+  | AuthorBarProps;
 
 function prepareContext(props: RendererProps) {
   const colorNewest = "colorNewest" in props ? props.colorNewest : undefined;
@@ -70,7 +78,7 @@ function prepareContext(props: RendererProps) {
   };
 
   if (props.type === RenderType.FileLines) {
-    const { visualizationStyle } = props;
+    const { visualizationStyle, showContent } = props;
     baseContext.backgroundWidth = visualizationStyle;
     baseContext.visualizationConfig = {
       ...baseContext.visualizationConfig,
@@ -78,6 +86,7 @@ function prepareContext(props: RendererProps) {
         lineLength: visualizationStyle,
       },
     };
+    baseContext.showContent = showContent;
 
     return baseContext;
   }
@@ -161,7 +170,7 @@ function prepareContext(props: RendererProps) {
     return context;
   }
 
-  if (props.type === RenderType.Bar) {
+  if (props.type === RenderType.FileBar) {
     const { mockValues } = props;
     const prepareMockValues = () => {
       const values: { id: string; value: number }[] = [];

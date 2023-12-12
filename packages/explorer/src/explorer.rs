@@ -9,7 +9,7 @@ use specta::Type;
 use crate::authors::StreamAuthorsParams;
 use crate::blame::BlameParams;
 use crate::branches::GetCommitsForBranchParams;
-use crate::commits::StreamCommitsParams;
+use crate::commits::{StreamCommitsParams, self};
 use crate::file_content::GetFileContentParams;
 use crate::file_tree::GetFileTreeParams;
 
@@ -25,6 +25,14 @@ pub struct OpenRepositoryParams {
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct OpenRepositoryResult {
     pub success: bool
+}
+
+#[cfg_attr(feature = "bindings", derive(Type))]
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+pub struct InitialDataResult {
+    #[serde(rename = "currentBranch")]
+    pub current_branch: String,
+    pub commit: commits::Commit
 }
 
 
@@ -63,7 +71,9 @@ pub enum Request {
 
     #[serde(rename = "shutdown")]
     Shutdown(NoParams),
-    // TODO: GetFirstCommit() ?
+    
+    #[serde(rename = "get_initial_data")]
+    GetInitialData(NoParams),
 }
 
 #[cfg_attr(feature = "bindings", derive(Type))]
@@ -157,6 +167,37 @@ impl Explorer {
         };
     }
 
+    pub fn cmd_get_initial_data(&self) {
+        let repo = self.repo.as_ref().unwrap();
+
+        // get current branch and files of last commit
+
+        let head = repo.head().unwrap();
+        let head_commit = head.peel_to_commit().unwrap();
+        let head_tree = head_commit.tree().unwrap();
+    
+        let mut files = Vec::new();
+
+        for entry in head_tree.iter() {
+            let name = entry.name().unwrap().to_string();
+            files.push(name);
+        }
+
+        let data = InitialDataResult {
+            current_branch: head.shorthand().unwrap().to_string(),
+            commit: commits::Commit {
+                oid: head_commit.id().to_string(),
+                aid: head_commit.author().email().unwrap().to_string(),
+                message: head_commit.message().unwrap().to_string(),
+                files,
+                timestamp: head_commit.time().seconds().to_string(),
+            }
+        };
+
+        self.send(&data, true);
+
+    }
+
     pub fn handle(&mut self, request: Request, cb: impl Fn(Response) + Send + Sync + 'static) {
         self.callback = Box::new(cb);
 
@@ -171,6 +212,7 @@ impl Explorer {
             Request::GetFileContent(params) => self.get_file_content(&params),
             Request::GetCommitsForBranch(params) => self.cmd_get_commits_for_branch(&params),
             Request::StreamCommits(_) => self.cmd_stream_commits(),
+            Request::GetInitialData(_) => self.cmd_get_initial_data(),
             Request::Shutdown(_) => {
                 self.shutdown.store(true, Ordering::Relaxed);
             }

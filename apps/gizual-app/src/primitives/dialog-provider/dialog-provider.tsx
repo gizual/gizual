@@ -12,6 +12,8 @@ export type PopoverProviderProps = {
   trigger: React.ReactNode | React.ReactNode[];
   triggerClassName?: string;
   children: React.ReactNode | React.ReactNode[];
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 };
 
 export function DialogProvider({
@@ -19,15 +21,17 @@ export function DialogProvider({
   triggerClassName,
   children,
   title,
+  isOpen,
+  setIsOpen,
 }: PopoverProviderProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  if (!isOpen || !setIsOpen) [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <>
       <div
         className={triggerClassName ?? style.Trigger}
         onClick={() => {
-          setIsOpen(true);
+          setIsOpen!(true);
         }}
       >
         {trigger}
@@ -38,7 +42,7 @@ export function DialogProvider({
             <div
               className={sharedStyle.PopoverUnderlay}
               onClick={() => {
-                setIsOpen(false);
+                setIsOpen!(false);
               }}
             ></div>
             <div className={style.Dialog}>
@@ -47,7 +51,7 @@ export function DialogProvider({
                 <IconButton
                   className={sharedStyle.CloseButton}
                   onClick={() => {
-                    setIsOpen(false);
+                    setIsOpen!(false);
                   }}
                 >
                   <IconClose />

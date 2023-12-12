@@ -22,18 +22,29 @@
 
 .Stage {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-grow: 1;
   flex-shrink: 1;
   position: relative;
   min-width: 300px;
+  position: relative;
+}
+
+.StageRow {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .Toolbar {
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--border-primary);
+  padding: 0.5rem 0.5rem;
+  border-right: 1px solid var(--border-primary);
   justify-content: space-between;
   display: flex;
+  flex-direction: column;
+  width: 2.5rem;
+  min-width: 2.5rem;
 }
 
 .Separator {

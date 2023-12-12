@@ -26,7 +26,7 @@ export class FileViewModel {
   @observable private _isEditorOpen = false;
   @observable private _file: FileModel;
 
-  @observable private _canvasRef: React.RefObject<HTMLImageElement> | undefined;
+  @observable private _imageRef: React.RefObject<HTMLImageElement> | undefined;
   @observable private _fileRef: React.RefObject<HTMLDivElement> | undefined;
   @observable private _redrawCount = 0;
   @observable private _lastDrawnScale = 1;
@@ -112,7 +112,7 @@ export class FileViewModel {
 
   @action.bound
   assignCanvasRef(ref: React.RefObject<HTMLImageElement>) {
-    this._canvasRef = ref;
+    this._imageRef = ref;
   }
 
   @action.bound
@@ -203,7 +203,7 @@ export class FileViewModel {
 
   @action.bound
   draw() {
-    if (!this._canvasRef || !this._canvasRef.current || !this._fileRef) {
+    if (!this._imageRef || !this._imageRef.current || !this._fileRef) {
       return;
     }
 
@@ -222,12 +222,12 @@ export class FileViewModel {
     // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#scaling_for_high_resolution_displays
     const dpr = window.devicePixelRatio * scale * 2;
 
-    const rect = this._canvasRef.current.getBoundingClientRect();
+    const rect = this._imageRef.current.getBoundingClientRect();
     rect.width = rect.width * (1 / scale);
     rect.height = Math.min(this.fileContent.length * 10, VisualizationDefaults.maxLineCount * 10);
 
-    if (this._canvasRef?.current) {
-      this._canvasRef.current.style.width = `${rect.width}px`;
+    if (this._imageRef?.current) {
+      this._imageRef.current.style.width = `${rect.width}px`;
     }
 
     this._mainController.registerWorker(this.fileName);
@@ -244,7 +244,7 @@ export class FileViewModel {
     drawResult.then((result) => {
       if (!result) return;
 
-      const canvas = this._canvasRef?.current;
+      const canvas = this._imageRef?.current;
       if (!canvas) return;
 
       canvas.width = rect.width * dpr;

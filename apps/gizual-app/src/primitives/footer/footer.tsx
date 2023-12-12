@@ -35,14 +35,14 @@ export const Footer = observer(() => {
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.11 - Build #{__COMMIT_HASH__}</p>}
+          trigger={<p>Gizual v3.0.0-alpha.12 - Build #{__COMMIT_HASH__}</p>}
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>
       </div>
       <div className={style.RightSection}>
         <Spin spinning={mainController.isBusy} />
-        <p>{mainController.selectedFiles.length} files selected</p>
+        <p>{state.numSelectedFiles} files selected</p>
         <p>
           explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
         </p>

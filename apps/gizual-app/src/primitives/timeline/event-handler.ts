@@ -6,9 +6,6 @@
 
 import {
   accumulateWheelTicks,
-  estimateDayOnScale,
-  getDateFromTimestamp,
-  getStringDate,
   MOUSE_BUTTON_PRIMARY,
   MOUSE_BUTTON_WHEEL,
   MOUSE_ZOOM_FACTOR_FINE,
@@ -16,6 +13,8 @@ import {
 } from "@app/utils";
 import _ from "lodash";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
+
+import { estimateDayOnScale, getDateFromTimestamp, getStringDate } from "@giz/utils/gizdate";
 
 import { PRERENDER_MULTIPLIER, TimelineViewModel } from "./timeline.vm";
 
