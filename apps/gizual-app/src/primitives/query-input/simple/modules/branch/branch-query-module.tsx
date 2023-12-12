@@ -33,7 +33,11 @@ export const BranchModule = observer(() => {
           style={{ width: 200 }}
         >
           {branches.map((b) => {
-            return <option value={b.value}>{b.label}</option>;
+            return (
+              <option value={b.value} key={b.value}>
+                {b.label}
+              </option>
+            );
           })}
         </select>
       </div>

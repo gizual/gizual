@@ -9,11 +9,11 @@ import { match, P } from "ts-pattern";
 import { useQuery } from "@giz/maestro/react";
 import { AdvancedEditor } from "../advanced/advanced-query-input";
 
+import { BranchModule } from "./modules/branch";
 import { FileChangedInRefModule, FileGlobModule, FilePlaceholderModule } from "./modules/file";
 import { TimePlaceholderModule, TimeRangeModule } from "./modules/time";
 import { TypeModule, TypePlaceholderModule } from "./modules/type";
 import style from "./simple-query-input.module.scss";
-import { BranchModule } from "./modules/branch";
 
 export const SimpleQueryInput = observer(() => {
   return (

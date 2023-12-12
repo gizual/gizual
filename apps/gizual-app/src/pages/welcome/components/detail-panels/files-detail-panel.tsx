@@ -3,6 +3,7 @@ import { Button } from "@app/primitives";
 import shared from "@app/primitives/css/shared-styles.module.scss";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
+import React from "react";
 import { match } from "ts-pattern";
 
 import { FileLoaderLocal } from "@giz/maestro/react";
@@ -16,7 +17,6 @@ import { AdvancedConfigurationPanel } from "../advanced-configuration";
 import { DragHandler } from "../drag-handler";
 
 import { DetailPanelProps } from "./detail-panel";
-import React from "react";
 
 type FilesDetailPanel = {
   loaders: FileLoaderLocal[];

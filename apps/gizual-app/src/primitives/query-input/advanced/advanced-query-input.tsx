@@ -38,7 +38,6 @@ function handleEditorDidMount(editor: Monaco) {
 
 export const AdvancedEditor = observer(() => {
   const { query, setQuery } = useQuery();
-  console.log("AdvancedEditor", query);
   const [validationOutput, setValidationOutput] = React.useState<string[]>([]);
   const [editorContent, setEditorContent] = React.useState<string>(
     JSON.stringify(query, undefined, 1),
@@ -47,8 +46,6 @@ export const AdvancedEditor = observer(() => {
   React.useEffect(() => {
     setEditorContent(JSON.stringify(query, undefined, 1));
   }, [query]);
-
-  console.log("EditorContent", editorContent);
 
   const monacoInstance = useMonaco();
 

@@ -64,9 +64,11 @@ export function checkColorSimilarity(a: string, b: string): number {
   return Math.sqrt(distSq);
 }
 
-export function parseRgbString(rgb: string): [number, number, number] {
-  const [r, g, b] = rgb.split(",").map((c) => Number.parseInt(c));
-  return [r, g, b];
+export function parseRgbString(rgb: string): [number, number, number, number] {
+  const [r, g, b, a] = rgb.match(/\d+/g)!.map(Number);
+
+  if (a === undefined) return [r, g, b, 1];
+  return [r, g, b, a];
 }
 
 function componentToHex(c: number) {
@@ -86,8 +88,13 @@ function convertHexToRgbA(hex: string): [number, number, number, number] {
   return [r, g, b, a];
 }
 
-export function convertRgbToHex(rgb: [number, number, number]): string {
-  return `#${rgb.map((c) => componentToHex(c)).join("")}`;
+export function convertRgbToHex(rgbA: [number, number, number, number]): string {
+  const alpha = rgbA[3];
+  const rgb = rgbA.slice(0, 3);
+
+  return `#${rgb.map((c) => componentToHex(c)).join("")}${
+    alpha === 1 ? "" : componentToHex(Math.round(alpha * 255))
+  }`;
 }
 
 export function mulberry32(seed: number) {
@@ -160,10 +167,10 @@ export class ColorManager {
 
   /** Creates a set of perceptually uniform colors for default use */
   initializeColorBand() {
+    this.colorBand = [];
     for (let i = 0; i < this.bandLength; i++) {
-      const hclColor = hcl((i * 360) / this.bandLength, 100, 65);
-      if (!this.excludedColors.includes(hclColor))
-        this.colorBand.push(hcl((i * 360) / this.bandLength, 100, 65).toString());
+      const hclColor = hcl((i * 360) / this.bandLength, 70, 50);
+      if (!this.excludedColors.includes(hclColor)) this.colorBand.push(hclColor.toString());
     }
 
     this.colorScale = getBandColorScale(this.domain, this.colorBand);
@@ -190,5 +197,9 @@ export class ColorManager {
 
   static hclToRgb(color: HCLColor): string {
     return color.toString();
+  }
+
+  static stringToHex(color: string): string {
+    return convertRgbToHex(parseRgbString(color));
   }
 }

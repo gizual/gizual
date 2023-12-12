@@ -2,10 +2,11 @@ import { IconSettingsOutline } from "@app/assets";
 import previewFileLines from "@app/assets/previews/preview-file-lines.png";
 import { useSettingsController } from "@app/controllers";
 import { Button } from "@app/primitives/button";
+import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { useLocalQuery } from "@app/utils";
-import { ColorPicker, Radio, RadioChangeEvent, StepProps, Steps } from "antd";
+import { Radio, RadioChangeEvent, StepProps, Steps } from "antd";
 import clsx from "clsx";
 import React from "react";
 import { match } from "ts-pattern";
@@ -445,11 +446,9 @@ export const ColorCustomization = React.memo(
             >
               <p className={sharedStyle["Text-Base"]}>Color {index + 1}:</p>
               <ColorPicker
-                value={color}
-                size="small"
-                showText
-                onChange={(e) => {
-                  selectedColors[index] = `#${e.toHex(false)}`;
+                hexValue={color}
+                onAccept={(c) => {
+                  selectedColors[index] = c;
                   onChange([...selectedColors]);
                 }}
               />

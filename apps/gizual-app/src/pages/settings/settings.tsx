@@ -1,17 +1,9 @@
 import { IconDownload, IconOpen } from "@app/assets";
 import { useMainController } from "@app/controllers";
+import { ColorPicker } from "@app/primitives/color-picker";
 import { IconButton } from "@app/primitives/icon-button";
 import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/utils";
-import {
-  Checkbox,
-  ColorPicker,
-  Dropdown,
-  Input,
-  InputNumber,
-  MenuProps,
-  Select,
-  Tooltip,
-} from "antd";
+import { Checkbox, Dropdown, Input, InputNumber, MenuProps, Select, Tooltip } from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { ArgsProps } from "antd/es/notification/interface";
 import _ from "lodash";
@@ -177,11 +169,9 @@ export const RenderedSettingsEntry = observer(
             )}
             {entry.controlType === "color" && (
               <ColorPicker
-                showText
-                value={entry.value}
-                disabledAlpha={false}
-                onChange={(e) => {
-                  onChange!(`#${e.toHex(false)}`);
+                hexValue={entry.value}
+                onAccept={(e) => {
+                  onChange!(e);
                 }}
               />
             )}

@@ -208,31 +208,31 @@ const Toolbar = observer(
     return (
       <div className={style.Toolbar}>
         <div className={sharedStyle.InlineColumn}>
-          <Tooltip title={"Zoom out"}>
-            <IconButton onClick={vm.zoomOut} aria-label="Zoom out">
+          <Tooltip title={"Zoom out"} placement="right">
+            <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
               <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Zoom in"}>
-            <IconButton onClick={vm.zoomIn} aria-label="Zoom in">
+          <Tooltip title={"Zoom in"} placement="right">
+            <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
               <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Center"}>
-            <IconButton onClick={vm.resetScale} aria-label="Center">
+          <Tooltip title={"Center"} placement="right">
+            <IconButton onClick={() => vm.resetScale()} aria-label="Center">
               <IconCenterFocus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Reflow"}>
-            <IconButton onClick={vm.reflow} aria-label="Reflow">
+          <Tooltip title={"Reflow"} placement="right">
+            <IconButton onClick={() => vm.reflow()} aria-label="Reflow">
               <IconLayout className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
         </div>
         <div className={sharedStyle.InlineColumn}>
-          <Tooltip title={"Show author panel"}>
+          <Tooltip title={"Show author panel"} placement="right">
             <IconButton
-              onClick={vmController.toggleAuthorPanelVisibility}
+              onClick={() => vmController.toggleAuthorPanelVisibility()}
               aria-label="Toggle author panel"
               colored={vmController.isAuthorPanelVisible}
             >
