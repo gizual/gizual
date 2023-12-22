@@ -1,8 +1,9 @@
 import { IconDragVertical } from "@app/assets";
 import { useMainController, useViewModelController } from "@app/controllers";
 import { NoVmError, useWindowSize } from "@app/utils";
-import { Dropdown, Spin } from "antd";
+import { Loader } from "@mantine/core";
 import clsx from "clsx";
+import { useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
@@ -91,6 +92,7 @@ export const CommitLayer = observer(({ vm }: TimelineProps) => {
 
 export const InteractionLayer = observer(({ vm }: TimelineProps) => {
   if (!vm) throw new NoVmError("InteractionLayer");
+  const { showContextMenu } = useContextMenu();
 
   const interactionLayerRef = useRef<HTMLDivElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -103,13 +105,8 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
   const width = `${Math.abs(vm.selectEndX - vm.selectStartX)}px`;
 
   return (
-    <Dropdown
-      menu={{ items: vm.contextItems }}
-      trigger={["contextMenu"]}
-      destroyPopupOnHide
-      onOpenChange={(open) => {
-        vm.setIsContextMenuOpen(open);
-      }}
+    <div
+      onContextMenu={showContextMenu(vm.contextItems)}
       className={clsx(
         vm.isDragging && style["InteractionLayer--isDragging"],
         vm.isSelecting && style["InteractionLayer--isSelecting"],
@@ -189,7 +186,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
           document.body,
         )}
       </div>
-    </Dropdown>
+    </div>
   );
 });
 
@@ -276,7 +273,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
           {!vm.isDoneLoading && (
             <div className={style.NotLoadedOverlay}>
               <div className={style.NotLoadedOverlayContent}>
-                <Spin size={"large"} />
+                <Loader size={"md"} />
                 <h2>Loading branches & commits. Please wait ... </h2>
               </div>
             </div>

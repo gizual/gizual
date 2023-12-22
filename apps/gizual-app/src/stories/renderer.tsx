@@ -5,9 +5,9 @@ import {
   AuthorContribution,
   AuthorContributionsContext,
   AuthorMosaicContext,
-  FileRendererWorker,
   RenderType,
 } from "@giz/file-renderer";
+import { FileRendererWorker } from "@giz/file-renderer/worker";
 import { GizDate } from "@giz/utils/gizdate";
 
 import { testPackageJSON } from "./renderer.mock";

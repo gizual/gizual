@@ -1,7 +1,7 @@
 import { MainController } from "@app/controllers";
 import { BranchInfo, CInfo } from "@app/types";
 import { MOUSE_ZOOM_FACTOR } from "@app/utils";
-import { MenuProps } from "antd";
+import { ContextMenuContent } from "mantine-contextmenu";
 import { makeAutoObservable } from "mobx";
 import { RefObject } from "react";
 
@@ -480,12 +480,11 @@ export class TimelineViewModel {
     return this.ruler.width / this.totalRenderedDays;
   }
 
-  get contextItems(): MenuProps["items"] {
-    let items: MenuProps["items"] = [];
+  get contextItems(): ContextMenuContent {
+    let items: ContextMenuContent = [];
     items.push({
       key: "default",
-      label: "Revert to default selection",
-      danger: true,
+      title: "Revert to default selection",
       onClick: () => {
         this.setIsContextMenuOpen(false);
         this.mainController.repoController.initializePositionsFromLastCommit();
@@ -505,7 +504,7 @@ export class TimelineViewModel {
     items = [
       {
         key: "start",
-        label: "Start selection here",
+        title: "Start selection here",
         onClick: () => {
           this.setIsContextMenuOpen(false);
           this.setSelectedStartDate(earliestDate);
@@ -517,7 +516,7 @@ export class TimelineViewModel {
       },
       {
         key: "end",
-        label: "End selection here",
+        title: "End selection here",
         onClick: () => {
           this.setIsContextMenuOpen(false);
           this.setSelectedEndDate(latestDate);

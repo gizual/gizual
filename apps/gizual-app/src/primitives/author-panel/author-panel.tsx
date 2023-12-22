@@ -1,19 +1,16 @@
-import { useMainController } from "@app/controllers";
-import { LinearProgress } from "@app/primitives/linear-progress";
-import { useWindowSize } from "@app/utils";
-import { Avatar, Skeleton, Table } from "antd";
-import { ColumnsType } from "antd/es/table";
+import { MainController, useMainController } from "@app/controllers";
+import { Avatar, Skeleton } from "@mantine/core";
+import type { DataTableColumn } from "mantine-datatable";
+import { DataTable } from "mantine-datatable";
 import React from "react";
 
 import { useAuthorList } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
+import { LinearProgress } from "../linear-progress";
 
 import style from "./author-panel.module.scss";
-import { AuthorPanelViewModel } from "./author-panel.vm";
 
-export type AuthorPanelProps = {
-  vm?: AuthorPanelViewModel;
-};
+export type AuthorPanelProps = {};
 
 interface AuthorType {
   key: React.Key;
@@ -22,6 +19,8 @@ interface AuthorType {
   email: string;
   avatar: string;
 }
+
+const PAGE_SIZE = 10;
 
 export function AuthorPanel() {
   return (
@@ -37,20 +36,25 @@ export function AuthorPanel() {
 }
 
 export function AuthorTable() {
-  const columns = getAuthorColumns();
   const [page, setPage] = React.useState(1);
   const { data, isLoading, isPlaceholderData } = useAuthorList(10, (page - 1) * 10);
-  const [_, height] = useWindowSize();
+  const mainController = useMainController();
 
-  const authors = data?.authors.map((author) => {
-    return {
-      key: author.id,
-      id: author.id,
-      name: author.name,
-      email: author.email,
-      avatar: author.gravatarHash,
-    };
-  });
+  const authors = React.useMemo(
+    () =>
+      data?.authors.map((author) => {
+        return {
+          key: author.id,
+          id: author.id,
+          name: author.name,
+          email: author.email,
+          avatar: author.gravatarHash,
+        };
+      }),
+    [data?.authors],
+  );
+
+  const columns = React.useMemo(() => getAuthorColumns(mainController), []);
 
   if (!isLoading && data === undefined) {
     return <div>An unknown error occurred.</div>;
@@ -59,41 +63,42 @@ export function AuthorTable() {
   if (isLoading && data === undefined) {
     return (
       <div className={style.PaddedPlaceholder}>
-        <Skeleton active />
+        <Skeleton />
       </div>
     );
   }
 
   return (
     <div className={style.Table}>
-      <Table
-        size={"small"}
-        dataSource={authors}
+      <DataTable
+        withTableBorder
+        withColumnBorders
+        striped
+        highlightOnHover
+        records={authors}
         columns={columns}
-        pagination={{
-          pageSizeOptions: [5, 10, 15],
-          current: page,
-          total: data!.total,
-          pageSize: height < 850 ? 5 : 10,
-          onChange(page, _pageSize) {
-            setPage(page);
-          },
+        recordsPerPage={PAGE_SIZE}
+        onPageChange={(p) => {
+          setPage(p);
         }}
-        showHeader={false}
+        totalRecords={data?.total}
+        page={page}
+        backgroundColor={"var(--background-primary)"}
+        stripedColor={"var(--background-secondary)"}
+        highlightOnHoverColor={"var(--background-tertiary)"}
+        borderColor={"var(--border-primary)"}
       />
       {isPlaceholderData && <LinearProgress className={style.Progress} />}
     </div>
   );
 }
 
-function getAuthorColumns(): ColumnsType<AuthorType> {
-  const mainController = useMainController();
-
+function getAuthorColumns(mainController: MainController): DataTableColumn<AuthorType>[] {
   return [
     {
       title: "",
-      dataIndex: "gutter",
-      render: (_, record) => (
+      accessor: "gutter",
+      render: ({ id }: AuthorType) => (
         <div
           style={{
             width: 5,
@@ -102,7 +107,7 @@ function getAuthorColumns(): ColumnsType<AuthorType> {
             borderRadius: 5,
             backgroundColor:
               mainController.coloringMode === "author"
-                ? mainController.authorColorScale(record.id ?? "")
+                ? mainController.authorColorScale(id ?? "")
                 : "transparent",
           }}
         />
@@ -110,21 +115,21 @@ function getAuthorColumns(): ColumnsType<AuthorType> {
     },
     {
       title: "",
-      dataIndex: "avatar",
-      render: (_, record) => {
+      accessor: "avatar",
+      render: ({ avatar }: AuthorType) => {
         return (
           <Avatar
-            crossOrigin="anonymous"
-            src={`https://www.gravatar.com/avatar/${record.avatar}?d=retro`}
-            style={{ border: "1px solid var(--border-primary)", width: 28, height: 28 }}
+            imageProps={{ crossOrigin: "anonymous" }}
+            src={`https://www.gravatar.com/avatar/${avatar}?d=retro`}
+            style={{ border: "1px solid var(--border-primary)", minWidth: 28, minHeight: 28 }}
           />
         );
       },
     },
     {
       title: "Author",
-      dataIndex: "email",
-      render: (_, record) => (
+      accessor: "email",
+      render: ({ name, email }: AuthorType) => (
         <>
           <p
             style={{
@@ -135,7 +140,7 @@ function getAuthorColumns(): ColumnsType<AuthorType> {
               lineHeight: "1em",
             }}
           >
-            {record.name}
+            {name}
           </p>
           <p
             style={{
@@ -147,7 +152,7 @@ function getAuthorColumns(): ColumnsType<AuthorType> {
               paddingTop: "0.25rem",
             }}
           >
-            {record.email}
+            {email}
           </p>
         </>
       ),

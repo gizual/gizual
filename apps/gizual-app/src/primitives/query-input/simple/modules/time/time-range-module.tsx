@@ -1,7 +1,8 @@
 import { IconClock, IconRuler } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
 import { useLocalQueryCtx } from "@app/utils";
-import { DatePicker } from "antd";
+import { DatePickerInput } from "@mantine/dates";
+import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
@@ -9,8 +10,9 @@ import weekday from "dayjs/plugin/weekday";
 import { observer } from "mobx-react-lite";
 
 import { DATE_FORMAT } from "@giz/utils/gizdate";
-import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
+
+import { TimeBaseQueryModule } from "./time-base-module";
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 
@@ -57,39 +59,30 @@ export const TimeRangeModule = observer(() => {
   const mainController = useMainController(); /* TODO: Remove this after the timeline fix */
 
   return (
-    <BaseQueryModule
+    <TimeBaseQueryModule
       icon={<IconClock />}
       title={"Time Range:"}
-      hasRemoveIcon
-      onRemove={() => {
-        updateLocalQuery({ time: undefined });
-        publishLocalQuery();
-      }}
+      hasSwapButton
+      disableItems={["rangeByDate"]}
+      highlightItems={["rangeByDate"]}
     >
       <div className={style.SpacedChildren}>
-        <DatePicker
-          size="small"
-          defaultValue={startDate}
+        <DatePickerInput
+          defaultValue={startDate.toDate()}
           onChange={(d) => onChangeStartDate(d)}
           onBlur={publishLocalQuery}
-          clearIcon={false}
-          suffixIcon={false}
-          format={DATE_FORMAT}
         />
-        <DatePicker
-          size="small"
-          value={endDate}
+        <DatePickerInput
+          value={endDate.toDate()}
           onChange={onChangeEndDate}
           onBlur={publishLocalQuery}
-          clearIcon={false}
-          suffixIcon={false}
-          format={DATE_FORMAT}
         />
         <IconRuler
           className={clsx(style.IconBase, isTimelineOpen ? style.IconToggled : style.IconUnToggled)}
           onClick={() => {
-            mainController.displayNotification({
-              message: "Info: The timeline is disabled in this demo build.",
+            notifications.show({
+              title: "Info",
+              message: "The timeline is disabled in this demo build.",
               role: "alert",
             });
             //runInAction(() => {
@@ -100,6 +93,6 @@ export const TimeRangeModule = observer(() => {
           }}
         />
       </div>
-    </BaseQueryModule>
+    </TimeBaseQueryModule>
   );
 });

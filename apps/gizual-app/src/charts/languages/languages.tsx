@@ -1,9 +1,9 @@
+import { Loader, Tooltip } from "@mantine/core";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { Bar } from "@visx/shape";
-import { Spin, Tooltip } from "antd";
 import type { ScaleBand, ScaleLinear } from "d3-scale";
 import React from "react";
 
@@ -128,7 +128,7 @@ export function Languages({ languages }: LanguagesProps) {
   if (!languages)
     return (
       <div>
-        <Spin />
+        <Loader />
       </div>
     );
   const data = React.useMemo(() => prepareData(languages).slice(1), [languages]);

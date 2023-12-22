@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+import { Progress } from "@mantine/core";
 import clsx from "clsx";
 
 import style from "./linear-progress.module.scss";
@@ -8,5 +8,5 @@ export type LinearProgressProps = {
 };
 
 export function LinearProgress({ className }: LinearProgressProps) {
-  return <Progress percent={50} showInfo={false} className={clsx(style.Progress, className)} />;
+  return <Progress value={50} className={clsx(style.Progress, className)} />;
 }

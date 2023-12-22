@@ -8,7 +8,8 @@ import {
 import { useMainController, useViewModelController, ViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
 import { CanvasScale, createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
-import { Dropdown, MenuProps, Modal, Tooltip } from "antd";
+import { Modal, Tooltip } from "@mantine/core";
+import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -61,6 +62,13 @@ function Canvas({ vm: externalVm }: CanvasProps) {
 
   return (
     <div className={style.Stage}>
+      <ContextModal
+        vm={vm}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        selectedWidth={selectedWidth}
+        setSelectedWidth={setSelectedWidth}
+      />
       <div className={style.StageRow}>
         {visibleTimeline && (
           <>
@@ -70,13 +78,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         )}
         <div className={style.CanvasWrapper}>
           <Toolbar vm={vm} vmController={vmController} />
-          <ContextModal
-            vm={vm}
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
-            selectedWidth={selectedWidth}
-            setSelectedWidth={setSelectedWidth}
-          />
           <InteractiveCanvas
             vm={vm}
             showModal={showModal}
@@ -99,44 +100,41 @@ type InteractiveCanvasProps = {
 
 const InteractiveCanvas = observer(
   ({ vm, showModal, canvasRef, interactiveRef }: InteractiveCanvasProps) => {
-    const dropdownMenu: MenuProps = React.useMemo(
-      () => ({
-        items: [
-          {
-            key: "1",
-            label: "Reset zoom",
-            onClick: () => {
-              vm.center(1);
-            },
+    const { showContextMenu } = useContextMenu();
+    const contextMenu: ContextMenuContent = React.useMemo(
+      () => [
+        {
+          key: "1",
+          title: "Reset zoom",
+          onClick: () => {
+            vm.center(1);
           },
-          {
-            key: "2",
-            label: "Unselect all",
-            onClick: () => {
-              vm.unloadAllFiles();
-            },
+        },
+        {
+          key: "2",
+          title: "Unselect all",
+          onClick: () => {
+            vm.unloadAllFiles();
           },
-          {
-            key: "3",
-            label: "Export SVG",
-            onClick: () => {
-              showModal();
-            },
+        },
+        {
+          key: "3",
+          title: "Export SVG",
+          onClick: () => {
+            showModal();
           },
-        ],
-      }),
+        },
+      ],
       [vm, showModal],
     );
 
-    const dropdownTrigger: ("contextMenu" | "click" | "hover")[] = React.useMemo(
-      () => ["contextMenu"],
-      [],
-    );
-
     return (
-      <Dropdown menu={dropdownMenu} trigger={dropdownTrigger}>
-        <InnerCanvas vm={vm} canvasRef={canvasRef} interactiveRef={interactiveRef} />
-      </Dropdown>
+      <InnerCanvas
+        vm={vm}
+        canvasRef={canvasRef}
+        interactiveRef={interactiveRef}
+        onContextMenu={showContextMenu(contextMenu)}
+      />
     );
   },
 );
@@ -145,92 +143,112 @@ type InnerCanvasProps = {
   vm: CanvasViewModel;
   canvasRef: React.RefObject<HTMLDivElement>;
   interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
-const InnerCanvas = observer(({ vm, canvasRef, interactiveRef }: InnerCanvasProps) => {
-  const [isPanning, setIsPanning] = useState(false);
-  const mainController = useMainController();
-  return (
-    <div className={style.Canvas} ref={canvasRef}>
-      <TransformWrapper
-        initialScale={CanvasScale.default}
-        minScale={CanvasScale.min}
-        maxScale={CanvasScale.max}
-        initialPositionX={0}
-        initialPositionY={0}
-        wheel={{ smoothStep: 0.001 }}
-        limitToBounds={false}
-        panning={{ velocityDisabled: true }}
-        ref={interactiveRef}
-        onInit={() => vm.reflow()}
-        onPanningStart={() => {
-          setIsPanning(true);
-        }}
-        onPanningStop={() => {
-          setIsPanning(false);
-        }}
-        onTransformed={(
-          _ref: ReactZoomPanPinchRef,
-          state: {
-            scale: number;
-            positionX: number;
-            positionY: number;
-          },
-        ) => {
-          mainController.setScale(state.scale);
-        }}
-      >
-        <TransformComponent
-          wrapperStyle={{
-            width: "100%",
-            height: "100%",
-            cursor: isPanning ? "grabbing" : "grab",
+const InnerCanvas = observer(
+  ({ vm, canvasRef, interactiveRef, ...defaultProps }: InnerCanvasProps) => {
+    const [isPanning, setIsPanning] = useState(false);
+    const mainController = useMainController();
+    return (
+      <div className={style.Canvas} ref={canvasRef} {...defaultProps}>
+        <TransformWrapper
+          initialScale={CanvasScale.default}
+          minScale={CanvasScale.min}
+          maxScale={CanvasScale.max}
+          initialPositionX={0}
+          initialPositionY={0}
+          wheel={{ smoothStep: 0.001 }}
+          limitToBounds={false}
+          panning={{ velocityDisabled: true }}
+          ref={interactiveRef}
+          onInit={() => vm.reflow()}
+          onPanningStart={() => {
+            setIsPanning(true);
           }}
-          contentStyle={{
-            flexFlow: "row wrap",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            gap: "1rem",
-            width: "100%",
-            height: "100%",
+          onPanningStop={() => {
+            setIsPanning(false);
           }}
-          contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
+          onTransformed={(
+            _ref: ReactZoomPanPinchRef,
+            state: {
+              scale: number;
+              positionX: number;
+              positionY: number;
+            },
+          ) => {
+            mainController.setScale(state.scale);
+          }}
         >
-          <FileCanvas vm={vm} wrapper={interactiveRef?.current?.instance.wrapperComponent} />
-        </TransformComponent>
-      </TransformWrapper>
-    </div>
-  );
-});
+          <TransformComponent
+            wrapperStyle={{
+              width: "100%",
+              height: "100%",
+              cursor: isPanning ? "grabbing" : "grab",
+              boxSizing: "inherit",
+            }}
+            contentStyle={{
+              flexFlow: "row wrap",
+              alignItems: "flex-start",
+              justifyContent: "center",
+              gap: "1rem",
+              width: "100%",
+              height: "100%",
+              boxSizing: "inherit",
+            }}
+            contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
+          >
+            <FileCanvas vm={vm} wrapper={interactiveRef?.current?.instance.wrapperComponent} />
+          </TransformComponent>
+        </TransformWrapper>
+      </div>
+    );
+  },
+);
 
 const Toolbar = observer(
   ({ vm, vmController }: { vm: CanvasViewModel; vmController: ViewModelController }) => {
     return (
       <div className={style.Toolbar}>
         <div className={sharedStyle.InlineColumn}>
-          <Tooltip title={"Zoom out"} placement="right">
-            <IconButton onClick={() => vm.zoomOut()} aria-label="Zoom out">
+          <Tooltip label={"Zoom out"} position="right">
+            <IconButton
+              className={style.ToolbarButton}
+              onClick={() => vm.zoomOut()}
+              aria-label="Zoom out"
+            >
               <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Zoom in"} placement="right">
-            <IconButton onClick={() => vm.zoomIn()} aria-label="Zoom in">
+          <Tooltip label={"Zoom in"} position="right">
+            <IconButton
+              className={style.ToolbarButton}
+              onClick={() => vm.zoomIn()}
+              aria-label="Zoom in"
+            >
               <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Center"} placement="right">
-            <IconButton onClick={() => vm.resetScale()} aria-label="Center">
+          <Tooltip label={"Center"} position="right">
+            <IconButton
+              className={style.ToolbarButton}
+              onClick={() => vm.resetScale()}
+              aria-label="Center"
+            >
               <IconCenterFocus className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Reflow"} placement="right">
-            <IconButton onClick={() => vm.reflow()} aria-label="Reflow">
+          <Tooltip label={"Reflow"} position="right">
+            <IconButton
+              className={style.ToolbarButton}
+              onClick={() => vm.reflow()}
+              aria-label="Reflow"
+            >
               <IconLayout className={sharedStyle.ToolbarIcon} />
             </IconButton>
           </Tooltip>
         </div>
         <div className={sharedStyle.InlineColumn}>
-          <Tooltip title={"Show author panel"} placement="right">
+          <Tooltip label={"Show author panel"} position="right">
             <IconButton
               onClick={() => vmController.toggleAuthorPanelVisibility()}
               aria-label="Toggle author panel"
@@ -267,13 +285,7 @@ const ContextModal = observer(
     const currentTheme = useTheme();
     const [selectedAppearance, setSelectedAppearance] = useState(currentTheme);
     return (
-      <Modal
-        title="Export to SVG"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        okText="Export"
-      >
+      <Modal title="Export to SVG" opened={isModalOpen} onClose={handleOk} onAbort={handleCancel}>
         <RenderedSettingsEntry
           entry={createNumberSetting(
             "View-box width",

@@ -7,5 +7,6 @@ declare const classNames: {
   readonly Separator: "Separator";
   readonly ControlWithLabel: "ControlWithLabel";
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";
+  readonly ToolbarButton: "ToolbarButton";
 };
 export = classNames;

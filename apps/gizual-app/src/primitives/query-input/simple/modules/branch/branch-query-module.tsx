@@ -1,5 +1,6 @@
 import { IconGitBranchLine } from "@app/assets";
 import { useMainController } from "@app/controllers";
+import { Select } from "@app/primitives/select";
 import { useLocalQueryCtx } from "@app/utils";
 import { observer } from "mobx-react-lite";
 
@@ -23,23 +24,15 @@ export const BranchModule = observer(() => {
   return (
     <BaseQueryModule icon={<IconGitBranchLine />} title={"Branch:"}>
       <div className={style.SpacedChildren}>
-        <select
-          onChange={(e) => {
-            console.log(e.currentTarget.value);
-            updateLocalQuery({ branch: e.currentTarget.value });
+        <Select
+          onChange={(branch) => {
+            updateLocalQuery({ branch });
             publishLocalQuery();
           }}
           value={value}
+          data={branches}
           style={{ width: 200 }}
-        >
-          {branches.map((b) => {
-            return (
-              <option value={b.value} key={b.value}>
-                {b.label}
-              </option>
-            );
-          })}
-        </select>
+        ></Select>
       </div>
     </BaseQueryModule>
   );

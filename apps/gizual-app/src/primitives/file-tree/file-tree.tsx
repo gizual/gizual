@@ -1,11 +1,7 @@
 import { useMainController } from "@app/controllers";
-import { Dropdown, MenuProps, Tree } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { FontIcon } from "../font-icon";
-
-import style from "./file-tree.module.scss";
 import { FileTreeDataNode, FileTreeViewModel } from "./file-tree.vm";
 
 type FileTreeProps = {
@@ -34,67 +30,69 @@ export const FileTree = observer(({ mode = "tree", vm: externalVm }: FileTreePro
     vm.treeData[0],
   );
 
-  const items: MenuProps["items"] = React.useMemo(
-    () => [
-      {
-        key: "1",
-        label: currentNode && vm.isFileSelected(currentNode) ? "Close" : "Open",
-        onClick: () => currentNode && vm.onFileTreeSelect(currentNode),
-      },
-      {
-        key: "2",
-        label: "Focus",
-        disabled: currentNode && !vm.selectedFiles.includes(currentNode?.path),
+  //const items: MenuProps["items"] = React.useMemo(
+  //  () => [
+  //    {
+  //      key: "1",
+  //      label: currentNode && vm.isFileSelected(currentNode) ? "Close" : "Open",
+  //      onClick: () => currentNode && vm.onFileTreeSelect(currentNode),
+  //    },
+  //    {
+  //      key: "2",
+  //      label: "Focus",
+  //      disabled: currentNode && !vm.selectedFiles.includes(currentNode?.path),
 
-        onClick: () => currentNode && vm.zoomToFile(currentNode?.path),
-      },
-      {
-        key: "3",
-        label:
-          currentNode && vm.isFavorite(currentNode) ? "Remove from favorites" : "Mark as favorite",
-        onClick: () => currentNode && vm.setFavorite(currentNode),
-      },
-    ],
-    [currentNode],
-  );
+  //      onClick: () => currentNode && vm.zoomToFile(currentNode?.path),
+  //    },
+  //    {
+  //      key: "3",
+  //      label:
+  //        currentNode && vm.isFavorite(currentNode) ? "Remove from favorites" : "Mark as favorite",
+  //      onClick: () => currentNode && vm.setFavorite(currentNode),
+  //    },
+  //  ],
+  //  [currentNode],
+  //);
 
-  return (
-    <Dropdown menu={{ items }} trigger={["contextMenu"]}>
-      <Tree
-        checkable
-        onCheck={(_, i) => vm.onFileTreeSelect(i.node)}
-        checkedKeys={selectedKeys}
-        multiple
-        defaultExpandAll
-        showIcon
-        treeData={treeData}
-        className={style.Tree}
-        rootClassName={style.Tree}
-        selectedKeys={vm.selectedFiles}
-        onExpand={(k) => vm.onFileTreeExpand(k)}
-        expandedKeys={vm.expandedKeys}
-        onRightClick={(i) => setCurrentNode(i.node)}
-        titleRender={(node) => {
-          const isDirectory = node.isLeaf === false;
-          const isExpanded = vm.expandedKeys.includes(node.key);
-          let icon = node.fileIcon;
-          if (isDirectory && !isExpanded) {
-            icon = "directory-closed-icon";
-          }
-          if (isDirectory && isExpanded) {
-            icon = "directory-open-icon";
-          }
+  return <>TODO: File Tree</>;
 
-          return (
-            <div key={node.key} className={style.TreeEntry}>
-              <FontIcon name={icon} colors={node.fileIconColor} />
-              <div className={style.TreeNode} onClick={() => vm.onFileTreeSelect(node)}>
-                {node.title}
-              </div>
-            </div>
-          );
-        }}
-      />
-    </Dropdown>
-  );
+  // return (
+  //   <Dropdown menu={{ items }} trigger={["contextMenu"]}>
+  //     <Tree
+  //       checkable
+  //       onCheck={(_, i) => vm.onFileTreeSelect(i.node)}
+  //       checkedKeys={selectedKeys}
+  //       multiple
+  //       defaultExpandAll
+  //       showIcon
+  //       treeData={treeData}
+  //       className={style.Tree}
+  //       rootClassName={style.Tree}
+  //       selectedKeys={vm.selectedFiles}
+  //       onExpand={(k) => vm.onFileTreeExpand(k)}
+  //       expandedKeys={vm.expandedKeys}
+  //       onRightClick={(i) => setCurrentNode(i.node)}
+  //       titleRender={(node) => {
+  //         const isDirectory = node.isLeaf === false;
+  //         const isExpanded = vm.expandedKeys.includes(node.key);
+  //         let icon = node.fileIcon;
+  //         if (isDirectory && !isExpanded) {
+  //           icon = "directory-closed-icon";
+  //         }
+  //         if (isDirectory && isExpanded) {
+  //           icon = "directory-open-icon";
+  //         }
+
+  //         return (
+  //           <div key={node.key} className={style.TreeEntry}>
+  //             <FontIcon name={icon} colors={node.fileIconColor} />
+  //             <div className={style.TreeNode} onClick={() => vm.onFileTreeSelect(node)}>
+  //               {node.title}
+  //             </div>
+  //           </div>
+  //         );
+  //       }}
+  //     />
+  //   </Dropdown>
+  // );
 });

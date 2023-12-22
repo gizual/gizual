@@ -31,6 +31,7 @@ export type VisualizationSettings = {
   } & GroupEntry;
   style: {
     lineLength: SettingsEntry<LineLengthMode, "select">;
+    maxNumLines: SettingsEntry<number, "number">;
   } & GroupEntry;
 } & GroupEntry;
 
@@ -132,6 +133,11 @@ export class SettingsController {
           { value: "lineLength", label: "By actual line length" },
           { value: "full", label: "Full width" },
         ],
+      ),
+      maxNumLines: createNumberSetting(
+        "Maximum Number of Lines",
+        "The maximum number of lines to display per file. If set to 0, all lines will be displayed.",
+        200,
       ),
     },
   };

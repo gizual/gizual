@@ -1,5 +1,5 @@
 import { useMainController } from "@app/controllers";
-import { Spin } from "antd";
+import { Loader } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -16,13 +16,13 @@ type FileCanvasProps = {
 export const FileCanvas = observer(({ vm, wrapper }: FileCanvasProps) => {
   const mainController = useMainController();
   const blocks = useBlockHeights();
-  console.log({ blocks });
+  console.log({ blocks, wrapper, cw: vm.canvasWidth });
   return (
     <>
       {!mainController.repoController.isDoneEstimatingSize && (
         <>
           <h2>Estimating size - please wait.</h2>
-          <Spin size={"large"} />
+          <Loader />
         </>
       )}
 
@@ -34,6 +34,8 @@ export const FileCanvas = observer(({ vm, wrapper }: FileCanvasProps) => {
       >
         {blocks.map((block, index) => {
           if (!wrapper) return <React.Fragment key={index}></React.Fragment>;
+
+          console.log("I should render", block);
 
           return (
             <FileBlock

@@ -1,5 +1,5 @@
 import { ColorManager } from "@app/utils/colors";
-import { Popover } from "antd";
+import { Popover } from "@mantine/core";
 import React from "react";
 import { HexAlphaColorPicker } from "react-colorful";
 
@@ -21,8 +21,8 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
   const [color, setColor] = React.useState(hexValue);
 
   return (
-    <Popover
-      content={
+    <Popover opened={isOpen}>
+      <Popover.Dropdown>
         <div className={style.PickerContainer}>
           <HexAlphaColorPicker
             color={color}
@@ -67,12 +67,12 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
             </Button>
           </div>
         </div>
-      }
-      open={isOpen}
-    >
-      <IconButton onClick={() => setIsOpen(!isOpen)}>
-        <div className={style.ColorPreview} style={{ backgroundColor: hexValue }}></div>
-      </IconButton>
+      </Popover.Dropdown>
+      <Popover.Target>
+        <IconButton onClick={() => setIsOpen(!isOpen)}>
+          <div className={style.ColorPreview} style={{ backgroundColor: hexValue }}></div>
+        </IconButton>
+      </Popover.Target>
     </Popover>
   );
 });

@@ -20,8 +20,4 @@
 .Table {
   position: relative;
   width: 100%;
-
-  :global .ant-table-cell-row-hover {
-    background-color: var(--background-secondary) !important;
-  }
 }

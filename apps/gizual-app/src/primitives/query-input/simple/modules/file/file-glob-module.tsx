@@ -1,10 +1,11 @@
 import { IconFile } from "@app/assets";
 import { useLocalQueryCtx } from "@app/utils";
-import { Input } from "antd";
+import { Input } from "@mantine/core";
 
 import { SearchQueryType } from "@giz/query";
-import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
+
+import { FileBaseQueryModule } from "./file-base-module";
 
 function getGlobEntry(query: SearchQueryType) {
   if (query.files && "path" in query.files && !Array.isArray(query.files.path))
@@ -17,25 +18,22 @@ export function FileGlobModule() {
   const value = getGlobEntry(localQuery);
 
   return (
-    <BaseQueryModule
+    <FileBaseQueryModule
       icon={<IconFile />}
       title={"Pattern:"}
-      hasRemoveIcon
-      onRemove={() => {
-        updateLocalQuery({ files: undefined });
-        publishLocalQuery();
-      }}
+      hasSwapButton
+      disableItems={["pattern"]}
+      highlightItems={["pattern"]}
     >
       <div className={style.SpacedChildren}>
         <Input
           value={value}
-          size="small"
+          size="xs"
           placeholder="Example: *.tsx"
           onBlur={() => publishLocalQuery()}
           onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
-          onPressEnter={(e) => e.currentTarget.blur()}
         />
       </div>
-    </BaseQueryModule>
+    </FileBaseQueryModule>
   );
 }
