@@ -43,8 +43,8 @@
   justify-content: space-between;
   display: flex;
   flex-direction: column;
-  width: 2.5rem;
-  min-width: 2.5rem;
+  width: 3rem;
+  min-width: 3rem;
 }
 
 .Separator {
@@ -63,4 +63,9 @@
   @include text-xs;
   white-space: nowrap;
   text-align: left;
+}
+
+.ToolbarButton {
+  width: 2rem;
+  height: 2rem;
 }

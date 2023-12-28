@@ -1,11 +1,10 @@
 import { WelcomePage } from "@app/pages/welcome";
 import { Loading } from "@app/primitives/loading";
-import { ConfigProvider, theme as AntdTheme, ThemeConfig } from "antd";
-import { App as AntdApp } from "antd";
-import { notification as antdNotification } from "antd";
-import { SeedToken } from "antd/es/theme/interface";
+import { useTheme } from "@app/utils";
+import { createTheme, MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import { ContextMenuProvider } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
-import React from "react";
 
 import { useScreen } from "@giz/maestro/react";
 
@@ -13,76 +12,54 @@ import style from "./app.module.scss";
 import { useMainController } from "./controllers";
 import { MainPage } from "./pages/main";
 import { Footer } from "./primitives/footer";
-import { useStyle, useTheme } from "./utils";
+
+import "@mantine/core/styles.layer.css";
+import "mantine-contextmenu/styles.layer.css";
+import "mantine-datatable/styles.layer.css";
+import "@mantine/dates/styles.css";
+import "@mantine/notifications/styles.css";
 
 function App() {
   const mainController = useMainController();
-  const preferredTheme = useTheme();
 
-  const customStyle: SeedToken = {
-    ...AntdTheme.defaultSeed,
-    ...AntdTheme.compactAlgorithm,
-    colorPrimary: useStyle("--accent-main"),
-    colorBgBase: useStyle("--background-primary"),
-    colorTextBase: useStyle("--foreground-primary"),
-    borderRadius: 4,
-    fontFamily: "FiraGO",
-  };
-
-  const token =
-    preferredTheme === "dark"
-      ? AntdTheme.darkAlgorithm(customStyle)
-      : AntdTheme.defaultAlgorithm(customStyle);
-
-  const config: ThemeConfig = {
-    components: {
-      Skeleton: {
-        gradientFromColor: "var(--background-secondary)",
-        gradientToColor: "var(--background-tertiary)",
-      },
-      Select: {
-        colorBorder: "var(--border-primary)",
-        colorBgContainer: "var(--background-tertiary)",
-      },
-      Input: {
-        colorBorder: "var(--border-primary)",
-        colorBgContainer: "var(--background-tertiary)",
-      },
-      InputNumber: {
-        colorBorder: "var(--border-primary)",
-        colorBgContainer: "var(--background-tertiary)",
-      },
-      Table: {
-        colorBgContainer: "var(--background-primary)",
-      },
+  const mantineTheme = createTheme({
+    colors: {
+      accentMain: [
+        "#e6f8ff",
+        "#d0ecff",
+        "#a0d7fc",
+        "#6cc1fb",
+        "#46adfa",
+        "#32a2fa",
+        "#259cfb",
+        "#1788e0",
+        "#0078c9",
+        "#0068b2",
+      ],
     },
-    token,
-  };
-  const [notification, notificationProvider] = antdNotification.useNotification();
-
-  React.useEffect(() => {
-    mainController.attachNotificationInstance(notification);
-  }, [notification]);
+    primaryColor: "accentMain",
+    fontFamily: "FiraGO",
+    fontFamilyMonospace: "Iosevka Extended",
+  });
 
   const screen = useScreen();
+  const theme = useTheme();
   const shouldDisplayLoadingIndicator = mainController.isLoading;
 
   return (
-    <ConfigProvider theme={config}>
-      <AntdApp>
-        <>
-          {notificationProvider}
-          <div className={style.App}>
-            {shouldDisplayLoadingIndicator && <Loading />}
-            <div className={style.Main}>
-              {screen === "welcome" && <WelcomePage />}
-              {screen === "main" && <MainPage />}
-            </div>
-            <Footer />
+    <MantineProvider theme={mantineTheme} defaultColorScheme={theme}>
+      <Notifications position="top-right" />
+      <ContextMenuProvider>
+        <div className={style.App}>
+          {shouldDisplayLoadingIndicator && <Loading />}
+          <div className={style.Main}>
+            {screen === "welcome" && <WelcomePage />}
+            {screen === "main" && <MainPage />}
           </div>
-        </>
-      </AntdApp>
-    </ConfigProvider>
+          <Footer />
+        </div>
+      </ContextMenuProvider>
+    </MantineProvider>
   );
 }
 

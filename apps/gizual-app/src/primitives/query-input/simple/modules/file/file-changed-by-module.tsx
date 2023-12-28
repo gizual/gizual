@@ -1,10 +1,11 @@
 import { IconFile } from "@app/assets";
 import { useLocalQueryCtx } from "@app/utils";
-import { Input } from "antd";
+import { Input } from "@mantine/core";
 
 import { SearchQueryType } from "@giz/query";
-import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
+
+import { FileBaseQueryModule } from "./file-base-module";
 
 function getChangedByEntry(query: SearchQueryType) {
   if (query.files && "changedBy" in query.files && typeof query.files.changedBy === "string")
@@ -17,14 +18,12 @@ export function FileChangedByModule() {
   const value = getChangedByEntry(localQuery);
 
   return (
-    <BaseQueryModule
+    <FileBaseQueryModule
       icon={<IconFile />}
       title={"Changed by:"}
-      hasRemoveIcon
-      onRemove={() => {
-        updateLocalQuery({ files: undefined });
-        publishLocalQuery();
-      }}
+      hasSwapButton
+      disableItems={["changedByAuthor"]}
+      highlightItems={["changedByAuthor"]}
     >
       <div className={style.SpacedChildren}>
         <Input
@@ -33,9 +32,8 @@ export function FileChangedByModule() {
           placeholder="Enter a name or email address"
           onBlur={() => publishLocalQuery()}
           onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
-          onPressEnter={(e) => e.currentTarget.blur()}
         />
       </div>
-    </BaseQueryModule>
+    </FileBaseQueryModule>
   );
 }

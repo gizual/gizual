@@ -1,7 +1,7 @@
 import { IconSource } from "@app/assets";
 import { useSettingsController } from "@app/controllers";
 import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
-import { Skeleton, Spin } from "antd";
+import { Loader, Skeleton } from "@mantine/core";
 import React from "react";
 
 import { useBlockImage } from "@giz/maestro/react";
@@ -17,9 +17,9 @@ type FileBlockProps = {
   parentContainer: Element | null;
 };
 
-export const FileBlock = React.memo(({ id, height, parentContainer }: FileBlockProps) => {
+export const FileBlock = ({ id, height, parentContainer }: FileBlockProps) => {
   const block = useBlockImage(id);
-  console.log(block);
+  console.log("FILEBLOCK", block);
   //const block = { url: "./block.png", isPreview: false, setPriority: (_: number) => {} };
   const { isPreview, url, setPriority } = block;
   const ref = React.useRef<HTMLImageElement>(null);
@@ -52,12 +52,12 @@ export const FileBlock = React.memo(({ id, height, parentContainer }: FileBlockP
     <div className={style.File} style={{ height: height }}>
       <BlockHeader isPreview={isPreview} path={id} />
       <div className={style.FileBody}>
-        {!url && <Skeleton active paragraph={false} />}
+        {!url && <Skeleton />}
         <img className={style.FileCanvas} alt={url ? id : ""} height={height} src={url} ref={ref} />
       </div>
     </div>
   );
-});
+};
 
 type BlockHeaderProps = {
   isPreview: boolean;
@@ -72,7 +72,7 @@ function BlockHeader({ isPreview, path, icon, iconColor }: BlockHeaderProps) {
       <div className={style.FileHeadLeft}>
         {isPreview ? (
           <div className={style.LoadingContainer}>
-            <Spin size={"small"} />
+            <Loader />
           </div>
         ) : (
           <FontIcon className={style.FontIcon} name={icon} colors={iconColor} />

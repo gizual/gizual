@@ -1,5 +1,5 @@
 import { useMainController } from "@app/controllers";
-import { Spin } from "antd";
+import { Loader } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 
 import { useGlobalState } from "@giz/maestro/react";
@@ -41,7 +41,7 @@ export const Footer = observer(() => {
         </DialogProvider>
       </div>
       <div className={style.RightSection}>
-        <Spin spinning={mainController.isBusy} />
+        {mainController.isBusy && <Loader size="sm" />}
         <p>{state.numSelectedFiles} files selected</p>
         <p>
           explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs

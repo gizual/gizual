@@ -1,7 +1,6 @@
 import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
 import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
 import { CanvasScale } from "@app/utils/defaults";
-import { ArgsProps, NotificationInstance } from "antd/es/notification/interface";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { FileTree, Repository } from "@giz/explorer-web";
@@ -14,11 +13,10 @@ import { SettingsController } from "./settings.controller";
 import { ViewModelController } from "./vm.controller";
 
 export const PANELS = ["explore", "analyze", "settings"] as const;
-type Panel = (typeof PANELS)[number];
+export type Panel = (typeof PANELS)[number];
 
 export class MainController {
   @observable _favoriteFiles: Map<string, FileNodeInfos | undefined> = new Map();
-  @observable _notification?: NotificationInstance;
 
   @observable _coloringMode: ColoringMode = "age";
   @observable _fileTreeRoot?: FileTree;
@@ -72,18 +70,6 @@ export class MainController {
 
   get repoController() {
     return this._repoController;
-  }
-
-  @action.bound
-  attachNotificationInstance(notification: typeof this._notification) {
-    this._notification = notification;
-  }
-
-  @action.bound
-  displayNotification(args: ArgsProps) {
-    if (this._notification === undefined) return;
-
-    this._notification.open(args);
   }
 
   @computed

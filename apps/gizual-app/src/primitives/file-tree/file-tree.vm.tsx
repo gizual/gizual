@@ -1,6 +1,5 @@
 import { MainController } from "@app/controllers";
 import { FileNodeInfos } from "@app/types";
-import type { DataNode } from "antd/es/tree";
 import { isNumber } from "lodash";
 import _ from "lodash";
 import { makeAutoObservable, runInAction } from "mobx";
@@ -8,10 +7,12 @@ import React from "react";
 
 import { FileIcon, FileTree, getFileIcon } from "@giz/explorer-web";
 
-export type FileTreeDataNode = DataNode &
-  FileNodeInfos & {
-    children: FileTreeDataNode[];
-  };
+export type FileTreeDataNode = FileNodeInfos & {
+  key: string | number;
+  title?: React.ReactNode | ((data: FileTreeDataNode) => React.ReactNode);
+  children: FileTreeDataNode[];
+  isLeaf?: boolean;
+};
 
 export class FileTreeViewModel {
   _mainController: MainController;

@@ -1,53 +1,24 @@
 import { IconClock } from "@app/assets";
-import { Dropdown, MenuProps } from "antd";
+import { Menu } from "@mantine/core";
 
 import { useQuery } from "@giz/maestro/react";
 import { PlaceholderQueryModule } from "../base-query-module";
 
+import { TimeMenuItems } from "./time-menu";
+
 export function TimePlaceholderModule() {
   const query = useQuery();
 
-  const items: MenuProps["items"] = [
-    {
-      key: "1",
-      type: "group",
-      label: "Time-based filters",
-      children: [
-        {
-          key: "sinceFirstCommitBy",
-          label: "Since first commit by",
-          onClick: () => {
-            query.updateQuery({ time: { sinceFirstCommitBy: "" } });
-          },
-        },
-        {
-          key: "rangeByDate",
-          label: "Range by date",
-          onClick: () => {
-            query.updateQuery({ time: { rangeByDate: "" } });
-          },
-        },
-        {
-          key: "rangeByRef",
-          label: "Range by ref",
-          onClick: () => {
-            query.updateQuery({ time: { rangeByRef: "" } });
-          },
-        },
-      ],
-    },
-  ];
-
   return (
-    <Dropdown menu={{ items }} arrow>
-      <PlaceholderQueryModule
-        icon={<IconClock />}
-        title={"Add time-based filter"}
-        accentColor="#006aa3"
-        onClick={(e) => {
-          e.preventDefault();
-        }}
-      />
-    </Dropdown>
+    <Menu position="bottom" withArrow>
+      <Menu.Target>
+        <PlaceholderQueryModule
+          icon={<IconClock />}
+          title={"Add time-based filter"}
+          accentColor="#006aa3"
+        />
+      </Menu.Target>
+      <TimeMenuItems query={query} />
+    </Menu>
   );
 }

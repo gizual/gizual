@@ -28,7 +28,6 @@
 
 .PlaceholderQueryModuleTrigger {
   display: flex;
-  height: 100%;
 }
 
 .TypeSteps {
@@ -38,10 +37,47 @@
 }
 
 .TypeDialog {
-  height: 80vh;
   max-height: 900px;
-  max-width: 700px;
+  max-width: 950px;
+  min-width: 200px;
   position: relative;
+  margin: auto auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.TypeDialogStep {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  border-top: 1px solid var(--border-primary);
+  padding-top: 1rem;
+  gap: 1rem;
+}
+
+.TypeDialog__Left {
+  flex-grow: 1;
+  height: 100%;
+  position: relative;
+}
+
+.VerticalRuler {
+  width: 1px;
+  background-color: var(--border-primary);
+}
+
+.TypeDialog__Right {
+  width: 30%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .TypeDialogGrid {
@@ -52,8 +88,13 @@
   width: 100%;
 }
 
+.TypeDialogActionButtons {
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
 .TypeDialogGridItemTile {
-  width: 300px;
+  width: 200px;
   height: 100%;
   flex-grow: 1;
   display: flex;
@@ -83,8 +124,8 @@
 }
 
 .TypeDialogGridItemImage {
-  width: 300px;
-  height: 300px;
+  width: 250px;
+  height: 250px;
   background-color: var(--background-secondary);
 }
 
@@ -96,13 +137,13 @@
 }
 
 .TypeDialogGridItemTitle {
-  @include text-lg;
+  @include text-base;
   font-weight: medium;
   text-align: left;
 }
 
 .TypeDialogGridItemDescription {
-  @include text-base;
+  @include text-sm;
   text-align: left;
 }
 
@@ -188,7 +229,7 @@
   width: 15px;
   height: 15px;
   & > path {
-    fill: var(--color-tomato);
+    fill: var(--foreground-primary);
   }
   cursor: pointer;
 }

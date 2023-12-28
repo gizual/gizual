@@ -1,26 +1,5 @@
 @use "@/mixins" as *;
 
-.SelectWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
 .SelectBox {
-  > * {
-    padding-left: calc(3rem - 8px) !important;
-  }
-  > div {
-    height: 34px !important;
-  }
-}
-
-.SelectIconWrapper {
-  @include z-index-base-1;
-  position: absolute;
-  width: 3rem;
-  height: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: var(--background-primary);
 }

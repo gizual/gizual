@@ -1,19 +1,19 @@
-import { WelcomePage } from "@app/pages";
+import { WelcomePage as WelcomePageComponent } from "@app/pages";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import withAntdConfig from "./decorators/with-antd-config";
 import withMainController from "./decorators/with-main-controller";
+import withMantineProvider from "./decorators/with-mantine-provider";
 
 const meta = {
   title: "WelcomePage",
-  component: WelcomePage,
+  component: WelcomePageComponent,
   parameters: {
     layout: "centered",
   },
-  decorators: [withMainController, withAntdConfig],
-} satisfies Meta<typeof WelcomePage>;
+  decorators: [withMainController, withMantineProvider],
+} satisfies Meta<typeof WelcomePageComponent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const WelcomePage: Story = {};

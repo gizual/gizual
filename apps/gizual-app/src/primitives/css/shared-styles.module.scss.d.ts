@@ -24,6 +24,7 @@ declare const classNames: {
   readonly PopoverMax: "PopoverMax";
   readonly CloseButton: "CloseButton";
   readonly FlexColumn: "FlexColumn";
+  readonly JustifyBetween: "JustifyBetween";
   readonly FlexRow: "FlexRow";
   readonly InlineFlexRow: "InlineFlexRow";
   readonly Grow: "Grow";

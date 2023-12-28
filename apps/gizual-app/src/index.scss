@@ -467,3 +467,9 @@
   bottom: 0;
   transform: rotate(45deg);
 }
+
+.mantine-Input-input {
+  background-color: var(--background-primary);
+  color: var(--foreground-primary);
+  height: 36px;
+}

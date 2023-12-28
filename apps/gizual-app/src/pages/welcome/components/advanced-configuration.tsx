@@ -1,11 +1,11 @@
 import shared from "@app/primitives/css/shared-styles.module.scss";
-import { Radio, RadioChangeEvent } from "antd";
+import { Radio } from "@mantine/core";
 import clsx from "clsx";
 import React from "react";
 
 import { FileLoaderLocal } from "@giz/maestro/react";
 import style from "../welcome.module.scss";
-import { WelcomeViewModel } from "../welcome.vm";
+import { AdvancedConfigurationSelection, WelcomeViewModel } from "../welcome.vm";
 
 import { CollapsiblePanel } from "./collapsible-panel";
 
@@ -15,8 +15,8 @@ export type AdvancedConfigurationPanelProps = {
 };
 
 export function AdvancedConfigurationPanel({ vm, loader }: AdvancedConfigurationPanelProps) {
-  function onChange(e: RadioChangeEvent) {
-    vm.setSelectedFileLoaderConfig(e.target.value);
+  function onChange(value: string) {
+    vm.setSelectedFileLoaderConfig(value as AdvancedConfigurationSelection);
   }
 
   const isFsaSupported = loader.some((l) => l.id === "fsa");
@@ -34,17 +34,26 @@ export function AdvancedConfigurationPanel({ vm, loader }: AdvancedConfiguration
         value={vm.selectedFileLoaderConfig}
         onChange={onChange}
       >
-        <Radio value={"fsa"} className={style.Radio} disabled={!isFsaSupported}>
-          <FsaLoader isFsaSupported={isFsaSupported} />
-        </Radio>
+        <Radio
+          value={"fsa"}
+          className={style.Radio}
+          disabled={!isFsaSupported}
+          label={<FsaLoader isFsaSupported={isFsaSupported} />}
+        />
 
-        <Radio value={"drag-and-drop"} className={style.Radio} disabled={!isDragAndDropSupported}>
-          <DragLoader />
-        </Radio>
+        <Radio
+          value={"drag-and-drop"}
+          className={style.Radio}
+          disabled={!isDragAndDropSupported}
+          label={<DragLoader />}
+        />
 
-        <Radio value={"input-field"} className={style.Radio} disabled={!isInputFieldSupported}>
-          <HTMLInputLoader />
-        </Radio>
+        <Radio
+          value={"input-field"}
+          className={style.Radio}
+          disabled={!isInputFieldSupported}
+          label={<HTMLInputLoader />}
+        />
       </Radio.Group>
     </CollapsiblePanel>
   );

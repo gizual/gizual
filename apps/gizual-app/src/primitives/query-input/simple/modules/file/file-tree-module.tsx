@@ -2,13 +2,20 @@ import { IconFile } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { Button, DialogProvider, FileTree } from "@app/primitives";
 
-import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
+
+import { FileBaseQueryModule } from "./file-base-module";
 
 export function FileTreeModule() {
   const mainController = useMainController();
   return (
-    <BaseQueryModule icon={<IconFile />} title={"Files:"} hasRemoveIcon>
+    <FileBaseQueryModule
+      icon={<IconFile />}
+      title={"Files:"}
+      hasSwapButton
+      disableItems={["filePicker"]}
+      highlightItems={["filePicker"]}
+    >
       <div className={style.SpacedChildren}>
         <DialogProvider
           trigger={
@@ -27,6 +34,6 @@ export function FileTreeModule() {
           </div>
         </DialogProvider>
       </div>
-    </BaseQueryModule>
+    </FileBaseQueryModule>
   );
 }

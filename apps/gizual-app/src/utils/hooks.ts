@@ -1,5 +1,3 @@
-import { notification as antdNotification } from "antd";
-import { NotificationInstance } from "antd/es/notification/interface";
 import {
   createContext,
   useCallback,
@@ -58,11 +56,6 @@ export const useStyle = (key: string) => {
   }, [doc, key, theme]);
 
   return style;
-};
-
-export const useNotification = (): [NotificationInstance, React.ReactElement] => {
-  const [notification, contextHolder] = antdNotification.useNotification();
-  return [notification, contextHolder];
 };
 
 export const LocalQueryContext = createContext<

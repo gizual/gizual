@@ -1,10 +1,11 @@
 import { IconFile } from "@app/assets";
+import { Select } from "@app/primitives/select";
 import { useLocalQueryCtx } from "@app/utils";
-import { Select } from "antd";
 
 import { SearchQueryType } from "@giz/query";
-import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
+
+import { FileBaseQueryModule } from "./file-base-module";
 
 function getChangedInRefEntry(query: SearchQueryType) {
   if (query.files && "changedInRef" in query.files && !Array.isArray(query.files.changedInRef))
@@ -17,25 +18,22 @@ export function FileChangedInRefModule() {
   const value = getChangedInRefEntry(localQuery);
 
   return (
-    <BaseQueryModule
+    <FileBaseQueryModule
       icon={<IconFile />}
       title={"Changed in ref:"}
-      hasRemoveIcon
-      onRemove={() => {
-        updateLocalQuery({ files: undefined });
-        publishLocalQuery();
-      }}
+      hasSwapButton
+      disableItems={["changedInRef"]}
+      highlightItems={["changedInRef"]}
     >
       <div className={style.SpacedChildren}>
         <Select
           onBlur={() => publishLocalQuery()}
-          onChange={(e) => updateLocalQuery({ files: { path: e } })}
+          onChange={(e) => updateLocalQuery({ files: { path: e ?? "" } })}
           value={value}
-          options={[{ label: "HEAD", value: "HEAD" }]}
-          size="small"
-          style={{ minWidth: 80 }}
+          data={[{ label: "HEAD", value: "HEAD" }]}
+          style={{ width: 80 }}
         />
       </div>
-    </BaseQueryModule>
+    </FileBaseQueryModule>
   );
 }

@@ -12,6 +12,7 @@ export { ReactComponent as IconCommandLine } from "./command-line.svg";
 export { ReactComponent as IconDownload } from "./download.svg";
 export { ReactComponent as IconDragVertical } from "./drag-vertical.svg";
 export { ReactComponent as IconEarth } from "./earth.svg";
+export { ReactComponent as IconEdit } from "./edit.svg";
 export { ReactComponent as IconFile } from "./file.svg";
 export { ReactComponent as IconFileTree } from "./file-tree.svg";
 export { ReactComponent as IconFirefox } from "./firefox.svg";

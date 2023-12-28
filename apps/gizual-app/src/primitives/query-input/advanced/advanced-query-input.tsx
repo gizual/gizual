@@ -1,6 +1,6 @@
 import { useTheme } from "@app/utils";
+import { Tooltip } from "@mantine/core";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
-import { Tooltip } from "antd";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -93,7 +93,7 @@ export const AdvancedEditor = observer(() => {
         >
           Run query
         </Button>
-        <Tooltip title="Save button is not yet implemented.">
+        <Tooltip label="Save button is not yet implemented.">
           <Button variant="filled" onClick={() => console.log("TODO: Should save query!")} disabled>
             Save query
           </Button>

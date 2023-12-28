@@ -1,7 +1,9 @@
-import { IconClose, IconCollapse } from "@app/assets";
-import { PANELS, useMainController } from "@app/controllers";
+import { IconClose } from "@app/assets";
+import { Panel, PANELS, useMainController } from "@app/controllers";
+import { Select, SelectOption } from "@app/primitives/select";
 import { useWindowSize } from "@app/utils";
-import { App, Tooltip } from "antd";
+import { Modal, Stack, Tooltip } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
@@ -9,7 +11,7 @@ import { Screen, useScreen } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 
-import { Select } from "..";
+import { Button } from "..";
 import style from "./title-bar.module.scss";
 
 export const TitleBar = observer(() => {
@@ -37,8 +39,7 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
   const mainController = useMainController();
   const selectedPanel = mainController._selectedPanel;
   const setSelectedPanel = mainController.setPanel;
-
-  const { modal } = App.useApp();
+  const [opened, { open, close }] = useDisclosure(false);
 
   return (
     <>
@@ -90,23 +91,16 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
       {screen !== "welcome" && (
         <div className={style.Right}>
           <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
-          <Tooltip title="Close repository">
-            <IconButton
-              className={sharedStyle.CloseButton}
-              onClick={() => {
-                modal.confirm({
-                  content: "Do you wish to close the repository?",
-                  okText: "Close repository",
-                  okButtonProps: { danger: true },
-                  cancelText: "Cancel",
-                  onCancel: () => {},
-                  onOk: () => {
-                    window.location.reload();
-                    //mainController.closeRepository();
-                  },
-                });
-              }}
-            >
+          <Modal opened={opened} onClose={close} centered title="Close repository">
+            <Stack gap="md">
+              Do you wish to close the repository?
+              <Button onClick={() => window.location.reload()} variant="filled">
+                Close repository
+              </Button>
+            </Stack>
+          </Modal>
+          <Tooltip label="Close repository">
+            <IconButton className={sharedStyle.CloseButton} onClick={open}>
               <IconClose />
             </IconButton>
           </Tooltip>
@@ -121,6 +115,11 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
   const selectedPanel = mainController._selectedPanel;
   const setSelectedPanel = mainController.setPanel;
 
+  const panels: SelectOption<Panel>[] = PANELS.map((p) => {
+    const opt = p.charAt(0).toUpperCase() + p.slice(1);
+    return { label: opt, value: p, payload: p };
+  });
+
   return (
     <div className={style.Right}>
       {screen === "welcome" && (
@@ -129,16 +128,13 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
         </div>
       )}
       {screen !== "welcome" && (
-        <Select
+        <Select<Panel>
           value={selectedPanel}
-          icon={<IconCollapse className={style.SelectIcon} />}
           size="large"
-          onChange={(e) => setSelectedPanel(e)}
-          options={PANELS.map((p) => {
-            const opt = p.charAt(0).toUpperCase() + p.slice(1);
-            return { label: opt, value: p };
-          })}
-          suffixIcon={false}
+          onChange={(_, panel) => {
+            setSelectedPanel(panel);
+          }}
+          data={panels}
         />
       )}
     </div>
