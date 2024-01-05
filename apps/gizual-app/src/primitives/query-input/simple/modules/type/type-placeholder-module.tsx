@@ -26,7 +26,7 @@ export function TypePlaceholderModule() {
       isOpen={isOpen}
       setIsOpen={setIsOpen}
     >
-      <TypePlaceholderModal isOpen={isOpen} setIsOpen={setIsOpen} />
+      <TypePlaceholderModal closeModal={() => setIsOpen(false)} />
     </DialogProvider>
   );
 }

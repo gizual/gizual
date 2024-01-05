@@ -4,7 +4,7 @@ declare const classNames: {
   readonly PlaceholderQueryModuleTrigger: "PlaceholderQueryModuleTrigger";
   readonly TypeSteps: "TypeSteps";
   readonly TypeDialog: "TypeDialog";
-  readonly TypeDialogStep: "TypeDialogStep";
+  readonly TypeDialogSplit: "TypeDialogSplit";
   readonly TypeDialog__Left: "TypeDialog__Left";
   readonly VerticalRuler: "VerticalRuler";
   readonly TypeDialog__Right: "TypeDialog__Right";

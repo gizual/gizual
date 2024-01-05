@@ -191,6 +191,10 @@
     font-family: "Iosevka Extended", monospace;
   }
 
+  a {
+    cursor: pointer;
+  }
+
   /* Sane CSS defaults inspired by `preflight` */
   blockquote,
   dl,

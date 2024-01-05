@@ -3,7 +3,7 @@ import { useSettingsController } from "@app/controllers";
 import { Button } from "@app/primitives/button";
 import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
-import { useLocalQuery, useWindowSize } from "@app/utils";
+import { useLocalQuery } from "@app/utils";
 import { Stepper, StepperStepProps } from "@mantine/core";
 import clsx from "clsx";
 import React from "react";
@@ -59,8 +59,6 @@ export type TypePlaceholderModalProps = {
   closeModal: () => void;
 };
 
-const MIN_WIDTH_COLUMN = 1200;
-
 export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderModalProps) => {
   const settingsController = useSettingsController();
   const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQuery();
@@ -69,7 +67,6 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
   const selectedType = getTypeEntry(localQuery);
   const selectedStyle = getStyleEntry(localQuery);
   const selectedColors = getColorsEntry(localQuery);
-  const [width, height] = useWindowSize();
 
   const onNextStep = () => {
     if (step === NUM_STEPS - 1) {
@@ -202,32 +199,41 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
 
   return (
     <div className={style.TypeDialog}>
-      <Stepper
-        active={step}
-        className={style.TypeSteps}
-        orientation="horizontal"
-        onStepClick={(n) => setStep(n)}
-      >
-        {stepItems.map((s, index) => (
-          <Stepper.Step key={s.title} label={`Step ${index + 1}`} description={s.title}>
-            <div
-              className={style.TypeDialogStep}
-              style={{ flexDirection: width > MIN_WIDTH_COLUMN ? "row" : "column" }}
-            >
-              <div className={style.TypeDialog__Left}>{s.children}</div>
-              <div className={style.VerticalRuler} />
-              <div className={style.TypeDialog__Right}>
-                Preview:
-                <img
-                  className={style.TypeDialogGridItemImage}
-                  alt={"Preview image"}
-                  src={previewFileLines}
-                />
-              </div>
-            </div>
-          </Stepper.Step>
-        ))}
-      </Stepper>
+      <div className={style.TypeDialogSplit}>
+        <div className={style.TypeDialog__Left}>
+          <Stepper
+            active={step}
+            className={style.TypeSteps}
+            orientation="vertical"
+            onStepClick={(n) => setStep(n)}
+            styles={{
+              stepDescription: {
+                color: "var(--foreground-primary)",
+                paddingTop: 8,
+                paddingBottom: 8,
+              },
+            }}
+          >
+            {stepItems.map((s, index) => (
+              <Stepper.Step
+                key={s.title}
+                label={`Step ${index + 1}: ${s.title}`}
+                description={s.children}
+                component={"div"}
+              />
+            ))}
+          </Stepper>
+        </div>
+        <div className={style.VerticalRuler} />
+        <div className={style.TypeDialog__Right}>
+          Preview:
+          <img
+            className={style.TypeDialogGridItemImage}
+            alt={"Preview image"}
+            src={previewFileLines}
+          />
+        </div>
+      </div>
       <StepItemButtons
         currentStep={step}
         onPrevious={onPreviousStep}
@@ -382,6 +388,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         title="Author Mosaic"
         checked={type === "author-mosaic"}
         description="Displays authors in a mosaic."
+        inputName="type"
       />
 
       <RadioGridItem<Type>
@@ -390,6 +397,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         title="Author Contributions"
         checked={type === "author-contributions"}
         description="Displays the individual contributions of each author."
+        inputName="type"
       />
 
       <RadioGridItem<Type>
@@ -398,6 +406,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         title="File Lines"
         checked={type === "file-lines"}
         description="Displays each file line by line."
+        inputName="type"
       />
 
       <RadioGridItem<Type>
@@ -406,6 +415,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         title="File Mosaic"
         checked={type === "file-mosaic"}
         description="Displays each file in a mosaic."
+        inputName="type"
       />
 
       <RadioGridItem<Type>
@@ -414,6 +424,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         title="File Bar"
         checked={type === "file-bar"}
         description="Displays each file as a stacked bar."
+        inputName="type"
       />
 
       <RadioGridItem<Type>
@@ -422,6 +433,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         title="Author Bar"
         checked={type === "author-bar"}
         description="Displays each author as a stacked bar."
+        inputName="type"
       />
     </div>
   );
@@ -452,6 +464,7 @@ export const DefaultStyleSelect = React.memo(
                   title={StyleRadioTitle[s]}
                   description={StyleRadioDescriptions[s]}
                   onChange={onRadioChange}
+                  inputName="style"
                 />
               ))}
             </div>

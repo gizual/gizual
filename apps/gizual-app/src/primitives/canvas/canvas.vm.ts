@@ -63,7 +63,7 @@ export class CanvasViewModel {
   }
 
   resetScale() {
-    this.center();
+    this.center(CanvasScale.default);
   }
 
   zoomTo(n: number | null) {

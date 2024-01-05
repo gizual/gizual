@@ -5,5 +5,6 @@ declare const classNames: {
   readonly AdvancedSearchIconButton: "AdvancedSearchIconButton";
   readonly AdvancedSearchIcon: "AdvancedSearchIcon";
   readonly Content: "Content";
+  readonly AdvancedSearchDialog: "AdvancedSearchDialog";
 };
 export = classNames;

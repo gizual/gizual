@@ -1,6 +1,7 @@
 declare const classNames: {
-  readonly AdvancedEditor: "AdvancedEditor";
   readonly AdvancedEditorContainer: "AdvancedEditorContainer";
+  readonly AdvancedEditor: "AdvancedEditor";
+  readonly AdvancedEditorLoading: "AdvancedEditorLoading";
   readonly EditorActionGroup: "EditorActionGroup";
 };
 export = classNames;

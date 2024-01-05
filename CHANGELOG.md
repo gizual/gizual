@@ -1,3 +1,17 @@
+## Gizual 3.0.0-alpha.13 (05.01.2024)
+
+### Changes
+
+- **app:frontend:** migrate app frontend to Mantine, remove references to Antd
+- **app:frontend:** adapt new simple-query module behavior
+- **app:frontend:** extend dialog-provider to allow full-screen on small devices
+
+### Bug Fixes
+
+- **app:canvas:** fix an error that caused lines in `file-lines` mode to be warped
+
+---
+
 ## Gizual 3.0.0-alpha.12 (12.12.2023)
 
 ### Features

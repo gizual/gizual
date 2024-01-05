@@ -30,6 +30,13 @@ export function Select<T = undefined>(props: SelectProps<T>) {
       className={style.SelectBox}
       onChange={onChangeWrapper}
       data={data}
+      size="sm"
+      styles={{
+        input: {
+          height: 30,
+          minHeight: 30,
+        },
+      }}
       {...mantineProps}
     />
   );

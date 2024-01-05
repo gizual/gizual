@@ -2,11 +2,11 @@ import { IconClock, IconRuler } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
 import { useLocalQueryCtx } from "@app/utils";
 import { DatePickerInput } from "@mantine/dates";
-import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import weekday from "dayjs/plugin/weekday";
+import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 
 import { DATE_FORMAT } from "@giz/utils/gizdate";
@@ -38,7 +38,7 @@ export const TimeRangeModule = observer(() => {
     updateLocalQuery({
       time: {
         rangeByDate: [
-          d?.format(DATE_FORMAT) ?? startDate.format(DATE_FORMAT),
+          dayjs(d).format(DATE_FORMAT) ?? startDate.format(DATE_FORMAT),
           endDate.format(DATE_FORMAT),
         ],
       },
@@ -50,7 +50,7 @@ export const TimeRangeModule = observer(() => {
       time: {
         rangeByDate: [
           startDate.format(DATE_FORMAT),
-          d?.format(DATE_FORMAT) ?? endDate.format(DATE_FORMAT),
+          dayjs(d).format(DATE_FORMAT) ?? endDate.format(DATE_FORMAT),
         ],
       },
     });
@@ -71,25 +71,41 @@ export const TimeRangeModule = observer(() => {
           defaultValue={startDate.toDate()}
           onChange={(d) => onChangeStartDate(d)}
           onBlur={publishLocalQuery}
+          styles={{
+            input: {
+              height: 30,
+              minHeight: 30,
+              maxHeight: 30,
+              padding: "0 0.5rem",
+            },
+          }}
         />
         <DatePickerInput
           value={endDate.toDate()}
           onChange={onChangeEndDate}
           onBlur={publishLocalQuery}
+          styles={{
+            input: {
+              height: 30,
+              minHeight: 30,
+              maxHeight: 30,
+              padding: "0 0.5rem",
+            },
+          }}
         />
         <IconRuler
           className={clsx(style.IconBase, isTimelineOpen ? style.IconToggled : style.IconUnToggled)}
           onClick={() => {
-            notifications.show({
-              title: "Info",
-              message: "The timeline is disabled in this demo build.",
-              role: "alert",
-            });
-            //runInAction(() => {
-            //  settingsController.timelineSettings.displayMode.value = isTimelineOpen
-            //    ? "collapsed"
-            //    : "visible";
+            //notifications.show({
+            //  title: "Info",
+            //  message: "The timeline is disabled in this demo build.",
+            //  role: "alert",
             //});
+            runInAction(() => {
+              settingsController.timelineSettings.displayMode.value = isTimelineOpen
+                ? "collapsed"
+                : "visible";
+            });
           }}
         />
       </div>

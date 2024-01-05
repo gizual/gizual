@@ -8,5 +8,6 @@ declare const classNames: {
   readonly DialogHead: "DialogHead";
   readonly DialogBody: "DialogBody";
   readonly DialogTitle: "DialogTitle";
+  readonly DialogFooterContainer: "DialogFooterContainer";
 };
 export = classNames;

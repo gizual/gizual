@@ -31,9 +31,13 @@
 }
 
 .Left {
+  --_gap-size: 1rem;
+
   display: flex;
   flex-direction: row;
   justify-self: flex-start;
+  margin-left: 1rem;
+  gap: var(--_gap-size);
 }
 
 .Right {
@@ -43,10 +47,11 @@
   padding-right: 1rem;
   gap: 1rem;
   margin-left: auto;
+  align-items: center;
 }
 
 .Menu {
-  padding: 0.25rem 0;
+  padding: 0.125rem 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -54,16 +59,37 @@
 }
 
 .MenuItem {
+  position: relative;
   margin: auto 0;
-  margin-left: 1rem;
-  width: 5rem;
+  width: 5.25rem;
   text-align: center;
   cursor: pointer;
+
+  > a {
+    transition: color 0.25s;
+    color: var(--foreground-primary);
+  }
+
+  &:not(:first-of-type) {
+    ::before {
+      content: "";
+      display: block;
+      height: 50%;
+      width: 1px;
+      position: absolute;
+      left: calc(-1px - (var(--_gap-size) / 2));
+      top: 25%;
+
+      background-color: var(--border-primary);
+    }
+  }
 }
 
 .Selected {
   position: relative;
-  animation: skewX 0.3s forwards;
+  > a {
+    color: var(--accent-main);
+  }
 
   ::after {
     content: "";
@@ -71,11 +97,10 @@
     width: 0;
     height: 3px;
     position: absolute;
-    bottom: -0.25rem;
+    bottom: -3px;
     left: 50%;
     background: var(--accent-main);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border: 1px solid var(--accent-main);
     border-bottom: 0;
     animation: enlarge 0.3s forwards;
   }
@@ -96,13 +121,12 @@
     left: 50%;
   }
   100% {
-    width: 100%;
-    left: 0;
+    width: calc(100% + 2px);
+    left: -1px;
   }
 }
 
 .MenuItemText {
-  color: var(--foreground-primary);
   font-weight: 500;
   text-align: center;
   font-size: 1.1rem;
@@ -111,7 +135,7 @@
 }
 
 .MenuItemText:hover {
-  color: var(--accent-main);
+  color: var(--foreground-link);
 }
 
 .InfoText {
