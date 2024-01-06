@@ -1,13 +1,13 @@
 import { useTheme } from "@app/utils";
-import { Tooltip } from "@mantine/core";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
 import { getSchema } from "@giz/query";
-import { Validator } from "@giz/query/validator";
-import { Button } from "../../button";
+import { Loading } from "../../loading";
+import { QueryViewModel } from "../query.vm";
 
 import style from "./advanced-query-input.module.scss";
 import { CompletionProvider } from "./completion-provider";
@@ -36,69 +36,49 @@ function handleEditorDidMount(editor: Monaco) {
   });
 }
 
-export const AdvancedEditor = observer(() => {
-  const { query, setQuery } = useQuery();
-  const [validationOutput, setValidationOutput] = React.useState<string[]>([]);
-  const [editorContent, setEditorContent] = React.useState<string>(
-    JSON.stringify(query, undefined, 1),
-  );
+export type AdvancedEditorProps = {
+  vm: QueryViewModel;
+};
+
+export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
+  const { query } = useQuery();
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    setEditorContent(JSON.stringify(query, undefined, 1));
+    vm.setEditorContent(JSON.stringify(query, undefined, 1));
+    vm.setValidationOutput([]);
   }, [query]);
 
   const monacoInstance = useMonaco();
 
   const theme = useTheme();
-  function handleEditorValidation(markers: any) {
-    setValidationOutput([]);
-    for (const marker of markers)
-      setValidationOutput([...validationOutput, marker.message as string]);
-  }
 
   function parseInput(e: string | undefined) {
     if (e === undefined) return;
-    setEditorContent(e);
+    vm.setEditorContent(e);
   }
-
-  const containsErrors = validationOutput.length > 0;
 
   if (!monacoInstance) return <></>;
 
   return (
     <div className={style.AdvancedEditorContainer}>
+      {isLoading && <Loading />}
       <Editor
-        className={style.AdvancedEditor}
+        className={clsx(style.AdvancedEditor, isLoading && style.AdvancedEditorLoading)}
         defaultLanguage="json"
         value={JSON.stringify(query, undefined, 1)}
-        onValidate={handleEditorValidation}
+        onValidate={vm.handleEditorValidation.bind(vm)}
         beforeMount={handleEditorWillMount}
-        onMount={(_e, m) => handleEditorDidMount(m)}
+        onMount={(_e, m) => {
+          handleEditorDidMount(m);
+          setIsLoading(false);
+        }}
         onChange={(e) => parseInput(e)}
         width="unset"
         theme={theme === "light" ? "light" : "vs-dark"}
-        height="unset" // Populated through CSS
+        height="45vh"
       ></Editor>
-      {containsErrors && <>Validation error: {validationOutput.join(", ")}</>}
-      <div className={style.EditorActionGroup}>
-        <Button
-          variant="filled"
-          disabled={validationOutput.length > 0}
-          onClick={() => {
-            const result = Validator.validate(editorContent);
-            if (result !== undefined) {
-              setQuery(result);
-            }
-          }}
-        >
-          Run query
-        </Button>
-        <Tooltip label="Save button is not yet implemented.">
-          <Button variant="filled" onClick={() => console.log("TODO: Should save query!")} disabled>
-            Save query
-          </Button>
-        </Tooltip>
-      </div>
+      {vm.contentHasErrors && <>Validation error: {vm.validationOutput.join(", ")}</>}
     </div>
   );
 });

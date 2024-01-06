@@ -36,6 +36,7 @@ export function TypeModuleComponent() {
           triggerClassName={style.PlaceholderQueryModuleTrigger}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
+          contentStyle={{ overflow: "hidden" }}
         >
           <TypePlaceholderModal closeModal={() => setIsOpen(false)} />
         </DialogProvider>

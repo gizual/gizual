@@ -5,6 +5,7 @@ declare const self: DedicatedWorkerGlobalScope;
 
 import type { VisualizationSettings } from "@app/controllers";
 import type { VisualizationConfig } from "@app/types";
+import { VisualizationDefaults } from "@app/utils/defaults";
 import { observable, Observer } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
 import { EventEmitter } from "eventemitter3";
@@ -669,7 +670,7 @@ function parseLines(blame: Blame) {
       commit,
     };
   });
-  const maxLineLength = Math.min(lenMax, 200);
+  const maxLineLength = VisualizationDefaults.maxLineLength; //Math.min(lenMax, VisualizationDefaults.maxLineLength);
 
   return { lines, maxLineLength };
 }

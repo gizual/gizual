@@ -90,7 +90,9 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
       </div>
       {screen !== "welcome" && (
         <div className={style.Right}>
-          <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
+          {mainController.repoName !== "" && mainController.repoName !== "?" && (
+            <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
+          )}
           <Modal opened={opened} onClose={close} centered title="Close repository">
             <Stack gap="md">
               Do you wish to close the repository?

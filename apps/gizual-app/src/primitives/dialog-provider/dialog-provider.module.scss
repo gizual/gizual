@@ -115,10 +115,21 @@
   flex-shrink: 1;
   max-height: 85vh;
   overflow: auto;
+  position: relative;
+  display: flex;
 }
 
 .DialogTitle {
   overflow: hidden;
   text-overflow: ellipsis;
   text-wrap: nowrap;
+}
+
+.DialogFooterContainer {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 0;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: 1rem;
 }

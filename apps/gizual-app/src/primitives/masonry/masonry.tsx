@@ -35,8 +35,6 @@ export const MasonryGrid = observer(
       return masonry.columns;
     }, [children, childInfo]);
 
-    console.log("MASONRY", sortedColumns);
-
     return (
       <div className={clsx(style.Row, className)} style={{ ...css }} key="masonry">
         {sortedColumns &&

@@ -340,7 +340,7 @@ export class FileRendererWorker {
         renderer.drawText(line.content, {
           x: 0,
           y: currentY + lineHeight / 1.5,
-          fontSize: "4",
+          fontSize: "4.1",
           fill: "white",
         });
 

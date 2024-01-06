@@ -1,6 +1,6 @@
 import { IconFile } from "@app/assets";
+import { Input } from "@app/primitives/input";
 import { useLocalQueryCtx } from "@app/utils";
-import { Input } from "@mantine/core";
 
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
@@ -28,9 +28,14 @@ export function FileGlobModule() {
       <div className={style.SpacedChildren}>
         <Input
           value={value}
-          size="xs"
           placeholder="Example: *.tsx"
           onBlur={() => publishLocalQuery()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              publishLocalQuery();
+              e.currentTarget.blur();
+            }
+          }}
           onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
         />
       </div>

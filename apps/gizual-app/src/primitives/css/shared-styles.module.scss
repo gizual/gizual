@@ -205,6 +205,11 @@
 }
 
 @layer overrides {
+  .CloseButton {
+    width: 24px;
+    height: 24px;
+  }
+
   .CloseButton:hover {
     background-color: var(--color-tomato);
   }
