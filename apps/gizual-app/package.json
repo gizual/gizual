@@ -20,10 +20,6 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@codemirror/lang-javascript": "^6.1.8",
-    "@codemirror/state": "^6.2.0",
-    "@codemirror/theme-one-dark": "^6.1.2",
-    "@codemirror/view": "^6.11.2",
     "@giz/explorer": "workspace:*",
     "@giz/explorer-web": "workspace:*",
     "@giz/file-renderer": "workspace:*",
@@ -40,7 +36,6 @@
     "@visx/scale": "^3.3.0",
     "@visx/shape": "^3.3.0",
     "clsx": "^2.0.0",
-    "codemirror": "6.0.1",
     "d3-color": "^3.1.0",
     "d3-scale": "4.0.2",
     "dayjs": "^1.11.10",

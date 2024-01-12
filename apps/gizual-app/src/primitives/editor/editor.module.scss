@@ -1,40 +1,28 @@
 @use "@/mixins" as *;
 
-.EditorHeader {
-  margin-bottom: 1rem;
-}
-
 .EditorContainer {
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
 }
 
 .Editor {
-  @include z-index-elevated-2;
+  display: relative;
+  width: 100%;
+  visibility: visible;
+}
+
+.EditorLoading {
+  visibility: hidden;
+}
+
+.EditorActionGroup {
   display: flex;
-  flex-grow: 1;
-  position: relative;
+  width: 100%;
+  flex-direction: row;
+  gap: 1rem;
 }
 
-:global(.GitGutter) {
-  --_paddingTop: 0.1rem;
-
-  width: 0.5rem;
-  height: 100%;
-  height: calc(100% - var(--_paddingTop));
-  color: white;
-
-  font-size: 0.45rem;
-  line-height: 0.45rem;
-  padding-left: 0.1rem;
-  padding-top: var(--_paddingTop);
-  text-align: left;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  word-break: break-word;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}

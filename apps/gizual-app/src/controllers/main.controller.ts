@@ -1,8 +1,8 @@
 import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
-import { BAND_COLOR_RANGE, getBandColorScale } from "@app/utils";
 import { CanvasScale } from "@app/utils/defaults";
 import { action, computed, makeObservable, observable } from "mobx";
 
+import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
 import { FileTree, Repository } from "@giz/explorer-web";
 import { FileRendererPool } from "@giz/file-renderer";
 import { Maestro } from "@giz/maestro";

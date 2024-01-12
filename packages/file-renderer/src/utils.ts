@@ -1,65 +1,11 @@
-import type { Line } from "@app/controllers";
-import {
-  BAND_COLOR_RANGE,
-  ColorManager,
-  getBandColorScale,
-  getColorScale,
-} from "@app/utils/colors";
 import ejs from "ejs";
 
-import {
-  FileLinesContext,
-  FileMosaicContext,
-  InternalContextItems,
-  RendererContext,
-} from "./types";
+import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
 
-export function interpolateColor(
-  line: Line,
-  ctx: FileLinesContext | FileMosaicContext,
-  colorManager?: ColorManager,
-) {
-  const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
-
-  // If the line was updated before the start or after the end date, grey it out.
-  if (
-    updatedAtSeconds * 1000 < ctx.selectedStartDate.getTime() ||
-    updatedAtSeconds * 1000 > ctx.selectedEndDate.getTime()
-  )
-    return ctx.visualizationConfig.colors.notLoaded;
-
-  if (ctx.coloringMode === "age") {
-    const timeRange: [number, number] = [ctx.earliestTimestamp, ctx.latestTimestamp];
-    const colorRange: [string, string] = [
-      ctx.visualizationConfig.colors.oldest,
-      ctx.visualizationConfig.colors.newest,
-    ];
-
-    return updatedAtSeconds
-      ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
-      : ctx.visualizationConfig.colors.notLoaded;
-  } else {
-    const author = ctx.authors.find((a) => a.id === line.commit?.authorId);
-
-    if (!colorManager)
-      throw new Error("`interpolateColor` requires an instance of `ColorManager`.");
-
-    return colorManager.getBandColor(author?.id ?? "");
-  }
-}
+import { InternalContextItems, RendererContext } from "./types";
 
 export function interpolateBandColor(values: string[], value: string) {
   return getBandColorScale(values, BAND_COLOR_RANGE)(value);
-}
-
-export function interpolateColorBetween(
-  value: number,
-  start: number,
-  end: number,
-  colors: [string, string],
-) {
-  const colorRange: [string, string] = colors;
-  return getColorScale([start, end], colorRange)(value);
 }
 
 export function calculateDimensions(dpr: number, rect: DOMRect) {
