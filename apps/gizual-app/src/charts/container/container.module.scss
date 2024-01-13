@@ -1,7 +1,7 @@
 @use "@/shared" as shared;
 @use "@/mixins" as *;
 
-.section {
+.Section {
   @include shared.section;
 
   height: 100%;
@@ -11,7 +11,7 @@
   padding: 0;
 }
 
-.sectionBody {
+.SectionBody {
   @include shared.section-body;
 
   height: 100%;
@@ -19,11 +19,11 @@
   padding: 1rem 1rem 1rem 1rem;
 }
 
-.sectionBody > * {
+.SectionBody > * {
   padding: 0;
 }
 
-.sectionHead {
+.SectionHead {
   @include shared.section-head;
   display: flex;
   flex-direction: row;
@@ -33,4 +33,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  justify-content: space-between;
+}
+
+.SectionRight {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-self: flex-end;
+}
+
+.DialogContent {
+  min-width: 70vw;
+  min-height: 70vh;
+  width: 70vw;
+  height: 70vh;
 }

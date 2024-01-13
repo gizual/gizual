@@ -19,6 +19,7 @@ export { ReactComponent as IconFirefox } from "./firefox.svg";
 export { ReactComponent as IconFocus } from "./focus.svg";
 export { ReactComponent as IconFolder } from "./folder.svg";
 export { ReactComponent as IconFolderZip } from "./folder-zip.svg";
+export { ReactComponent as IconFullscreen } from "./fullscreen.svg";
 export { ReactComponent as IconGitBranchLine } from "./git-branch-line.svg";
 export { ReactComponent as IconGitFork } from "./git-fork.svg";
 export { ReactComponent as IconIos } from "./ios.svg";

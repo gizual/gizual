@@ -1,5 +1,9 @@
 ## Gizual 3.0.0-alpha.14 (12.01.2024)
 
+### Features
+
+- **app:frontend:** add full-screen mode for charts on the Analyze page
+
 ### Changes
 
 - **app:frontend:** migrate code-view editor to monaco

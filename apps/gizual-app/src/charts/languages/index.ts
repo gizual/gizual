@@ -1,1 +1,1 @@
-export { Languages, parseLanguages } from "./languages";
+export { LanguageDistributionChart as Languages, parseLanguages } from "./language-distribution";

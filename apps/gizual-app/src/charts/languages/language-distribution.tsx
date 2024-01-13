@@ -9,7 +9,7 @@ import React from "react";
 
 import { FileIcon, FileTree, getFileIcon } from "@giz/explorer-web";
 
-type LanguageInfo = {
+export type LanguageInfo = {
   iconInfo?: FileIcon;
   percentage?: number;
 };
@@ -124,14 +124,14 @@ const compose =
   (data: ChartDatum) =>
     scale(accessor(data)) ?? 0;
 
-export function Languages({ languages }: LanguagesProps) {
+export function LanguageDistributionChart({ languages }: LanguagesProps) {
   if (!languages)
     return (
       <div>
         <Loader />
       </div>
     );
-  const data = React.useMemo(() => prepareData(languages).slice(1), [languages]);
+  const data = React.useMemo(() => prepareData(languages), [languages]);
 
   return (
     <ParentSize>
@@ -179,7 +179,7 @@ export function Languages({ languages }: LanguagesProps) {
               const barHeight = yMax - yPoint(d);
               return (
                 <Group key={`bar-${i}`}>
-                  <Tooltip title={`${d.x} - ${Math.round((d.y ?? 0) * 100) / 100}%`}>
+                  <Tooltip label={`${d.x} - ${Math.round((d.y ?? 0) * 100) / 100}%`}>
                     <Bar
                       x={xPoint(d) + margin.left}
                       y={yMax - barHeight}

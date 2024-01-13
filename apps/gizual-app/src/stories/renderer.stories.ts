@@ -1,6 +1,6 @@
-import { LINEAR_COLOR_RANGE } from "@app/utils";
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { LINEAR_COLOR_RANGE } from "@giz/color-manager";
 import { RenderType } from "@giz/file-renderer";
 
 import { Renderer } from "./renderer";
