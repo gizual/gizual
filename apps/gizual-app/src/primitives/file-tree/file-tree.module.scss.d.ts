@@ -1,13 +1,9 @@
 declare const classNames: {
-  readonly Node: "Node";
-  readonly Children: "Children";
-  readonly FileList: "FileList";
-  readonly FileListHeader: "FileListHeader";
-  readonly Tree: "Tree";
-  readonly "ant-tree-treenode-selected": "ant-tree-treenode-selected";
-  readonly "ant-tree-title": "ant-tree-title";
-  readonly "ant-tree-treenode": "ant-tree-treenode";
-  readonly TreeEntry: "TreeEntry";
-  readonly TreeNode: "TreeNode";
+  readonly FileTree: "FileTree";
+  readonly FileTree__Root: "FileTree__Root";
+  readonly FileTreeItem: "FileTreeItem";
+  readonly FileTreeItem__Chevron: "FileTreeItem__Chevron";
+  readonly FileTreeItem__Name: "FileTreeItem__Name";
+  readonly Nested: "Nested";
 };
 export = classNames;

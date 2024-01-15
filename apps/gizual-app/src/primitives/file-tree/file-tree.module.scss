@@ -1,55 +1,40 @@
 @use "@/mixins" as *;
 
-.Node {
+.FileTree {
+  position: relative;
   display: flex;
-  align-items: center;
-  cursor: pointer;
-  &:hover {
-    background-color: var(--background-tertiary);
-  }
-  span:first-child {
-    margin-right: 4px;
-  }
-}
-
-.Children {
-  margin-left: 16px;
-}
-
-.FileList {
-  ul {
-    list-style: none;
-  }
+  flex-direction: column;
+  flex: 1;
+  gap: 0.125rem;
   cursor: pointer;
 }
 
-.FileListHeader {
-  @include text-base;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
+.FileTree__Root {
+  position: relative;
 }
 
-.Tree {
-  background-color: unset;
-  :global(.ant-tree-treenode-selected .ant-tree-title) {
-    background-color: unset;
-  }
-  :global(.ant-tree-treenode) {
-    width: 100%;
-  }
-}
-
-.TreeEntry {
+.FileTreeItem {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
-  gap: 0.5rem;
-  overflow: hidden;
   align-items: center;
+
+  gap: 0.5rem;
+  background-color: var(--background-primary);
 }
 
-.TreeNode {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  overflow-wrap: break-word;
+.FileTreeItem__Chevron {
+  transition: transform 0.25s; 
+}
+
+.FileTreeItem__Name {
+  @include text-base;
+  font-weight: 300;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--foreground-primary);
+}
+
+.Nested {
+  margin-left: 1.5rem;
 }
