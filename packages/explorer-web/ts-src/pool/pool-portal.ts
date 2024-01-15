@@ -240,7 +240,7 @@ export class PoolPortal {
   }
 
   getBlame(branch: string, path: string, preview?: boolean): JobRef<Blame> {
-    return this.execute<Blame>("get_blame", { branch, path, preview }, preview ? 100 : 1);
+    return this.execute<Blame>("get_blame", { branch, path, preview }, preview ? 100 : 0);
   }
 
   getFileContent(branch: string, path: string): Promise<string> {
