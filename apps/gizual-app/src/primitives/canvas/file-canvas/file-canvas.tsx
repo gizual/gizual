@@ -35,7 +35,7 @@ export const FileCanvas = observer(({ vm, wrapper }: FileCanvasProps) => {
         {blocks.map((block, index) => {
           if (!wrapper) return <React.Fragment key={index}></React.Fragment>;
 
-          console.log("I should render", block);
+          //console.log("I should render", block);
 
           return (
             <FileBlock

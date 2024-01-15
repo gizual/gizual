@@ -6,12 +6,10 @@ import type { VisualizationSettings } from "@app/controllers";
 import { observable } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
 
-import { Database } from "@giz/database";
-import { Author, FileTreeNode, InitialDataResult } from "@giz/explorer";
+import { FileTreeNode } from "@giz/explorer";
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { SearchQueryType } from "@giz/query";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
-import { getDateFromTimestamp, getStringDate } from "@giz/utils/gizdate";
 
 import { Block, BlockImage, Events, Maestro, State } from "./maestro-worker-v2";
 import { t } from "./trpc-worker";
@@ -23,8 +21,6 @@ if (typeof window !== "undefined") {
 type WindowVariables = {
   devicePixelRatio: number;
 };
-
-const DB = new Database();
 
 let maestro: Maestro = undefined as any;
 
@@ -139,6 +135,8 @@ const router = t.router({
       maestro.on("block:updated", onUpdate);
       maestro.on("block:removed", onRemove);
 
+      emit.next(maestro.getBlockImage(input.id));
+
       return () => {
         maestro.off("block:updated", onUpdate);
         maestro.off("block:removed", onRemove);
@@ -157,12 +155,12 @@ const router = t.router({
 
       const { limit, offset } = opts.input;
 
-      const authors = await DB.queryAuthors(offset, limit);
-      const count = await DB.countAuthors();
+      const authors = await maestro.getAuthors(offset, limit);
+      const total = await maestro.getAuthorCount();
 
       return {
         authors,
-        total: count,
+        total,
       };
     }),
 });
@@ -192,53 +190,10 @@ async function setup(vars: WindowVariables): Promise<{
 }
 
 async function setupPool(opts: PoolControllerOpts) {
-  maestro.updateState({ screen: "initial-load" });
-
-  const controller = await maestro.createExplorerController(opts);
-
-  const explorerPort2 = await controller.createPort();
-
-  DB.init(explorerPort2).then(async () => {
-    maestro.updateState({
-      authorsLoaded: true,
-    });
-    //const authorsCount = await DB.countAuthors();
-    //authorList = await DB.queryAuthors(0, authorsCount);
-  });
-
-  const initial_data = await maestro.explorerPool!.execute<InitialDataResult>(
-    "get_initial_data",
-    {},
-  ).promise;
-  // TODO: determine name of repo from remote urls if possible
-
-  const endDate = getDateFromTimestamp(initial_data.commit.timestamp);
-
-  const startDate = endDate.subtractDays(365);
-
-  const query: SearchQueryType = {
-    branch: initial_data.currentBranch,
-    type: "file-lines",
-    time: {
-      rangeByDate: [getStringDate(startDate), getStringDate(endDate)],
-    },
-    files: {
-      //changedInRef: initial_data.currentBranch,
-      path: "*.js",
-    },
-    preset: {
-      gradientByAge: [
-        maestro.visualizationSettings.colors.old.defaultValue,
-        maestro.visualizationSettings.colors.new.defaultValue,
-      ],
-    },
-  };
-  maestro.updateQuery(query);
+  const controller = await maestro.setup(opts);
 
   // TODO: this port is just for legacy reasons to support the old architecture within the main thread
   const legacy_explorerPort3 = await controller.createPort();
-
-  maestro.updateState({ repoLoaded: true, screen: "main" });
 
   return transfer(
     {
@@ -247,27 +202,6 @@ async function setupPool(opts: PoolControllerOpts) {
     [legacy_explorerPort3],
   );
 }
-
-/*
-  async selectMatchingFiles(path: string, editedBy: string) {
-    this.repoController.unloadAllFiles();
-
-    const files = await this._database.selectMatchingFiles(
-      path,
-      editedBy,
-      this.repoController.selectedBranch,
-    );
-
-    for (const file of files) {
-      this.repoController.toggleFile(file, {
-        path: file,
-        title: file,
-        // eslint-disable-next-line unicorn/no-null
-        fileIconColor: [null, null],
-      });
-    }
-  }
-  */
 
 function debugPrint() {
   maestro.debugPrint();

@@ -5,7 +5,8 @@ import { differenceBy, isEqual, isNumber } from "lodash";
 import { minimatch } from "minimatch";
 import { match, Pattern } from "ts-pattern";
 
-import { Blame, CommitInfo, FileTreeNode } from "@giz/explorer";
+import { Database } from "@giz/database";
+import { Author, Blame, CommitInfo, FileTreeNode, InitialDataResult } from "@giz/explorer";
 import {
   FileIcon,
   getFileIcon,
@@ -16,7 +17,7 @@ import {
 } from "@giz/explorer-web";
 import { FileRendererPool, RenderType } from "@giz/file-renderer";
 import { SearchQueryType } from "@giz/query";
-import { getDateFromTimestamp, GizDate } from "@giz/utils/gizdate";
+import { getDateFromTimestamp, getStringDate, GizDate } from "@giz/utils/gizdate";
 
 export type Metrics = typeof Maestro.prototype.metrics;
 export type State = typeof Maestro.prototype.state;
@@ -66,22 +67,28 @@ export type MaestroOpts = {
 };
 
 export class Maestro extends EventEmitter<Events, Maestro> {
-  explorerPool?: PoolPortal;
-  explorerPoolController?: PoolController;
+  private explorerPool!: PoolPortal;
+  private explorerPoolController!: PoolController;
   private renderPool: FileRendererPool;
+  private db: Database;
 
   constructor(opts: MaestroOpts) {
     super();
     this.renderPool = new FileRendererPool();
-    this.explorerPool = opts.explorerPool ?? undefined;
+    if (opts.explorerPool) {
+      this.explorerPool = opts.explorerPool;
+    }
+
     this.devicePixelRatio = opts.devicePixelRatio;
     if (opts.visualizationSettings) {
       this.visualizationSettings = opts.visualizationSettings;
     }
+    this.db = new Database();
     this.setupListeners();
   }
 
-  createExplorerController = async (opts: PoolControllerOpts) => {
+  setup = async (opts: PoolControllerOpts) => {
+    this.updateState({ screen: "initial-load" });
     this.explorerPoolController = await PoolController.create(opts);
     const port = await this.explorerPoolController.createPort();
     this.explorerPool = new PoolPortal(port);
@@ -94,7 +101,52 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       });
     });
 
+    const dbPort = await this.explorerPoolController.createPort();
+
+    this.db.init(dbPort).then(() => {
+      this.updateState({
+        authorsLoaded: true,
+      });
+      this.db.countAuthors().then((count) => {
+        this.db.queryAuthors(0, count).then((authors) => {
+          this.cachedAuthors = authors;
+        });
+      });
+    });
+
+    await this.setInitialQuery();
+    this.updateState({ repoLoaded: true, screen: "main" });
+
     return this.explorerPoolController;
+  };
+
+  setInitialQuery = async () => {
+    const initial_data = await this.explorerPool.execute<InitialDataResult>("get_initial_data", {})
+      .promise;
+    // TODO: determine name of repo from remote urls if possible
+
+    const endDate = getDateFromTimestamp(initial_data.commit.timestamp);
+
+    const startDate = endDate.subtractDays(365);
+
+    const query: SearchQueryType = {
+      branch: initial_data.currentBranch,
+      type: "file-lines",
+      time: {
+        rangeByDate: [getStringDate(startDate), getStringDate(endDate)],
+      },
+      files: {
+        //changedInRef: initial_data.currentBranch,
+        path: "*.js",
+      },
+      preset: {
+        gradientByAge: [
+          this.visualizationSettings.colors.old.defaultValue,
+          this.visualizationSettings.colors.new.defaultValue,
+        ],
+      },
+    };
+    this.updateQuery(query);
   };
 
   // ------------------- Metrics -------------------
@@ -349,6 +401,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   };
 
   resetBlock = (block: BlockEntry) => {
+    console.log("resetBlock", block);
     const blockIndex = this.blocks.findIndex((b) => b == block);
     if (!blockIndex) {
       return;
@@ -417,8 +470,10 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
 
     const toDelete = differenceBy(this.blocks, blocks, "id");
+    console.log("toDelete", toDelete);
 
     const toAdd = differenceBy(blocks, this.blocks, "id");
+    console.log("toAdd", toAdd);
 
     // Update existing
     for (const block of blocks) {
@@ -428,8 +483,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         //this.emit("block:updated", block.id, existingBlock);
       }
     }
-    console.log("toDelete", toDelete);
-    console.log("toAdd", toAdd);
+
     // remove deleted blocks
     this.blocks = this.blocks.filter((b) => !toDelete.includes(b));
 
@@ -437,7 +491,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     this.blocks.push(...toAdd);
 
     for (const blocks of toAdd) {
-      this.prepareBlockRender(blocks.id);
+      this.scheduleBlockRender(blocks.id);
     }
 
     this.emit(
@@ -451,11 +505,22 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     if (!block) {
       return;
     }
+    block.priority = priority;
     block.blameJobRef?.setPriority(priority);
   };
 
-  prepareBlockRender = (id: string) => {
-    console.log("prepareBlockRender", id);
+  getBlockImage = (id: string): BlockImage => {
+    const block = this.blocks.find((b) => b.id === id);
+    if (!block) {
+      return {};
+    }
+    return {
+      url: block.url,
+      isPreview: block.isPreview,
+    };
+  };
+
+  scheduleBlockRender = (id: string) => {
     const block = this.blocks.find((b) => b.id === id);
     if (!block) {
       throw new Error("Block not found");
@@ -471,7 +536,12 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       throw new Error("Unsupported block type");
     }
 
-    block.blameJobRef = explorerPool!.getBlame(query.branch, block.filePath, false) as any;
+    block.blameJobRef = explorerPool!.getBlame(
+      query.branch,
+      block.filePath,
+      false,
+      block.priority,
+    ) as any;
 
     block.blameJobRef?.promise.then(async (blame) => {
       const lines = parseLines(blame);
@@ -528,6 +598,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       });
 
       block.url = result;
+      block.blameJobRef = undefined;
 
       this.emit("block:updated", id, {
         url: result,
@@ -535,6 +606,28 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       });
     });
   };
+
+  // ---------------------------------------------
+  // -------------- Author List ------------------
+  // ---------------------------------------------
+
+  cachedAuthors: Author[] = [];
+
+  async getAuthorCount(): Promise<number> {
+    await this.untilState("authorsLoaded", true);
+    return await this.db.countAuthors();
+  }
+
+  async getAuthors(offset: number, limit?: number): Promise<Author[]> {
+    await this.untilState("authorsLoaded", true);
+
+    if (!limit) {
+      limit = this.cachedAuthors.length;
+    }
+
+    const authors = await this.db.queryAuthors(offset, limit);
+    return authors;
+  }
 
   // ---------------------------------------------
   // ---------- Visualization Settings -----------
@@ -590,6 +683,17 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     if (this.explorerPoolController) {
       this.explorerPoolController.debugPrint();
     }
+
+    console.log("Maestro", this);
+
+    console.log("Metrics", this.metrics);
+    console.log("State", this.state);
+
+    console.log("Query", this.query);
+    console.log("Available Files", this.availableFiles);
+    console.log("Selected Files", this.selectedFiles);
+
+    console.log("Blocks", this.blocks);
   }
 
   emit<T extends keyof Events>(
@@ -639,6 +743,7 @@ export type BlockImage = {
 };
 
 type BlockEntry = Block & {
+  priority?: number;
   scale?: number;
   url?: string;
   isPreview?: boolean;

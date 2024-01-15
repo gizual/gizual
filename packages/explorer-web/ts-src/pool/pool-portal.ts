@@ -239,8 +239,8 @@ export class PoolPortal {
     return this.execute<string[]>("get_branches").promise;
   }
 
-  getBlame(branch: string, path: string, preview?: boolean): JobRef<Blame> {
-    return this.execute<Blame>("get_blame", { branch, path, preview }, preview ? 100 : 0);
+  getBlame(branch: string, path: string, preview?: boolean, priority?: number): JobRef<Blame> {
+    return this.execute<Blame>("get_blame", { branch, path, preview }, priority ?? 0);
   }
 
   getFileContent(branch: string, path: string): Promise<string> {
