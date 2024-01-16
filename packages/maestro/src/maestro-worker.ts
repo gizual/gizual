@@ -124,11 +124,7 @@ const router = t.router({
       };
       maestro.on("blocks:updated", onUpdate);
 
-      emit.next(
-        maestro.blocks.map(({ blameJobRef: _, ...rest }) => ({
-          ...rest,
-        })),
-      );
+      emit.next(maestro.serializableBlocks);
 
       return () => {
         maestro.off("blocks:updated", onUpdate);
