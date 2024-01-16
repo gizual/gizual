@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 import { match } from "ts-pattern";
 
 export type FileTreeMode = "full" | "favorites";
@@ -63,10 +63,8 @@ export class FileTreeViewModel {
       const path = file.path;
       const parentPath = path.slice(0, -1).join("/");
 
-      const checkedState = checked?.some((c) => c.join("/") === path.join("/"));
-
       const node: FileTreeNode = {
-        checked: checkedState ? CheckboxState.CHECKED : CheckboxState.UNCHECKED,
+        checked: CheckboxState.UNCHECKED,
         path: path,
         kind: file.kind,
         children: [],
@@ -79,7 +77,6 @@ export class FileTreeViewModel {
 
       this._nodes[path.join("/")] = node;
       this._nodes[parentPath].children.push(node);
-      if (checkedState) this.propagateSelectionStateUp(node);
     }
 
     this._root = root;
@@ -91,6 +88,28 @@ export class FileTreeViewModel {
   get fileTreeRoot() {
     if (!this._root) this._root = this.constructTree();
     return this._root;
+  }
+
+  @computed
+  get checkedFiles() {
+    const files: string[][] = [];
+    for (const node of Object.values(this._nodes)) {
+      if (node.checked === CheckboxState.CHECKED) files.push(node.path);
+    }
+    return files;
+  }
+
+  @action
+  assignCheckedState(checked?: string[][]) {
+    if (!checked) return;
+
+    for (const path of checked) {
+      const node = this._nodes[path.join("/")];
+      if (!node) continue;
+      node.checked = CheckboxState.CHECKED;
+      this.propagateSelectionStateUp(node);
+      this.propagateSelectionStateDown(node);
+    }
   }
 
   @action

@@ -21,10 +21,11 @@ type FileTreeProps = {
   mode: FileTreeMode;
   files?: FileTreeFlatItem[];
   checked?: string[][];
+  onChange?: (checked: string[][]) => void;
 };
 const MAX_RENDER_DEPTH = 3;
 
-export const FileTree = observer(({ files, checked }: FileTreeProps) => {
+export const FileTree = observer(({ files, checked, onChange }: FileTreeProps) => {
   const availableFiles = files; // useAvailableFiles();
   if (!availableFiles) return <>Empty set of files.</>;
 
@@ -32,12 +33,20 @@ export const FileTree = observer(({ files, checked }: FileTreeProps) => {
     return new FileTreeViewModel(availableFiles, checked);
   }, [availableFiles]);
 
+  React.useEffect(() => {
+    vm.assignCheckedState(checked);
+  }, [checked]);
+
+  const onChangeCb = () => {
+    if (onChange) onChange(vm.checkedFiles);
+  };
+
   return (
     <div className={style.FileTree__Root}>
       <div className={style.FileTree}>
         {vm.fileTreeRoot.children.map((i) => (
           <React.Fragment key={i.path.join("/")}>
-            <FileTreeItem item={i} vm={vm} renderDepth={MAX_RENDER_DEPTH} />
+            <FileTreeItem item={i} vm={vm} renderDepth={MAX_RENDER_DEPTH} onChange={onChangeCb} />
           </React.Fragment>
         ))}
       </div>
@@ -50,10 +59,12 @@ const FileTreeItem = observer(
     item,
     vm,
     renderDepth = 1,
+    onChange,
   }: {
     item: FileTreeNode;
     vm: FileTreeViewModel;
     renderDepth: number;
+    onChange?: () => void;
   }) => {
     const [isExpanded, setExpanded] = React.useState(false);
     const variants = {
@@ -91,6 +102,7 @@ const FileTreeItem = observer(
             value={item.path.join("/")}
             onChange={() => {
               vm.checkNode(item);
+              onChange?.();
             }}
           />
           <FontIcon name={icon} onClick={onClickItem} />
@@ -114,6 +126,7 @@ const FileTreeItem = observer(
                       item={c}
                       vm={vm}
                       renderDepth={isExpanded ? MAX_RENDER_DEPTH : renderDepth - 1}
+                      onChange={onChange}
                     />
                   </div>
                 );

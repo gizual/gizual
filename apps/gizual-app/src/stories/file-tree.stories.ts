@@ -94,6 +94,7 @@ export const FileTree: Story = {
   args: {
     mode: "full",
     files: mockFiles,
-    checked: [["src"]],
+    checked: [["src", "index.ts"]],
+    onChange: (checked) => console.log(checked),
   },
 };
