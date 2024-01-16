@@ -35,7 +35,7 @@ const StyleRadioDescriptions = {
   "palette-author": "Colors are assigned based on the author of the file.",
 };
 
-const NUM_STEPS = 4;
+const NUM_STEPS = 3;
 
 function getTypeEntry(query: SearchQueryType) {
   if (query && query.type) return query.type;
@@ -183,18 +183,18 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
         </StepperItem>
       ),
     },
-    {
-      title: "Review",
-      children: (
-        <StepperItem currentStep={step} hasButtons={false}>
-          <FinalizeChangesBlock
-            selectedType={selectedType}
-            selectedStyle={selectedStyle}
-            selectedColors={selectedColors}
-          />
-        </StepperItem>
-      ),
-    },
+    //{
+    //  title: "Review",
+    //  children: (
+    //    <StepperItem currentStep={step} hasButtons={false}>
+    //      <FinalizeChangesBlock
+    //        selectedType={selectedType}
+    //        selectedStyle={selectedStyle}
+    //        selectedColors={selectedColors}
+    //      />
+    //    </StepperItem>
+    //  ),
+    //},
   ];
 
   return (

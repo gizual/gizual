@@ -326,9 +326,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
 
     const selectedFiles = match(files)
-      .with({ path: Pattern._ }, (f) => {
+      .with({ path: Pattern.string }, (f) => {
         // select files by path glob (one or multiple)
-        const globPatterns = Array.isArray(f.path) ? f.path : [f.path];
+        const globPatterns = [f.path];
 
         if (!this.availableFiles) {
           return [];
@@ -341,6 +341,22 @@ export class Maestro extends EventEmitter<Events, Maestro> {
           const result = globPatterns.some((p) =>
             minimatch(node.path.join("/"), p, { matchBase: true }),
           );
+          return result;
+        });
+      })
+      .with({ path: Pattern.array(Pattern.string) }, (f) => {
+        // select files by path array (one or multiple)
+        const paths = f.path;
+
+        if (!this.availableFiles) {
+          return [];
+        }
+
+        return this.availableFiles.filter((node) => {
+          if (node.kind === "folder") {
+            return false;
+          }
+          const result = paths.includes(node.path.join("/"));
           return result;
         });
       })
@@ -635,6 +651,14 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   }
 
   // ---------------------------------------------
+  // -------------- File Content -----------------
+  // ---------------------------------------------
+
+  async getFileContent(path: string): Promise<string> {
+    return this.explorerPool!.getFileContent(this.query.branch, path); // TODO: Respect time-range
+  }
+
+  // ---------------------------------------------
   // ---------- Visualization Settings -----------
   // ---------------------------------------------
 
@@ -716,13 +740,13 @@ export type BaseBlock = {
 export type FileLinesBlock = BaseBlock & {
   type: "file-lines";
   filePath: string;
-  fileType: FileIcon | undefined;
+  fileType?: FileIcon | undefined;
 };
 
 export type FileMosaicBlock = BaseBlock & {
   type: "file-mosaic";
   filePath: string;
-  fileType: FileIcon | undefined;
+  fileType?: FileIcon | undefined;
 };
 
 export type AuthorMosaicBlock = BaseBlock & {

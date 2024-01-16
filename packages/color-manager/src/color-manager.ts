@@ -1,47 +1,17 @@
 import { hcl, HCLColor } from "d3-color";
 import { ScaleLinear, scaleLinear, ScaleOrdinal, scaleOrdinal } from "d3-scale";
 
-export const LINEAR_COLOR_RANGE: [string, string] = ["#581c87", "#f0abfc"];
-export const BAND_COLOR_RANGE: string[] = [
-  "#40DFEF",
-  "#A760FF",
-  "#E4AEC5",
-  "#FDD7AA",
-  "#B4FF9F",
-  "#F24C4C",
-  "#FFF323",
-  "#8FBDD3",
-  "#9EB23B",
-  "#14C38E",
-  "#9BA3EB",
-  "#FF0075",
-  "#C65D7B",
-  "#CC9544",
-  "#6ECB63",
-  "#E60965",
-  "#E900FF",
-  "#F47C7C",
-  "#F90716",
-  "#49FF00",
-  "#CDF2CA",
-  "#FFA500",
-  "#525E75",
-  "#7D1E6A",
-  "#BD4291",
-  "#874356",
-  "#371B58",
-  "#590696",
-  "#1363DF",
-  "#125B50",
-  "#733C3C",
-  "#0F00FF",
-  "#041C32",
-  "#001E6C",
-];
+import type {
+  AuthorContributionsContext,
+  AuthorMosaicContext,
+  FileLinesContext,
+  FileMosaicContext,
+  RendererContext,
+} from "@giz/file-renderer";
+import type { Line } from "@giz/gizual-app/controllers";
+import { GizDate } from "@giz/utils/gizdate";
 
-export const SPECIAL_COLORS = {
-  NOT_LOADED: "#232323",
-};
+import { BAND_COLOR_RANGE, LINEAR_COLOR_RANGE } from "./presets";
 
 export const getColorScale = (
   domain: [number, number],
@@ -147,7 +117,11 @@ export class ColorManager {
   // The length of the color band
   bandLength = 16;
 
-  constructor({ excludedColors, assignedColors, domain, bandLength }: ColorSetDefinition) {
+  constructor(ctx?: ColorSetDefinition) {
+    if (ctx) this.init(ctx);
+  }
+
+  init({ excludedColors, assignedColors, domain, bandLength }: ColorSetDefinition) {
     if (excludedColors) this.excludedColors = excludedColors;
     if (assignedColors) this.assignedColors = assignedColors;
     if (bandLength) this.bandLength = bandLength;
@@ -201,5 +175,110 @@ export class ColorManager {
 
   static stringToHex(color: string): string {
     return convertRgbToHex(parseRgbString(color));
+  }
+
+  static interpolateColorBetween(
+    value: number,
+    start: number,
+    end: number,
+    colors: [string, string],
+  ) {
+    const colorRange: [string, string] = colors;
+    return getColorScale([start, end], colorRange)(value);
+  }
+
+  static interpolateBandColorBetween(value: string, values: string[]) {
+    return getBandColorScale(values, BAND_COLOR_RANGE)(value);
+  }
+
+  interpolateColor(ctx: AuthorContributionsContext, value: GizDate): string;
+  interpolateColor(ctx: FileLinesContext, value: Line): string;
+  interpolateColor(ctx: FileMosaicContext, value: Line): string;
+  interpolateColor(ctx: AuthorMosaicContext, value: number): string;
+  interpolateColor(ctx: RendererContext, value: any): string {
+    switch (ctx.type) {
+      case "file-lines": {
+        return this.interpolateLineColor(ctx, value);
+      }
+      case "author-contributions": {
+        return this.interpolateContributionColor(ctx, value);
+      }
+      case "author-mosaic": {
+        return this.interpolateAuthorMosaicColor(ctx, value);
+      }
+      case "file-mosaic": {
+        return this.interpolateFileMosaicColor(ctx, value);
+      }
+    }
+
+    return ctx.visualizationConfig.colors.notLoaded;
+  }
+
+  private interpolateLineColor(ctx: FileLinesContext, line: Line) {
+    const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
+
+    // If the line was updated before the start or after the end date, grey it out.
+    if (
+      updatedAtSeconds * 1000 < ctx.selectedStartDate.getTime() ||
+      updatedAtSeconds * 1000 > ctx.selectedEndDate.getTime()
+    )
+      return ctx.visualizationConfig.colors.notLoaded;
+
+    switch (ctx.coloringMode) {
+      case "age": {
+        return this.interpolateLineColorByAge(ctx, line);
+      }
+      case "author": {
+        return this.interpolateLineColorByAuthor(ctx, line);
+      }
+    }
+  }
+
+  private interpolateLineColorByAge(ctx: FileLinesContext | FileMosaicContext, line: Line) {
+    const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
+
+    const timeRange: [number, number] = [ctx.earliestTimestamp, ctx.latestTimestamp];
+    const colorRange: [string, string] = [
+      ctx.visualizationConfig.colors.oldest,
+      ctx.visualizationConfig.colors.newest,
+    ];
+
+    return updatedAtSeconds
+      ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
+      : ctx.visualizationConfig.colors.notLoaded;
+  }
+
+  private interpolateLineColorByAuthor(ctx: FileLinesContext, line: Line) {
+    const author = ctx.authors.find((a) => a.id === line.commit?.authorId);
+
+    return this.getBandColor(author?.id ?? "");
+  }
+
+  private interpolateContributionColor(ctx: AuthorContributionsContext, contributionTime: GizDate) {
+    const startDate = new GizDate(ctx.selectedStartDate.getTime()).discardTimeComponent();
+    const endDate = new GizDate(ctx.selectedEndDate.getTime()).discardTimeComponent();
+
+    return ColorManager.interpolateColorBetween(
+      contributionTime.getTime(),
+      startDate.getTime(),
+      endDate.getTime(),
+      [
+        enforceAlphaChannel(ctx.visualizationConfig.colors.oldest),
+        enforceAlphaChannel(ctx.visualizationConfig.colors.newest),
+      ],
+    );
+  }
+
+  private interpolateAuthorMosaicColor(ctx: AuthorMosaicContext, modificationTime: number) {
+    return ColorManager.interpolateColorBetween(
+      modificationTime * 1000,
+      ctx.selectedStartDate.getTime(),
+      ctx.selectedEndDate.getTime(),
+      [ctx.visualizationConfig.colors.oldest, ctx.visualizationConfig.colors.newest],
+    );
+  }
+
+  private interpolateFileMosaicColor(ctx: FileMosaicContext, line: Line) {
+    return this.interpolateLineColorByAge(ctx, line);
   }
 }

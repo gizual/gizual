@@ -1,8 +1,8 @@
-import { ColorManager } from "@app/utils/colors";
 import { Popover } from "@mantine/core";
 import React from "react";
 import { HexAlphaColorPicker } from "react-colorful";
 
+import { ColorManager } from "@giz/color-manager";
 import { IconButton } from "../icon-button";
 
 import { Button } from "..";

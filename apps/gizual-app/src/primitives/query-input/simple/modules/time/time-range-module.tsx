@@ -1,5 +1,5 @@
 import { IconClock, IconRuler } from "@app/assets";
-import { useMainController, useSettingsController } from "@app/controllers";
+import { useSettingsController } from "@app/controllers";
 import { useLocalQueryCtx } from "@app/utils";
 import { DatePickerInput } from "@mantine/dates";
 import clsx from "clsx";
@@ -55,8 +55,6 @@ export const TimeRangeModule = observer(() => {
       },
     });
   };
-
-  const mainController = useMainController(); /* TODO: Remove this after the timeline fix */
 
   return (
     <TimeBaseQueryModule

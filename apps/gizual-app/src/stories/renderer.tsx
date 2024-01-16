@@ -1,6 +1,7 @@
-import { getPrettyConsoleCSS, LINEAR_COLOR_RANGE } from "@app/utils";
+import { getPrettyConsoleCSS } from "@app/utils";
 import React from "react";
 
+import { LINEAR_COLOR_RANGE } from "@giz/color-manager";
 import {
   AuthorContribution,
   AuthorContributionsContext,

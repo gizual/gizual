@@ -4,11 +4,11 @@ import {
   createNumberSetting,
   createSelectSetting,
   GroupEntry,
-  LINEAR_COLOR_RANGE,
   SettingsEntry,
-  SPECIAL_COLORS,
 } from "@app/utils";
 import { makeAutoObservable, toJS } from "mobx";
+
+import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
 
 const VIEW_MODES = ["block", "flex"] as const;
 type ViewMode = (typeof VIEW_MODES)[number];

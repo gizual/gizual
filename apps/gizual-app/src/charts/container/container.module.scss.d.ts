@@ -1,6 +1,8 @@
 declare const classNames: {
-  readonly section: "section";
-  readonly sectionBody: "sectionBody";
-  readonly sectionHead: "sectionHead";
+  readonly Section: "Section";
+  readonly SectionBody: "SectionBody";
+  readonly SectionHead: "SectionHead";
+  readonly SectionRight: "SectionRight";
+  readonly DialogContent: "DialogContent";
 };
 export = classNames;

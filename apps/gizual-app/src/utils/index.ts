@@ -1,5 +1,4 @@
 export * from "./browsers";
-export * from "./colors";
 export * from "./console";
 export * from "./decorators";
 export * from "./defaults";

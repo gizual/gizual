@@ -4,9 +4,11 @@ import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { Loader, Skeleton } from "@mantine/core";
 import React from "react";
 
-import { useBlockImage } from "@giz/maestro/react";
+import { FileIcon } from "@giz/explorer-web";
+import { useBlockImage, useFileContent } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { DialogProvider } from "../dialog-provider";
+import { Editor } from "../editor";
 import { FontIcon } from "../font-icon";
 
 import style from "./file.module.scss";
@@ -15,12 +17,12 @@ type FileBlockProps = {
   id: string;
   height: number;
   parentContainer: Element | null;
+  filePath?: string;
+  fileType?: FileIcon | undefined;
 };
 
-export const FileBlock = ({ id, height, parentContainer }: FileBlockProps) => {
+export const FileBlock = ({ id, height, parentContainer, filePath, fileType }: FileBlockProps) => {
   const block = useBlockImage(id);
-  //console.log("FILEBLOCK", block);
-  //const block = { url: "./block.png", isPreview: false, setPriority: (_: number) => {} };
   const { isPreview, url, setPriority } = block;
   const ref = React.useRef<HTMLImageElement>(null);
   const settingsController = useSettingsController();
@@ -49,9 +51,14 @@ export const FileBlock = ({ id, height, parentContainer }: FileBlockProps) => {
   }, []);
 
   return (
-    <div className={style.File} style={{ height: height }}>
-      <BlockHeader isPreview={isPreview} path={id} />
-      <div className={style.FileBody}>
+    <div className={style.File}>
+      <BlockHeader
+        isPreview={isPreview}
+        path={filePath ?? id}
+        icon={fileType?.icon}
+        iconColor={fileType?.color}
+      />
+      <div className={style.FileBody} style={{ height: height }}>
         {!url && <Skeleton />}
         <img className={style.FileCanvas} alt={url ? id : ""} height={height} src={url} ref={ref} />
       </div>
@@ -88,11 +95,17 @@ function BlockHeader({ isPreview, path, icon, iconColor }: BlockHeaderProps) {
               <IconSource className={style.FileIcon} />
             </div>
           }
-          title={truncateSmart(path, 80)}
+          title={`${truncateSmart(path, 80)} (Read-Only)`}
         >
-          {/*<Editor /> TODO: This should be reworked*/}
+          <BlockEditor path={path} />
         </DialogProvider>
       </div>
     </div>
   );
+}
+
+function BlockEditor({ path }: { path: string }) {
+  const { data, isLoading } = useFileContent(path);
+
+  return <Editor fileContent={data} isLoading={isLoading} />;
 }

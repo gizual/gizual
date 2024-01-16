@@ -1,33 +1,42 @@
-import { useMainController } from "@app/controllers";
+import { useTheme } from "@app/utils/hooks";
+import { Editor as MonacoEditor, useMonaco } from "@monaco-editor/react";
+import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { FileViewModel } from "../file";
+import { Loading } from "../loading";
 
 import style from "./editor.module.scss";
-import { EditorViewModel } from "./editor.vm";
 
 type EditorProps = {
-  vm?: EditorViewModel;
-  file: FileViewModel;
+  fileContent?: string;
+  isLoading?: boolean;
 };
 
-function Editor({ vm: externalVm, file }: EditorProps) {
-  const mainController = useMainController();
+function Editor({ fileContent, isLoading }: EditorProps) {
+  const [isMounted, setIsMounted] = React.useState(false);
 
-  const vm: EditorViewModel = React.useMemo(() => {
-    return externalVm || new EditorViewModel(file, mainController);
-  }, [externalVm]);
+  const monacoInstance = useMonaco();
 
-  const editorRef = React.useRef<HTMLDivElement>(null);
+  const theme = useTheme();
 
-  React.useEffect(() => {
-    vm.setEditorRef(editorRef);
-  }, [editorRef]);
+  if (!monacoInstance) return <></>;
 
   return (
     <div className={style.EditorContainer}>
-      <div className={style.Editor} ref={editorRef} />
+      {(isLoading || !isMounted) && <Loading />}
+      <MonacoEditor
+        className={clsx(style.Editor, isLoading && style.EditorLoading)}
+        defaultLanguage="json"
+        value={fileContent}
+        onMount={(_e, _m) => {
+          setIsMounted(true);
+        }}
+        theme={theme === "light" ? "light" : "vs-dark"}
+        height="85vw"
+        width="80vw"
+        options={{ readOnly: true, rulers: [200] }}
+      />
     </div>
   );
 }

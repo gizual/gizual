@@ -1,4 +1,5 @@
-import { Container, Languages, parseLanguages } from "@app/charts";
+import { Container, parseLanguages } from "@app/charts";
+import { LanguageDistributionChart } from "@app/charts/languages/language-distribution";
 import { useMainController } from "@app/controllers";
 import { Canvas, MessageBar, TitleBar } from "@app/primitives";
 import { SimpleQueryInput } from "@app/primitives/query-input";
@@ -76,7 +77,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
         <div key={"a"}>
           <Container title={"Language Distribution"}>
-            <Languages languages={languageData} />
+            <LanguageDistributionChart languages={languageData} />
           </Container>
         </div>
       </ReactGridLayout>

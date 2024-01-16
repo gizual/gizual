@@ -107,7 +107,6 @@
 .File {
   @include shared.card;
   width: 300px;
-  height: 400px;
   border: 1px solid var(--border-primary);
 }
 
@@ -119,7 +118,6 @@
 }
 
 .FileBody {
-  flex: 1 0;
   position: relative;
   border-top: 1px solid var(--border-primary);
 }

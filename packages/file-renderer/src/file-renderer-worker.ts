@@ -1,8 +1,8 @@
-import { ColorManager, enforceAlphaChannel } from "@app/utils/colors";
 import { VisualizationDefaults } from "@app/utils/defaults";
 import { SvgBaseElement, SvgElement } from "@app/utils/svg";
 import { expose } from "comlink";
 
+import { ColorManager } from "@giz/color-manager";
 import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
 import {
   convertTimestampToMs,
@@ -30,18 +30,15 @@ import {
   RenderingMode,
   RenderType,
 } from "./types";
-import {
-  calculateDimensions,
-  interpolateBandColor,
-  interpolateColor,
-  interpolateColorBetween,
-} from "./utils";
+import { calculateDimensions, interpolateBandColor } from "./utils";
 
 export class FileRendererWorker {
   fontsPrepared = false;
-  colorManager?: ColorManager;
+  colorManager: ColorManager;
 
-  constructor() {}
+  constructor() {
+    this.colorManager = new ColorManager();
+  }
 
   async prepareFont() {
     if (this.fontsPrepared) return;
@@ -58,13 +55,11 @@ export class FileRendererWorker {
     }
   }
 
-  async drawCanvas(fileCtx: RendererContext): Promise<{ result: string; colors: string[] }> {
+  async drawCanvas(fileCtx: RendererContext): Promise<{ result: string }> {
     return this.draw(fileCtx, "canvas");
   }
 
-  async drawSingleSvg(
-    fileCtx: RendererContext,
-  ): Promise<{ result: SvgBaseElement[]; colors: string[] }> {
+  async drawSingleSvg(fileCtx: RendererContext): Promise<{ result: SvgBaseElement[] }> {
     return this.draw(fileCtx, "svg");
   }
 
@@ -72,17 +67,17 @@ export class FileRendererWorker {
     fileCtx: RendererContext,
     mode: "canvas",
     renderCtx?: OffscreenCanvas,
-  ): Promise<{ result: string; colors: string[] }>;
+  ): Promise<{ result: string }>;
   async draw(
     fileCtx: RendererContext,
     mode: "svg",
     renderCtx?: SvgElement,
-  ): Promise<{ result: SvgBaseElement[]; colors: string[] }>;
+  ): Promise<{ result: SvgBaseElement[] }>;
   async draw(
     fileCtx: RendererContext,
     mode: "annotations",
     renderCtx?: AnnotationObject[],
-  ): Promise<{ result: AnnotationObject[]; colors: string[] }>;
+  ): Promise<{ result: AnnotationObject[] }>;
   async draw(ctx: RendererContext, mode: RenderingMode = "canvas", renderCtx?: ValidContext) {
     await this.prepareFont();
 
@@ -96,11 +91,6 @@ export class FileRendererWorker {
       renderer.assignContext(renderCtx);
     } else {
       renderer.prepareContext(ctx.rect.width, ctx.rect.height, ctx.dpr);
-    }
-
-    const requiresDomainColorBand = ctx.type === RenderType.FileLines && ctx.coloringMode === "age";
-    if (requiresDomainColorBand) {
-      this.colorManager = new ColorManager({ domain: ctx.authors.map((a) => a.id) });
     }
 
     switch (ctx.type) {
@@ -135,19 +125,11 @@ export class FileRendererWorker {
     const numRows = Math.ceil(ctx.files.length / ctx.tilesPerRow);
     const rowHeight = height / numRows;
     const tileWidth = width / ctx.tilesPerRow;
-    const colors: string[] = [];
 
     let currentX = 0;
     let currentY = 0;
     for (const file of ctx.files) {
-      const color = interpolateColorBetween(
-        file.modifiedAt * 1000,
-        ctx.selectedStartDate.getTime(),
-        ctx.selectedEndDate.getTime(),
-        [ctx.visualizationConfig.colors.oldest, ctx.visualizationConfig.colors.newest],
-      );
-
-      colors.push(color);
+      const color = this.colorManager.interpolateColor(ctx, file.modifiedAt);
 
       renderer.drawRect({
         x: currentX,
@@ -187,7 +169,7 @@ export class FileRendererWorker {
     }
 
     const result = await renderer.getReturnValue();
-    return { result, colors };
+    return { result };
   }
 
   async drawAuthorContributionsGraph(ctx: AuthorContributionsContext, renderer: BaseRenderer) {
@@ -222,15 +204,7 @@ export class FileRendererWorker {
         .addDays(day)
         .discardTimeComponent();
 
-      const color = interpolateColorBetween(
-        currentDay.getTime(),
-        startDate.getTime(),
-        endDate.getTime(),
-        [
-          enforceAlphaChannel(ctx.visualizationConfig.colors.oldest),
-          enforceAlphaChannel(ctx.visualizationConfig.colors.newest),
-        ], // These colors have a forced transparency channel since they're drawn on top of each other
-      );
+      const color = this.colorManager.interpolateColor(ctx, currentDay);
 
       for (
         let contribution = 0;
@@ -270,7 +244,7 @@ export class FileRendererWorker {
       if (index + 1 > VisualizationDefaults.maxLineCount) break;
 
       let color = ctx.visualizationConfig.colors.notLoaded;
-      if (line.commit && !ctx.isPreview) color = interpolateColor(line, ctx, this.colorManager);
+      if (line.commit && !ctx.isPreview) color = this.colorManager.interpolateColor(ctx, line);
 
       line.color = color;
       colors.push(line.color ?? "#000");
@@ -300,6 +274,7 @@ export class FileRendererWorker {
     const colors: string[] = [];
     const { width } = calculateDimensions(ctx.dpr, ctx.rect);
     const lineHeight = 10 * ctx.dpr;
+    this.colorManager.init({ domain: ctx.authors.map((a) => a.id) });
 
     let currentY = 0;
     const widthPerCharacter = width / ctx.lineLengthMax;
@@ -322,7 +297,7 @@ export class FileRendererWorker {
 
       const color =
         line.commit && !ctx.isPreview
-          ? interpolateColor(line, ctx, this.colorManager)
+          ? this.colorManager.interpolateColor(ctx, line)
           : ctx.visualizationConfig.colors.notLoaded;
 
       line.color = color;

@@ -1,162 +1,192 @@
-import { MainController } from "@app/controllers";
-import { FileNodeInfos } from "@app/types";
-import { isNumber } from "lodash";
-import _ from "lodash";
-import { makeAutoObservable, runInAction } from "mobx";
-import React from "react";
+import { action, computed, makeObservable, observable } from "mobx";
+import { match } from "ts-pattern";
 
-import { FileIcon, FileTree, getFileIcon } from "@giz/explorer-web";
+export type FileTreeMode = "full" | "favorites";
+export type FileKind = "folder" | number | undefined;
+export type FileTreeFlatItem = {
+  path: string[];
+  kind?: FileKind;
+};
 
-export type FileTreeDataNode = FileNodeInfos & {
-  key: string | number;
-  title?: React.ReactNode | ((data: FileTreeDataNode) => React.ReactNode);
-  children: FileTreeDataNode[];
-  isLeaf?: boolean;
+export enum CheckboxState {
+  CHECKED = "checked",
+  INDETERMINATE = "indeterminate",
+  UNCHECKED = "unchecked",
+}
+
+export type FileTreeNode = {
+  checked: CheckboxState;
+  path: string[];
+  kind: FileKind;
+  children: FileTreeNode[];
+  parentPath: string[];
 };
 
 export class FileTreeViewModel {
-  _mainController: MainController;
-  _expandedKeys: Set<React.Key> = new Set();
+  /* List of all available files we could render. */
+  private _availableFiles: FileTreeFlatItem[];
 
-  constructor(mainController: MainController) {
-    this._mainController = mainController;
-    this._mainController.vmController.setFileTreeViewModel(this);
+  /**
+    Map of keys to store references to nodes.
+    The root element is stored at key "".
+  */
+  private _nodes: { [key: string]: FileTreeNode } = {};
 
-    makeAutoObservable(this);
+  /* Root of the constructed tree. */
+  private _root: FileTreeNode | undefined;
+
+  constructor(availableFiles: FileTreeFlatItem[], checked: string[] | undefined) {
+    this._availableFiles = availableFiles
+      .sort((a, b) => {
+        if (a.kind === "folder" && b.kind !== "folder") return -1;
+        return a.path.length - b.path.length;
+      })
+      .filter((f) => f.path.length > 0);
+    this.constructTree();
+    if (checked) this.assignCheckedState(checked);
+    makeObservable(this, undefined, { autoBind: true });
   }
 
-  toggleFile(name: string, info: FileNodeInfos) {
-    this._mainController.repoController.toggleFile(name, info);
+  /**
+   * Transform the flat array of input files into a nested tree structure.
+   * Assumption: The input files are pre-sorted by path, such that all parent
+   * elements of a given file are present in the array before the file itself.
+   */
+  private constructTree() {
+    const root: FileTreeNode = {
+      checked: CheckboxState.UNCHECKED,
+      path: [""],
+      kind: "folder",
+      children: [],
+      parentPath: [],
+    };
+
+    // Initialize empty nodes map.
+    this._nodes = {};
+    this._nodes[""] = root;
+
+    for (const file of this._availableFiles) {
+      const path = file.path;
+      const parentPath = path.slice(0, -1).join("/");
+
+      const node: FileTreeNode = {
+        checked: CheckboxState.UNCHECKED,
+        path: path,
+        kind: file.kind,
+        children: [],
+        parentPath: path.slice(0, -1),
+      };
+
+      makeObservable(node, {
+        checked: observable,
+      });
+
+      this._nodes[path.join("/")] = node;
+      this._nodes[parentPath].children.push(node);
+    }
+
+    this._root = root;
+
+    return root;
   }
 
-  get selectedFiles(): string[] {
-    return this._mainController.selectedFiles;
+  get fileTreeRoot() {
+    if (!this._root) this._root = this.constructTree();
+    return this._root;
   }
 
-  get selectedFavoriteFiles(): string[] {
+  @computed
+  get checkedFiles() {
     const files: string[] = [];
-    for (const file of this.selectedFiles) {
-      if (this._mainController.favoriteFiles.has(file)) files.push(file);
+    for (const node of Object.values(this._nodes)) {
+      if (node.checked === CheckboxState.CHECKED) files.push(node.path.join("/"));
     }
     return files;
   }
 
-  toggleFavorite(name: string) {
-    this._mainController.toggleFavorite(name);
-  }
+  /**
+   * Based on a pre-selected list of files, assign the checked state to the
+   * corresponding nodes in the tree.
+   *
+   * @param checked The pre-selected files to check.
+   * @returns
+   */
+  @action
+  assignCheckedState(checked?: string[]) {
+    if (!checked) return;
 
-  get favoriteTreeData(): FileTreeDataNode[] {
-    const tree: FileTreeDataNode[] = [];
-
-    for (const [path, info] of this._mainController.favoriteFiles) {
-      if (!info) continue;
-      tree.push({
-        key: path,
-        children: [],
-        path: path,
-        title: path,
-        fileIcon: info.fileIcon,
-        fileIconColor: info.fileIconColor,
-        isLeaf: true,
-      });
-    }
-
-    return tree;
-  }
-
-  get treeData(): FileTreeDataNode[] {
-    const root = this._mainController.fileTreeRoot;
-    if (!root) return [];
-
-    let numFiles = 0;
-    const parseChildren = (el: FileTree, path: string, key: string): FileTreeDataNode[] => {
-      if (!el.children) return [];
-
-      const children: FileTreeDataNode[] = [];
-      for (const [index, child] of el.children.entries()) {
-        if (!child.name) continue;
-
-        const childKey = key + "-" + index;
-        const childPath = path ? path + "/" + child.name : child.name;
-        numFiles++;
-
-        let fileIcon: FileIcon | undefined;
-        if (isNumber(child.kind)) fileIcon = getFileIcon(child.kind);
-
-        children.push({
-          key: childPath, //key + "-" + index,
-          title: child.name,
-          children: parseChildren(child, childPath, childKey),
-          isLeaf: child.kind !== "folder",
-          fileIcon: fileIcon?.icon,
-          fileIconColor: fileIcon?.color,
-          path: childPath,
-        });
-      }
-
-      runInAction(() => {
-        this._mainController.setNumFiles(numFiles);
-      });
-      return children;
-    };
-
-    const children = parseChildren(root, "", "0");
-    if (children.length > 0) return children;
-
-    return [];
-  }
-
-  onFileTreeSelect(node: FileTreeDataNode) {
-    if (node.isLeaf) {
-      this.toggleFile(node.path, node);
-      this.zoomToFile(node.path);
-      return;
-    }
-
-    const getChildrenFlat = (currentNode: FileTreeDataNode): FileTreeDataNode[] => {
-      if (currentNode.isLeaf) return [currentNode];
-      if (!currentNode.children) return [];
-
-      // eslint-disable-next-line unicorn/prefer-array-flat
-      return _.flatten(
-        currentNode.children.map((element: FileTreeDataNode) => getChildrenFlat(element)),
-      );
-    };
-
-    const children = getChildrenFlat(node);
-    if (children?.every((c) => this.selectedFiles.includes(c.path))) {
-      for (const child of children) {
-        this._mainController.repoController.selectedFiles.delete(child.path);
-      }
-    } else {
-      for (const child of children) {
-        this._mainController.repoController.selectedFiles.set(child.path, child);
-      }
-      this._mainController.repoController.updateFileTag();
+    for (const path of checked) {
+      const node = this._nodes[path];
+      if (!node) continue;
+      node.checked = CheckboxState.CHECKED;
+      this.propagateSelectionStateUp(node);
+      this.propagateSelectionStateDown(node);
     }
   }
 
-  onFileTreeExpand(expandedKeys: React.Key[]) {
-    this._expandedKeys = new Set(expandedKeys);
+  /**
+   * Assign the checked state to a given node and propagate the state across
+   * the tree.
+   *
+   * @param item The `FileTreeNode` to check.
+   */
+  @action
+  checkNode(item: FileTreeNode) {
+    item.checked = match(item.checked)
+      .with(CheckboxState.CHECKED, () => CheckboxState.UNCHECKED)
+      .with(CheckboxState.INDETERMINATE, () => CheckboxState.UNCHECKED)
+      .with(CheckboxState.UNCHECKED, () => CheckboxState.CHECKED)
+      .exhaustive();
+
+    this.propagateSelectionStateDown(item);
+    this.propagateSelectionStateUp(item);
   }
 
-  get expandedKeys(): React.Key[] {
-    return [...this._expandedKeys];
+  /**
+   * Take the selection state of the specified node and propagate
+   * it down the tree.
+   *
+   * @param node The node from which to check downwards.
+   */
+  @action
+  propagateSelectionStateDown(node: FileTreeNode) {
+    if (node.children.length === 0) return node.checked;
+    if (node.checked === CheckboxState.INDETERMINATE)
+      throw new Error("Tried to propagate down from indeterminate node");
+
+    const newChildState = node.checked;
+    for (const child of node.children) {
+      child.checked = newChildState;
+      this.propagateSelectionStateDown(child);
+    }
   }
 
-  zoomToFile(path: string) {
-    this._mainController.vmController?.canvasViewModel?.zoomToFile(path);
-  }
+  /**
+   * Take the selection state of the specified node and propagate
+   * it up the tree.
+   *
+   * @param node The node from which to check downwards.
+   */
+  @action
+  propagateSelectionStateUp(node: FileTreeNode) {
+    if (node.parentPath.length === 0) return;
+    const parent = this._nodes[node.parentPath.join("/")];
 
-  setFavorite(node: FileTreeDataNode) {
-    this._mainController.toggleFavorite(node.path, node);
-  }
+    // Manually append the node state so we don't run into sync issues with separate transactions.
+    const childrenStates = parent.children
+      .filter((c) => c.path !== node.path)
+      .map((c) => c.checked);
 
-  isFavorite(node: FileTreeDataNode) {
-    return this._mainController.favoriteFiles.has(node.path);
-  }
+    childrenStates.push(node.checked);
 
-  isFileSelected(node: FileTreeDataNode) {
-    return this._mainController.isFileSelected(node.path);
+    const allChecked = childrenStates.every((c) => c === CheckboxState.CHECKED);
+    const allUnchecked = childrenStates.every((c) => c === CheckboxState.UNCHECKED);
+    const someChecked = !allChecked && !allUnchecked;
+
+    if (allChecked) parent.checked = CheckboxState.CHECKED;
+    else if (allUnchecked) parent.checked = CheckboxState.UNCHECKED;
+    else if (someChecked) parent.checked = CheckboxState.INDETERMINATE;
+
+    this.propagateSelectionStateUp(parent);
   }
 }

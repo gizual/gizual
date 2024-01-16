@@ -77,47 +77,49 @@ export const DialogProvider = React.memo(
         </div>
         {isOpen &&
           createPortal(
-            <>
-              <div
-                className={sharedStyle.PopoverUnderlay}
-                onClick={() => {
-                  setIsOpen!(false);
-                }}
-              ></div>
-              <div
-                className={style.Dialog}
-                ref={ref}
-                style={{
-                  minWidth: width,
-                  minHeight: height,
-                  width: isFullscreen ? screenWidth : undefined,
-                  maxWidth: isFullscreen ? screenWidth : "85%",
-                  height: isFullscreen ? screenHeight : undefined,
-                  maxHeight: isFullscreen ? screenHeight : "80%",
-                }}
-              >
-                <div className={style.DialogHead}>
-                  <h2 className={style.DialogTitle}>{title}</h2>
-                  <IconButton
-                    className={sharedStyle.CloseButton}
-                    onClick={() => {
-                      setIsOpen!(false);
-                    }}
-                  >
-                    <IconClose />
-                  </IconButton>
-                </div>
-                <div className={clsx(style.DialogBody, contentClassName)} style={contentStyle}>
-                  {children}
-                </div>
+            (
+              <>
+                <div
+                  className={sharedStyle.PopoverUnderlay}
+                  onClick={() => {
+                    setIsOpen!(false);
+                  }}
+                ></div>
+                <div
+                  className={style.Dialog}
+                  ref={ref}
+                  style={{
+                    minWidth: width,
+                    minHeight: height,
+                    width: isFullscreen ? screenWidth : undefined,
+                    maxWidth: isFullscreen ? screenWidth : "85%",
+                    height: isFullscreen ? screenHeight : undefined,
+                    maxHeight: isFullscreen ? screenHeight : "80%",
+                  }}
+                >
+                  <div className={style.DialogHead}>
+                    <h2 className={style.DialogTitle}>{title}</h2>
+                    <IconButton
+                      className={sharedStyle.CloseButton}
+                      onClick={() => {
+                        setIsOpen!(false);
+                      }}
+                    >
+                      <IconClose />
+                    </IconButton>
+                  </div>
+                  <div className={clsx(style.DialogBody, contentClassName)} style={contentStyle}>
+                    {children}
+                  </div>
 
-                {withFooter && footerComponent !== undefined ? (
-                  footerComponent
-                ) : (
-                  <DialogProviderDefaultFooter {...defaultFooterOpts} />
-                )}
-              </div>
-            </>,
+                  {withFooter && footerComponent !== undefined ? (
+                    footerComponent
+                  ) : (
+                    <DialogProviderDefaultFooter {...defaultFooterOpts} />
+                  )}
+                </div>
+              </>
+            ) as any,
             document.body,
           )}
       </>
