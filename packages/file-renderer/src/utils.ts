@@ -14,11 +14,7 @@ export function calculateDimensions(dpr: number, rect: DOMRect) {
   return { width, height };
 }
 
-export function getFillColor(ctx: RendererContext) {
-  return "green";
-}
-
-function parseEjsTemplate(ctx: RendererContext) {
+export function parseEjsTemplate(ctx: RendererContext) {
   const { ejsTemplate: template } = ctx;
   if (!template) return;
 

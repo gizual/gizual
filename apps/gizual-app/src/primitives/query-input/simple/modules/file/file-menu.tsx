@@ -31,7 +31,9 @@ export const FileMenuItems = React.memo(
       {
         key: "filePicker",
         title: "Pick files",
-        onClick: () => {},
+        onClick: () => {
+          query.updateQuery({ files: { path: [] } });
+        },
       },
       {
         key: "lastEditedBy",

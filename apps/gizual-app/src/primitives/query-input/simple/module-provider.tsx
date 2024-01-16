@@ -3,7 +3,12 @@ import { match, P } from "ts-pattern";
 
 import { useQuery } from "@giz/maestro/react";
 
-import { FileChangedInRefModule, FileGlobModule, FilePlaceholderModule } from "./modules";
+import {
+  FileChangedInRefModule,
+  FileGlobModule,
+  FilePlaceholderModule,
+  FileTreeModule,
+} from "./modules";
 import { BranchModule } from "./modules/branch";
 import { TimePlaceholderModule, TimeRangeModule } from "./modules/time";
 import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
@@ -43,8 +48,14 @@ export function ModuleProvider() {
         .with({ changedInRef: P.select() }, () => {
           return <FileChangedInRefModule key="changed-in-ref-module" />;
         })
-        .with({ path: P.select() }, () => {
-          return <FileGlobModule key="glob-module" />;
+        .with({ path: P.select() }, (path) => {
+          return match(typeof path)
+            .with("string", () => {
+              return <FileGlobModule key="glob-module" />;
+            })
+            .otherwise(() => {
+              return <FileTreeModule key="file-tree-module" />;
+            });
         })
         .otherwise(() => {
           return <FilePlaceholderModule key="file-placeholder-module" />;

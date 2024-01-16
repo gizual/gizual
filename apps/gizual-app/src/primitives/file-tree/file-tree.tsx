@@ -1,7 +1,9 @@
 import { IconCollapse } from "@app/assets";
 import { Checkbox } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
+import { useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { match } from "ts-pattern";
@@ -67,6 +69,8 @@ const FileTreeItem = observer(
     onChange?: () => void;
   }) => {
     const [isExpanded, setExpanded] = React.useState(false);
+    const { showContextMenu } = useContextMenu();
+
     const variants = {
       expanded: { opacity: 1, height: "auto" },
       hidden: { opacity: 0, height: 0 },
@@ -106,7 +110,24 @@ const FileTreeItem = observer(
             }}
           />
           <FontIcon name={icon} onClick={onClickItem} />
-          <p className={style.FileTreeItem__Name} onClick={onClickItem} title={item.path.join("/")}>
+          <p
+            className={style.FileTreeItem__Name}
+            onClick={onClickItem}
+            title={item.path.join("/")}
+            onContextMenu={showContextMenu([
+              {
+                key: "copyPath",
+                title: "Copy file path to clipboard",
+                onClick: () => {
+                  navigator.clipboard.writeText(item.path.join("/"));
+                  notifications.show({
+                    title: "Copied to clipboard",
+                    message: "'" + item.path.join("/") + "'",
+                  });
+                },
+              },
+            ])}
+          >
             {item.path.slice(-1, undefined)}
           </p>
         </div>

@@ -1,6 +1,8 @@
 import { IconFile } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { Button, DialogProvider, FileTree } from "@app/primitives";
+import { useLocalQueryCtx } from "@app/utils";
+import React from "react";
 
 import style from "../modules.module.scss";
 
@@ -8,6 +10,9 @@ import { FileBaseQueryModule } from "./file-base-module";
 
 export function FileTreeModule() {
   const mainController = useMainController();
+  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
   return (
     <FileBaseQueryModule
       icon={<IconFile />}
@@ -27,6 +32,22 @@ export function FileTreeModule() {
               )}
             </Button>
           }
+          isOpen={isDialogOpen}
+          setIsOpen={setIsDialogOpen}
+          withFooter
+          defaultFooterOpts={{
+            hasOk: true,
+            okLabel: "Save",
+            onOk: () => {
+              console.log("File tree ok.");
+              setIsDialogOpen(false);
+            },
+            hasCancel: true,
+            cancelLabel: "Cancel",
+            onCancel: () => {
+              setIsDialogOpen(false);
+            },
+          }}
           title="File picker"
         >
           <div className={style.FileTreeWrapper}>
