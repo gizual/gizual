@@ -2,7 +2,7 @@ import { useMainController } from "@app/controllers";
 import { Loader } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 
-import { useGlobalState } from "@giz/maestro/react";
+import { useMetrics } from "@giz/maestro/react";
 import ChangelogMd from "../../../../../CHANGELOG.md?raw";
 import { DialogProvider } from "../dialog-provider";
 import { MarkdownViewer } from "../markdown-viewer";
@@ -16,12 +16,12 @@ function paddedNumber(num: number, length = 2) {
 export const Footer = observer(() => {
   const mainController = useMainController();
 
-  const state = useGlobalState();
+  const metrics = useMetrics();
 
   const explorer = {
-    jobs: paddedNumber(state.numExplorerJobs, 3),
-    busyWorkers: paddedNumber(state.numExplorerWorkersBusy, 2),
-    totalWorkers: paddedNumber(state.numExplorerWorkersTotal, 2),
+    jobs: paddedNumber(metrics.numExplorerJobs, 3),
+    busyWorkers: paddedNumber(metrics.numExplorerWorkersBusy, 2),
+    totalWorkers: paddedNumber(metrics.numExplorerWorkersTotal, 2),
   };
 
   const renderer = {
@@ -42,7 +42,7 @@ export const Footer = observer(() => {
       </div>
       <div className={style.RightSection}>
         {mainController.isBusy && <Loader size="sm" />}
-        <p>{state.numSelectedFiles} files selected</p>
+        <p>{metrics.numSelectedFiles} files selected</p>
         <p>
           explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
         </p>

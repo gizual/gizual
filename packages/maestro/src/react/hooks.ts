@@ -5,6 +5,7 @@ import { CommitInfo, FileTreeNode } from "@giz/explorer";
 import { SearchQueryType } from "@giz/query";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
+import { Metrics, State } from "../maestro-worker-v2";
 
 import { MaestroContext, TrpcContext } from "./providers";
 
@@ -199,22 +200,7 @@ export function useQueryIsValid(): boolean {
 
 export type Screen = "welcome" | "initial-load" | "main" | "error";
 
-export type GlobalState = {
-  screen: Screen;
-  queryValid: boolean;
-
-  // TODO: to be implemented
-  //indexingStep: "not-started" | "authors" | "commits" | "files" | "done";
-  numSelectedFiles: number;
-
-  numExplorerWorkersTotal: number;
-  numExplorerWorkersBusy: number;
-  numExplorerJobs: number;
-
-  numRendererWorkers: number;
-  numRendererWorkersBusy: number;
-  numRendererJobs: number;
-};
+export type GlobalState = State;
 
 export function useScreen(): Screen {
   const globalState = useGlobalState();
@@ -230,7 +216,29 @@ export function useGlobalState(): GlobalState {
   const [globalState, setGlobalState] = React.useState<GlobalState>({
     queryValid: true,
     screen: "welcome",
+    repoLoaded: false,
+    authorsLoaded: false,
+    commitsIndexed: false,
+    filesIndexed: false,
+    error: undefined,
+  });
 
+  const trpc = useTrpc();
+
+  trpc.globalState.useSubscription(undefined, {
+    onData: (data) => {
+      setGlobalState(data as any);
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
+
+  return globalState;
+}
+
+export function useMetrics(): Metrics {
+  const [metrics, setMetrics] = React.useState<Metrics>({
     numSelectedFiles: 0,
     numExplorerWorkersTotal: 0,
     numExplorerWorkersBusy: 0,
@@ -243,16 +251,16 @@ export function useGlobalState(): GlobalState {
 
   const trpc = useTrpc();
 
-  trpc.globalState.useSubscription(undefined, {
+  trpc.metrics.useSubscription(undefined, {
     onData: (data) => {
-      setGlobalState(data);
+      setMetrics(data);
     },
     onError: (err) => {
       console.error(err);
     },
   });
 
-  return globalState;
+  return metrics;
 }
 
 /*

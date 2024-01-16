@@ -3220,8 +3220,8 @@ __metadata:
     lodash: 4.17.21
     mantine-contextmenu: ^7.3.2
     mantine-datatable: ^7.3.2
-    mobx: 6.10.0
-    mobx-react-lite: 4.0.3
+    mobx: 6.12.0
+    mobx-react-lite: 4.0.5
     monaco-editor: ^0.44.0
     react: 18.2.0
     react-colorful: ^5.6.1
@@ -3287,6 +3287,7 @@ __metadata:
     eventemitter3: 5.0.1
     lodash: 4.17.21
     minimatch: 9.0.3
+    ts-pattern: 5.0.5
     typescript: 5.0.4
     zod: 3.22.4
   languageName: unknown
@@ -15607,9 +15608,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx-react-lite@npm:4.0.3":
-  version: 4.0.3
-  resolution: "mobx-react-lite@npm:4.0.3"
+"mobx-react-lite@npm:4.0.5":
+  version: 4.0.5
+  resolution: "mobx-react-lite@npm:4.0.5"
   dependencies:
     use-sync-external-store: ^1.2.0
   peerDependencies:
@@ -15620,14 +15621,14 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 327151c61f6520605ce855b2972f30f4b4d9e277d546be5bf0abc663cf09f3e242193603d51d41a9e847fd359a3b9a5cfbeb89ccbb0905f04a2e1b38021d3025
+  checksum: b0a3e4345c1449eee7c0a6aa2369475024a0c8227e11305cc965229527e3ddede4ca7b8337912a7fe396e24bd83986f2a88a21813c51cabdc18330fa484023b5
   languageName: node
   linkType: hard
 
-"mobx@npm:6.10.0":
-  version: 6.10.0
-  resolution: "mobx@npm:6.10.0"
-  checksum: 8279d5a978d845664fb1830ce1e7f3fcebd5809bd9be6f2cac9b190e07cf6f16b09581107cc2d1ff7097e979da758fefd9ac68db76c814b8e783e59d0b8e418c
+"mobx@npm:6.12.0":
+  version: 6.12.0
+  resolution: "mobx@npm:6.12.0"
+  checksum: 482914d39199cadc8808907a2b9dbc634c74534d6c6d6cb34984c199aa94665ce07e7d183c0e97d54f4b06c8e42fec0a48c79484f4bbeac04a4dfd0f160290c6
   languageName: node
   linkType: hard
 
@@ -19986,7 +19987,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-pattern@npm:^5.0.5":
+"ts-pattern@npm:5.0.5, ts-pattern@npm:^5.0.5":
   version: 5.0.5
   resolution: "ts-pattern@npm:5.0.5"
   checksum: 9eef9fe24ee29c92cfd00c945c35d1b93b1d04e9e47da6cd13f0a2f480864210acdab0c6d2d07ef4f396f6f0e54627a6b60afacc788c4501ee81f699a45588ff

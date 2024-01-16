@@ -31,6 +31,7 @@ export class Maestro {
   @observable state: "init" | "ready" | "loading" = "init";
 
   constructor() {
+    this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
     console.log("Maestro constructor");
 
     this.rawWorker = new Worker(MaestroWorkerURL, {
@@ -42,6 +43,8 @@ export class Maestro {
     this.state = "init";
 
     makeObservable(this, undefined, { autoBind: true });
+
+    this.setupDevicePixelRatioListener();
   }
 
   async setup() {
@@ -105,6 +108,23 @@ export class Maestro {
 
   debugPrint() {
     this.worker.debugPrint();
+  }
+
+  setupDevicePixelRatioListener() {
+    const onChange = () => {
+      this.updateDevicePixelRatio(window.devicePixelRatio);
+      this.setupDevicePixelRatioListener();
+    };
+
+    matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`).addEventListener(
+      "change",
+      onChange,
+      { once: true },
+    );
+  }
+
+  updateDevicePixelRatio(devicePixelRatio: number) {
+    this.worker.setDevicePixelRatio(devicePixelRatio);
   }
 
   setVisualizationSettings(settings: VisualizationSettings) {

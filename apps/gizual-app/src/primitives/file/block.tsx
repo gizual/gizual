@@ -19,7 +19,7 @@ type FileBlockProps = {
 
 export const FileBlock = ({ id, height, parentContainer }: FileBlockProps) => {
   const block = useBlockImage(id);
-  console.log("FILEBLOCK", block);
+  //console.log("FILEBLOCK", block);
   //const block = { url: "./block.png", isPreview: false, setPriority: (_: number) => {} };
   const { isPreview, url, setPriority } = block;
   const ref = React.useRef<HTMLImageElement>(null);
