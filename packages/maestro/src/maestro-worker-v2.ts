@@ -84,7 +84,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       this.visualizationSettings = opts.visualizationSettings;
     }
     this.db = new Database();
-    this.setupListeners();
   }
 
   setup = async (opts: PoolControllerOpts) => {
@@ -263,7 +262,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   };
 
   private refreshAvailableFiles = async (oldQuery?: SearchQueryType) => {
-    const { branch, time, files, type, preset } = this.query;
+    const { branch, time, type, preset } = this.query;
     if (!type) {
       this.reset();
       return;
@@ -276,8 +275,8 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     const initial = !this.availableFiles || !oldQuery;
 
     if (typeChanged || branchChanged || timeChanged || presetChanged || initial) {
-      const timerange: [string, string] | undefined = undefined;
-      /* TODO: this is not working yet because the blames do not respect  the timerange yet
+      const timeRange: [string, string] | undefined = undefined;
+      /* TODO: this is not working yet because the blames do not respect  the timeRange yet
   
       if (time && "rangeByDate" in time) {
         const startDate = new GizDate(time.rangeByDate[0]);
@@ -290,7 +289,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       }
         */
 
-      const tree = await this.explorerPool!.getFileTree(branch, timerange);
+      const tree = await this.explorerPool!.getFileTree(branch, timeRange);
 
       const oldFiles = this.availableFiles;
       this.availableFiles = tree;
@@ -520,12 +519,18 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     };
   };
 
+  scheduleAllBlockRenders = () => {
+    for (const block of this.blocks) {
+      this.scheduleBlockRender(block.id);
+    }
+  };
+
   scheduleBlockRender = (id: string) => {
     const block = this.blocks.find((b) => b.id === id);
     if (!block) {
       throw new Error("Block not found");
     }
-    const { query, explorerPool, renderPool, visualizationSettings } = this;
+    const { query, explorerPool, renderPool, visualizationSettings, cachedAuthors } = this;
 
     if (block.blameJobRef) {
       block.blameJobRef.cancel();
@@ -583,9 +588,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       const { result } = await renderPool.renderCanvas({
         type: RenderType.FileLines,
         fileContent: lines,
-        lineLengthMax: 120, // TODO
+        lineLengthMax: 120,
         coloringMode,
-        authors: [], // TODO
+        authors: cachedAuthors,
         showContent: true,
         dpr: 4,
         earliestTimestamp,
@@ -635,7 +640,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
   visualizationSettings: VisualizationSettings = {} as any;
 
-  setVisualizationSettings = (settings: VisualizationSettings) => {
+  updateVisualizationSettings = (settings: VisualizationSettings) => {
     const oldSettings = this.visualizationSettings;
     this.visualizationSettings = settings;
     this.emit("visualization-settings:updated", {
@@ -643,7 +648,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       newValue: this.visualizationSettings,
     });
 
-    // TODO: rerender images
+    this.scheduleAllBlockRenders();
   };
 
   // ---------------------------------------------
@@ -665,7 +670,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       oldValue: oldDevicePixelRatio,
       newValue: this.devicePixelRatio,
     });
-    // TODO: rerender images
+    this.scheduleAllBlockRenders();
   };
 
   // ---------------------------------------------
@@ -676,8 +681,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     // TODO
     throw new Error("Not implemented");
   }
-
-  setupListeners() {}
 
   debugPrint() {
     if (this.explorerPoolController) {
@@ -749,21 +752,6 @@ type BlockEntry = Block & {
   isPreview?: boolean;
   blameJobRef?: JobRef<Blame>;
 };
-
-/*
-
-updateQuery -> query:updated
-query:updated -> refreshAvailableFiles -> available-files:updated
-
-available-files:updated -> findSelectedFiles (by path-regex or selection etc) -> selected-files:updated
-
-selected-files:updated -> aggregateBlocks(based on query type and selected-files) -> measureBlockHeight ->  blocks:updated
-blocks:updated -> renderBlockImagesIfRequired -> block-image:updated(id)
-
-updateBlockPriority(id) -> renderBlockImageIfRequired(id) -> block-image:updated(id)
-
-
-*/
 
 // ---------------------------------------------
 // ------------------ Helpers ------------------

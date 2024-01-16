@@ -263,7 +263,6 @@ export function useMetrics(): Metrics {
   return metrics;
 }
 
-
 /*
 useSetCanvasScale() => { setScale: (scale: number) => void }
 useRenderImage(id, scale) => { url: string, width: number, height: number, setViewIntersectionPercentage: (inter: number) => void }

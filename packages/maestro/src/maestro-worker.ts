@@ -209,7 +209,12 @@ function debugPrint() {
 
 function setVisualizationSettings(settings: VisualizationSettings) {
   console.log("setVisualizationSettings", settings);
-  maestro.setVisualizationSettings(settings);
+  maestro.updateVisualizationSettings(settings);
+}
+
+function setDevicePixelRatio(devicePixelRatio: number) {
+  console.log("setDevicePixcelRatio", devicePixelRatio);
+  maestro.updateDevicePixelRatio(devicePixelRatio);
 }
 
 const exports = {
@@ -217,6 +222,7 @@ const exports = {
   setupPool,
   debugPrint,
   setVisualizationSettings,
+  setDevicePixelRatio,
 };
 
 export type MaestroWorker = typeof exports;
