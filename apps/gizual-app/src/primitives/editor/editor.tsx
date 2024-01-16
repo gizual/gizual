@@ -10,34 +10,28 @@ import style from "./editor.module.scss";
 
 type EditorProps = {
   fileContent?: string;
+  isLoading?: boolean;
 };
 
-function Editor({ fileContent }: EditorProps) {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [editorContent, setEditorContent] = React.useState(fileContent);
+function Editor({ fileContent, isLoading }: EditorProps) {
+  const [isMounted, setIsMounted] = React.useState(false);
 
   const monacoInstance = useMonaco();
 
   const theme = useTheme();
 
-  function parseInput(e: string | undefined) {
-    if (e === undefined) return;
-    setEditorContent(e);
-  }
-
   if (!monacoInstance) return <></>;
 
   return (
     <div className={style.EditorContainer}>
-      {isLoading && <Loading />}
+      {(isLoading || !isMounted) && <Loading />}
       <MonacoEditor
         className={clsx(style.Editor, isLoading && style.EditorLoading)}
         defaultLanguage="json"
-        value={editorContent}
+        value={fileContent}
         onMount={(_e, _m) => {
-          setIsLoading(false);
+          setIsMounted(true);
         }}
-        onChange={(e) => parseInput(e)}
         theme={theme === "light" ? "light" : "vs-dark"}
         height="85vw"
         width="80vw"

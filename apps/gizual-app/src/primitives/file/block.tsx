@@ -4,7 +4,8 @@ import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { Loader, Skeleton } from "@mantine/core";
 import React from "react";
 
-import { useBlockImage } from "@giz/maestro/react";
+import { FileIcon } from "@giz/explorer-web";
+import { useBlockImage, useFileContent } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { DialogProvider } from "../dialog-provider";
 import { Editor } from "../editor";
@@ -16,15 +17,15 @@ type FileBlockProps = {
   id: string;
   height: number;
   parentContainer: Element | null;
+  filePath?: string;
+  fileType?: FileIcon | undefined;
 };
 
-export const FileBlock = ({ id, height, parentContainer }: FileBlockProps) => {
+export const FileBlock = ({ id, height, parentContainer, filePath, fileType }: FileBlockProps) => {
   const block = useBlockImage(id);
   const { isPreview, url, setPriority } = block;
   const ref = React.useRef<HTMLImageElement>(null);
   const settingsController = useSettingsController();
-
-  console.log(id, height);
 
   // Attach IntersectionObserver on load, detach on dispose.
 
@@ -51,7 +52,12 @@ export const FileBlock = ({ id, height, parentContainer }: FileBlockProps) => {
 
   return (
     <div className={style.File}>
-      <BlockHeader isPreview={isPreview} path={id} />
+      <BlockHeader
+        isPreview={isPreview}
+        path={filePath ?? id}
+        icon={fileType?.icon}
+        iconColor={fileType?.color}
+      />
       <div className={style.FileBody} style={{ height: height }}>
         {!url && <Skeleton />}
         <img className={style.FileCanvas} alt={url ? id : ""} height={height} src={url} ref={ref} />
@@ -91,11 +97,15 @@ function BlockHeader({ isPreview, path, icon, iconColor }: BlockHeaderProps) {
           }
           title={`${truncateSmart(path, 80)} (Read-Only)`}
         >
-          <Editor
-            fileContent={"TODO: Remove mock content! Otherwise this should be working now."}
-          />
+          <BlockEditor path={path} />
         </DialogProvider>
       </div>
     </div>
   );
+}
+
+function BlockEditor({ path }: { path: string }) {
+  const { data, isLoading } = useFileContent(path);
+
+  return <Editor fileContent={data} isLoading={isLoading} />;
 }

@@ -90,6 +90,19 @@ const router = t.router({
     .mutation(async ({ input }) => {
       maestro.setBlockPriority(input.id, input.priority);
     }),
+  availableFiles: t.procedure.subscription(() => {
+    return observable<FileTreeNode[]>((emit) => {
+      const onUpdate = ({ newValue }: Events["available-files:updated"][0]) => {
+        emit.next(newValue);
+      };
+      maestro.on("available-files:updated", onUpdate);
+      emit.next(maestro.availableFiles ?? []);
+
+      return () => {
+        maestro.off("available-files:updated", onUpdate);
+      };
+    });
+  }),
   selectedFiles: t.procedure.subscription(() => {
     //TODO maybe wrong args
     return observable<FileTreeNode[]>((emit) => {
@@ -111,7 +124,11 @@ const router = t.router({
       };
       maestro.on("blocks:updated", onUpdate);
 
-      emit.next(maestro.blocks);
+      emit.next(
+        maestro.blocks.map(({ blameJobRef: _, ...rest }) => ({
+          ...rest,
+        })),
+      );
 
       return () => {
         maestro.off("blocks:updated", onUpdate);
@@ -162,6 +179,17 @@ const router = t.router({
         authors,
         total,
       };
+    }),
+  fileContent: t.procedure
+    .input(
+      z.object({
+        path: z.string(),
+      }),
+    )
+    .query(async (opts) => {
+      const { path } = opts.input;
+
+      return maestro.getFileContent(path);
     }),
 });
 

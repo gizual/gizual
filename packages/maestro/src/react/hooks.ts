@@ -5,7 +5,7 @@ import { CommitInfo, FileTreeNode } from "@giz/explorer";
 import { SearchQueryType } from "@giz/query";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
-import { Metrics, State } from "../maestro-worker-v2";
+import { Block, Metrics, State } from "../maestro-worker-v2";
 
 import { MaestroContext, TrpcContext } from "./providers";
 
@@ -25,6 +25,12 @@ export function useAuthorList(limit?: number, offset?: number) {
   const trpc = useTrpc();
 
   return trpc.authorList.useQuery({ limit, offset });
+}
+
+export function useFileContent(path: string) {
+  const trpc = useTrpc();
+
+  return trpc.fileContent.useQuery({ path });
 }
 
 export type FileLoaderDragAndDrop = {
@@ -268,6 +274,23 @@ useSetCanvasScale() => { setScale: (scale: number) => void }
 useRenderImage(id, scale) => { url: string, width: number, height: number, setViewIntersectionPercentage: (inter: number) => void }
 */
 
+export function useAvailableFiles(): FileTreeNode[] {
+  const trpc = useTrpc();
+
+  const [availableFiles, setAvailableFiles] = React.useState<FileTreeNode[]>([]);
+
+  trpc.availableFiles.useSubscription(undefined, {
+    onData: (data) => {
+      setAvailableFiles(data);
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
+
+  return availableFiles;
+}
+
 export function useSelectedFiles(): FileTreeNode[] {
   const trpc = useTrpc();
 
@@ -285,10 +308,10 @@ export function useSelectedFiles(): FileTreeNode[] {
   return selectedFiles;
 }
 
-export function useBlockHeights(): { id: string; height: number }[] {
+export function useBlocks(): Block[] {
   const trpc = useTrpc();
 
-  const [blocks, setBlocks] = React.useState<{ id: string; height: number }[]>([]);
+  const [blocks, setBlocks] = React.useState<Block[]>([]);
 
   trpc.blocks.useSubscription(undefined, {
     onData: (data) => {

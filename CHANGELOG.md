@@ -1,8 +1,10 @@
-## Gizual 3.0.0-alpha.14 (12.01.2024)
+## Gizual 3.0.0-alpha.14 (16.01.2024)
 
 ### Features
 
+- **app:general:** restructure modular maestro architecture to support full range of query-features
 - **app:frontend:** add full-screen mode for charts on the Analyze page
+- **app:frontend:** implement file-module `file-tree`
 
 ### Changes
 
