@@ -8,9 +8,10 @@ export type FontIconProps = {
   className?: string;
   style?: React.CSSProperties;
   colors?: [string | null, string | null] | undefined;
+  onClick?: () => void;
 };
 
-export function FontIcon({ name, className, style, colors }: FontIconProps) {
+export function FontIcon({ name, className, style, colors, onClick }: FontIconProps) {
   const theme = useTheme();
   const themeIndex = theme === "light" ? 0 : 1;
   const iconColor = colors ?? colors?.[themeIndex] ?? "var(--foreground-primary)";
@@ -19,6 +20,7 @@ export function FontIcon({ name, className, style, colors }: FontIconProps) {
     <span
       style={style}
       className={clsx(styles.Icon, name ?? "directory-closed-icon", iconColor, className)}
+      onClick={onClick}
     ></span>
   );
 }

@@ -94,5 +94,6 @@ export const FileTree: Story = {
   args: {
     mode: "full",
     files: mockFiles,
+    checked: [["src"]],
   },
 };

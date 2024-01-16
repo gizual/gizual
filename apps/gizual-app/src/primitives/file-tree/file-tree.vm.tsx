@@ -35,9 +35,9 @@ export class FileTreeViewModel {
   /* Root of the constructed tree. */
   private _root: FileTreeNode | undefined;
 
-  constructor(availableFiles: FileTreeFlatItem[]) {
+  constructor(availableFiles: FileTreeFlatItem[], checked: string[][] | undefined) {
     this._availableFiles = availableFiles;
-    this.constructTree();
+    this.constructTree(checked);
     makeObservable(this, undefined, { autoBind: true });
   }
 
@@ -46,7 +46,7 @@ export class FileTreeViewModel {
    * Assumption: The input files are pre-sorted by path, such that all parent
    * elements of a given file are present in the array before the file itself.
    */
-  private constructTree() {
+  private constructTree(checked: string[][] | undefined = undefined) {
     const root: FileTreeNode = {
       checked: CheckboxState.UNCHECKED,
       path: [""],
@@ -56,15 +56,17 @@ export class FileTreeViewModel {
     };
 
     // Initialize empty nodes map.
-    const nodes: { [key: string]: FileTreeNode } = {};
-    nodes[""] = root;
+    this._nodes = {};
+    this._nodes[""] = root;
 
     for (const file of this._availableFiles) {
       const path = file.path;
       const parentPath = path.slice(0, -1).join("/");
 
+      const checkedState = checked?.some((c) => c.join("/") === path.join("/"));
+
       const node: FileTreeNode = {
-        checked: CheckboxState.UNCHECKED,
+        checked: checkedState ? CheckboxState.CHECKED : CheckboxState.UNCHECKED,
         path: path,
         kind: file.kind,
         children: [],
@@ -75,12 +77,14 @@ export class FileTreeViewModel {
         checked: observable,
       });
 
-      nodes[path.join("/")] = node;
-      nodes[parentPath].children.push(node);
+      this._nodes[path.join("/")] = node;
+      this._nodes[parentPath].children.push(node);
+      if (checkedState) this.propagateSelectionStateUp(node);
     }
 
-    this._nodes = nodes;
     this._root = root;
+    if (checked) for (const child of root.children) this.propagateSelectionStateDown(child);
+
     return root;
   }
 

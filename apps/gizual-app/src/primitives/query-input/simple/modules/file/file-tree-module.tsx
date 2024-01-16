@@ -30,7 +30,7 @@ export function FileTreeModule() {
           title="File picker"
         >
           <div className={style.FileTreeWrapper}>
-            <FileTree />
+            <FileTree mode="full" />
           </div>
         </DialogProvider>
       </div>
