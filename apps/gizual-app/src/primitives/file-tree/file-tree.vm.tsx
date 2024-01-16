@@ -99,6 +99,13 @@ export class FileTreeViewModel {
     return files;
   }
 
+  /**
+   * Based on a pre-selected list of files, assign the checked state to the
+   * corresponding nodes in the tree.
+   *
+   * @param checked The pre-selected files to check.
+   * @returns
+   */
   @action
   assignCheckedState(checked?: string[][]) {
     if (!checked) return;
@@ -112,6 +119,12 @@ export class FileTreeViewModel {
     }
   }
 
+  /**
+   * Assign the checked state to a given node and propagate the state across
+   * the tree.
+   *
+   * @param item The `FileTreeNode` to check.
+   */
   @action
   checkNode(item: FileTreeNode) {
     item.checked = match(item.checked)
@@ -124,6 +137,12 @@ export class FileTreeViewModel {
     this.propagateSelectionStateUp(item);
   }
 
+  /**
+   * Take the selection state of the specified node and propagate
+   * it down the tree.
+   *
+   * @param node The node from which to check downwards.
+   */
   @action
   propagateSelectionStateDown(node: FileTreeNode) {
     if (node.children.length === 0) return node.checked;
@@ -137,6 +156,12 @@ export class FileTreeViewModel {
     }
   }
 
+  /**
+   * Take the selection state of the specified node and propagate
+   * it up the tree.
+   *
+   * @param node The node from which to check downwards.
+   */
   @action
   propagateSelectionStateUp(node: FileTreeNode) {
     if (node.parentPath.length === 0) return;
