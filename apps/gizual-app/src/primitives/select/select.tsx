@@ -37,6 +37,7 @@ export function Select<T = undefined>(props: SelectProps<T>) {
           minHeight: 30,
         },
       }}
+      allowDeselect={false}
       {...mantineProps}
     />
   );
