@@ -86,7 +86,7 @@ const router = t.router({
       maestro.updateQuery(input.input);
     }),
   setPriority: t.procedure
-    .input(z.object({ id: z.string(), priority: z.number().positive() }))
+    .input(z.object({ id: z.string(), priority: z.number() }))
     .mutation(async ({ input }) => {
       maestro.setBlockPriority(input.id, input.priority);
     }),
@@ -124,11 +124,7 @@ const router = t.router({
       };
       maestro.on("blocks:updated", onUpdate);
 
-      emit.next(
-        maestro.blocks.map(({ blameJobRef: _, ...rest }) => ({
-          ...rest,
-        })),
-      );
+      emit.next(maestro.serializableBlocks);
 
       return () => {
         maestro.off("blocks:updated", onUpdate);

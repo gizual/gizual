@@ -43,6 +43,7 @@ export const TimeRangeModule = observer(() => {
         ],
       },
     });
+    publishLocalQuery();
   };
 
   const onChangeEndDate = (d: any | null) => {
@@ -54,6 +55,7 @@ export const TimeRangeModule = observer(() => {
         ],
       },
     });
+    publishLocalQuery();
   };
 
   return (
@@ -68,7 +70,6 @@ export const TimeRangeModule = observer(() => {
         <DatePickerInput
           defaultValue={startDate.toDate()}
           onChange={(d) => onChangeStartDate(d)}
-          onBlur={publishLocalQuery}
           styles={{
             input: {
               height: 30,
@@ -81,7 +82,6 @@ export const TimeRangeModule = observer(() => {
         <DatePickerInput
           value={endDate.toDate()}
           onChange={onChangeEndDate}
-          onBlur={publishLocalQuery}
           styles={{
             input: {
               height: 30,

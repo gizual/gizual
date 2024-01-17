@@ -1,7 +1,7 @@
 import { VisualizationSettings } from "@app/controllers";
 import { VisualizationConfig } from "@app/types";
 import EventEmitter from "eventemitter3";
-import { differenceBy, isEqual, isNumber } from "lodash";
+import { differenceBy, isEqual, isNumber, omit, result } from "lodash";
 import { minimatch } from "minimatch";
 import { match, Pattern } from "ts-pattern";
 
@@ -72,6 +72,8 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   private renderPool: FileRendererPool;
   private db: Database;
 
+  private needsRerender = false;
+
   constructor(opts: MaestroOpts) {
     super();
     this.renderPool = new FileRendererPool();
@@ -85,6 +87,17 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
     this.db = new Database();
   }
+
+  checkNeedsRerender = () => {
+    if (this.needsRerender) {
+      this.needsRerender = false;
+      this.scheduleAllBlockRenders();
+    }
+  };
+
+  setNeedsRerender = () => {
+    this.needsRerender = true;
+  };
 
   setup = async (opts: PoolControllerOpts) => {
     this.updateState({ screen: "initial-load" });
@@ -234,13 +247,80 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     },
   };
 
+  /**
+   * A unique key for the current query as a shortened string-concatenation of all query parameters.
+   */
+  private renderCacheKey = "";
+
+  private updateQueryCacheKey() {
+    let keyReplacements: Record<string, string> = {
+      branch: "b",
+      type: "t",
+      "time.rangeByDate": "trbd",
+      "time.rangeByRef": "trbr",
+      "time.sinceFirstCommitBy": "tsfcb",
+      "preset.gradientByAge": "pgba",
+      "preset.paletteByAuthor": "ppba",
+    };
+
+    if (this.query.type !== "file-lines" && this.query.type !== "file-mosaic") {
+      // Rerenders are only required if the file selection changes for queries other than file-lines / file-mosaic
+      // TODO: recheck this as soon as we support other block types
+      keyReplacements = {
+        ...keyReplacements,
+        "files.path": "fp",
+        "files.lastEditedBy": "fleb",
+        "files.editedBy": "feb",
+        "files.createdBy": "fcb",
+        "files.contains": "fc",
+        "files.changedInRef": "fcir",
+      };
+    }
+
+    const keyValueDelimiter = "=";
+    const pairDelimiter = "&";
+
+    const query = this.query;
+
+    const queryCacheParts: string[] = [];
+    for (const [key1, key2] of Object.entries(keyReplacements)) {
+      let value = result(query, key1);
+      if (!value) {
+        continue;
+      }
+      if (key1 === "files.path" && Array.isArray(value)) {
+        value = simpleHash(value.join(","));
+      } else if (Array.isArray(value)) {
+        value = `[${value.join(",")}]`;
+      } else {
+        value = value.toString();
+      }
+      queryCacheParts.push([key2, value].join(keyValueDelimiter));
+    }
+
+    this.renderCacheKey = queryCacheParts.join(pairDelimiter);
+  }
+
   updateQuery = (query: Partial<SearchQueryType>) => {
     const oldQuery = { ...this.query };
     this.query = { ...this.query, ...query };
+
+    this.updateQueryCacheKey();
+
     this.emit("query:updated", {
       oldValue: oldQuery,
       newValue: this.query,
     });
+
+    if (
+      !isEqual(query.branch, oldQuery.branch) ||
+      !isEqual(query.time, oldQuery.time) ||
+      !isEqual(query.type, oldQuery.type) ||
+      !isEqual(query.preset, oldQuery.preset) ||
+      !isEqual(query.files, oldQuery.files)
+    ) {
+      this.setNeedsRerender();
+    }
 
     // Refresh the available files but we do not await it
     this.safeRefreshAvailableFiles(oldQuery);
@@ -259,6 +339,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       console.error("Error while refreshing available files", error);
       this.setError(error);
     }
+    this.safeRefreshSelectedFiles();
   };
 
   private refreshAvailableFiles = async (oldQuery?: SearchQueryType) => {
@@ -277,18 +358,17 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     if (typeChanged || branchChanged || timeChanged || presetChanged || initial) {
       const timeRange: [string, string] | undefined = undefined;
       /* TODO: this is not working yet because the blames do not respect  the timeRange yet
-  
+      
       if (time && "rangeByDate" in time) {
         const startDate = new GizDate(time.rangeByDate[0]);
         const endDate = new GizDate(time.rangeByDate[1]);
-  
-        timerange = [
+
+        timeRange = [
           `${Math.round(startDate.getTime() / 1000)}`,
           `${Math.round(endDate.getTime() / 1000)}`,
         ];
       }
-        */
-
+      */
       const tree = await this.explorerPool!.getFileTree(branch, timeRange);
 
       const oldFiles = this.availableFiles;
@@ -298,9 +378,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         newValue: this.availableFiles,
       });
     }
-
-    // Refresh the selected files but we do not await it
-    this.refreshSelectedFiles();
   };
 
   // ---------------------------------------------
@@ -316,6 +393,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       console.error("Error while refreshing selected files", error);
       this.setError(error);
     }
+
+    // Refresh the blocks but we do not await it
+    this.safeRefreshBlocks();
   };
 
   refreshSelectedFiles = async () => {
@@ -396,9 +476,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       oldValue: oldSelectedFiles,
       newValue: this.selectedFiles,
     });
-
-    // Refresh the blocks but we do not await it
-    this.safeRefreshBlocks();
   };
 
   // ---------------------------------------------
@@ -407,8 +484,11 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
   blocks: BlockEntry[] = [];
 
+  get serializableBlocks() {
+    return this.blocks.map((b) => serializableBlock(b));
+  }
+
   resetAllBlocks = () => {
-    console.log("resetAllBlocks");
     for (const block of this.blocks) {
       this.resetBlock(block);
     }
@@ -416,7 +496,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   };
 
   resetBlock = (block: BlockEntry) => {
-    console.log("resetBlock", block);
     const blockIndex = this.blocks.findIndex((b) => b == block);
     if (!blockIndex) {
       return;
@@ -443,13 +522,17 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       console.error("Error while refreshing blocks", error);
       this.setError(error);
     }
+    this.checkNeedsRerender();
   };
 
   refreshBlocks = async () => {
     const { type, branch } = this.query;
     if (!type || !this.selectedFiles || this.selectedFiles.length === 0) {
       this.resetAllBlocks();
-      this.emit("blocks:updated", this.blocks);
+      this.emit(
+        "blocks:updated",
+        this.blocks.map((b) => serializableBlock(b)),
+      );
       return;
     }
 
@@ -485,17 +568,16 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
 
     const toDelete = differenceBy(this.blocks, blocks, "id");
-    console.log("toDelete", toDelete);
 
     const toAdd = differenceBy(blocks, this.blocks, "id");
-    console.log("toAdd", toAdd);
 
     // Update existing
     for (const block of blocks) {
       const existingBlock = this.blocks.find((b) => b.id === block.id);
-      if (existingBlock) {
+      if (existingBlock && existingBlock.height !== block.height) {
         existingBlock.height = block.height;
-        //this.emit("block:updated", block.id, existingBlock);
+        existingBlock.currentImageCacheKey = undefined; // force rerender
+        this.setNeedsRerender();
       }
     }
 
@@ -505,13 +587,13 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     // add new blocks
     this.blocks.push(...toAdd);
 
-    for (const blocks of toAdd) {
-      this.scheduleBlockRender(blocks.id);
+    if (toAdd.length > 0) {
+      this.setNeedsRerender();
     }
 
     this.emit(
       "blocks:updated",
-      this.blocks.map(({ blameJobRef: _, ...other }) => other),
+      this.blocks.map((b) => serializableBlock(b)),
     );
   };
 
@@ -546,17 +628,35 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     if (!block) {
       throw new Error("Block not found");
     }
-    const { query, explorerPool, renderPool, visualizationSettings, cachedAuthors } = this;
+    const {
+      query,
+      explorerPool,
+      renderPool,
+      visualizationSettings,
+      cachedAuthors,
+      renderCacheKey,
+    } = this;
+
+    if (block.currentImageCacheKey === renderCacheKey) {
+      // Already rendered
+      return;
+    }
 
     if (block.blameJobRef) {
+      if (block.upcomingImageCacheKey === renderCacheKey) {
+        // Already scheduled
+        return;
+      }
       block.blameJobRef.cancel();
       block.blameJobRef = undefined;
+      block.upcomingImageCacheKey = undefined;
     }
 
     if (block.type !== "file-lines") {
       throw new Error("Unsupported block type");
     }
-
+    const currentCacheKey = renderCacheKey;
+    block.upcomingImageCacheKey = currentCacheKey;
     block.blameJobRef = explorerPool!.getBlame(
       query.branch,
       block.filePath,
@@ -608,7 +708,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         coloringMode,
         authors: cachedAuthors,
         showContent: true,
-        dpr: 4,
+        dpr: 1,
         earliestTimestamp,
         latestTimestamp,
         selectedStartDate,
@@ -618,8 +718,15 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         visualizationConfig,
       });
 
+      if (block.url) {
+        URL.revokeObjectURL(block.url);
+        block.url = undefined;
+      }
+
       block.url = result;
       block.blameJobRef = undefined;
+      block.currentImageCacheKey = currentCacheKey;
+      block.upcomingImageCacheKey = undefined;
 
       this.emit("block:updated", id, {
         url: result,
@@ -770,12 +877,26 @@ export type BlockImage = {
 };
 
 type BlockEntry = Block & {
-  priority?: number;
-  scale?: number;
   url?: string;
   isPreview?: boolean;
+
+  // internal
+  currentImageCacheKey?: string;
+  upcomingImageCacheKey?: string;
+  priority?: number;
+  scale?: number;
   blameJobRef?: JobRef<Blame>;
 };
+
+function serializableBlock(block: BlockEntry): Block {
+  return omit(block, [
+    "blameJobRef",
+    "scale",
+    "priority",
+    "currentImageCacheKey",
+    "upcomingImageCacheKey",
+  ]) as Block;
+}
 
 // ---------------------------------------------
 // ------------------ Helpers ------------------
@@ -815,4 +936,16 @@ function parseLines(blame: Blame) {
   });
 
   return lines;
+}
+
+/**
+ * Source: https://gist.github.com/jlevy/c246006675becc446360a798e2b2d781?permalink_comment_id=4738050#gistcomment-4738050
+ * A simple and insecure hash function for strings, used to generate a unique key for the currently selected files-list.
+ */
+function simpleHash(input: string): string {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = Math.trunc((hash << 5) - hash + (input.codePointAt(i) ?? 0));
+  }
+  return (hash >>> 0).toString(36);
 }
