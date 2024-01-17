@@ -86,7 +86,7 @@ const router = t.router({
       maestro.updateQuery(input.input);
     }),
   setPriority: t.procedure
-    .input(z.object({ id: z.string(), priority: z.number().positive() }))
+    .input(z.object({ id: z.string(), priority: z.number() }))
     .mutation(async ({ input }) => {
       maestro.setBlockPriority(input.id, input.priority);
     }),

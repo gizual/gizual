@@ -708,7 +708,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         coloringMode,
         authors: cachedAuthors,
         showContent: true,
-        dpr: 4,
+        dpr: 1,
         earliestTimestamp,
         latestTimestamp,
         selectedStartDate,
