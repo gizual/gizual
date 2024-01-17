@@ -17,6 +17,13 @@ export function getFileIcon(kind: number): FileIcon | undefined {
   };
 }
 
+export function getAllFileIcons(): FileIcon[] {
+  return FILE_ICON_DB.map((entry) => ({
+    icon: entry[0],
+    color: entry[1],
+  }));
+}
+
 /**
  * This list represents the first 2 columns of the file-icons table available at
  * https://github.com/file-icons/atom/blob/master/lib/icons/.icondb.js
