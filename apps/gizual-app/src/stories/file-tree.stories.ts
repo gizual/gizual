@@ -19,45 +19,45 @@ type Story = StoryObj<typeof meta>;
 
 const mockFiles: FileTreeFlatItem[] = [
   // Root level files
-  { kind: "file", path: [".eslintrc"] },
-  { kind: "file", path: ["README.md"] },
-  { kind: "file", path: ["package.json"] },
-  { kind: "file", path: ["tsconfig.json"] },
+  { kind: 108, path: [".eslintrc"] },
+  { kind: 108, path: ["README.md"] },
+  { kind: 108, path: ["package.json"] },
+  { kind: 108, path: ["tsconfig.json"] },
 
   // 'src' directory and its contents
   { kind: "folder", path: ["src"] },
-  { kind: "file", path: ["src", "index.tsx"] },
-  { kind: "file", path: ["src", "index.scss"] },
-  { kind: "file", path: ["src", "index.ts"] },
+  { kind: 108, path: ["src", "index.tsx"] },
+  { kind: 108, path: ["src", "index.scss"] },
+  { kind: 108, path: ["src", "index.ts"] },
   { kind: "folder", path: ["src", "components"] },
-  { kind: "file", path: ["src", "components", "index.ts"] },
-  { kind: "file", path: ["src", "components", "index.tsx"] },
-  { kind: "file", path: ["src", "components", "index.scss"] },
+  { kind: 108, path: ["src", "components", "index.ts"] },
+  { kind: 108, path: ["src", "components", "index.tsx"] },
+  { kind: 108, path: ["src", "components", "index.scss"] },
   // More components in 'src/components'
   ...Array.from({ length: 50 }, (_, i) => ({
-    kind: "folder",
+    kind: "folder" as const,
     path: ["src", "components", `Component${i}`],
   })),
   ...Array.from({ length: 50 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["src", "components", `Component${i}`, "index.tsx"],
   })),
   ...Array.from({ length: 50 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["src", "components", `Component${i}`, "index.scss"],
   })),
 
   // 'utils' directory
   { kind: "folder", path: ["src", "utils"] },
   ...Array.from({ length: 20 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["src", "utils", `util${i}.ts`],
   })),
 
   // 'services' directory
   { kind: "folder", path: ["src", "services"] },
   ...Array.from({ length: 10 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["src", "services", `service${i}.ts`],
   })),
 
@@ -65,27 +65,27 @@ const mockFiles: FileTreeFlatItem[] = [
   { kind: "folder", path: ["src", "assets"] },
   { kind: "folder", path: ["src", "assets", "images"] },
   ...Array.from({ length: 15 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["src", "assets", "images", `image${i}.png`],
   })),
 
   { kind: "folder", path: ["src", "assets", "styles"] },
   ...Array.from({ length: 5 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["src", "assets", "styles", `style${i}.scss`],
   })),
 
   // 'tests' directory
   { kind: "folder", path: ["tests"] },
   ...Array.from({ length: 20 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["tests", `test${i}.spec.ts`],
   })),
 
   // 'docs' directory
   { kind: "folder", path: ["docs"] },
   ...Array.from({ length: 10 }, (_, i) => ({
-    kind: "file",
+    kind: 108,
     path: ["docs", `doc${i}.md`],
   })),
 ];
@@ -94,7 +94,7 @@ export const FileTree: Story = {
   args: {
     mode: "full",
     files: mockFiles,
-    checked: [["src", "index.ts"]],
+    checked: ["src/index.ts"],
     onChange: (checked) => console.log(checked),
   },
 };
