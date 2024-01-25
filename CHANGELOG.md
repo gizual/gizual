@@ -1,3 +1,9 @@
+## Gizual 3.0.0-alpha.15 (XX.XX.XXXX)
+
+### Features
+
+- **app:canvas:** implement minimap overlay, constrain canvas viewport
+
 ## Gizual 3.0.0-alpha.14 (16.01.2024)
 
 ### Features

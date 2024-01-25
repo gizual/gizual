@@ -4,7 +4,7 @@ import {
 } from "@app/charts/languages/language-distribution";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import withFixedSize from "../decorators/with-fixed-size";
+import withDivWrapper from "../decorators/with-div-wrapper";
 import withMainController from "../decorators/with-main-controller";
 import withMantineProvider from "../decorators/with-mantine-provider";
 
@@ -38,7 +38,7 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  decorators: [withMainController, withMantineProvider, withFixedSize],
+  decorators: [withMainController, withMantineProvider, withDivWrapper],
 } satisfies Meta<typeof LanguageDistributionChart>;
 
 export default meta;

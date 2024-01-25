@@ -14,20 +14,24 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
+import { useBlocks } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { IconButton } from "../icon-button";
 import { Timeline } from "../timeline";
 
+import type { CanvasContextProps } from "./canvas.context";
+import { CanvasContext } from "./canvas.context";
 import style from "./canvas.module.scss";
 import { CanvasViewModel } from "./canvas.vm";
 import { FileCanvas } from "./file-canvas";
+import { MiniMap, MiniMapContent } from "./minimap";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;
-};
+} & Partial<CanvasContextProps>;
 
-function Canvas({ vm: externalVm }: CanvasProps) {
+function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
   const mainController = useMainController();
   const vmController = useViewModelController();
 
@@ -58,8 +62,6 @@ function Canvas({ vm: externalVm }: CanvasProps) {
     setSelectedWidth(vm.canvasWidth);
   }, [vm.canvasWidth]);
 
-  console.log("Canvas.tsx");
-
   return (
     <div className={style.Stage}>
       <ContextModal
@@ -78,12 +80,16 @@ function Canvas({ vm: externalVm }: CanvasProps) {
         )}
         <div className={style.CanvasWrapper}>
           <Toolbar vm={vm} vmController={vmController} />
-          <InteractiveCanvas
-            vm={vm}
-            showModal={showModal}
-            canvasRef={canvasRef}
-            interactiveRef={ref}
-          />
+          <CanvasContext.Provider
+            value={{ useBlocks: useBlocks, debugLayout: false, ...contextProps }}
+          >
+            <InteractiveCanvas
+              vm={vm}
+              showModal={showModal}
+              canvasRef={canvasRef}
+              interactiveRef={ref}
+            />
+          </CanvasContext.Provider>
           {vmController.isAuthorPanelVisible && <AuthorPanel />}
         </div>
       </div>
@@ -147,10 +153,53 @@ type InnerCanvasProps = {
 
 const InnerCanvas = observer(
   ({ vm, canvasRef, interactiveRef, ...defaultProps }: InnerCanvasProps) => {
-    const [isPanning, setIsPanning] = useState(false);
     const mainController = useMainController();
+    const [isPanning, setIsPanning] = useState(false);
+    const [state, setState] = useState<{ scale: number; positionX: number; positionY: number }>({
+      scale: 1,
+      positionX: 0,
+      positionY: 0,
+    });
+
+    const [showMinimap, setShowMinimap] = useState(true);
+
+    const wrapperWidth = interactiveRef.current?.instance.wrapperComponent?.clientWidth ?? 0;
+    const wrapperHeight = interactiveRef.current?.instance.wrapperComponent?.clientHeight ?? 0;
+
+    const { debugLayout } = React.useContext(CanvasContext);
+
     return (
-      <div className={style.Canvas} ref={canvasRef} {...defaultProps}>
+      <div
+        className={style.Canvas}
+        ref={canvasRef}
+        {...defaultProps}
+        onMouseMove={(e) => {
+          // Get position relative to element
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          if (y < (200 * wrapperWidth) / wrapperHeight + 16 && x > rect.width - 200 + 16) {
+            setShowMinimap(false);
+            return;
+          }
+          setShowMinimap(true);
+        }}
+      >
+        {debugLayout && (
+          <div className={style.DebugOverlay}>
+            <p className={sharedStyle["Text-Bold"]}>Canvas Debug Panel</p>
+            <code>{`wrapper: ${interactiveRef.current?.instance.wrapperComponent?.clientWidth}px × ${interactiveRef.current?.instance.wrapperComponent?.clientHeight}px`}</code>
+            <code>{`transform-component: ${interactiveRef.current?.instance.contentComponent?.clientWidth}px × ${interactiveRef.current?.instance.contentComponent?.clientHeight}px`}</code>
+            <code>{`css transform: scale=${state.scale}, positionX=${state.positionX}px, positionY=${state.positionY}`}</code>
+          </div>
+        )}
+        {/*<Minimap
+          {...state}
+          canvasWidth={interactiveRef.current?.instance.wrapperComponent?.clientWidth ?? 0}
+          canvasHeight={interactiveRef.current?.instance.wrapperComponent?.clientHeight ?? 0}
+          masonryWidth={vm.canvasWidth}
+        />*/}
         <TransformWrapper
           initialScale={CanvasScale.default}
           minScale={CanvasScale.min}
@@ -158,8 +207,10 @@ const InnerCanvas = observer(
           initialPositionX={0}
           initialPositionY={0}
           wheel={{ smoothStep: 0.001 }}
-          limitToBounds={false}
-          panning={{ velocityDisabled: true }}
+          limitToBounds={true}
+          centerZoomedOut={true}
+          disablePadding={true}
+          panning={{ velocityDisabled: false }}
           ref={interactiveRef}
           onInit={() => vm.reflow()}
           onPanningStart={() => {
@@ -168,6 +219,7 @@ const InnerCanvas = observer(
           onPanningStop={() => {
             setIsPanning(false);
           }}
+          smooth
           onTransformed={(
             _ref: ReactZoomPanPinchRef,
             state: {
@@ -177,6 +229,7 @@ const InnerCanvas = observer(
             },
           ) => {
             mainController.setScale(state.scale);
+            setState(state);
           }}
         >
           <TransformComponent
@@ -189,16 +242,28 @@ const InnerCanvas = observer(
             contentStyle={{
               flexFlow: "row wrap",
               alignItems: "flex-start",
-              justifyContent: "center",
+              justifyContent: "flex-start",
               gap: "1rem",
               width: "100%",
-              height: "100%",
               boxSizing: "inherit",
+              border: debugLayout ? "2px dashed pink" : undefined,
             }}
             contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
           >
             <FileCanvas vm={vm} wrapper={interactiveRef?.current?.instance.wrapperComponent} />
           </TransformComponent>
+          <div
+            className={style.MinimapContainer}
+            style={{ opacity: showMinimap ? 0.8 : 0, transition: "opacity 0.2s ease-out" }}
+          >
+            <MiniMap
+              previewStyles={{ borderColor: "orange" }}
+              width={200}
+              height={(200 * wrapperWidth) / wrapperHeight}
+            >
+              <MiniMapContent masonryWidth={vm.canvasWidth} />
+            </MiniMap>
+          </div>
         </TransformWrapper>
       </div>
     );

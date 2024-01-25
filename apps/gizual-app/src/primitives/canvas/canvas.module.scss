@@ -7,7 +7,7 @@
   flex-grow: 1;
   padding: 1rem;
   flex-flow: row wrap;
-  align-content: flex-start;
+  align-content: center;
   overflow-y: auto;
   position: relative;
 }
@@ -68,4 +68,31 @@
 .ToolbarButton {
   width: 2rem;
   height: 2rem;
+}
+
+.MinimapContainer {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: 1px solid var(--border-primary);
+  background-color: var(--background-primary);
+  pointer-events: none;
+}
+
+.Minimap {
+  display: block;
+}
+
+.DebugOverlay {
+  @include text-xs;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  background-color: #00000095;
+  color: white;
+  z-index: 999999;
+  padding: 0.5rem;
 }
