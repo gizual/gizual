@@ -5,7 +5,7 @@
   display: flex;
   gap: 1rem;
   flex-grow: 1;
-  padding: 1rem;
+  padding: 1rem; /* Override from JavaScript */
   flex-flow: row wrap;
   align-content: center;
   overflow-y: auto;
@@ -83,6 +83,15 @@
   display: block;
 }
 
+.LegendContainer {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-primary);
+  pointer-events: none;
+}
+
 .DebugOverlay {
   @include text-xs;
   position: absolute;
@@ -96,3 +105,4 @@
   z-index: 999999;
   padding: 0.5rem;
 }
+

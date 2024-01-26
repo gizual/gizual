@@ -7,8 +7,15 @@ import {
 } from "@app/assets";
 import { useMainController, useViewModelController, ViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
-import { CanvasScale, createNumberSetting, createSelectSetting, useTheme } from "@app/utils";
+import {
+  CanvasScale,
+  createNumberSetting,
+  createSelectSetting,
+  useTheme,
+  useWindowSize,
+} from "@app/utils";
 import { Modal, Tooltip } from "@mantine/core";
+import _ from "lodash";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
@@ -17,6 +24,7 @@ import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "reac
 import { useBlocks } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
+import { GradientLegend } from "../gradient-legend";
 import { IconButton } from "../icon-button";
 import { Timeline } from "../timeline";
 
@@ -151,6 +159,15 @@ type InnerCanvasProps = {
   interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
 } & React.HTMLAttributes<HTMLDivElement>;
 
+const MINIMAP_HIDE_ON_HOVER = true;
+const LEGEND_HIDE_ON_HOVER = true;
+
+const CANVAS_PADDING = 16;
+
+const forceReflow = _.debounce((reflowFn) => {
+  reflowFn();
+}, 200);
+
 const InnerCanvas = observer(
   ({ vm, canvasRef, interactiveRef, ...defaultProps }: InnerCanvasProps) => {
     const mainController = useMainController();
@@ -162,28 +179,55 @@ const InnerCanvas = observer(
     });
 
     const [showMinimap, setShowMinimap] = useState(true);
+    const [showLegend, setShowLegend] = useState(true);
+
+    const [width, _height] = useWindowSize();
+    React.useEffect(() => {
+      forceReflow(vm.reflow);
+    }, [width]);
 
     const wrapperWidth = interactiveRef.current?.instance.wrapperComponent?.clientWidth ?? 0;
     const wrapperHeight = interactiveRef.current?.instance.wrapperComponent?.clientHeight ?? 0;
+    const contentHeight = interactiveRef.current?.instance.contentComponent?.clientHeight ?? 0;
 
     const { debugLayout } = React.useContext(CanvasContext);
+
+    const minimapWidth = Math.min(wrapperWidth / 10 + 100, 300);
+    const minimapHeight = Math.min(contentHeight / 10, wrapperHeight);
+    const legendWidth = Math.min(wrapperWidth / 8, 200);
+    const legendHeight = 50;
 
     return (
       <div
         className={style.Canvas}
         ref={canvasRef}
         {...defaultProps}
+        style={{ padding: CANVAS_PADDING }}
         onMouseMove={(e) => {
           // Get position relative to element
           const rect = e.currentTarget.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const y = e.clientY - rect.top;
 
-          if (y < (200 * wrapperWidth) / wrapperHeight + 16 && x > rect.width - 200 + 16) {
+          if (
+            MINIMAP_HIDE_ON_HOVER &&
+            y < minimapHeight + CANVAS_PADDING &&
+            x > rect.width - minimapWidth - CANVAS_PADDING
+          ) {
             setShowMinimap(false);
-            return;
+          } else {
+            setShowMinimap(true);
           }
-          setShowMinimap(true);
+
+          if (
+            LEGEND_HIDE_ON_HOVER &&
+            y > wrapperHeight - legendHeight + CANVAS_PADDING &&
+            x > rect.width - legendWidth - CANVAS_PADDING
+          ) {
+            setShowLegend(false);
+          } else {
+            setShowLegend(true);
+          }
         }}
       >
         {debugLayout && (
@@ -194,12 +238,6 @@ const InnerCanvas = observer(
             <code>{`css transform: scale=${state.scale}, positionX=${state.positionX}px, positionY=${state.positionY}`}</code>
           </div>
         )}
-        {/*<Minimap
-          {...state}
-          canvasWidth={interactiveRef.current?.instance.wrapperComponent?.clientWidth ?? 0}
-          canvasHeight={interactiveRef.current?.instance.wrapperComponent?.clientHeight ?? 0}
-          masonryWidth={vm.canvasWidth}
-        />*/}
         <TransformWrapper
           initialScale={CanvasScale.default}
           minScale={CanvasScale.min}
@@ -230,6 +268,7 @@ const InnerCanvas = observer(
           ) => {
             mainController.setScale(state.scale);
             setState(state);
+            console.log("onTransform", state.scale);
           }}
         >
           <TransformComponent
@@ -254,15 +293,31 @@ const InnerCanvas = observer(
           </TransformComponent>
           <div
             className={style.MinimapContainer}
-            style={{ opacity: showMinimap ? 0.8 : 0, transition: "opacity 0.2s ease-out" }}
+            style={{
+              opacity: showMinimap ? 0.8 : 0,
+              transition: "opacity 0.2s ease-out",
+            }}
           >
             <MiniMap
               previewStyles={{ borderColor: "orange" }}
-              width={200}
-              height={(200 * wrapperWidth) / wrapperHeight}
+              width={minimapWidth}
+              height={minimapHeight}
             >
               <MiniMapContent masonryWidth={vm.canvasWidth} />
             </MiniMap>
+          </div>
+
+          <div
+            className={style.LegendContainer}
+            style={{ opacity: showLegend ? 0.8 : 0, transition: "opacity 0.2s ease-out" }}
+          >
+            <GradientLegend
+              width={legendWidth}
+              height={legendHeight}
+              startColor={"#ff0000"}
+              endColor={"#00ffff"}
+              descriptionFn={(p, _) => p.toString()}
+            />
           </div>
         </TransformWrapper>
       </div>

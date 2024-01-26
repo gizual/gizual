@@ -23,7 +23,7 @@ const meta = {
     withMainController,
     withMantineProvider,
     (story, ctx) =>
-      withDivWrapper(story, ctx, { style: { width: 1000, height: 800, display: "flex" } }),
+      withDivWrapper(story, ctx, { style: { width: "80dvw", height: "80dvh", display: "flex" } }),
   ],
 } satisfies Meta<typeof CanvasComponent>;
 
