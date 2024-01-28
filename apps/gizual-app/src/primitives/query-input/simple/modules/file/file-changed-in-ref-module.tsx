@@ -24,6 +24,8 @@ export function FileChangedInRefModule() {
       hasSwapButton
       disableItems={["changedInRef"]}
       highlightItems={["changedInRef"]}
+      hasHelpTooltip
+      helpContent="Enter a valid git ref to search for. Example: HEAD, master, origin/master, etc."
     >
       <div className={style.SpacedChildren}>
         <Select

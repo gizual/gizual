@@ -16,7 +16,7 @@ import { TimeBaseQueryModule } from "./time-base-module";
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 
-export const TimeRangeModule = observer(() => {
+export const TimeRangeByDateModule = observer(() => {
   const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
 
   const settingsController = useSettingsController();
@@ -61,7 +61,7 @@ export const TimeRangeModule = observer(() => {
   return (
     <TimeBaseQueryModule
       icon={<IconClock />}
-      title={"Time Range:"}
+      title={"Range by date:"}
       hasSwapButton
       disableItems={["rangeByDate"]}
       highlightItems={["rangeByDate"]}

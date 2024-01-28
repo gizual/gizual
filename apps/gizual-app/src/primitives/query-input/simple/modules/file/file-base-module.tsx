@@ -6,15 +6,25 @@ import { BaseQueryModule, BaseQueryModuleProps } from "..";
 import { FileMenuItems } from "./file-menu";
 
 export type FileBaseQueryModuleProps = {
+  hasHelpTooltip?: boolean;
+  helpContent?: string;
   disableItems?: string[];
   highlightItems?: string[];
 } & BaseQueryModuleProps;
 
 export const FileBaseQueryModule = React.memo(
-  ({ disableItems, highlightItems, ...props }: FileBaseQueryModuleProps) => {
+  ({
+    hasHelpTooltip,
+    helpContent,
+    disableItems,
+    highlightItems,
+    ...props
+  }: FileBaseQueryModuleProps) => {
     const query = useQuery();
     return (
       <BaseQueryModule
+        hasHelpTooltip={hasHelpTooltip}
+        helpContent={helpContent}
         {...props}
         menuItems={
           <FileMenuItems

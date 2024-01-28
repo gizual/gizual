@@ -43,6 +43,13 @@ export const FileMenuItems = React.memo(
         },
       },
       {
+        key: "editedBy",
+        title: "Edited by",
+        onClick: () => {
+          query.updateQuery({ files: { editedBy: "" } });
+        },
+      },
+      {
         key: "createdBy",
         title: "Created by",
         onClick: () => {
