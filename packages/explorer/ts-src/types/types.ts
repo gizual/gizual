@@ -12,6 +12,8 @@ type ParameterPayloadMap = {
   get_file_content: gen.GetFileContentParams;
   get_commits_for_branch: gen.GetCommitsForBranchParams;
   stream_commits: gen.StreamCommitsParams;
+  get_commit_ids_for_time_range: gen.GetCommitIdsForTimeRangeParams;
+  get_commit_ids_for_refs: gen.GetCommitIdsForRefsParams;
   shutdown: gen.NoParams;
 };
 

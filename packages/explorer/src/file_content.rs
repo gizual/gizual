@@ -6,21 +6,26 @@ use std::path::Path;
 #[cfg(feature = "bindings")]
 use specta::Type;
 
-use crate::explorer::Explorer;
+use crate::{commits::CommitIds, explorer::Explorer};
 
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetFileContentParams {
     branch: String,
     path: String,
+    range: CommitIds,
 }
 
 pub fn get_file_content(
     params: &GetFileContentParams,
     repo: &Repository,
 ) -> Result<String, git2::Error> {
-    let br = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
-    let commit = br.get().peel_to_commit()?;
+    let last_commit_id = params.range.end_id.clone();
+
+    let oid = git2::Oid::from_str(&last_commit_id)?;
+
+    let commit: git2::Commit<'_> = repo.find_commit(oid)?;
+   
     let tree = commit.tree()?;
     let path = Path::new(params.path.as_str());
     let entry = tree.get_path(path)?;

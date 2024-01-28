@@ -9,7 +9,7 @@ use specta::Type;
 use crate::authors::StreamAuthorsParams;
 use crate::blame::BlameParams;
 use crate::branches::GetCommitsForBranchParams;
-use crate::commits::{StreamCommitsParams, self};
+use crate::commits::{self, GetCommitIdsForRefsParams, GetCommitIdsForTimeRangeParams, StreamCommitsParams};
 use crate::file_content::GetFileContentParams;
 use crate::file_tree::GetFileTreeParams;
 
@@ -39,6 +39,12 @@ pub struct InitialDataResult {
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "method", content = "params")]
 pub enum Request {
+    #[serde(rename = "get_commit_ids_for_refs")]
+    GetCommitIdsForRefs(GetCommitIdsForRefsParams),
+
+    #[serde(rename = "get_commit_ids_for_time_range")]
+    GetCommitIdsForTimeRange(GetCommitIdsForTimeRangeParams),
+
     #[serde(rename = "open_repository")]
     OpenRepository(OpenRepositoryParams),
 
@@ -213,6 +219,8 @@ impl Explorer {
             Request::GetCommitsForBranch(params) => self.cmd_get_commits_for_branch(&params),
             Request::StreamCommits(_) => self.cmd_stream_commits(),
             Request::GetInitialData(_) => self.cmd_get_initial_data(),
+            Request::GetCommitIdsForRefs(params) => self.cmd_get_commit_ids_for_refs(params),
+            Request::GetCommitIdsForTimeRange(params) => self.cmd_get_commit_ids_for_time_range(params),
             Request::Shutdown(_) => {
                 self.shutdown.store(true, Ordering::Relaxed);
             }

@@ -1,3 +1,4 @@
+use crate::commits::CommitIds;
 use crate::{explorer::Explorer, utils};
 use git2::BlameOptions;
 use serde::{Deserialize, Serialize};
@@ -44,6 +45,7 @@ pub struct BlameParams {
     pub path: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preview: Option<bool>,
+    pub range: CommitIds,
 }
 
 impl Explorer {
@@ -70,8 +72,11 @@ impl Explorer {
 
         let path = Path::new(params.path.as_str());
 
-        let br = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
-        let commit = br.get().peel_to_commit()?;
+        let last_commit_id = params.range.end_id.clone();
+
+        let oid = git2::Oid::from_str(&last_commit_id)?;
+
+        let commit: git2::Commit<'_> = repo.find_commit(oid)?;
 
         let commit_id = commit.id();
 

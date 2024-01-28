@@ -6,7 +6,14 @@ import { minimatch } from "minimatch";
 import { match, Pattern } from "ts-pattern";
 
 import { Database } from "@giz/database";
-import { Author, Blame, CommitInfo, FileTreeNode, InitialDataResult } from "@giz/explorer";
+import {
+  Author,
+  Blame,
+  CommitIds,
+  CommitInfo,
+  FileTreeNode,
+  InitialDataResult,
+} from "@giz/explorer";
 import {
   FileIcon,
   getFileIcon,
@@ -158,7 +165,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         ],
       },
     };
-    this.updateQuery(query);
+    await this.updateQuery(query);
   };
 
   // ------------------- Metrics -------------------
@@ -233,6 +240,11 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   // ------------------- Query -------------------
   // ---------------------------------------------
 
+  range: CommitIds = {
+    start_id: "",
+    end_id: "",
+  };
+
   query: SearchQueryType = {
     branch: "",
     type: "file-lines",
@@ -301,11 +313,41 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     this.renderCacheKey = queryCacheParts.join(pairDelimiter);
   }
 
-  updateQuery = (query: Partial<SearchQueryType>) => {
+  updateQuery = async (query: Partial<SearchQueryType>) => {
     const oldQuery = { ...this.query };
     this.query = { ...this.query, ...query };
 
     this.updateQueryCacheKey();
+
+    if (!isEqual(query.time, oldQuery.time) || !isEqual(query.branch, oldQuery.branch)) {
+      if (query.time && "rangeByDate" in query.time) {
+        const startDate = new GizDate(query.time.rangeByDate[0]);
+        const endDate = new GizDate(query.time.rangeByDate[1]);
+
+        const startSeconds = Math.round(startDate.getTime() / 1000);
+
+        const endSeconds = Math.round(endDate.getTime() / 1000);
+
+        this.range = await this.explorerPool.getCommitIdsForTimeRange({
+          start_seconds: startSeconds,
+          end_seconds: endSeconds,
+          branch: this.query.branch,
+        });
+
+        console.log("range", this.range);
+        if (!this.range.start_id || !this.range.end_id) {
+          console.error("No commits found for time range", this.range);
+          throw new Error("No commits found for time range " + JSON.stringify(this.range));
+        }
+      } else if (query.time && "rangeByRef" in query.time) {
+        this.range = await this.explorerPool.getCommitIdsForRefs({
+          start_ref: query.time.rangeByRef[0],
+          end_ref: query.time.rangeByRef[1],
+        });
+      } else if (query.time && "sinceFirstCommitBy" in query.time) {
+        throw new Error("Unsupported time range");
+      }
+    }
 
     this.emit("query:updated", {
       oldValue: oldQuery,
@@ -356,20 +398,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     const initial = !this.availableFiles || !oldQuery;
 
     if (typeChanged || branchChanged || timeChanged || presetChanged || initial) {
-      const timeRange: [string, string] | undefined = undefined;
-      /* TODO: this is not working yet because the blames do not respect  the timeRange yet
-      
-      if (time && "rangeByDate" in time) {
-        const startDate = new GizDate(time.rangeByDate[0]);
-        const endDate = new GizDate(time.rangeByDate[1]);
-
-        timeRange = [
-          `${Math.round(startDate.getTime() / 1000)}`,
-          `${Math.round(endDate.getTime() / 1000)}`,
-        ];
-      }
-      */
-      const tree = await this.explorerPool!.getFileTree(branch, timeRange);
+      const tree = await this.explorerPool!.getFileTree(branch, this.range);
 
       const oldFiles = this.availableFiles;
       this.availableFiles = tree;
@@ -540,7 +569,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       .with(Pattern.union("file-lines", "file-mosaic"), async (t) => {
         const fileContents = await Promise.all(
           this.selectedFiles.map((file) =>
-            this.explorerPool!.getFileContent(branch, file.path.join("/")),
+            this.explorerPool!.getFileContent(branch, file.path.join("/"), this.range),
           ),
         );
         return this.selectedFiles.map(
@@ -635,6 +664,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       visualizationSettings,
       cachedAuthors,
       renderCacheKey,
+      range,
     } = this;
 
     if (block.currentImageCacheKey === renderCacheKey) {
@@ -662,6 +692,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       block.filePath,
       false,
       block.priority,
+      range,
     ) as any;
 
     block.blameJobRef?.promise.then(async (blame) => {
@@ -762,7 +793,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   // ---------------------------------------------
 
   async getFileContent(path: string): Promise<string> {
-    return this.explorerPool!.getFileContent(this.query.branch, path); // TODO: Respect time-range
+    return this.explorerPool!.getFileContent(this.query.branch, path, this.range); // TODO: Respect time-range
   }
 
   // ---------------------------------------------

@@ -127,7 +127,7 @@ export class PoolNode {
       //this.logger.trace("stdout", stdout);
 
       if (data.error) {
-        this.sendError(job, data.error.message);
+        this.sendError(job, data.error.message ?? data.error);
         break;
       }
       if (!isIntermediateResponse) {

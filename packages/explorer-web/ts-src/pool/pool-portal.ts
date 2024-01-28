@@ -1,4 +1,9 @@
-import { FinalPayload } from "@giz/explorer";
+import {
+  CommitIds,
+  FinalPayload,
+  GetCommitIdsForRefsParams,
+  GetCommitIdsForTimeRangeParams,
+} from "@giz/explorer";
 import { Author, Blame, FileTreeNode, GitGraph } from "../types";
 
 import { PoolResponse, PoolTask } from "./types";
@@ -228,6 +233,15 @@ export class PoolPortal {
     return ref;
   }
 
+  getCommitIdsForTimeRange(input: GetCommitIdsForTimeRangeParams) {
+    return this.execute<CommitIds>("get_commit_ids_for_time_range", input).promise;
+  }
+
+  getCommitIdsForRefs(input: GetCommitIdsForRefsParams) {
+    return this.execute<FinalPayload<"get_commit_ids_for_refs">>("get_commit_ids_for_refs", input)
+      .promise;
+  }
+
   setPriority(jobId: number, priority: number) {
     const job = this.jobs.find((j) => j.id === jobId);
     if (job) {
@@ -239,12 +253,18 @@ export class PoolPortal {
     return this.execute<string[]>("get_branches").promise;
   }
 
-  getBlame(branch: string, path: string, preview?: boolean, priority?: number): JobRef<Blame> {
-    return this.execute<Blame>("get_blame", { branch, path, preview }, priority ?? 0);
+  getBlame(
+    branch: string,
+    path: string,
+    preview?: boolean,
+    priority?: number,
+    range?: CommitIds,
+  ): JobRef<Blame> {
+    return this.execute<Blame>("get_blame", { branch, path, preview, range }, priority ?? 0);
   }
 
-  getFileContent(branch: string, path: string): Promise<string> {
-    return this.execute<string>("get_file_content", { branch, path }).promise;
+  getFileContent(branch: string, path: string, range?: CommitIds): Promise<string> {
+    return this.execute<string>("get_file_content", { branch, path, range }).promise;
   }
 
   getGitGraph() {
@@ -266,9 +286,8 @@ export class PoolPortal {
     });
   }
 
-  getFileTree(branch: string, timerange?: [string, string]) {
-    return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", { branch, timerange })
-      .promise;
+  getFileTree(branch: string, range?: CommitIds) {
+    return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", { branch, range }).promise;
   }
 
   streamCommits(

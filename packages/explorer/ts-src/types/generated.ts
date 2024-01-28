@@ -8,11 +8,13 @@ export type Blame = { fileName: string; commits: { [key in string]: CommitInfo }
 
 export type BlameLine = { lineNo: number; commitId: string; content: string }
 
-export type BlameParams = { branch: string; path: string; preview?: boolean | null }
+export type BlameParams = { branch: string; path: string; preview?: boolean | null; range: CommitIds }
 
 export type BranchInfo = { id: string; name: string; last_commit_id: string }
 
 export type Commit = { oid: string; aid: string; message: string; files: string[]; timestamp: string }
+
+export type CommitIds = { start_id: string; end_id: string }
 
 export type CommitInfo = { commitId: string; authorId: string; timestamp: string }
 
@@ -22,11 +24,15 @@ export type CommitsForBranch = { start_commit: string; end_commit: string }
 
 export type FileTreeNode = { path: string[]; kind?: any | null; loading?: boolean | null }
 
+export type GetCommitIdsForRefsParams = { start_ref: string; end_ref: string }
+
+export type GetCommitIdsForTimeRangeParams = { branch: string; start_seconds: number; end_seconds: number }
+
 export type GetCommitsForBranchParams = { branch: string }
 
-export type GetFileContentParams = { branch: string; path: string }
+export type GetFileContentParams = { branch: string; path: string; range: CommitIds }
 
-export type GetFileTreeParams = { branch: string; timerange?: [string, string] | null }
+export type GetFileTreeParams = { branch: string; range?: CommitIds | null }
 
 export type GitGraphCommitInfo = { oid: string; aid: string; timestamp: string; message: string; is_merge: boolean; parents: (string | null)[]; children: string[] }
 
