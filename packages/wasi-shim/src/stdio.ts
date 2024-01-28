@@ -2,6 +2,7 @@ import { Fd, RetVal_nread, RetVal_nwritten } from "./file-descriptor";
 import { Iovec } from "./wasi-defs";
 
 export class ConsolePipe extends Fd {
+  cache = "";
   constructor(public prefix: string = "") {
     super();
   }
@@ -15,11 +16,14 @@ export class ConsolePipe extends Fd {
       nwritten += part.length;
     }
 
-    if (output.endsWith("\n")) {
-      output = output.slice(0, -1);
+    this.cache += output;
+
+    if (this.cache.endsWith("\n")) {
+      output = this.cache.slice(0, -1);
+      this.cache = "";
+      console.log(`${this.prefix}:` + output);
     }
 
-    console.log(`${this.prefix}:` + output);
     return { ret: 0, nwritten };
   }
 }
