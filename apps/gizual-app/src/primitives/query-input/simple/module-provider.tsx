@@ -3,7 +3,6 @@ import { match, P } from "ts-pattern";
 
 import { useQuery } from "@giz/maestro/react";
 
-import { BranchModule } from "./modules/branch";
 import {
   FileChangedInRefModule,
   FileContainsModule,
@@ -21,8 +20,6 @@ import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
 export function ModuleProvider() {
   const { query } = useQuery();
   const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
-
-  const branchQuery = <BranchModule key="branch-module" />;
 
   const presetMatch = match(query)
     .with({ type: P.select() }, (type) => {
@@ -96,7 +93,7 @@ export function ModuleProvider() {
 
   return (
     <LocalQueryContext.Provider value={{ localQuery, updateLocalQuery, publishLocalQuery }}>
-      {[branchQuery, presetMatch, timeMatch, fileMatch]}
+      {[presetMatch, timeMatch, fileMatch]}
     </LocalQueryContext.Provider>
   );
 }
