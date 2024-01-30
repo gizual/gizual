@@ -1,27 +1,21 @@
-import {
-  IconCenterFocus,
-  IconLayout,
-  IconMagnifyMinus,
-  IconMagnifyPlus,
-  IconPeople,
-} from "@app/assets";
+import { IconCenterFocus, IconLayout, IconMagnifyMinus, IconMagnifyPlus } from "@app/assets";
 import { useMainController, useViewModelController, ViewModelController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages";
 import {
   CanvasScale,
   createNumberSetting,
   createSelectSetting,
+  useForwardedRef,
   useTheme,
-  useWindowSize,
 } from "@app/utils";
 import { Modal, Tooltip } from "@mantine/core";
-import _ from "lodash";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import { match } from "ts-pattern";
 
-import { useBlocks } from "@giz/maestro/react";
+import { useBlocks, useQuery } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { GradientLegend } from "../gradient-legend";
@@ -51,7 +45,6 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
   }, [externalVm]);
 
   const ref = React.useRef<ReactZoomPanPinchRef>(null);
-  const canvasRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     vm.setCanvasContainerRef(ref);
@@ -87,16 +80,11 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
           </>
         )}
         <div className={style.CanvasWrapper}>
-          <Toolbar vm={vm} vmController={vmController} />
           <CanvasContext.Provider
             value={{ useBlocks: useBlocks, debugLayout: false, ...contextProps }}
           >
-            <InteractiveCanvas
-              vm={vm}
-              showModal={showModal}
-              canvasRef={canvasRef}
-              interactiveRef={ref}
-            />
+            <Toolbar vm={vm} vmController={vmController} />
+            <InteractiveCanvas vm={vm} showModal={showModal} interactiveRef={ref} />
           </CanvasContext.Provider>
           {vmController.isAuthorPanelVisible && <AuthorPanel />}
         </div>
@@ -107,13 +95,12 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
 
 type InteractiveCanvasProps = {
   vm: CanvasViewModel;
-  showModal: () => void;
-  canvasRef: React.RefObject<HTMLDivElement>;
   interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
+  showModal: () => void;
 };
 
-const InteractiveCanvas = observer(
-  ({ vm, showModal, canvasRef, interactiveRef }: InteractiveCanvasProps) => {
+const InteractiveCanvas = observer<any, HTMLDivElement>(
+  ({ vm, interactiveRef, showModal }: InteractiveCanvasProps, ref) => {
     const { showContextMenu } = useContextMenu();
     const contextMenu: ContextMenuContent = React.useMemo(
       () => [
@@ -145,17 +132,17 @@ const InteractiveCanvas = observer(
     return (
       <InnerCanvas
         vm={vm}
-        canvasRef={canvasRef}
+        ref={ref}
         interactiveRef={interactiveRef}
         onContextMenu={showContextMenu(contextMenu)}
       />
     );
   },
+  { forwardRef: true },
 );
 
 type InnerCanvasProps = {
   vm: CanvasViewModel;
-  canvasRef: React.RefObject<HTMLDivElement>;
   interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
 } & React.HTMLAttributes<HTMLDivElement>;
 
@@ -164,12 +151,8 @@ const LEGEND_HIDE_ON_HOVER = true;
 
 const CANVAS_PADDING = 16;
 
-const forceReflow = _.debounce((reflowFn) => {
-  reflowFn();
-}, 200);
-
-const InnerCanvas = observer(
-  ({ vm, canvasRef, interactiveRef, ...defaultProps }: InnerCanvasProps) => {
+const InnerCanvas = observer<any, HTMLDivElement>(
+  ({ vm, interactiveRef, ...defaultProps }: InnerCanvasProps, ref) => {
     const mainController = useMainController();
     const [isPanning, setIsPanning] = useState(false);
     const [state, setState] = useState<{ scale: number; positionX: number; positionY: number }>({
@@ -181,26 +164,21 @@ const InnerCanvas = observer(
     const [showMinimap, setShowMinimap] = useState(true);
     const [showLegend, setShowLegend] = useState(true);
 
-    const [width, _height] = useWindowSize();
-    React.useEffect(() => {
-      forceReflow(vm.reflow);
-    }, [width]);
-
-    const wrapperWidth = interactiveRef.current?.instance.wrapperComponent?.clientWidth ?? 0;
-    const wrapperHeight = interactiveRef.current?.instance.wrapperComponent?.clientHeight ?? 0;
-    const contentHeight = interactiveRef.current?.instance.contentComponent?.clientHeight ?? 0;
+    const wrapperWidth = interactiveRef?.current?.instance.wrapperComponent?.clientWidth ?? 0;
+    //const contentHeight = interactiveRef?.current?.instance.contentComponent?.clientHeight ?? 0;
+    const wrapperHeight = interactiveRef?.current?.instance.wrapperComponent?.clientHeight ?? 0;
 
     const { debugLayout } = React.useContext(CanvasContext);
 
-    const minimapWidth = Math.min(wrapperWidth / 10 + 100, 300);
-    const minimapHeight = Math.min(contentHeight / 10, wrapperHeight);
     const legendWidth = Math.min(wrapperWidth / 8, 200);
     const legendHeight = 50;
+    const minimapWidth = Math.min(wrapperWidth / 10 + 100, 300);
+    const minimapHeight = wrapperHeight - legendHeight; //Math.min(contentHeight / 10, wrapperHeight);
 
     return (
       <div
+        ref={ref}
         className={style.Canvas}
-        ref={canvasRef}
         {...defaultProps}
         style={{ padding: CANVAS_PADDING }}
         onMouseMove={(e) => {
@@ -247,7 +225,7 @@ const InnerCanvas = observer(
           wheel={{ smoothStep: 0.001 }}
           limitToBounds={true}
           centerZoomedOut={true}
-          disablePadding={true}
+          disablePadding={false}
           panning={{ velocityDisabled: false }}
           ref={interactiveRef}
           onInit={() => vm.reflow()}
@@ -268,7 +246,6 @@ const InnerCanvas = observer(
           ) => {
             mainController.setScale(state.scale);
             setState(state);
-            console.log("onTransform", state.scale);
           }}
         >
           <TransformComponent
@@ -283,7 +260,6 @@ const InnerCanvas = observer(
               alignItems: "flex-start",
               justifyContent: "flex-start",
               gap: "1rem",
-              width: "100%",
               boxSizing: "inherit",
               border: debugLayout ? "2px dashed pink" : undefined,
             }}
@@ -306,29 +282,78 @@ const InnerCanvas = observer(
               <MiniMapContent masonryWidth={vm.canvasWidth} />
             </MiniMap>
           </div>
-
-          <div
-            className={style.LegendContainer}
-            style={{ opacity: showLegend ? 0.8 : 0, transition: "opacity 0.2s ease-out" }}
-          >
-            <GradientLegend
-              width={legendWidth}
-              height={legendHeight}
-              startColor={"#ff0000"}
-              endColor={"#00ffff"}
-              descriptionFn={(p, _) => p.toString()}
-            />
-          </div>
+          <LegendComponent
+            showLegend={showLegend}
+            legendWidth={legendWidth}
+            legendHeight={legendHeight}
+          />
         </TransformWrapper>
       </div>
     );
   },
+  { forwardRef: true },
 );
 
-const Toolbar = observer(
-  ({ vm, vmController }: { vm: CanvasViewModel; vmController: ViewModelController }) => {
+type LegendProps = {
+  showLegend: boolean;
+  legendWidth: number;
+  legendHeight: number;
+};
+
+const LegendComponent = React.memo(({ showLegend, legendWidth, legendHeight }: LegendProps) => {
+  const { query } = useQuery();
+
+  return match(query.type)
+    .with("file-lines", "file-mosaic", () => {
+      let colorStart = "#ff0000";
+      let colorEnd = "#00ffff";
+      let descriptionStart = "XXXX-XX-XX";
+      let descriptionEnd = "XXXX-XX-XX";
+
+      if (
+        query.preset &&
+        "gradientByAge" in query.preset &&
+        query.time &&
+        "rangeByDate" in query.time
+      ) {
+        colorStart = query.preset.gradientByAge[0];
+        colorEnd = query.preset.gradientByAge[1];
+        descriptionStart = query.time.rangeByDate[0];
+        descriptionEnd = query.time.rangeByDate[1];
+      } else {
+        return <></>;
+      }
+
+      return (
+        <div
+          className={style.LegendContainer}
+          style={{ opacity: showLegend ? 0.8 : 0, transition: "opacity 0.2s ease-out" }}
+        >
+          <GradientLegend
+            width={legendWidth}
+            height={legendHeight}
+            startColor={colorStart}
+            endColor={colorEnd}
+            descriptionFn={(p, _) => {
+              return match(p)
+                .with(0, () => descriptionStart)
+                .with(1, () => descriptionEnd)
+                .otherwise(() => "ERROR");
+            }}
+          />
+        </div>
+      );
+    })
+    .otherwise(() => {
+      return <></>;
+    });
+});
+
+const Toolbar = observer<any, HTMLDivElement>(
+  ({ vm }: { vm: CanvasViewModel; vmController: ViewModelController }, ref) => {
+    const toolbarRef = useForwardedRef(ref);
     return (
-      <div className={style.Toolbar}>
+      <div className={style.Toolbar} ref={toolbarRef}>
         <div className={sharedStyle.InlineColumn}>
           <Tooltip label={"Zoom out"} position="right">
             <IconButton
@@ -367,20 +392,10 @@ const Toolbar = observer(
             </IconButton>
           </Tooltip>
         </div>
-        <div className={sharedStyle.InlineColumn}>
-          <Tooltip label={"Show author panel"} position="right">
-            <IconButton
-              onClick={() => vmController.toggleAuthorPanelVisibility()}
-              aria-label="Toggle author panel"
-              colored={vmController.isAuthorPanelVisible}
-            >
-              <IconPeople className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-        </div>
       </div>
     );
   },
+  { forwardRef: true },
 );
 
 type ContextModalProps = {

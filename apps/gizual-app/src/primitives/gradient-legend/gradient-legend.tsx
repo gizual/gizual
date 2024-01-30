@@ -32,7 +32,7 @@ type GradientLegendProps = {
 function GradientLegend({
   startColor,
   endColor,
-  width,
+  width: desiredWidth,
   height,
   paddingTop = 5,
   paddingBottom = 5,
@@ -60,6 +60,13 @@ function GradientLegend({
 
   const startTextWidth = measureTextWidth(startText, 12);
   const endTextWidth = measureTextWidth(endText, 12);
+
+  const width = Math.max(desiredWidth, startTextWidth + endTextWidth + paddingX * 4);
+  if (width > desiredWidth) {
+    console.warn(
+      "Gradient legend width was adjusted to be larger than desired width due to text size constraints.",
+    );
+  }
 
   const usableWidth = width - startTextWidth / 2 - endTextWidth / 2 - paddingX * 2;
 

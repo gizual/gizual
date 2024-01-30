@@ -28,6 +28,6 @@ export const GradientLegend: Story = {
     endColor: "#00ff00",
     width: 300,
     height: 200,
-    descriptionFn: (value: number) => `2023-01-01`,
+    descriptionFn: () => `2023-01-01`,
   },
 };

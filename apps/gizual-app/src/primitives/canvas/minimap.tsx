@@ -30,7 +30,7 @@ function MiniMapContent({ masonryWidth }: MiniMapContentProps) {
             key={index}
             style={{
               width: 300,
-              minHeight: block.height,
+              minHeight: block.height + 26,
               backgroundColor: "var(--foreground-secondary)",
               opacity: 0.5,
               border: "1px solid var(--border-primary)",
