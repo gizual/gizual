@@ -43,12 +43,14 @@ export const Footer = observer(() => {
       <div className={style.RightSection}>
         {mainController.isBusy && <Loader size="sm" />}
         <p>{metrics.numSelectedFiles} files selected</p>
-        <p>
-          explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
-        </p>
-        <p>
-          renderer: {renderer.busyWorkers}/{renderer.totalWorkers} workers | {renderer.jobs} jobs
-        </p>
+        <div className={style.Metrics}>
+          <p>
+            explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
+          </p>
+          <p>
+            renderer: {renderer.busyWorkers}/{renderer.totalWorkers} workers | {renderer.jobs} jobs
+          </p>
+        </div>
       </div>
     </div>
   );

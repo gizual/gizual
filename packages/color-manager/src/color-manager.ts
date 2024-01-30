@@ -139,6 +139,10 @@ export class ColorManager {
     this.initializeColorBand();
   }
 
+  get isInitialized() {
+    return this.colorBand.length > 0;
+  }
+
   /** Creates a set of perceptually uniform colors for default use */
   initializeColorBand() {
     this.colorBand = [];

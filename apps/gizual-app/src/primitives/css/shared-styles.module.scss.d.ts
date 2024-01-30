@@ -25,6 +25,7 @@ declare const classNames: {
   readonly CloseButton: "CloseButton";
   readonly FlexColumn: "FlexColumn";
   readonly JustifyBetween: "JustifyBetween";
+  readonly JustifyEnd: "JustifyEnd";
   readonly FlexRow: "FlexRow";
   readonly InlineFlexRow: "InlineFlexRow";
   readonly Grow: "Grow";

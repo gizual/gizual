@@ -43,10 +43,36 @@
   @include text-sm;
   justify-content: flex-end;
   text-align: right;
-
-  // border-left on all child elements
   > * {
     padding: 0 1rem;
+  }
+  // border-left on all child elements
+  > *:not(:first-child) {
     border-left: 1px solid var(--border-primary);
+  }
+}
+
+.Metrics {
+  display: flex;
+  flex-direction: row;
+  > * {
+    padding: 0 1rem;
+  }
+
+  > *:first-child {
+    padding-left: 0;
+  }
+
+  > *:last-child {
+    padding-right: 0;
+  }
+
+  // border-left on all child elements
+  > *:not(:first-child) {
+    border-left: 1px solid var(--border-primary);
+  }
+
+  @media (width < 1024px) {
+    display: none;
   }
 }

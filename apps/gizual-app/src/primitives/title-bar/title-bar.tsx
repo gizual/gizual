@@ -132,7 +132,7 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
       {screen !== "welcome" && (
         <Select<Panel>
           value={selectedPanel}
-          size="large"
+          size="md"
           onChange={(_, panel) => {
             setSelectedPanel(panel);
           }}

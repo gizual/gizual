@@ -1,5 +1,5 @@
 import previewFileLines from "@app/assets/previews/preview-file-lines.png";
-import { useSettingsController } from "@app/controllers";
+import { useSettingsController, useViewModelController } from "@app/controllers";
 import { Button } from "@app/primitives/button";
 import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
@@ -9,6 +9,8 @@ import clsx from "clsx";
 import React from "react";
 import { match } from "ts-pattern";
 
+import { ColorManager } from "@giz/color-manager";
+import { useAuthorList } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
 
@@ -37,6 +39,8 @@ const StyleRadioDescriptions = {
 
 const NUM_STEPS = 3;
 
+const colorManager = new ColorManager();
+
 function getTypeEntry(query: SearchQueryType) {
   if (query && query.type) return query.type;
 }
@@ -60,13 +64,22 @@ export type TypePlaceholderModalProps = {
 };
 
 export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderModalProps) => {
+  const vmController = useViewModelController();
   const settingsController = useSettingsController();
   const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQuery();
   const [step, setStep] = React.useState(0);
 
   const selectedType = getTypeEntry(localQuery);
   const selectedStyle = getStyleEntry(localQuery);
-  const selectedColors = getColorsEntry(localQuery);
+
+  const gradientColors = (
+    selectedStyle === "gradient-age" ? getColorsEntry(localQuery) : []
+  ) as string[];
+
+  const authorColors = (selectedStyle === "palette-author" ? getColorsEntry(localQuery) : []) as [
+    string,
+    string,
+  ][];
 
   const onNextStep = () => {
     if (step === NUM_STEPS - 1) {
@@ -87,8 +100,8 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
   };
 
   const colorsWithFallback =
-    selectedColors && selectedColors.length > 0
-      ? selectedColors
+    gradientColors && gradientColors.length > 0
+      ? gradientColors
       : [
           settingsController.settings.visualizationSettings.colors.old.defaultValue,
           settingsController.settings.visualizationSettings.colors.new.defaultValue,
@@ -110,31 +123,35 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
       .with("palette-author", () => {
         updateLocalQuery({
           preset: {
-            paletteByAuthor: [],
+            paletteByAuthor: authorColors,
           },
         });
       });
   };
 
-  const setSelectedColors = (colors: string[]) => {
-    match(selectedStyle)
-      .with("gradient-age", () => {
-        updateLocalQuery({
-          preset: {
-            gradientByAge: colors,
-          },
-        });
-      })
-      .with("palette-author", () => {
-        updateLocalQuery({
-          preset: {
-            paletteByAuthor: colors,
-          },
-        });
-      });
+  const setGradientColors = (colors: string[]) => {
+    updateLocalQuery({
+      preset: {
+        gradientByAge: colors,
+      },
+    });
+  };
+
+  const setAuthorColors = (colors: [string, string][]) => {
+    updateLocalQuery({
+      preset: {
+        paletteByAuthor: colors,
+      },
+    });
   };
 
   const onApply = () => {
+    if (selectedStyle === "palette-author") {
+      vmController.setAuthorPanelVisibility(true);
+    } else {
+      vmController.setAuthorPanelVisibility(false);
+    }
+
     publishLocalQuery();
     closeModal();
   };
@@ -174,12 +191,22 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
       title: "Customize Colors",
       children: (
         <StepperItem currentStep={step} hasButtons={false}>
-          <ColorCustomization
-            selectedType={selectedType}
-            selectedStyle={selectedStyle}
-            selectedColors={selectedColors}
-            onChange={setSelectedColors}
-          />
+          {selectedStyle === "gradient-age" && (
+            <GradientColorCustomization
+              selectedType={selectedType}
+              selectedStyle={selectedStyle}
+              selectedColors={gradientColors}
+              onChange={setGradientColors}
+            />
+          )}
+          {selectedStyle === "palette-author" && (
+            <AuthorColorCustomization
+              selectedType={selectedType}
+              selectedStyle={selectedStyle}
+              selectedColors={authorColors}
+              onChange={setAuthorColors}
+            />
+          )}
         </StepperItem>
       ),
     },
@@ -207,10 +234,21 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
             orientation="vertical"
             onStepClick={(n) => setStep(n)}
             styles={{
+              root: { width: "100%", cursor: "default" },
+              content: { width: "100%", cursor: "default" },
               stepDescription: {
                 color: "var(--foreground-primary)",
                 paddingTop: 8,
                 paddingBottom: 8,
+                cursor: "default",
+              },
+              step: {
+                width: "100%",
+                cursor: "default",
+              },
+              stepBody: {
+                width: "100%",
+                cursor: "default",
               },
             }}
           >
@@ -307,6 +345,7 @@ const StepItemButtons = React.memo(
               sharedStyle.FlexRow,
               sharedStyle["Gap-2"],
               style.TypeDialogActionButtons,
+              sharedStyle["JustifyEnd"],
             )}
           >
             {currentStep >= 0 && currentStep < NUM_STEPS && (
@@ -482,7 +521,7 @@ export type ColorCustomizationProps = {
   onChange: (colors: string[]) => void;
 };
 
-export const ColorCustomization = React.memo(
+export const GradientColorCustomization = React.memo(
   ({ selectedColors, onChange }: ColorCustomizationProps) => {
     return (
       <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-4"])}>
@@ -515,6 +554,83 @@ export const ColorCustomization = React.memo(
     );
   },
 );
+
+export type AuthorColorCustomizationProps = {
+  selectedType?: Type;
+  selectedStyle?: Style;
+  selectedColors: [string, string][];
+  onChange: (colors: [string, string][]) => void;
+};
+
+export const AuthorColorCustomization = React.memo(
+  ({ selectedColors, onChange }: AuthorColorCustomizationProps) => {
+    const { data: authors, isLoading } = useAuthorList(100, 0);
+    const [ready, setReady] = React.useState(false);
+
+    React.useEffect(() => {
+      if (!isLoading && authors?.authors) {
+        colorManager.init({ domain: authors.authors.map((a) => a.id) });
+        setReady(true);
+      }
+    }, [isLoading, authors?.authors, colorManager]);
+
+    return (
+      <>
+        {ready ? (
+          <div
+            className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-1"])}
+            style={{
+              maxHeight: "300px",
+              overflowY: "auto",
+              justifyContent: "center",
+              alignItems: "left",
+            }}
+          >
+            {authors!.authors.map((author) => {
+              return (
+                <div
+                  className={clsx(
+                    sharedStyle.FlexRow,
+                    sharedStyle["Gap-2"],
+                    sharedStyle["Items-Center"],
+                  )}
+                  key={author.id}
+                  style={{ display: "flex" }}
+                >
+                  <ColorPicker
+                    hexValue={(() => {
+                      const customizedColor = selectedColors.find((c) => c[0] === author.id);
+                      if (customizedColor) return customizedColor[1];
+                      return ColorManager.stringToHex(colorManager.getBandColor(author.id));
+                    })()}
+                    onAccept={(c) => {
+                      insertAuthorColor(selectedColors, author.id, c);
+                      onChange([...selectedColors]);
+                    }}
+                  />
+                  <p className={clsx(sharedStyle["Text-Base"], sharedStyle["Text-Left"])}>
+                    {author.name} ({author.email})
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div>Loading authors - Please wait ...</div>
+        )}
+      </>
+    );
+  },
+);
+
+function insertAuthorColor(authorColors: [string, string][], authorId: string, color: string) {
+  const index = authorColors.findIndex((c) => c[0] === authorId);
+  if (index === -1) {
+    authorColors.push([authorId, color]);
+  } else {
+    authorColors[index][1] = color;
+  }
+}
 
 export type FinalizeChangesBlockProps = {
   selectedType?: Type;
