@@ -5,6 +5,7 @@ interface Props {
 
 const { title } = Astro.props;
 import "../../base.css";
+import "aos/dist/aos.css";
 ---
 
 <!doctype html>
@@ -49,6 +50,11 @@ import "../../base.css";
     <meta name="twitter:image:alt" content="Gizual - Browser-based Git repository visualization." />
 
     <title>{title}</title>
+
+    <script>
+      import { aosInit } from "../scripts/aos";
+      aosInit();
+    </script>
   </head>
   <body class="bg-background-primary text-foreground-primary">
     <slot />

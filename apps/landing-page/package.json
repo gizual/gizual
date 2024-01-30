@@ -14,11 +14,13 @@
     "@astrojs/react": "^3.0.6",
     "@astrojs/tailwind": "^5.0.2",
     "@giz/ui": "workspace:*",
+    "aos": "next",
     "astro": "^3.6.1",
     "tailwindcss": "^3.0.24",
     "typescript": "^5.3.2"
   },
   "devDependencies": {
+    "@types/aos": "^3.0.7",
     "prettier": "^3.0.3",
     "prettier-plugin-astro": "0.12.1",
     "prettier-plugin-tailwindcss": "0.5.7"

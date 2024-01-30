@@ -2663,6 +2663,8 @@ __metadata:
     "@astrojs/react": ^3.0.6
     "@astrojs/tailwind": ^5.0.2
     "@giz/ui": "workspace:*"
+    "@types/aos": ^3.0.7
+    aos: next
     astro: ^3.6.1
     prettier: ^3.0.3
     prettier-plugin-astro: 0.12.1
@@ -5278,6 +5280,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/aos@npm:^3.0.7":
+  version: 3.0.7
+  resolution: "@types/aos@npm:3.0.7"
+  checksum: 388954646768c9bb48fcf624808b3baa5b381925424e74f19579b31c742b16fa786757c350c6acda6402fc132a53be33d87d5ea556f62667334d1e5aabd33eda
+  languageName: node
+  linkType: hard
+
 "@types/aria-query@npm:^5.0.1":
   version: 5.0.3
   resolution: "@types/aria-query@npm:5.0.3"
@@ -6748,6 +6757,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aos@npm:next":
+  version: 3.0.0-beta.6
+  resolution: "aos@npm:3.0.0-beta.6"
+  dependencies:
+    classlist-polyfill: ^1.2.0
+    lodash.debounce: ^4.0.8
+    lodash.throttle: ^4.1.1
+  checksum: 7d271deed0b129fca570d539c2ec4341997baa2b3cbcbc62edc4638b0746667ef90b00d10d6c9139a70b093b15d3dfc7c1b1028de6eb1a2207063ae06583397e
+  languageName: node
+  linkType: hard
+
 "app-root-dir@npm:^1.0.2":
   version: 1.0.2
   resolution: "app-root-dir@npm:1.0.2"
@@ -7726,6 +7746,13 @@ __metadata:
   version: 3.9.0
   resolution: "ci-info@npm:3.9.0"
   checksum: 6b19dc9b2966d1f8c2041a838217299718f15d6c4b63ae36e4674edd2bee48f780e94761286a56aa59eb305a85fbea4ddffb7630ec063e7ec7e7e5ad42549a87
+  languageName: node
+  linkType: hard
+
+"classlist-polyfill@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "classlist-polyfill@npm:1.2.0"
+  checksum: 43ff10af5e75d0347f820d77536a12f981adbf5be9c0ff5c3c4823693c8daacf8aa487eac1a9704b73f4dd74d811e5145b4465fe606926351cdfca5bb9b0914e
   languageName: node
   linkType: hard
 
@@ -12563,6 +12590,13 @@ __metadata:
   version: 4.7.0
   resolution: "lodash.sortby@npm:4.7.0"
   checksum: db170c9396d29d11fe9a9f25668c4993e0c1331bcb941ddbd48fb76f492e732add7f2a47cfdf8e9d740fa59ac41bbfaf931d268bc72aab3ab49e9f89354d718c
+  languageName: node
+  linkType: hard
+
+"lodash.throttle@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "lodash.throttle@npm:4.1.1"
+  checksum: 129c0a28cee48b348aef146f638ef8a8b197944d4e9ec26c1890c19d9bf5a5690fe11b655c77a4551268819b32d27f4206343e30c78961f60b561b8608c8c805
   languageName: node
   linkType: hard
 

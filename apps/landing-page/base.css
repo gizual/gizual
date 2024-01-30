@@ -110,7 +110,9 @@
 
     /* Accent colors */
     --color-gizblue: #007acc;
+    --color-gizblue-hover: #0099ff;
     --color-gizblue-dark: #005086;
+    --color-gizblue-dark-hover: #003b63;
     --color-tomato: #e94f37;
     --color-lavender: #d4cdf4;
     --color-plum: #5c29af;
@@ -129,7 +131,9 @@
       --foreground-link: #0069c2;
 
       --accent-main: var(--color-gizblue);
+      --accent-main-hover: var(--color-gizblue-hover);
       --accent-main-dark: var(--color-gizblue-dark);
+      --accent-main-dark-hover: var(--color-gizblue-dark);
       --accent-main-fg: var(--color-white);
       --accent-secondary: var(--color-lavender);
       --accent-secondary-fg: var(--color-black);
@@ -152,7 +156,9 @@
       --foreground-link: #8cb4ff;
 
       --accent-main: var(--color-gizblue);
+      --accent-main-hover: var(--color-gizblue-hover);
       --accent-main-dark: var(--color-gizblue-dark);
+      --accent-main-dark-hover: var(--color-gizblue-dark);
       --accent-main-fg: var(--color-white);
       --accent-secondary: var(--color-plum);
       --accent-secondary-fg: var(--color-white);
