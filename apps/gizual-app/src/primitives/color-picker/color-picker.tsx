@@ -1,4 +1,5 @@
 import { Popover } from "@mantine/core";
+import { useClickOutside } from "@mantine/hooks";
 import React from "react";
 import { HexAlphaColorPicker } from "react-colorful";
 
@@ -19,10 +20,22 @@ const colorManager = new ColorManager({ domain: [] });
 export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [color, setColor] = React.useState(hexValue);
+  const ref = useClickOutside(() => setIsOpen(false));
 
   return (
-    <Popover opened={isOpen}>
-      <Popover.Dropdown>
+    <Popover opened={isOpen} withArrow>
+      <Popover.Dropdown
+        ref={ref}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            setIsOpen(false);
+          }
+          if (e.key === "Enter") {
+            onAccept?.(color.toString());
+            setIsOpen(false);
+          }
+        }}
+      >
         <div className={style.PickerContainer}>
           <HexAlphaColorPicker
             color={color}
@@ -49,6 +62,15 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
           </div>
           <div className={style.ButtonRow}>
             <Button
+              variant={"gray"}
+              onClick={() => {
+                setIsOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+
+            <Button
               variant={"filled"}
               onClick={() => {
                 onAccept?.(color.toString());
@@ -57,19 +79,16 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
             >
               Accept
             </Button>
-            <Button
-              variant={"gray"}
-              onClick={() => {
-                setIsOpen(false);
-              }}
-            >
-              Cancel
-            </Button>
           </div>
         </div>
       </Popover.Dropdown>
       <Popover.Target>
-        <IconButton onClick={() => setIsOpen(!isOpen)}>
+        <IconButton
+          onClick={() => setIsOpen(!isOpen)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setIsOpen(false);
+          }}
+        >
           <div className={style.ColorPreview} style={{ backgroundColor: hexValue }}></div>
         </IconButton>
       </Popover.Target>

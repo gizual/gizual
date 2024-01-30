@@ -2,7 +2,11 @@
 
 ### Features
 
-- **app:canvas:** implement minimap overlay, constrain canvas viewport
+- **app:canvas:** implement minimap and legend overlay, constrain canvas viewport
+
+### Changes
+
+- **app:frontend:** improve behavior and layout of the color-picker
 
 ## Gizual 3.0.0-alpha.14 (16.01.2024)
 
