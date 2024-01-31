@@ -39,8 +39,8 @@ pub struct GetCommitIdsForRefsParams {
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CommitIds {
-    pub start_id: String,
-    pub end_id: String,
+    pub since_commit_id: String,
+    pub until_commit_id: String,
 }
 
 
@@ -55,7 +55,7 @@ impl Explorer {
             return;
         }
 
-        self.send(CommitIds { start_id: start_id.unwrap(), end_id: end_id.unwrap() }, true);
+        self.send(CommitIds { since_commit_id: start_id.unwrap(), until_commit_id: end_id.unwrap() }, true);
     }
 
     pub fn cmd_get_commit_ids_for_refs(&mut self, params: GetCommitIdsForRefsParams) {
@@ -66,7 +66,7 @@ impl Explorer {
             return;
         }
 
-        self.send(CommitIds { start_id: start_id.unwrap(), end_id: end_id.unwrap() }, true);
+        self.send(CommitIds { since_commit_id: start_id.unwrap(), until_commit_id: end_id.unwrap() }, true);
     }
 
     pub fn find_commit_ids_for_time_range(&self, branch: String, start_seconds: i64, end_seconds: i64) -> (Option<String>, Option<String>) {

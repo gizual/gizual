@@ -8,13 +8,13 @@ export type Blame = { fileName: string; commits: { [key in string]: CommitInfo }
 
 export type BlameLine = { lineNo: number; commitId: string; content: string }
 
-export type BlameParams = { branch: string; path: string; preview?: boolean | null; range: CommitIds }
+export type BlameParams = { rev: string; path: string; preview?: boolean | null; sinceRev?: string | null }
 
 export type BranchInfo = { id: string; name: string; last_commit_id: string }
 
 export type Commit = { oid: string; aid: string; message: string; files: string[]; timestamp: string }
 
-export type CommitIds = { start_id: string; end_id: string }
+export type CommitIds = { since_commit_id: string; until_commit_id: string }
 
 export type CommitInfo = { commitId: string; authorId: string; timestamp: string }
 
@@ -30,9 +30,9 @@ export type GetCommitIdsForTimeRangeParams = { branch: string; start_seconds: nu
 
 export type GetCommitsForBranchParams = { branch: string }
 
-export type GetFileContentParams = { branch: string; path: string; range: CommitIds }
+export type GetFileContentParams = { path: string; rev: string }
 
-export type GetFileTreeParams = { branch: string; range?: CommitIds | null }
+export type GetFileTreeParams = { rev: string }
 
 export type GitGraphCommitInfo = { oid: string; aid: string; timestamp: string; message: string; is_merge: boolean; parents: (string | null)[]; children: string[] }
 
@@ -40,13 +40,15 @@ export type HistoryGraph = { commit_indices: { [key in string]: number }; commit
 
 export type Infallible = never
 
-export type InitialDataResult = { currentBranch: string; commit: Commit }
+export type InitialDataResult = { currentBranch: string; lastCommit: Commit; remotes: Remote[]; branches: string[]; tags: string[] }
 
 export type NoParams = Record<string, never>
 
 export type OpenRepositoryParams = { path: string }
 
 export type OpenRepositoryResult = { success: boolean }
+
+export type Remote = { name: string; url: string }
 
 export type StreamAuthorsParams = Record<string, never>
 
