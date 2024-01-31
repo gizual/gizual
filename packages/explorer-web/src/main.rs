@@ -35,12 +35,12 @@ pub fn main() {
             continue;
         }
 
-        let request = Explorer::deserialize_request(line);
+        let request = Explorer::deserialize_request(line.clone());
 
         match request {
             Ok(request) => exp.handle(request, explorer_callback),
             Err(err) => {
-                eprintln!("Failed to deserialize request: {}", err);
+                eprintln!("Failed to deserialize request {}: {}", line, err);
             }
         }
     }

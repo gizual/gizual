@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use git2::Repository;
+use git2::{BranchType, Repository};
 use serde::Serialize;
 
 #[cfg(feature = "bindings")]
@@ -9,7 +9,7 @@ use specta::Type;
 use crate::authors::StreamAuthorsParams;
 use crate::blame::BlameParams;
 use crate::branches::GetCommitsForBranchParams;
-use crate::commits::{StreamCommitsParams, self};
+use crate::commits::{self, GetCommitIdsForRefsParams, GetCommitIdsForTimeRangeParams, StreamCommitsParams};
 use crate::file_content::GetFileContentParams;
 use crate::file_tree::GetFileTreeParams;
 
@@ -29,16 +29,35 @@ pub struct OpenRepositoryResult {
 
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
+pub struct Remote {
+    pub name: String,
+    pub url: String,
+}
+
+#[cfg_attr(feature = "bindings", derive(Type))]
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct InitialDataResult {
     #[serde(rename = "currentBranch")]
     pub current_branch: String,
-    pub commit: commits::Commit
+
+    #[serde(rename = "lastCommit")]
+    pub last_commit: commits::Commit,
+
+    pub remotes: Vec<Remote>,
+    pub branches: Vec<String>,
+    pub tags: Vec<String>,
 }
 
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "method", content = "params")]
 pub enum Request {
+    #[serde(rename = "get_commit_ids_for_refs")]
+    GetCommitIdsForRefs(GetCommitIdsForRefsParams),
+
+    #[serde(rename = "get_commit_ids_for_time_range")]
+    GetCommitIdsForTimeRange(GetCommitIdsForTimeRangeParams),
+
     #[serde(rename = "open_repository")]
     OpenRepository(OpenRepositoryParams),
 
@@ -183,15 +202,42 @@ impl Explorer {
             files.push(name);
         }
 
+        let remote_names = repo.remotes().unwrap();
+        let remote_names: Vec<String> = remote_names.iter().map(|r| r.unwrap().to_string()).collect();
+
+        let remotes_raw: Vec<git2::Remote> = remote_names.iter().map(|r| repo.find_remote(r).unwrap() ).collect();
+
+        let tags = repo.tag_names(None).unwrap();
+        let tags = tags.iter().map(|t| t.unwrap().to_string()).collect();
+
+        let branches = repo.branches(Some(BranchType::Local)).unwrap();
+        let branches = branches
+            .map(|b| b.unwrap())
+            .map(|(b, _)| b.name().unwrap().unwrap().to_string())
+            .collect();
+
+        let mut remotes: Vec<Remote> = Vec::new();
+
+        for remote in remotes_raw {
+            let name = remote.name().unwrap().to_string();
+            let url = remote.url().unwrap().to_string();
+
+            remotes.push(Remote { name, url });
+        }
+
+
         let data = InitialDataResult {
             current_branch: head.shorthand().unwrap().to_string(),
-            commit: commits::Commit {
+            last_commit: commits::Commit {
                 oid: head_commit.id().to_string(),
                 aid: head_commit.author().email().unwrap().to_string(),
                 message: head_commit.message().unwrap().to_string(),
                 files,
                 timestamp: head_commit.time().seconds().to_string(),
-            }
+            },
+            remotes,
+            branches,
+            tags,
         };
 
         self.send(&data, true);
@@ -213,6 +259,8 @@ impl Explorer {
             Request::GetCommitsForBranch(params) => self.cmd_get_commits_for_branch(&params),
             Request::StreamCommits(_) => self.cmd_stream_commits(),
             Request::GetInitialData(_) => self.cmd_get_initial_data(),
+            Request::GetCommitIdsForRefs(params) => self.cmd_get_commit_ids_for_refs(params),
+            Request::GetCommitIdsForTimeRange(params) => self.cmd_get_commit_ids_for_time_range(params),
             Request::Shutdown(_) => {
                 self.shutdown.store(true, Ordering::Relaxed);
             }

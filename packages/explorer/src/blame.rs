@@ -40,10 +40,14 @@ struct CommitInfo {
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BlameParams {
-    pub branch: String,
+    pub rev: String,
     pub path: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preview: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "sinceRev")]
+    pub since_rev: Option<String>,
+    
 }
 
 impl Explorer {
@@ -70,10 +74,11 @@ impl Explorer {
 
         let path = Path::new(params.path.as_str());
 
-        let br = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
-        let commit = br.get().peel_to_commit()?;
+        let rev = params.rev.clone();
 
-        let commit_id = commit.id();
+        let commit_id = repo.revparse_single(rev.as_str())?.id();
+
+        let commit: git2::Commit<'_> = repo.find_commit(commit_id)?;
 
         let mut opts = BlameOptions::new();
 
@@ -90,6 +95,9 @@ impl Explorer {
             opts = opts
                 .first_parent(true)
                 .oldest_commit(commit.parent(0).unwrap().id());
+        } else if let Some(since_rev) = &params.since_rev {
+            let since_commit_id = repo.revparse_single(since_rev.as_str())?.id();
+            opts = opts.oldest_commit(since_commit_id);
         }
 
         let blame = repo.blame_file(path, Some(&mut opts))?;

@@ -18,7 +18,9 @@ export type InternalContext = {
 export type BaseContext = {
   isPreview: boolean;
   visualizationConfig: VisualizationConfig;
+  /** @deprecated No longer used */
   earliestTimestamp: number;
+  /** @deprecated No longer used */
   latestTimestamp: number;
   selectedStartDate: Date;
   selectedEndDate: Date;

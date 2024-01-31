@@ -1,4 +1,10 @@
-import { FinalPayload } from "@giz/explorer";
+import {
+  CommitIds,
+  FinalPayload,
+  GetCommitIdsForRefsParams,
+  GetCommitIdsForTimeRangeParams,
+  ParameterPayloadMap,
+} from "@giz/explorer";
 import { Author, Blame, FileTreeNode, GitGraph } from "../types";
 
 import { PoolResponse, PoolTask } from "./types";
@@ -228,6 +234,15 @@ export class PoolPortal {
     return ref;
   }
 
+  getCommitIdsForTimeRange(input: GetCommitIdsForTimeRangeParams) {
+    return this.execute<CommitIds>("get_commit_ids_for_time_range", input).promise;
+  }
+
+  getCommitIdsForRefs(input: GetCommitIdsForRefsParams) {
+    return this.execute<FinalPayload<"get_commit_ids_for_refs">>("get_commit_ids_for_refs", input)
+      .promise;
+  }
+
   setPriority(jobId: number, priority: number) {
     const job = this.jobs.find((j) => j.id === jobId);
     if (job) {
@@ -239,18 +254,30 @@ export class PoolPortal {
     return this.execute<string[]>("get_branches").promise;
   }
 
-  getBlame(branch: string, path: string, preview?: boolean, priority?: number): JobRef<Blame> {
-    return this.execute<Blame>("get_blame", { branch, path, preview }, priority ?? 0);
+  getBlame(params: ParameterPayloadMap["get_blame"], priority?: number): JobRef<Blame> {
+    return this.execute<Blame>("get_blame", params, priority ?? 0);
   }
 
-  getFileContent(branch: string, path: string): Promise<string> {
-    return this.execute<string>("get_file_content", { branch, path }).promise;
+  getFileContent(params: ParameterPayloadMap["get_file_content"]): Promise<string> {
+    return this.execute<string>("get_file_content", params).promise;
   }
 
+  getFileTree(params: ParameterPayloadMap["get_file_tree"]) {
+    return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", params).promise;
+  }
+
+  /**
+   *
+   * @deprecated
+   */
   getGitGraph() {
     return this.execute<{ graph: GitGraph }>("get_git_graph").promise;
   }
 
+  /**
+   *
+   * @deprecated
+   */
   streamFileTree(
     branch: string,
     onData: (data: FileTreeNode) => void,
@@ -259,16 +286,11 @@ export class PoolPortal {
   ) {
     return this.stream({
       method: "stream_file_tree",
-      params: { branch },
+      params: { rev: branch },
       onData,
       onEnd,
       onErr,
     });
-  }
-
-  getFileTree(branch: string, timerange?: [string, string]) {
-    return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", { branch, timerange })
-      .promise;
   }
 
   streamCommits(

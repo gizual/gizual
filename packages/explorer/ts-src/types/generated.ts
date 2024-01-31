@@ -8,11 +8,13 @@ export type Blame = { fileName: string; commits: { [key in string]: CommitInfo }
 
 export type BlameLine = { lineNo: number; commitId: string; content: string }
 
-export type BlameParams = { branch: string; path: string; preview?: boolean | null }
+export type BlameParams = { rev: string; path: string; preview?: boolean | null; sinceRev?: string | null }
 
 export type BranchInfo = { id: string; name: string; last_commit_id: string }
 
 export type Commit = { oid: string; aid: string; message: string; files: string[]; timestamp: string }
+
+export type CommitIds = { since_commit_id: string; until_commit_id: string }
 
 export type CommitInfo = { commitId: string; authorId: string; timestamp: string }
 
@@ -22,11 +24,15 @@ export type CommitsForBranch = { start_commit: string; end_commit: string }
 
 export type FileTreeNode = { path: string[]; kind?: any | null; loading?: boolean | null }
 
+export type GetCommitIdsForRefsParams = { start_ref: string; end_ref: string }
+
+export type GetCommitIdsForTimeRangeParams = { branch: string; start_seconds: number; end_seconds: number }
+
 export type GetCommitsForBranchParams = { branch: string }
 
-export type GetFileContentParams = { branch: string; path: string }
+export type GetFileContentParams = { path: string; rev: string }
 
-export type GetFileTreeParams = { branch: string; timerange?: [string, string] | null }
+export type GetFileTreeParams = { rev: string }
 
 export type GitGraphCommitInfo = { oid: string; aid: string; timestamp: string; message: string; is_merge: boolean; parents: (string | null)[]; children: string[] }
 
@@ -34,13 +40,15 @@ export type HistoryGraph = { commit_indices: { [key in string]: number }; commit
 
 export type Infallible = never
 
-export type InitialDataResult = { currentBranch: string; commit: Commit }
+export type InitialDataResult = { currentBranch: string; lastCommit: Commit; remotes: Remote[]; branches: string[]; tags: string[] }
 
 export type NoParams = Record<string, never>
 
 export type OpenRepositoryParams = { path: string }
 
 export type OpenRepositoryResult = { success: boolean }
+
+export type Remote = { name: string; url: string }
 
 export type StreamAuthorsParams = Record<string, never>
 

@@ -502,9 +502,12 @@ export class WASI {
       ): number | Promise<number> {
         const buffer = new DataView(self.memory.buffer);
         const path = new Uint8Array(self.memory.buffer, path_ptr, path_len);
+
         if (self.hasFd(fd)) {
           const pathStr = new TextDecoder().decode(path);
-
+          if (self.trace) {
+            console.log("path_open", { path: pathStr, fd });
+          }
           const result = self
             .getFd(fd)
             .path_open(dirflags, pathStr, oflags, fs_rights_base, fs_rights_inheriting, fd_flags);

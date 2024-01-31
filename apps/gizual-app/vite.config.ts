@@ -34,6 +34,13 @@ export default defineConfig(() => ({
     alias: {
       "@/mixins": path.join(__dirname, "/src/mixins.scss"),
       "@/shared": path.join(__dirname, "/src/primitives/css/shared-styles.module.scss"),
+
+      /**
+       * Polyfill for node fs module since we use ejs in the browser
+       * and the maintainer does not want to support browser usage.
+       * See https://github.com/mde/ejs/issues/653
+       */
+      fs: path.join(__dirname, "/fs-polyfill.js"),
     },
   },
   plugins: [

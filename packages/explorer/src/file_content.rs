@@ -11,16 +11,18 @@ use crate::explorer::Explorer;
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetFileContentParams {
-    branch: String,
     path: String,
+    rev: String,
 }
 
 pub fn get_file_content(
     params: &GetFileContentParams,
     repo: &Repository,
 ) -> Result<String, git2::Error> {
-    let br = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
-    let commit = br.get().peel_to_commit()?;
+    let rev = params.rev.clone();
+    let commit_id = repo.revparse_single(rev.as_str())?.id();
+    let commit = repo.find_commit(commit_id)?;
+   
     let tree = commit.tree()?;
     let path = Path::new(params.path.as_str());
     let entry = tree.get_path(path)?;

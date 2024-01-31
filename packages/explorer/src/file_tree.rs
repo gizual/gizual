@@ -1,6 +1,6 @@
 use git2::{Error, ObjectType, Repository, Tree};
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, Map};
+use serde_json::Value;
 
 #[cfg(feature = "bindings")]
 use specta::Type;
@@ -11,11 +11,9 @@ use crate::file_types::get_file_type;
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetFileTreeParams {
-    pub branch: String,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub timerange: Option<(String, String)>,
+    rev: String,
 }
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CustomValue(Value);
@@ -139,30 +137,9 @@ impl Explorer {
     ) -> Result<Vec<FileTreeNode>, git2::Error> {
         let repo = self.repo.as_ref().unwrap();
 
-
-        let branch = repo.find_branch(params.branch.as_str(), git2::BranchType::Local)?;
-
-
-        let commit = if params.timerange.is_some() {
-            let (start_seconds, end_seconds) = params.timerange.clone().unwrap();
-
-            let start_seconds = start_seconds.parse::<i64>().unwrap();
-            let end_seconds = end_seconds.parse::<i64>().unwrap();
-
-            let oid = self.pick_last_commit_by_time( &params.branch.as_str(), start_seconds, end_seconds);
-
-            if oid.is_none() {
-                // write to stderr
-
-                eprint!("Failed to find commit");
-                return Ok(Vec::new());
-            }
-
-            repo.find_commit(oid.unwrap())?
-        } else {
-            branch.get().peel_to_commit()?
-        };
-
+        let rev = params.rev.clone();
+        let commit_id = repo.revparse_single(rev.as_str())?.id();
+        let commit = repo.find_commit(commit_id)?;
         let tree = commit.tree()?;
 
          self.traverse_tree(repo, stream, &tree, Vec::new())

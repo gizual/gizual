@@ -2,7 +2,7 @@ import type * as gen from "./generated";
 
 export type Methods = keyof ParameterPayloadMap;
 
-type ParameterPayloadMap = {
+export type ParameterPayloadMap = {
   open_repository: gen.OpenRepositoryParams;
   stream_authors: gen.StreamAuthorsParams;
   get_file_tree: gen.GetFileTreeParams;
@@ -12,7 +12,10 @@ type ParameterPayloadMap = {
   get_file_content: gen.GetFileContentParams;
   get_commits_for_branch: gen.GetCommitsForBranchParams;
   stream_commits: gen.StreamCommitsParams;
+  get_commit_ids_for_time_range: gen.GetCommitIdsForTimeRangeParams;
+  get_commit_ids_for_refs: gen.GetCommitIdsForRefsParams;
   shutdown: gen.NoParams;
+  get_initial_data: gen.NoParams;
 };
 
 export type Params<M extends Methods> = ParameterPayloadMap[M];

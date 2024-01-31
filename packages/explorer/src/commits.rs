@@ -21,7 +21,121 @@ pub struct Commit {
     pub timestamp: String,
 }
 
+#[cfg_attr(feature = "bindings", derive(Type))]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCommitIdsForTimeRangeParams {
+    pub branch: String,
+    pub start_seconds: i64,
+    pub end_seconds: i64,
+}
+
+#[cfg_attr(feature = "bindings", derive(Type))]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCommitIdsForRefsParams {
+    pub start_ref: String,
+    pub end_ref: String,
+}
+
+#[cfg_attr(feature = "bindings", derive(Type))]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CommitIds {
+    pub since_commit_id: String,
+    pub until_commit_id: String,
+}
+
+
+
 impl Explorer {
+
+    pub fn cmd_get_commit_ids_for_time_range(&mut self, params: GetCommitIdsForTimeRangeParams) {
+        let (start_id, end_id) = self.find_commit_ids_for_time_range(params.branch , params.start_seconds, params.end_seconds);
+
+        if start_id.is_none() || end_id.is_none() {
+            self.send_error("Failed to find commit ids for time range".to_string());
+            return;
+        }
+
+        self.send(CommitIds { since_commit_id: start_id.unwrap(), until_commit_id: end_id.unwrap() }, true);
+    }
+
+    pub fn cmd_get_commit_ids_for_refs(&mut self, params: GetCommitIdsForRefsParams) {
+        let (start_id, end_id) = self.find_commit_ids_for_refs(params.start_ref , params.end_ref);
+
+        if start_id.is_none() || end_id.is_none() {
+            self.send_error("Failed to find commit ids for refs".to_string());
+            return;
+        }
+
+        self.send(CommitIds { since_commit_id: start_id.unwrap(), until_commit_id: end_id.unwrap() }, true);
+    }
+
+    pub fn find_commit_ids_for_time_range(&self, branch: String, start_seconds: i64, end_seconds: i64) -> (Option<String>, Option<String>) {
+        // write to stderr
+        eprintln!("Finding commit ids for time range: {} {} {}", branch, start_seconds, end_seconds);
+        let repo = self.repo.as_ref().unwrap();
+        
+        let branch = repo.find_branch(branch.as_str(), git2::BranchType::Local).expect("Failed to find branch").get().peel_to_commit().expect("Failed to peel to commit").id();
+
+        let mut walk = repo.revwalk().expect("Failed to create revwalk");
+
+        walk.set_sorting(git2::Sort::TOPOLOGICAL | git2::Sort::TIME)
+            .expect("Failed to set sorting");
+
+        walk.push(branch).expect("Failed to push glob");
+
+        let mut start_ref: Option<String> = None;
+        let mut end_ref: Option<String> = None;
+        let mut previous_ref: Option<String> = None;
+
+        for _oid in walk {
+            if _oid.is_err() {
+                continue;
+            }
+
+            let oid = _oid.unwrap();
+            let commit = repo.find_commit(oid).expect("Failed to find commit");
+            let timestamp = commit.time().seconds();
+
+            if end_ref.is_none() && timestamp <= end_seconds {
+                end_ref = Some(to_string_oid(&oid));
+            }
+
+            if start_ref.is_none() && timestamp <= start_seconds {
+                start_ref = previous_ref;
+            }
+
+            previous_ref = Some(to_string_oid(&oid));
+
+            if start_ref.is_some() && end_ref.is_some() {
+                return (start_ref, end_ref);
+            }
+        }
+
+        if start_ref.is_none() {
+            start_ref = previous_ref;
+        }
+
+        return (start_ref, end_ref);
+    }
+
+    pub fn find_commit_ids_for_refs(&self, start_ref: String, end_ref: String) -> (Option<String>, Option<String>) {
+        let repo = self.repo.as_ref().unwrap();
+
+        let start_ref = repo.find_reference(&start_ref).expect("Failed to find start ref");
+
+        let end_ref = repo.find_reference(&end_ref).expect("Failed to find end ref");
+
+        let start_commit = start_ref.peel_to_commit().expect("Failed to peel to commit");
+
+        let end_commit = end_ref.peel_to_commit().expect("Failed to peel to commit");
+        
+        let start_oid = start_commit.id();
+
+        let end_oid = end_commit.id();
+
+        return (Some(to_string_oid(&start_oid)), Some(to_string_oid(&end_oid)));
+    }
+
 
     pub fn pick_last_commit_by_time(&self, branch: &str, start_seconds: i64, end_seconds: i64) -> Option<Oid> {
         let repo = self.repo.as_ref().unwrap();
