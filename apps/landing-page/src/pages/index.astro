@@ -1,45 +1,40 @@
 ---
+import { HeroModule } from "../components/react/hero";
+import { Header } from "../components/react/header";
 import Layout from "../layouts/layout.astro";
-import { AnimatedLogo } from "@giz/ui";
+import heroShot from "../assets/giz-chrome.png";
+import canvasShot from "../assets/canvas.png";
+import queryShot from "../assets/query.png";
+import analyzeShot from "../assets/analyze.png";
+import favicon from "../assets/giz-icon.svg";
 ---
 
 <Layout title="Gizual">
-  <div class="flex h-full min-h-screen w-full flex-col justify-between">
+  <div class="flex h-full min-h-[100dvh] w-full flex-col justify-between">
     <main class="flex w-full grow flex-col">
-      <div
-        class="mx-auto my-auto flex max-w-[1120px] flex-col items-center gap-8 rounded-md border border-border-primary bg-background-secondary px-4 pb-8"
-      >
-        <div class="flex flex-col items-center gap-2">
-          <div class="hidden lg:block">
-            <AnimatedLogo client:load animationState="idle" />
-          </div>
-          <h1 class="block py-8 text-8xl font-extrabold text-accent-main lg:hidden">Gizual</h1>
-          <p class="text-primary text-center text-2xl font-medium">
-            Platform-agnostic git repository visualization.
-          </p>
-        </div>
-        <p class="text-center text-red-800 dark:text-red-400">
-          Note: This page is still under heavy construction.
-        </p>
-        <a
-          href="https://app.gizual.com"
-          class="border-1 border-primary text-primary rounded border-4 border-accent-main bg-background-tertiary p-3 transition-colors hover:border-accent-secondary hover:bg-background-secondary"
-          >Go to the app</a
-        >
-      </div>
+      <Header logo={favicon.src} />
+      <HeroModule
+        heroImageSrc={heroShot.src}
+        canvasImageSrc={canvasShot.src}
+        queryImageSrc={queryShot.src}
+        analyzeImageSrc={analyzeShot.src}
+      />
     </main>
     <footer
-      class="flex h-14 w-full flex-col items-center justify-center border-t border-border-primary"
+      class="flex h-auto w-full flex-col items-center justify-center border-t border-border-primary py-2"
     >
-      <p class="text-foreground-tertiary">Copyright © Gizual, 2023.</p>
-      <p class="text-center text-sm text-foreground-tertiary">
+      <p class="text-foreground-tertiary">Copyright © Gizual, 2024.</p>
+      <span class="text-center text-sm text-foreground-tertiary">
         Created with ❤️ by <a
           href="https://github.com/steschi"
           class="text-foreground-link hover:underline">Stefan Schintler</a
         > and <a href="https://github.com/NarrowCode" class="text-foreground-link hover:underline"
           >Andreas Steinkellner</a
-        >, supervised by <a href="https://isds.tugraz.at/keith" class="text-foreground-link hover:underline">Keith Andrews</a>.
-      </p>
+        >, supervised by <a
+          href="https://isds.tugraz.at/keith"
+          class="text-foreground-link hover:underline">Keith Andrews</a
+        >.
+      </span>
     </footer>
   </div>
 </Layout>

@@ -110,14 +110,16 @@
 
     /* Accent colors */
     --color-gizblue: #007acc;
+    --color-gizblue-hover: #0099ff;
     --color-gizblue-dark: #005086;
+    --color-gizblue-dark-hover: #003b63;
     --color-tomato: #e94f37;
     --color-lavender: #d4cdf4;
     --color-plum: #5c29af;
     --color-gold: #ffb800;
 
     /* Color definitions */
-    @media (prefers-color-scheme: light) {
+    /*@media (prefers-color-scheme: light) {
       --background-primary: var(--color-white);
       --background-secondary: var(--color-lightgray);
       --background-tertiary: var(--color-zinc);
@@ -129,7 +131,9 @@
       --foreground-link: #0069c2;
 
       --accent-main: var(--color-gizblue);
+      --accent-main-hover: var(--color-gizblue-hover);
       --accent-main-dark: var(--color-gizblue-dark);
+      --accent-main-dark-hover: var(--color-gizblue-dark);
       --accent-main-fg: var(--color-white);
       --accent-secondary: var(--color-lavender);
       --accent-secondary-fg: var(--color-black);
@@ -138,29 +142,54 @@
 
       --border-primary: var(--color-gray);
       --border-secondary: var(--color-darkslate);
-    }
+    }*/
 
-    @media (prefers-color-scheme: dark) {
-      --background-primary: var(--color-darkgray);
-      --background-secondary: var(--color-black);
-      --background-tertiary: var(--color-gunmetal);
-      --background-red: var(--color-darkred);
-      --foreground-primary: var(--color-lightgray);
-      --foreground-secondary: var(--color-white);
-      --foreground-tertiary: var(--color-zinc);
-      --foreground-disabled: var(--color-disabled);
-      --foreground-link: #8cb4ff;
+    --background-primary: var(--color-darkgray);
+    --background-secondary: var(--color-black);
+    --background-tertiary: var(--color-gunmetal);
+    --background-red: var(--color-darkred);
+    --foreground-primary: var(--color-lightgray);
+    --foreground-secondary: var(--color-white);
+    --foreground-tertiary: var(--color-zinc);
+    --foreground-disabled: var(--color-disabled);
+    --foreground-link: #8cb4ff;
 
-      --accent-main: var(--color-gizblue);
-      --accent-main-dark: var(--color-gizblue-dark);
-      --accent-main-fg: var(--color-white);
-      --accent-secondary: var(--color-plum);
-      --accent-secondary-fg: var(--color-white);
-      --accent-tertiary: var(--color-tomato);
-      --accent-tertiary-fg: var(--color-white);
+    --accent-main: var(--color-gizblue);
+    --accent-main-hover: var(--color-gizblue-hover);
+    --accent-main-dark: var(--color-gizblue-dark);
+    --accent-main-dark-hover: var(--color-gizblue-dark);
+    --accent-main-fg: var(--color-white);
+    --accent-secondary: var(--color-plum);
+    --accent-secondary-fg: var(--color-white);
+    --accent-tertiary: var(--color-tomato);
+    --accent-tertiary-fg: var(--color-white);
 
-      --border-primary: var(--color-darkslate);
-      --border-secondary: var(--color-gray);
-    }
+    --border-primary: var(--color-darkslate);
+    --border-secondary: var(--color-gray);
+  }
+
+  html,
+  section {
+    @apply overflow-x-hidden;
+  }
+
+  h1 {
+    @apply text-3xl font-extrabold leading-tight tracking-tight md:text-6xl;
+  }
+
+  h2 {
+    @apply bg-gradient-to-b from-slate-200/100 to-slate-200/70 bg-clip-text pb-2 text-2xl font-extrabold leading-snug tracking-tight text-transparent md:text-4xl;
+  }
+
+  em {
+    @apply font-extrabold not-italic text-accent-main;
+  }
+
+  span {
+    @apply text-balance;
+  }
+
+  .emGradient {
+    @apply animate-bgAnimate bg-gradient-to-r from-blue-500 to-teal-400 bg-400% bg-clip-text text-transparent;
   }
 }

@@ -5,6 +5,7 @@ interface Props {
 
 const { title } = Astro.props;
 import "../../base.css";
+import "aos/dist/aos.css";
 ---
 
 <!doctype html>
@@ -13,6 +14,8 @@ import "../../base.css";
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="canonical" href="https://gizual.com" />
+
+    <meta name="robots" content="index,nofollow,noimageindex,noarchive,notranslate" />
 
     <!-- Content Meta -->
     <meta
@@ -32,10 +35,7 @@ import "../../base.css";
     />
     <meta property="og:site_name" content="Gizual" />
     <meta property="og:image" content="https://gizual.com/seo/gizual.jpg" />
-    <meta
-      property="og:image:alt"
-      content="Gizual - Platform-agnostic Git repository visualization."
-    />
+    <meta property="og:image:alt" content="Gizual - Browser-based Git repository visualization." />
 
     <!-- Twitter SEO -->
     <meta name="twitter:card" content="summary" />
@@ -49,6 +49,11 @@ import "../../base.css";
     <meta name="twitter:image:alt" content="Gizual - Browser-based Git repository visualization." />
 
     <title>{title}</title>
+
+    <script>
+      import { aosInit } from "../scripts/aos";
+      aosInit();
+    </script>
   </head>
   <body class="bg-background-primary text-foreground-primary">
     <slot />
