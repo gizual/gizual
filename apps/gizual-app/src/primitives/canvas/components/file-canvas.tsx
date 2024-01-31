@@ -1,22 +1,27 @@
 import { useMainController } from "@app/controllers";
 import { Loader } from "@mantine/core";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useContext } from "react";
 import { match } from "ts-pattern";
 
-import { useBlocks } from "@giz/maestro/react";
 import { FileBlock } from "../../file/block";
 import { MasonryGrid } from "../../masonry";
+import { CanvasContext } from "../canvas.context";
 import { CanvasViewModel } from "../canvas.vm";
 
-type FileCanvasProps = {
+type MasonryCanvasProps = {
   vm: CanvasViewModel;
   wrapper: HTMLDivElement | undefined | null;
 };
 
-export const FileCanvas = observer(({ vm, wrapper }: FileCanvasProps) => {
+/**
+ * This component is responsible for rendering the content of the canvas inside
+ * our custom masonry grid implementation. It decides on which blocks to render
+ * based on the current query input, and must always produce a stable output.
+ */
+export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
   const mainController = useMainController();
-  const blocks = useBlocks();
+  const blocks = useContext(CanvasContext).useBlocks();
 
   console.log({ blocks, wrapper, cw: vm.canvasWidth });
   return (

@@ -1,0 +1,51 @@
+@use "@/shared" as shared;
+@use "@/mixins" as *;
+
+.DragHandle {
+  @include z-index-base-3;
+  background: var(--border-primary);
+  width: 10px;
+  height: 30%;
+  position: absolute; // Positions are set in JS.
+  border: 1px solid var(--border-secondary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.DragHandleIcon {
+  width: 200%;
+  transform: translateX(-25%);
+}
+
+.SeparationContainer {
+  position: relative;
+  min-width: 2px;
+  max-width: 2px;
+  min-height: 100%;
+  cursor: col-resize;
+  flex-shrink: 0;
+  flex-grow: 0;
+  background-color: var(--border-primary);
+}
+
+.ResizableSplitContainer {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
+.IsBeingResized {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #ff000050 !important;
+  }
+}
+
+.Column {
+  flex-grow: 1;
+}

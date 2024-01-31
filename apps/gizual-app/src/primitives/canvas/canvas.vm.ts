@@ -45,6 +45,8 @@ export class CanvasViewModel {
   setCanvasContainerRef(ref: RefObject<ReactZoomPanPinchRef>) {
     this._canvasContainerRef = ref;
     if (ref.current) this._canvasWidth = ref.current?.instance.contentComponent?.clientWidth ?? 0;
+
+    this.reflow();
   }
 
   zoomIn() {
@@ -89,7 +91,6 @@ export class CanvasViewModel {
       this._canvasContainerRef.current.instance.contentComponent
     ) {
       this._canvasContainerRef.current.instance.contentComponent.style.width = `calc(100% / ${this._mainController.scale})`;
-      this._canvasContainerRef.current.instance.contentComponent.style.height = `calc(100% / ${this._mainController.scale})`;
       this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
     }
     this.center();

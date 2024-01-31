@@ -1,7 +1,7 @@
 import { FileTree as FileTreeComponent, FileTreeFlatItem } from "@app/primitives/file-tree";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import withFixedSize from "./decorators/with-fixed-size";
+import withDivWrapper from "./decorators/with-div-wrapper";
 import withMainController from "./decorators/with-main-controller";
 import withMantineProvider from "./decorators/with-mantine-provider";
 
@@ -11,7 +11,7 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  decorators: [withMainController, withMantineProvider, withFixedSize],
+  decorators: [withMainController, withMantineProvider, withDivWrapper],
 } satisfies Meta<typeof FileTreeComponent>;
 
 export default meta;

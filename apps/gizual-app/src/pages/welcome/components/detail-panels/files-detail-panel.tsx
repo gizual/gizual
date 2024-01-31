@@ -1,6 +1,7 @@
 import { IconCollapse } from "@app/assets";
 import { Button } from "@app/primitives";
 import shared from "@app/primitives/css/shared-styles.module.scss";
+import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -62,7 +63,7 @@ export const FilesDetailPanel = observer(
       <div className={clsx(style.DetailColumn, shared.FlexColumn, style.Grow)}>
         <div className={style.CollapsibleHeader}>
           {backArrow && <IconCollapse className={style.BackIcon} onClick={onBackArrow} />}
-          <h1 className={clsx(style.DetailHeader, shared.Grow)}>Open from local file system</h1>
+          <h1 className={clsx(style.DetailHeader, shared.Grow)}>Open from local directory</h1>
         </div>
 
         <p className={style.DetailDescription}>
@@ -77,34 +78,124 @@ export const FilesDetailPanel = observer(
         <AdvancedConfigurationPanel vm={vm} loader={loaders} />
 
         {match(selectedLoader)
-          .with({ id: "drag-and-drop" }, () => (
-            <DragHandler onDrag={onDragAction}>
-              <div className={style.GifPanel}>
-                <img
-                  src={isHoveringImage ? "fsa.gif" : "fsa.jpg"}
-                  className={isHoveringImage ? style.Gif : style.GifPreview}
-                  onMouseEnter={() => setHoveringImage(true)}
-                  onMouseLeave={() => setHoveringImage(false)}
-                  onClick={() => setHoveringImage(!isHoveringImage)}
-                />
-              </div>
-            </DragHandler>
-          ))
-          .otherwise(() => (
+          .with({ id: "fsa" }, () => (
             <>
-              <div className={style.GifPanel}>
-                <img
-                  src={isHoveringImage ? "fsa.gif" : "fsa.jpg"}
-                  className={isHoveringImage ? style.Gif : style.GifPreview}
-                  onMouseEnter={() => setHoveringImage(true)}
-                  onMouseLeave={() => setHoveringImage(false)}
-                  onClick={() => setHoveringImage(!isHoveringImage)}
+              <div
+                className={style.GifPanel}
+                onMouseEnter={() => setHoveringImage(true)}
+                onMouseLeave={() => setHoveringImage(false)}
+                onClick={() => setHoveringImage(!isHoveringImage)}
+              >
+                <div
+                  className={clsx(
+                    style.GifDescription,
+                    sharedStyle.TransitionOpacity,
+                    isHoveringImage ? sharedStyle.Opacity0 : sharedStyle.Opacity100,
+                  )}
+                >
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                    File System Access API
+                  </h2>
+                  <span>Hover or tap for a demo.</span>
+                </div>
+                <video
+                  src={isHoveringImage ? "welcome-fsa.mp4" : undefined}
+                  autoPlay
+                  loop
+                  muted
+                  className={clsx(
+                    style.Gif,
+                    isHoveringImage ? sharedStyle.Visible : sharedStyle.Hidden,
+                  )}
                 />
               </div>
 
               <Button className={style.LoadButton} variant="filled" onClick={onButtonAction}>
                 <LoadWithSelectedFileLoaderConfig selection={vm.selectedFileLoaderConfig} />
               </Button>
+            </>
+          ))
+          .with({ id: "drag-and-drop" }, () => (
+            <DragHandler onDrag={onDragAction}>
+              <div
+                className={style.GifPanel}
+                onMouseEnter={() => setHoveringImage(true)}
+                onMouseLeave={() => setHoveringImage(false)}
+                onClick={() => setHoveringImage(!isHoveringImage)}
+              >
+                <div
+                  className={clsx(
+                    style.GifDescription,
+                    sharedStyle.TransitionOpacity,
+                    isHoveringImage ? sharedStyle.Opacity0 : sharedStyle.Opacity100,
+                  )}
+                >
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                    Drag & Drop Input
+                  </h2>
+                  <span>Hover or tap for a demo.</span>
+                  <span style={{ marginTop: "1rem" }}>Drag your folder here!</span>
+                </div>
+                <video
+                  src={isHoveringImage ? "welcome-drag.mp4" : undefined}
+                  autoPlay
+                  loop
+                  muted
+                  className={clsx(
+                    style.Gif,
+                    isHoveringImage ? sharedStyle.Visible : sharedStyle.Hidden,
+                  )}
+                />
+              </div>
+            </DragHandler>
+          ))
+          .with({ id: "input-field" }, () => (
+            <>
+              <div
+                className={style.GifPanel}
+                onMouseEnter={() => setHoveringImage(true)}
+                onMouseLeave={() => setHoveringImage(false)}
+                onClick={() => setHoveringImage(!isHoveringImage)}
+              >
+                <div
+                  className={clsx(
+                    style.GifDescription,
+                    sharedStyle.TransitionOpacity,
+                    isHoveringImage ? sharedStyle.Opacity0 : sharedStyle.Opacity100,
+                  )}
+                >
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                    HTML Input Field
+                  </h2>
+                  <span>Hover or tap for a demo.</span>
+                </div>
+                <video
+                  src={isHoveringImage ? "welcome-input.mp4" : undefined}
+                  autoPlay
+                  loop
+                  muted
+                  className={clsx(
+                    style.Gif,
+                    isHoveringImage ? sharedStyle.Visible : sharedStyle.Hidden,
+                  )}
+                />
+              </div>
+
+              <Button className={style.LoadButton} variant="filled" onClick={onButtonAction}>
+                <LoadWithSelectedFileLoaderConfig selection={vm.selectedFileLoaderConfig} />
+              </Button>
+            </>
+          ))
+          .otherwise(() => (
+            <>
+              <div className={style.GifPanel}>
+                <div className={clsx(style.GifDescription)}>
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                    Unknown loader.
+                  </h2>
+                  <span>No demo available.</span>
+                </div>
+              </div>
             </>
           ))}
       </div>

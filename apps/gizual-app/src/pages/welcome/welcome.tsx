@@ -24,7 +24,7 @@ export const WelcomePage = observer(() => {
   }, []);
 
   const [width, _] = useWindowSize();
-  const isLargeScreen = width > 1024;
+  const isLargeScreen = width >= 1024;
   const [selectedSource, setSelectedSource] = React.useState<RepoSource | undefined>("local");
   const [currentPanel, setCurrentPanel] = React.useState<"left" | "right">("left");
   const loaders = useFileLoaders();
@@ -34,6 +34,10 @@ export const WelcomePage = observer(() => {
     setCurrentPanel("left");
     setSelectedSource(undefined);
   };
+
+  if (isLargeScreen && selectedSource === undefined) {
+    setSelectedSource("local");
+  }
 
   return (
     <div className={style.Page}>
@@ -65,7 +69,7 @@ export const WelcomePage = observer(() => {
             <>
               {currentPanel === "left" && (
                 <SelectionPanel
-                  selectedSource={selectedSource}
+                  selectedSource={undefined}
                   setSelectedSource={(s) => {
                     setSelectedSource(s);
                     setCurrentPanel("right");
@@ -73,32 +77,31 @@ export const WelcomePage = observer(() => {
                 />
               )}
 
-              {match(selectedSource)
-                .with("local", () => (
-                  <FilesDetailPanel
-                    loaders={selectedLoader as FileLoaderLocal[]}
-                    vm={vm}
-                    backArrow
-                    onBackArrow={onBackArrow}
-                  />
-                ))
-                .with("url", () => (
-                  <UrlDetailPanel
-                    loader={selectedLoader as FileLoaderUrl}
-                    backArrow
-                    onBackArrow={onBackArrow}
-                  />
-                ))
-                .with("zip", () => (
-                  <ZipDetailPanel
-                    loader={selectedLoader as FileLoaderZipFile}
-                    backArrow
-                    onBackArrow={onBackArrow}
-                  />
-                ))
-                .otherwise(() => (
-                  <div></div>
-                ))}
+              {currentPanel === "right" &&
+                match(selectedSource)
+                  .with("local", () => (
+                    <FilesDetailPanel
+                      loaders={selectedLoader as FileLoaderLocal[]}
+                      vm={vm}
+                      backArrow
+                      onBackArrow={onBackArrow}
+                    />
+                  ))
+                  .with("url", () => (
+                    <UrlDetailPanel
+                      loader={selectedLoader as FileLoaderUrl}
+                      backArrow
+                      onBackArrow={onBackArrow}
+                    />
+                  ))
+                  .with("zip", () => (
+                    <ZipDetailPanel
+                      loader={selectedLoader as FileLoaderZipFile}
+                      backArrow
+                      onBackArrow={onBackArrow}
+                    />
+                  ))
+                  .otherwise(() => <div></div>)}
             </>
           )}
         </div>

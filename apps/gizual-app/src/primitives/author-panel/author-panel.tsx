@@ -1,10 +1,12 @@
-import { MainController, useMainController } from "@app/controllers";
 import { Avatar, Skeleton } from "@mantine/core";
 import type { DataTableColumn } from "mantine-datatable";
 import { DataTable } from "mantine-datatable";
 import React from "react";
 
-import { useAuthorList } from "@giz/maestro/react";
+import { ColorManager } from "@giz/color-manager";
+import { useAuthorList, useQuery } from "@giz/maestro/react";
+import { SearchQueryType } from "@giz/query";
+import { ColorPicker } from "../color-picker";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { LinearProgress } from "../linear-progress";
 
@@ -35,10 +37,31 @@ export function AuthorPanel() {
   );
 }
 
+function useColorManager() {
+  const { data, isLoading } = useAuthorList(1000, 0);
+  const [colorManager, _] = React.useState<ColorManager>(new ColorManager());
+  React.useEffect(() => {
+    if (!isLoading && data) {
+      colorManager.init({ domain: data.authors.map((a) => a.id) });
+      console.log("Color manager initialized");
+    }
+  }, [isLoading]);
+
+  return colorManager;
+}
+
+function getPaletteColors(query: SearchQueryType) {
+  if (query && query.preset && "paletteByAuthor" in query.preset)
+    return query.preset.paletteByAuthor;
+  return [];
+}
+
 export function AuthorTable() {
   const [page, setPage] = React.useState(1);
   const { data, isLoading, isPlaceholderData } = useAuthorList(10, (page - 1) * 10);
-  const mainController = useMainController();
+  const { query, updateQuery } = useQuery();
+  const colorManager = useColorManager();
+  const paletteColors = React.useMemo(() => getPaletteColors(query), [query]);
 
   const authors = React.useMemo(
     () =>
@@ -54,7 +77,10 @@ export function AuthorTable() {
     [data?.authors],
   );
 
-  const columns = React.useMemo(() => getAuthorColumns(mainController), []);
+  const columns = React.useMemo(() => {
+    console.log("Recomputing authorColumns", colorManager, colorManager?.isInitialized);
+    return getAuthorColumns(colorManager, paletteColors, updateQuery);
+  }, [colorManager.isInitialized, paletteColors]);
 
   if (!isLoading && data === undefined) {
     return <div>An unknown error occurred.</div>;
@@ -93,22 +119,37 @@ export function AuthorTable() {
   );
 }
 
-function getAuthorColumns(mainController: MainController): DataTableColumn<AuthorType>[] {
+function insertAuthorColor(authorColors: [string, string][], authorId: string, color: string) {
+  const index = authorColors.findIndex((c) => c[0] === authorId);
+  if (index === -1) {
+    authorColors.push([authorId, color]);
+  } else {
+    authorColors[index][1] = color;
+  }
+}
+
+function getAuthorColumns(
+  colorManager: ColorManager | undefined,
+  customizedColors: [string, string][],
+  updateQuery: (q: Partial<SearchQueryType>) => void,
+): DataTableColumn<AuthorType>[] {
+  console.log("loading author columns");
   return [
     {
       title: "",
       accessor: "gutter",
       render: ({ id }: AuthorType) => (
-        <div
-          style={{
-            width: 5,
-            height: 25,
-            display: "block",
-            borderRadius: 5,
-            backgroundColor:
-              mainController.coloringMode === "author"
-                ? mainController.authorColorScale(id ?? "")
-                : "transparent",
+        <ColorPicker
+          hexValue={(() => {
+            if (!colorManager?.isInitialized) return "transparent";
+            const customizedColor = customizedColors?.find((c) => c[0] === id);
+            if (customizedColor) return customizedColor[1];
+            return ColorManager.stringToHex(colorManager.getBandColor(id));
+          })()}
+          onAccept={(c) => {
+            if (!colorManager?.isInitialized) return;
+            insertAuthorColor(customizedColors ?? [], id, c);
+            updateQuery({ preset: { paletteByAuthor: customizedColors } });
           }}
         />
       ),

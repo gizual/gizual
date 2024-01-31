@@ -25,6 +25,7 @@ declare const classNames: {
   readonly CloseButton: "CloseButton";
   readonly FlexColumn: "FlexColumn";
   readonly JustifyBetween: "JustifyBetween";
+  readonly JustifyEnd: "JustifyEnd";
   readonly FlexRow: "FlexRow";
   readonly InlineFlexRow: "InlineFlexRow";
   readonly Grow: "Grow";
@@ -40,6 +41,7 @@ declare const classNames: {
   readonly "Text-Base": "Text-Base";
   readonly "Text-Lg": "Text-Lg";
   readonly "Text-Xl": "Text-Xl";
+  readonly "Text-2Xl": "Text-2Xl";
   readonly "Text-Left": "Text-Left";
   readonly "Text-Italic": "Text-Italic";
   readonly "Text-Bold": "Text-Bold";
@@ -50,5 +52,10 @@ declare const classNames: {
   readonly "Pointer-None": "Pointer-None";
   readonly Pointer: "Pointer";
   readonly Separator: "Separator";
+  readonly Hidden: "Hidden";
+  readonly Visible: "Visible";
+  readonly Opacity0: "Opacity0";
+  readonly Opacity100: "Opacity100";
+  readonly TransitionOpacity: "TransitionOpacity";
 };
 export = classNames;

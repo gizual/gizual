@@ -8,5 +8,9 @@ declare const classNames: {
   readonly ControlWithLabel: "ControlWithLabel";
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";
   readonly ToolbarButton: "ToolbarButton";
+  readonly MinimapContainer: "MinimapContainer";
+  readonly Minimap: "Minimap";
+  readonly LegendContainer: "LegendContainer";
+  readonly DebugOverlay: "DebugOverlay";
 };
 export = classNames;

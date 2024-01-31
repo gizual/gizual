@@ -3,8 +3,6 @@ import type { FileTreeViewModel } from "@app/primitives/file-tree";
 import { TimelineViewModel } from "@app/primitives/timeline/timeline.vm";
 import { makeAutoObservable, runInAction } from "mobx";
 
-import { LocalStorage } from "@giz/query";
-
 import type { MainController } from "./main.controller";
 
 export class ViewModelController {
@@ -17,7 +15,7 @@ export class ViewModelController {
   _isAuthorPanelVisible = false;
 
   constructor(mainController: MainController) {
-    this._isAuthorPanelVisible = LocalStorage.getBoolean("showAuthorPanel") ?? false;
+    this._isAuthorPanelVisible = false;
     this._mainController = mainController;
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -53,7 +51,6 @@ export class ViewModelController {
 
   setAuthorPanelVisibility(visible: boolean) {
     this._isAuthorPanelVisible = visible;
-    LocalStorage.setItem("showAuthorPanel", visible.toString());
   }
 
   get isAuthorPanelVisible() {

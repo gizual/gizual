@@ -43,15 +43,21 @@
   flex-direction: column;
   justify-content: space-between;
   flex-grow: 1;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 80dvw;
+  height: auto;
+
+  max-width: 1500px;
+
+  display: block;
+  container: type-modal-container / inline-size;
 }
 
 .TypeDialogSplit {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 1fr 1px 0.25fr;
   gap: 1rem;
-  overflow-y: auto;
-  overflow-x: hidden;
   padding-right: 0.5rem;
 }
 
@@ -72,21 +78,27 @@
 }
 
 .TypeDialog__Right {
+  height: fit-content;
   position: sticky;
   top: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  flex-shrink: 1;
-  flex-grow: 1;
 }
 
 .TypeDialogGrid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   width: 100%;
+
+  @container type-modal-container (width < 1000px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @container type-modal-container (width < 600px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
 .TypeDialogActionButtons {
@@ -96,7 +108,6 @@
 }
 
 .TypeDialogGridItemTile {
-  width: 200px;
   height: 100%;
   flex-grow: 1;
   display: flex;
@@ -126,9 +137,6 @@
 }
 
 .TypeDialogGridItemImage {
-  max-width: 250px;
-  max-height: 250px;
-  min-width: 150px;
   width: 100%;
   aspect-ratio: 1;
   background-color: var(--background-secondary);

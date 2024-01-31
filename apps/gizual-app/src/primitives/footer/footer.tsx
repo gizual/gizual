@@ -35,7 +35,7 @@ export const Footer = observer(() => {
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.14 - Build #{__COMMIT_HASH__}</p>}
+          trigger={<p>Gizual v3.0.0-alpha.15 - Build #{__COMMIT_HASH__}</p>}
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>
@@ -43,12 +43,14 @@ export const Footer = observer(() => {
       <div className={style.RightSection}>
         {mainController.isBusy && <Loader size="sm" />}
         <p>{metrics.numSelectedFiles} files selected</p>
-        <p>
-          explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
-        </p>
-        <p>
-          renderer: {renderer.busyWorkers}/{renderer.totalWorkers} workers | {renderer.jobs} jobs
-        </p>
+        <div className={style.Metrics}>
+          <p>
+            explorer: {explorer.busyWorkers}/{explorer.totalWorkers} workers | {explorer.jobs} jobs
+          </p>
+          <p>
+            renderer: {renderer.busyWorkers}/{renderer.totalWorkers} workers | {renderer.jobs} jobs
+          </p>
+        </div>
       </div>
     </div>
   );
