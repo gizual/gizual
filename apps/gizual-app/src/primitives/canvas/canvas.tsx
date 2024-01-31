@@ -1,38 +1,31 @@
-import { IconCenterFocus, IconLayout, IconMagnifyMinus, IconMagnifyPlus } from "@app/assets";
-import { useMainController, useViewModelController, ViewModelController } from "@app/controllers";
-import { RenderedSettingsEntry } from "@app/pages";
-import {
-  CanvasScale,
-  createNumberSetting,
-  createSelectSetting,
-  useForwardedRef,
-  useTheme,
-} from "@app/utils";
-import { Modal, Tooltip } from "@mantine/core";
+import { useMainController, useViewModelController } from "@app/controllers";
+import { CanvasScale } from "@app/utils";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import { match } from "ts-pattern";
 
-import { useBlocks, useQuery } from "@giz/maestro/react";
+import { useBlocks } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
-import { GradientLegend } from "../gradient-legend";
-import { IconButton } from "../icon-button";
 import { Timeline } from "../timeline";
 
 import type { CanvasContextProps } from "./canvas.context";
 import { CanvasContext } from "./canvas.context";
 import style from "./canvas.module.scss";
 import { CanvasViewModel } from "./canvas.vm";
-import { FileCanvas } from "./file-canvas";
+import { LegendComponent, MasonryCanvas, Toolbar } from "./components";
+import { ContextModal } from "./components/context-modal";
 import { MiniMap, MiniMapContent } from "./minimap";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;
 } & Partial<CanvasContextProps>;
 
+/**
+ * This is the main component that wraps around the interactive canvas element.
+ * It also contains the timeline and toolbar elements.
+ */
 function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
   const mainController = useMainController();
   const vmController = useViewModelController();
@@ -99,6 +92,10 @@ type InteractiveCanvasProps = {
   showModal: () => void;
 };
 
+/**
+ * This is the main canvas element that contains the individual blocks, wrapped inside
+ * the `react-zoom-pan-pinch` wrapper component.
+ */
 const InteractiveCanvas = observer<any, HTMLDivElement>(
   ({ vm, interactiveRef, showModal }: InteractiveCanvasProps, ref) => {
     const { showContextMenu } = useContextMenu();
@@ -172,6 +169,9 @@ const InnerCanvas = observer<any, HTMLDivElement>(
 
     const legendWidth = Math.min(wrapperWidth / 8, 200);
     const legendHeight = 50;
+
+    // TODO: This is counter-intuitive because the minimap component decides on it's dimensions
+    // even if we pass it a width and height. We should probably fix this in the minimap component.
     const minimapWidth = Math.min(wrapperWidth / 10 + 100, 300);
     const minimapHeight = wrapperHeight - legendHeight; //Math.min(contentHeight / 10, wrapperHeight);
 
@@ -265,7 +265,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             }}
             contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
           >
-            <FileCanvas vm={vm} wrapper={interactiveRef?.current?.instance.wrapperComponent} />
+            <MasonryCanvas vm={vm} wrapper={interactiveRef?.current?.instance.wrapperComponent} />
           </TransformComponent>
           <div
             className={style.MinimapContainer}
@@ -292,162 +292,6 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     );
   },
   { forwardRef: true },
-);
-
-type LegendProps = {
-  showLegend: boolean;
-  legendWidth: number;
-  legendHeight: number;
-};
-
-const LegendComponent = React.memo(({ showLegend, legendWidth, legendHeight }: LegendProps) => {
-  const { query } = useQuery();
-
-  return match(query.type)
-    .with("file-lines", "file-mosaic", () => {
-      let colorStart = "#ff0000";
-      let colorEnd = "#00ffff";
-      let descriptionStart = "XXXX-XX-XX";
-      let descriptionEnd = "XXXX-XX-XX";
-
-      if (
-        query.preset &&
-        "gradientByAge" in query.preset &&
-        query.time &&
-        "rangeByDate" in query.time
-      ) {
-        colorStart = query.preset.gradientByAge[0];
-        colorEnd = query.preset.gradientByAge[1];
-        descriptionStart = query.time.rangeByDate[0];
-        descriptionEnd = query.time.rangeByDate[1];
-      } else {
-        return <></>;
-      }
-
-      return (
-        <div
-          className={style.LegendContainer}
-          style={{ opacity: showLegend ? 0.8 : 0, transition: "opacity 0.2s ease-out" }}
-        >
-          <GradientLegend
-            width={legendWidth}
-            height={legendHeight}
-            startColor={colorStart}
-            endColor={colorEnd}
-            descriptionFn={(p, _) => {
-              return match(p)
-                .with(0, () => descriptionStart)
-                .with(1, () => descriptionEnd)
-                .otherwise(() => "ERROR");
-            }}
-          />
-        </div>
-      );
-    })
-    .otherwise(() => {
-      return <></>;
-    });
-});
-
-const Toolbar = observer<any, HTMLDivElement>(
-  ({ vm }: { vm: CanvasViewModel; vmController: ViewModelController }, ref) => {
-    const toolbarRef = useForwardedRef(ref);
-    return (
-      <div className={style.Toolbar} ref={toolbarRef}>
-        <div className={sharedStyle.InlineColumn}>
-          <Tooltip label={"Zoom out"} position="right">
-            <IconButton
-              className={style.ToolbarButton}
-              onClick={() => vm.zoomOut()}
-              aria-label="Zoom out"
-            >
-              <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip label={"Zoom in"} position="right">
-            <IconButton
-              className={style.ToolbarButton}
-              onClick={() => vm.zoomIn()}
-              aria-label="Zoom in"
-            >
-              <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip label={"Center"} position="right">
-            <IconButton
-              className={style.ToolbarButton}
-              onClick={() => vm.resetScale()}
-              aria-label="Center"
-            >
-              <IconCenterFocus className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip label={"Reflow"} position="right">
-            <IconButton
-              className={style.ToolbarButton}
-              onClick={() => vm.reflow()}
-              aria-label="Reflow"
-            >
-              <IconLayout className={sharedStyle.ToolbarIcon} />
-            </IconButton>
-          </Tooltip>
-        </div>
-      </div>
-    );
-  },
-  { forwardRef: true },
-);
-
-type ContextModalProps = {
-  vm: CanvasViewModel;
-  isModalOpen: boolean;
-  setIsModalOpen: (o: boolean) => void;
-  selectedWidth: number;
-  setSelectedWidth: (n: number) => void;
-};
-
-const ContextModal = observer(
-  ({ vm, isModalOpen, setIsModalOpen, selectedWidth, setSelectedWidth }: ContextModalProps) => {
-    const handleOk = React.useCallback(() => {
-      setIsModalOpen(false);
-      vm.drawSvg(selectedWidth, selectedAppearance);
-    }, [setIsModalOpen]);
-
-    const handleCancel = React.useCallback(() => {
-      setIsModalOpen(false);
-    }, [setIsModalOpen]);
-
-    const currentTheme = useTheme();
-    const [selectedAppearance, setSelectedAppearance] = useState(currentTheme);
-    return (
-      <Modal title="Export to SVG" opened={isModalOpen} onClose={handleOk} onAbort={handleCancel}>
-        <RenderedSettingsEntry
-          entry={createNumberSetting(
-            "View-box width",
-            "The width of the SVG view-box. Influences the number of columns within the grid.",
-            selectedWidth,
-          )}
-          onChange={setSelectedWidth}
-          onResetToDefault={() => setSelectedWidth(vm.canvasWidth)}
-          isDefault={() => selectedWidth === vm.canvasWidth}
-        />
-        <RenderedSettingsEntry
-          entry={createSelectSetting(
-            "Appearance",
-            "Controls the background and font colors of the exported SVG.",
-            selectedAppearance,
-            [
-              { value: "dark", label: "Light text on dark background" },
-              { value: "light", label: "Dark text on light background" },
-            ],
-          )}
-          onChange={setSelectedAppearance}
-          onResetToDefault={() => setSelectedAppearance(currentTheme)}
-          isDefault={() => selectedAppearance === currentTheme}
-        />
-      </Modal>
-    );
-  },
 );
 
 export default observer(Canvas);
