@@ -5,19 +5,21 @@ import { useQuery } from "@giz/maestro/react";
 
 import {
   FileChangedInRefModule,
+  FileContainsModule,
+  FileCreatedByModule,
+  FileEditedByModule,
   FileGlobModule,
+  FileLastEditedByModule,
   FilePlaceholderModule,
   FileTreeModule,
-} from "./modules";
-import { BranchModule } from "./modules/branch";
-import { TimePlaceholderModule, TimeRangeModule } from "./modules/time";
+} from "./modules/file";
+import { TimePlaceholderModule, TimeRangeByDateModule, TimeRangeByRefModule } from "./modules/time";
+import { TimeSinceFirstCommitByModule } from "./modules/time/time-since-first-commit-by-module";
 import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
 
 export function ModuleProvider() {
   const { query } = useQuery();
   const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
-
-  const branchQuery = <BranchModule key="branch-module" />;
 
   const presetMatch = match(query)
     .with({ type: P.select() }, (type) => {
@@ -32,7 +34,13 @@ export function ModuleProvider() {
     .with({ time: P.select() }, (time) => {
       return match(time)
         .with({ rangeByDate: P.select() }, () => {
-          return <TimeRangeModule key="time-range-module" />;
+          return <TimeRangeByDateModule key="time-range-by-date-module" />;
+        })
+        .with({ rangeByRef: P.select() }, () => {
+          return <TimeRangeByRefModule key="time-range-by-ref-module" />;
+        })
+        .with({ sinceFirstCommitBy: P.select() }, () => {
+          return <TimeSinceFirstCommitByModule key="time-since-first-commit-by-module" />;
         })
         .otherwise(() => {
           return <TimePlaceholderModule key="time-placeholder-module" />;
@@ -57,6 +65,18 @@ export function ModuleProvider() {
               return <FileTreeModule key="file-tree-module" />;
             });
         })
+        .with({ editedBy: P.select() }, () => {
+          return <FileEditedByModule key="file-edited-by-module" />;
+        })
+        .with({ lastEditedBy: P.select() }, () => {
+          return <FileLastEditedByModule key="file-last-edited-by-module" />;
+        })
+        .with({ createdBy: P.select() }, () => {
+          return <FileCreatedByModule key="file-created-by-module" />;
+        })
+        .with({ contains: P.select() }, () => {
+          return <FileContainsModule key="file-contains-module" />;
+        })
         .otherwise(() => {
           return <FilePlaceholderModule key="file-placeholder-module" />;
         });
@@ -73,7 +93,7 @@ export function ModuleProvider() {
 
   return (
     <LocalQueryContext.Provider value={{ localQuery, updateLocalQuery, publishLocalQuery }}>
-      {[branchQuery, presetMatch, timeMatch, fileMatch]}
+      {[presetMatch, timeMatch, fileMatch]}
     </LocalQueryContext.Provider>
   );
 }

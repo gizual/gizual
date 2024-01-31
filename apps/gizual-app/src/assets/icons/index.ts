@@ -22,6 +22,7 @@ export { ReactComponent as IconFolderZip } from "./folder-zip.svg";
 export { ReactComponent as IconFullscreen } from "./fullscreen.svg";
 export { ReactComponent as IconGitBranchLine } from "./git-branch-line.svg";
 export { ReactComponent as IconGitFork } from "./git-fork.svg";
+export { ReactComponent as IconInfo } from "./info.svg";
 export { ReactComponent as IconIos } from "./ios.svg";
 export { ReactComponent as IconLayout } from "./layout.svg";
 export { ReactComponent as IconMagnifyMinus } from "./magnify-minus-outline.svg";

@@ -37,7 +37,7 @@ export const TimeMenuItems = React.memo(
       },
       {
         key: "rangeByRef",
-        title: "Range by ref",
+        title: "Range by revision",
         onClick: () => {
           query.updateQuery({ time: { rangeByRef: "" } });
         },

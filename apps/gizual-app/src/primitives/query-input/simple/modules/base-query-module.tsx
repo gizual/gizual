@@ -1,7 +1,7 @@
-import { IconChevronDown, IconEdit } from "@app/assets";
+import { IconChevronDown, IconEdit, IconInfo } from "@app/assets";
 import { Button } from "@app/primitives/button";
 import { IconButton } from "@app/primitives/icon-button";
-import { Menu } from "@mantine/core";
+import { Menu, Tooltip } from "@mantine/core";
 import clsx from "clsx";
 import React from "react";
 
@@ -15,6 +15,8 @@ export type BaseQueryModuleProps = {
   onSwap?: () => void;
   menuItems?: React.ReactNode;
 
+  hasHelpTooltip?: boolean;
+  helpContent?: string;
   hasEditButton?: boolean;
   onEdit?: () => void;
   editButtonComponent?: React.ReactNode;
@@ -28,6 +30,8 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
     hasSwapButton,
     onSwap,
     menuItems,
+    hasHelpTooltip,
+    helpContent,
     hasEditButton,
     onEdit,
     editButtonComponent,
@@ -40,6 +44,13 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
         {title && <div className={style.QueryModuleTitle}>{title}</div>}
       </div>
       {children}
+      {hasHelpTooltip && (
+        <Tooltip label={helpContent} withArrow>
+          <div>
+            <IconInfo className={style.QueryModuleIcon} />
+          </div>
+        </Tooltip>
+      )}
       {hasSwapButton && (
         <Menu
           onChange={() => {

@@ -13,6 +13,10 @@ function getBranchEntry(query: SearchQueryType) {
   return "";
 }
 
+/**
+ * @deprecated This module is deprecated since it has been consolidated with `TimeRangeByDateModule`.
+ * @see TimeRangeByDateModule
+ */
 export const BranchModule = observer(() => {
   const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
   const mainController = useMainController();
