@@ -3,10 +3,12 @@
 ### Features
 
 - **app:canvas:** implement minimap and legend overlay, constrain canvas viewport
+- **app:frontend:** add welcome screen preview videos for all loaders
 
 ### Changes
 
 - **app:frontend:** improve behavior and layout of the color-picker
+- **app:frontend:** improve layout of welcome screen and vis-type dialog
 
 ## Gizual 3.0.0-alpha.14 (16.01.2024)
 

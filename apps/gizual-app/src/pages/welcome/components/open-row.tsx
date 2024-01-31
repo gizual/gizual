@@ -14,13 +14,13 @@ type OpenRowProps = {
 
 export function OpenRow({ icon, title, isSelected = false, onSelect = () => {} }: OpenRowProps) {
   return (
-    <div className={clsx(style.OpenRow, shared.FlexRow, isSelected && style.OpenRow__Selected)}>
-      <div className={clsx(style.OpenRowLeft, shared.InlineFlexRow)}>
+    <ul className={clsx(style.OpenRow, shared.FlexRow, isSelected && style.OpenRow__Selected)}>
+      <li className={clsx(style.OpenRowLeft, shared.InlineFlexRow)}>
         {icon}
-        <a className={style.OpenRowTitle} onClick={() => onSelect()}>
+        <a className={style.OpenRowTitle} onClick={() => onSelect()} tabIndex={0}>
           {title}
         </a>
-      </div>
+      </li>
 
       {/*<div className={shared.RightAlignedGroup}>
         {supportedBy.map((browser) => {
@@ -63,6 +63,6 @@ export function OpenRow({ icon, title, isSelected = false, onSelect = () => {} }
           }
         })}
       </div>*/}
-    </div>
+    </ul>
   );
 }

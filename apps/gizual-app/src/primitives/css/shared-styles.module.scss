@@ -290,6 +290,10 @@
   @include text-xl;
 }
 
+.Text-2Xl {
+  @include text-2xl;
+}
+
 .Text-Left {
   text-align: left;
 }
@@ -332,4 +336,24 @@
 .Separator {
   width: 1px;
   border-right: 1px solid var(--border-primary);
+}
+
+.Hidden {
+  display: none;
+}
+
+.Visible {
+  display: block;
+}
+
+.Opacity0 {
+  opacity: 0;
+}
+
+.Opacity100 {
+  opacity: 1;
+}
+
+.TransitionOpacity {
+  transition: opacity 0.25s;
 }

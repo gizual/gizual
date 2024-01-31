@@ -82,7 +82,7 @@
 .DropZone {
   flex-grow: 0;
   align-self: flex-start;
-  border: 2px dashed var(--foreground-secondary);
+  border: 2px dashed var(--border-secondary);
   text-align: center;
   margin: 1px;
   padding: 2px;
@@ -90,7 +90,6 @@
   &.DropZoneActive {
     background-color: gray;
     border: 3px dashed var(--foreground-primary);
-    margin: 0;
   }
 
   &.DropZoneActive .DropZoneText {
@@ -122,27 +121,24 @@
 }
 
 .SplitPanel {
-  display: flex;
-  flex-direction: row;
+  display: grid;
   gap: 1rem;
   flex-grow: 1;
   padding: 0 1rem;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+
+  @media (width >= 1024px) {
+    grid-template-columns: 1fr 1px 2fr;
+  }
 }
 
 .Column {
   gap: 1rem;
   width: 100%;
-  max-width: 100%;
-  min-width: calc(100vw - 2rem);
   padding: 1rem 0;
   overflow-x: hidden;
   overflow-y: auto;
-
-  @include lg {
-    width: 33%;
-    max-width: 450px;
-    min-width: 380px;
-  }
 }
 
 .DetailColumn {
@@ -218,14 +214,22 @@
 }
 
 .OpenRow {
+  @include rounded;
   gap: 1rem;
+  transition: background-color 0.25s;
+  border: 1px solid var(--background-secondary);
+  margin: -1px;
+
+  &:hover {
+    background-color: var(--background-tertiary);
+  }
 }
 
 .OpenRow__Selected {
-  @include rounded;
-  border-width: 0;
   transition: background-color 0.25s;
-  background-color: var(--background-tertiary);
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-primary);
+  margin: -1px;
 }
 
 .OpenRowLeft {
@@ -233,6 +237,7 @@
   flex-shrink: 0;
   gap: 0.5rem;
   position: relative;
+  margin-left: 0.5rem;
 }
 
 .OpenRowTitle {
@@ -242,6 +247,7 @@
   flex-shrink: 0;
   text-align: left;
   color: var(--foreground-link);
+  text-decoration: none;
 }
 
 .RepoRowLeft {
@@ -353,35 +359,48 @@
   font-style: italic;
 }
 
+//:root {
+//  --_aspect-ratio: 1.7777777778;
+//  --_width: 550px;
+//  --_min-width: 200px;
+//}
+//
 .GifPanel {
   --_aspect-ratio: 1.7777777778;
   --_width: 550px;
   --_min-width: 200px;
-  @include rounded;
 
   position: relative;
-  min-width: var(--_min-width);
-  min-height: calc(var(--_min-width) / var(--_aspect-ratio));
+  //min-width: var(--_min-width);
+  //min-height: calc(var(--_min-width) / var(--_aspect-ratio));
   aspect-ratio: var(--_aspect-ratio);
+  width: var(--_width);
 
-  width: 100%;
-
-  max-width: var(--_width);
-  max-height: calc(var(--_width) / var(--_aspect-ratio));
   background-color: var(--background-secondary);
 }
 
 .LoadButton {
-  width: 400px;
-  min-width: 200px;
+  width: 300px;
+  min-width: 150px;
 }
 
 .Gif {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: var(--_width);
+  aspect-ratio: var(--_aspect-ratio);
+  object-fit: cover;
   opacity: 0;
   animation: fadein 0.25s ease-in-out forwards;
+}
+
+.GifDescription {
+  background-color: var(--background-tertiary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  inset: 0;
+  z-index: 20;
 }
 
 @keyframes fadein {
@@ -398,4 +417,5 @@
   height: 100%;
   object-fit: contain;
   opacity: 1;
+  z-index: 10;
 }
