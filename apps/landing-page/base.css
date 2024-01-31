@@ -169,4 +169,28 @@
       --border-secondary: var(--color-gray);
     }
   }
+
+  html, section {
+    @apply overflow-x-hidden;
+  }
+
+  h1 {
+    @apply text-3xl font-extrabold leading-tight tracking-tight md:text-6xl;
+  }
+
+  h2 {
+    @apply text-2xl font-extrabold md:text-4xl tracking-tight leading-snug pb-2 bg-gradient-to-b from-slate-200/100 to-slate-200/70 bg-clip-text text-transparent;
+  }
+  
+  em {
+    @apply not-italic font-extrabold text-accent-main;
+  }
+
+  span {
+    @apply text-balance;
+  }
+
+  .emGradient {
+    @apply bg-400% animate-bgAnimate bg-gradient-to-r from-blue-500 to-teal-400 bg-clip-text text-transparent;
+  }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import GithubMark from "./github-mark-white.svg";
+import GithubIcon from "./icons/github-mark-white.svg?react";
 
 function Header({ logo }: { logo: string }) {
   const [top, setTop] = useState(true);
@@ -14,7 +14,7 @@ function Header({ logo }: { logo: string }) {
   }, [top]);
 
   return (
-    <header className="fixed z-30 w-full bg-black opacity-90 shadow-lg backdrop-blur-lg transition duration-300 ease-in-out md:bg-opacity-90">
+    <header className="fixed z-30 w-full max-w-[100vw] border-b border-border-primary bg-black opacity-95 shadow-lg backdrop-blur-sm transition duration-300 ease-in-out md:bg-opacity-90">
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <div className="flex h-12 items-center justify-between md:h-16">
           {/* Site branding */}
@@ -27,16 +27,16 @@ function Header({ logo }: { logo: string }) {
 
           {/* Site navigation */}
           <nav className="flex flex-grow">
-            <ul className="flex flex-grow flex-wrap items-center justify-end">
-              <li>
+            <ul className="flex flex-grow flex-wrap items-center justify-end gap-4">
+              <li title="Github link coming soon! :)">
                 {/*<a href="https://github.com/gizual/gizual" aria-label="Github Repository - Gizual">*/}
-                <img src={GithubMark.src} className="h-4 sm:h-6"></img>
+                <GithubIcon className="aspect-auto h-6 sm:h-8"></GithubIcon>
                 {/*</a>*/}
               </li>
               <li>
                 <a
-                  href="/documentation"
-                  className="flex items-center px-5 py-3 text-base font-medium text-foreground-tertiary transition duration-150 ease-in-out hover:text-foreground-secondary"
+                  href="/docs"
+                  className="flex items-center py-3 text-base font-medium text-foreground-tertiary transition duration-150 ease-in-out hover:text-foreground-secondary"
                 >
                   Documentation
                 </a>
