@@ -41,7 +41,7 @@ export const TimeRangeByRefModule = observer(() => {
   return (
     <TimeBaseQueryModule
       icon={<IconClock />}
-      title={"Range by ref:"}
+      title={"Range by revision:"}
       hasSwapButton
       disableItems={["rangeByRef"]}
       highlightItems={["rangeByRef"]}

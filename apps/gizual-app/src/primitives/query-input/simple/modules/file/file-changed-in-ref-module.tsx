@@ -20,12 +20,12 @@ export function FileChangedInRefModule() {
   return (
     <FileBaseQueryModule
       icon={<IconFile />}
-      title={"Changed in ref:"}
+      title={"Changed in revision:"}
       hasSwapButton
       disableItems={["changedInRef"]}
       highlightItems={["changedInRef"]}
       hasHelpTooltip
-      helpContent="Enter a valid git ref to search for. Example: HEAD, master, origin/master, etc."
+      helpContent="Enter a valid git revision to search for. Example: HEAD, master, origin/master, etc."
     >
       <div className={style.SpacedChildren}>
         <Select

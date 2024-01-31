@@ -58,7 +58,7 @@ export const FileMenuItems = React.memo(
       },
       {
         key: "changedInRef",
-        title: "Changed in ref",
+        title: "Changed in revision",
         onClick: () => {
           query.updateQuery({ files: { changedInRef: "" } });
         },
