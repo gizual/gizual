@@ -87,7 +87,7 @@ function HeroModule({
               Looking for even more performance? Download the native{" "}
               <a
                 className="text-left font-normal text-foreground-link transition-all hover:underline"
-                href="https://app.gizual.com"
+                href="/tauri"
               >
                 Tauri build
               </a>
@@ -134,7 +134,7 @@ function HeroModule({
                   </ul>
                   <img
                     src={canvasImageSrc}
-                    className="relative top-5 aspect-auto w-full rounded border-2 border-border-primary md:absolute md:right-[-10%] md:top-[15%] md:max-h-[70%] md:w-auto md:max-w-[60%]"
+                    className="relative top-5 mb-6 aspect-auto w-full rounded border-2 border-border-primary md:absolute md:right-[-10%] md:top-[15%] md:mb-0 md:max-h-[70%] md:w-auto md:max-w-[60%]"
                   />
                 </div>
               </div>

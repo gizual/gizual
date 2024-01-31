@@ -28,11 +28,6 @@ function Header({ logo }: { logo: string }) {
           {/* Site navigation */}
           <nav className="flex flex-grow">
             <ul className="flex flex-grow flex-wrap items-center justify-end gap-4">
-              <li title="Github link coming soon! :)">
-                {/*<a href="https://github.com/gizual/gizual" aria-label="Github Repository - Gizual">*/}
-                <GithubIcon className="aspect-auto h-6 sm:h-8"></GithubIcon>
-                {/*</a>*/}
-              </li>
               <li>
                 <a
                   href="/docs"
@@ -40,6 +35,11 @@ function Header({ logo }: { logo: string }) {
                 >
                   Documentation
                 </a>
+              </li>
+              <li title="Github link coming soon! :)">
+                {/*<a href="https://github.com/gizual/gizual" aria-label="Github Repository - Gizual">*/}
+                <GithubIcon className="aspect-auto h-6 sm:h-8"></GithubIcon>
+                {/*</a>*/}
               </li>
             </ul>
           </nav>

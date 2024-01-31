@@ -119,7 +119,7 @@
     --color-gold: #ffb800;
 
     /* Color definitions */
-    @media (prefers-color-scheme: light) {
+    /*@media (prefers-color-scheme: light) {
       --background-primary: var(--color-white);
       --background-secondary: var(--color-lightgray);
       --background-tertiary: var(--color-zinc);
@@ -142,35 +142,34 @@
 
       --border-primary: var(--color-gray);
       --border-secondary: var(--color-darkslate);
-    }
+    }*/
 
-    @media (prefers-color-scheme: dark) {
-      --background-primary: var(--color-darkgray);
-      --background-secondary: var(--color-black);
-      --background-tertiary: var(--color-gunmetal);
-      --background-red: var(--color-darkred);
-      --foreground-primary: var(--color-lightgray);
-      --foreground-secondary: var(--color-white);
-      --foreground-tertiary: var(--color-zinc);
-      --foreground-disabled: var(--color-disabled);
-      --foreground-link: #8cb4ff;
+    --background-primary: var(--color-darkgray);
+    --background-secondary: var(--color-black);
+    --background-tertiary: var(--color-gunmetal);
+    --background-red: var(--color-darkred);
+    --foreground-primary: var(--color-lightgray);
+    --foreground-secondary: var(--color-white);
+    --foreground-tertiary: var(--color-zinc);
+    --foreground-disabled: var(--color-disabled);
+    --foreground-link: #8cb4ff;
 
-      --accent-main: var(--color-gizblue);
-      --accent-main-hover: var(--color-gizblue-hover);
-      --accent-main-dark: var(--color-gizblue-dark);
-      --accent-main-dark-hover: var(--color-gizblue-dark);
-      --accent-main-fg: var(--color-white);
-      --accent-secondary: var(--color-plum);
-      --accent-secondary-fg: var(--color-white);
-      --accent-tertiary: var(--color-tomato);
-      --accent-tertiary-fg: var(--color-white);
+    --accent-main: var(--color-gizblue);
+    --accent-main-hover: var(--color-gizblue-hover);
+    --accent-main-dark: var(--color-gizblue-dark);
+    --accent-main-dark-hover: var(--color-gizblue-dark);
+    --accent-main-fg: var(--color-white);
+    --accent-secondary: var(--color-plum);
+    --accent-secondary-fg: var(--color-white);
+    --accent-tertiary: var(--color-tomato);
+    --accent-tertiary-fg: var(--color-white);
 
-      --border-primary: var(--color-darkslate);
-      --border-secondary: var(--color-gray);
-    }
+    --border-primary: var(--color-darkslate);
+    --border-secondary: var(--color-gray);
   }
 
-  html, section {
+  html,
+  section {
     @apply overflow-x-hidden;
   }
 
@@ -179,11 +178,11 @@
   }
 
   h2 {
-    @apply text-2xl font-extrabold md:text-4xl tracking-tight leading-snug pb-2 bg-gradient-to-b from-slate-200/100 to-slate-200/70 bg-clip-text text-transparent;
+    @apply bg-gradient-to-b from-slate-200/100 to-slate-200/70 bg-clip-text pb-2 text-2xl font-extrabold leading-snug tracking-tight text-transparent md:text-4xl;
   }
-  
+
   em {
-    @apply not-italic font-extrabold text-accent-main;
+    @apply font-extrabold not-italic text-accent-main;
   }
 
   span {
@@ -191,6 +190,6 @@
   }
 
   .emGradient {
-    @apply bg-400% animate-bgAnimate bg-gradient-to-r from-blue-500 to-teal-400 bg-clip-text text-transparent;
+    @apply animate-bgAnimate bg-gradient-to-r from-blue-500 to-teal-400 bg-400% bg-clip-text text-transparent;
   }
 }
