@@ -80,6 +80,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   private db: Database;
 
   private needsRerender = false;
+  private requiredDpr = 1;
 
   constructor(opts: MaestroOpts) {
     super();
@@ -94,6 +95,24 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
     this.db = new Database();
   }
+
+  setScale = (scale: number) => {
+    let dpr = 1;
+
+    if (scale > 2.5) {
+      dpr = 3.5;
+    } else if (scale > 1.5) {
+      dpr = 3;
+    } else if (scale > 1) {
+      dpr = 2;
+    }
+
+    const changed = this.requiredDpr !== dpr;
+    if (changed) {
+      this.requiredDpr = dpr;
+      this.scheduleAllBlockRenders();
+    }
+  };
 
   checkNeedsRerender = () => {
     if (this.needsRerender) {
@@ -632,7 +651,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     this.blocks = this.blocks.filter((b) => !toDelete.includes(b));
 
     // add new blocks
-    this.blocks.push(...toAdd);
+    this.blocks.push(...toAdd.map((b) => ({ ...b, dpr: 0 })));
 
     if (toAdd.length > 0) {
       this.setNeedsRerender();
@@ -650,6 +669,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       return;
     }
     block.priority = priority;
+    if (!block.blameJobRef) {
+      this.scheduleBlockRender(id);
+    }
     block.blameJobRef?.setPriority(priority);
   };
 
@@ -665,6 +687,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   };
 
   scheduleAllBlockRenders = () => {
+    console.log("scheduleAllBlockRenders");
     for (const block of this.blocks) {
       this.scheduleBlockRender(block.id);
     }
@@ -683,18 +706,16 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       cachedAuthors,
       renderCacheKey,
       range,
+      requiredDpr,
     } = this;
 
-    if (block.currentImageCacheKey === renderCacheKey) {
+    if (block.currentImageCacheKey === renderCacheKey && block.dpr === requiredDpr) {
       // Already rendered
       return;
     }
 
     if (block.blameJobRef) {
-      if (block.upcomingImageCacheKey === renderCacheKey) {
-        // Already scheduled
-        return;
-      }
+      // reschedule blame job
       block.blameJobRef.cancel();
       block.blameJobRef = undefined;
       block.upcomingImageCacheKey = undefined;
@@ -714,79 +735,84 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       block.priority,
     ) as any;
 
-    block.blameJobRef?.promise.then(async (blame) => {
-      const lines = parseLines(blame);
+    block.blameJobRef?.promise
+      .then(async (blame) => {
+        const lines = parseLines(blame);
 
-      const [selectedStartDate, selectedEndDate] = match(query.time)
-        .with(QueryPattern.time.rangeByDate, ({ rangeByDate }) => {
-          return resolveRangeByDate(rangeByDate);
-        })
-        .with(QueryPattern.time.rangeByRef, (t) => {
-          throw new Error("Unsupported time range");
-        })
-        .with(QueryPattern.time.sinceFirstCommitBy, (t) => {
-          throw new Error("Unsupported time range");
-        })
-        .with(Pattern.nullish, () => {
-          throw new Error("Unsupported time range");
-        })
-        .exhaustive();
+        const [selectedStartDate, selectedEndDate] = match(query.time)
+          .with(QueryPattern.time.rangeByDate, ({ rangeByDate }) => {
+            return resolveRangeByDate(rangeByDate);
+          })
+          .with(QueryPattern.time.rangeByRef, (t) => {
+            throw new Error("Unsupported time range");
+          })
+          .with(QueryPattern.time.sinceFirstCommitBy, (t) => {
+            throw new Error("Unsupported time range");
+          })
+          .with(Pattern.nullish, () => {
+            throw new Error("Unsupported time range");
+          })
+          .exhaustive();
 
-      if (lines.length === 0) {
-        return;
-      }
-      const visualizationConfig: VisualizationConfig = {
-        colors: {
-          newest: visualizationSettings.colors.new.value,
-          oldest: visualizationSettings.colors.old.value,
-          notLoaded: visualizationSettings.colors.notLoaded.value,
-        },
-        style: {
-          lineLength: visualizationSettings.style.lineLength.value,
-        },
-      };
+        if (lines.length === 0) {
+          return;
+        }
+        const visualizationConfig: VisualizationConfig = {
+          colors: {
+            newest: visualizationSettings.colors.new.value,
+            oldest: visualizationSettings.colors.old.value,
+            notLoaded: visualizationSettings.colors.notLoaded.value,
+          },
+          style: {
+            lineLength: visualizationSettings.style.lineLength.value,
+          },
+        };
 
-      let coloringMode: "age" | "author" = "age";
+        let coloringMode: "age" | "author" = "age";
 
-      if (query.preset && "gradientByAge" in query.preset) {
-        visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
-        visualizationConfig.colors.newest = query.preset.gradientByAge[1];
-      } else if (query.preset && "paletteByAuthor" in query.preset) {
-        coloringMode = "author";
-      }
+        if (query.preset && "gradientByAge" in query.preset) {
+          visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
+          visualizationConfig.colors.newest = query.preset.gradientByAge[1];
+        } else if (query.preset && "paletteByAuthor" in query.preset) {
+          coloringMode = "author";
+        }
 
-      const { result } = await renderPool.renderCanvas({
-        type: RenderType.FileLines,
-        fileContent: lines,
-        lineLengthMax: 120,
-        coloringMode,
-        authors: cachedAuthors,
-        showContent: true,
-        dpr: 1,
-        earliestTimestamp: selectedStartDate.getTime() / 1000, // TODO: should be removed
-        latestTimestamp: selectedEndDate.getTime() / 1000, // TODO: should be removed
-        selectedStartDate,
-        selectedEndDate,
-        rect: new DOMRect(0, 0, 300, lines.length * 10),
-        isPreview: false,
-        visualizationConfig,
+        const { result } = await renderPool.renderCanvas({
+          type: RenderType.FileLines,
+          fileContent: lines,
+          lineLengthMax: 120,
+          coloringMode,
+          authors: cachedAuthors,
+          showContent: true,
+          dpr: requiredDpr,
+          earliestTimestamp: selectedStartDate.getTime() / 1000, // TODO: should be removed
+          latestTimestamp: selectedEndDate.getTime() / 1000, // TODO: should be removed
+          selectedStartDate,
+          selectedEndDate,
+          rect: new DOMRect(0, 0, 300, lines.length * 10),
+          isPreview: false,
+          visualizationConfig,
+        });
+
+        if (block.url) {
+          URL.revokeObjectURL(block.url);
+          block.url = undefined;
+        }
+
+        block.url = result;
+        block.blameJobRef = undefined;
+        block.currentImageCacheKey = currentCacheKey;
+        block.upcomingImageCacheKey = undefined;
+        block.dpr = requiredDpr;
+
+        this.emit("block:updated", id, {
+          url: result,
+          isPreview: false,
+        });
+      })
+      .catch((error) => {
+        console.error("Error while rendering block", error);
       });
-
-      if (block.url) {
-        URL.revokeObjectURL(block.url);
-        block.url = undefined;
-      }
-
-      block.url = result;
-      block.blameJobRef = undefined;
-      block.currentImageCacheKey = currentCacheKey;
-      block.upcomingImageCacheKey = undefined;
-
-      this.emit("block:updated", id, {
-        url: result,
-        isPreview: false,
-      });
-    });
   };
 
   // ---------------------------------------------
@@ -941,14 +967,14 @@ type BlockEntry = Block & {
   currentImageCacheKey?: string;
   upcomingImageCacheKey?: string;
   priority?: number;
-  scale?: number;
+  dpr: number;
   blameJobRef?: JobRef<Blame>;
 };
 
 function serializableBlock(block: BlockEntry): Block {
   return omit(block, [
     "blameJobRef",
-    "scale",
+    "dpr",
     "priority",
     "currentImageCacheKey",
     "upcomingImageCacheKey",

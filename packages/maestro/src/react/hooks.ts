@@ -8,6 +8,7 @@ import type { AppRouter } from "../maestro-worker";
 import { Block, Metrics, State } from "../maestro-worker-v2";
 
 import { MaestroContext, TrpcContext } from "./providers";
+import { debounce } from "lodash";
 
 function isSupportedBrowser() {
   return "showDirectoryPicker" in window;
@@ -169,7 +170,7 @@ export type UseQueryResult = {
 export function useQuery(): UseQueryResult {
   const trpc = useTrpc();
 
-  const [query, setQueryCache] = React.useState<SearchQueryType>({});
+  const [query, setQueryCache] = React.useState<SearchQueryType>({} as any);
 
   trpc.query.useSubscription(undefined, {
     onData: (data) => {
@@ -200,6 +201,21 @@ export function useQuery(): UseQueryResult {
   return { query, updateQuery, setQuery };
 }
 
+export function useSetScale(): (scale: number) => void {
+  const trpc = useTrpc();
+
+  const setScaleMutation = trpc.setScale.useMutation();
+
+  const setScale = React.useCallback(
+    (scale: number) => {
+      setScaleMutation.mutate({ scale });
+    },
+    [setScaleMutation.mutate],
+  );
+
+  return setScale;
+}
+
 export function useQueryIsValid(): boolean {
   return useGlobalState().queryValid;
 }
@@ -227,6 +243,9 @@ export function useGlobalState(): GlobalState {
     commitsIndexed: false,
     filesIndexed: false,
     error: undefined,
+    branches: [],
+    remotes: [],
+    tags: [],
   });
 
   const trpc = useTrpc();
@@ -337,9 +356,13 @@ export function useBlockImage(id: string) {
   const setPriorityMutation = trpc.setPriority.useMutation();
 
   const setPriority = React.useCallback(
-    (priority: number) => {
-      setPriorityMutation.mutate({ id, priority });
-    },
+    debounce(
+      (priority: number) => {
+        setPriorityMutation.mutate({ id, priority });
+      },
+      200,
+      { leading: false, trailing: true },
+    ),
     [setPriorityMutation.mutate],
   );
 

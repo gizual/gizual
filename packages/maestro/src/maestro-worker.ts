@@ -85,6 +85,9 @@ const router = t.router({
     .mutation(({ input }) => {
       maestro.updateQuery(input.input);
     }),
+  setScale: t.procedure.input(z.object({ scale: z.number() })).mutation(({ input }) => {
+    maestro.setScale(input.scale);
+  }),
   setPriority: t.procedure
     .input(z.object({ id: z.string(), priority: z.number() }))
     .mutation(async ({ input }) => {

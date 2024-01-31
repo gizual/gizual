@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { useBlocks } from "@giz/maestro/react";
+import { useBlocks, useSetScale } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { Timeline } from "../timeline";
@@ -151,6 +151,7 @@ const CANVAS_PADDING = 16;
 const InnerCanvas = observer<any, HTMLDivElement>(
   ({ vm, interactiveRef, ...defaultProps }: InnerCanvasProps, ref) => {
     const mainController = useMainController();
+    const maestroSetScale = useSetScale();
     const [isPanning, setIsPanning] = useState(false);
     const [state, setState] = useState<{ scale: number; positionX: number; positionY: number }>({
       scale: 1,
@@ -245,6 +246,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             },
           ) => {
             mainController.setScale(state.scale);
+            maestroSetScale(state.scale);
             setState(state);
           }}
         >
