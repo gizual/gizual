@@ -27,6 +27,7 @@ export const TimeMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ time: { sinceFirstCommitBy: "" } });
         },
+        disabled: true,
       },
       {
         key: "rangeByDate",
@@ -41,6 +42,7 @@ export const TimeMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ time: { rangeByRef: "" } });
         },
+        disabled: true,
       },
     ]
       .filter((item) => !hideItems?.includes(item.key))

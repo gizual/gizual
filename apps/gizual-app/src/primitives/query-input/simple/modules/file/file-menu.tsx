@@ -41,6 +41,7 @@ export const FileMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ files: { lastEditedBy: "" } });
         },
+        disabled: true,
       },
       {
         key: "editedBy",
@@ -48,6 +49,7 @@ export const FileMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ files: { editedBy: "" } });
         },
+        disabled: true,
       },
       {
         key: "createdBy",
@@ -55,6 +57,7 @@ export const FileMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ files: { createdBy: "" } });
         },
+        disabled: true,
       },
       {
         key: "changedInRef",
@@ -62,6 +65,7 @@ export const FileMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ files: { changedInRef: "" } });
         },
+        disabled: true,
       },
       {
         key: "contains",
@@ -69,6 +73,7 @@ export const FileMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ files: { contains: "" } });
         },
+        disabled: true,
       },
     ]
       .filter((item) => !hideItems?.includes(item.key))
