@@ -207,9 +207,16 @@ export function useSetScale(): (scale: number) => void {
   const setScaleMutation = trpc.setScale.useMutation();
 
   const setScale = React.useCallback(
-    (scale: number) => {
-      setScaleMutation.mutate({ scale });
-    },
+    debounce(
+      (scale: number) => {
+        setScaleMutation.mutate({ scale });
+      },
+      400,
+      {
+        leading: false,
+        trailing: true,
+      },
+    ),
     [setScaleMutation.mutate],
   );
 
@@ -353,17 +360,18 @@ export type UseBlockImageResult = {
 export function useBlockImage(id: string) {
   const trpc = useTrpc();
 
-  const setPriorityMutation = trpc.setPriority.useMutation();
+  const setBlockInViewMutation = trpc.setBlockInViewMutation.useMutation();
+  const ref = React.useRef<boolean>(false);
 
   const setPriority = React.useCallback(
-    debounce(
-      (priority: number) => {
-        setPriorityMutation.mutate({ id, priority });
-      },
-      200,
-      { leading: false, trailing: true },
-    ),
-    [setPriorityMutation.mutate],
+    (priority: number) => {
+      const inView = priority > 0;
+      const changed = ref.current !== inView;
+      if (!changed) return;
+      ref.current = inView;
+      setBlockInViewMutation.mutate({ id, inView });
+    },
+    [setBlockInViewMutation.mutate],
   );
 
   const [blockImage, setBlockImage] = React.useState({

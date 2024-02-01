@@ -663,16 +663,14 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     );
   };
 
-  setBlockPriority = (id: string, priority: number) => {
+  setBlockInView = (id: string, inView: boolean) => {
     const block = this.blocks.find((b) => b.id === id);
     if (!block) {
       return;
     }
-    block.priority = priority;
-    if (!block.blameJobRef) {
-      this.scheduleBlockRender(id);
-    }
-    block.blameJobRef?.setPriority(priority);
+    const changed = block.inView !== inView;
+    block.inView = inView;
+    if (changed) this.scheduleBlockRender(id);
   };
 
   getBlockImage = (id: string): BlockImage => {
@@ -693,11 +691,12 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
   };
 
-  scheduleBlockRender = (id: string) => {
+  scheduleBlockRender = async (id: string) => {
     const block = this.blocks.find((b) => b.id === id);
     if (!block) {
       throw new Error("Block not found");
     }
+
     const {
       query,
       explorerPool,
@@ -717,110 +716,111 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       showContent = false;
     }
 
+    if (!block.inView) {
+      requiredDpr = 1;
+    }
+
+    if (!block.inView && !block.blameJobRef) {
+      return;
+    }
+
     if (block.currentImageCacheKey === renderCacheKey && block.dpr === requiredDpr) {
       // Already rendered
       return;
     }
 
-    if (block.blameJobRef) {
-      // reschedule blame job
-      block.blameJobRef.cancel();
-      block.blameJobRef = undefined;
-      block.upcomingImageCacheKey = undefined;
-    }
-
     if (block.type !== "file-lines") {
       throw new Error("Unsupported block type");
     }
+
+    if (!block.blameJobRef || block.currentImageCacheKey !== renderCacheKey) {
+      block.blameJobRef = explorerPool!.getBlame(
+        {
+          rev: range.until_commit_id,
+          path: block.filePath,
+          preview: false,
+          sinceRev: range.since_commit_id,
+        },
+        10,
+      ) as any;
+    }
+
+    const blame = await block.blameJobRef!.promise;
+
     const currentCacheKey = renderCacheKey;
     block.upcomingImageCacheKey = currentCacheKey;
-    block.blameJobRef = explorerPool!.getBlame(
-      {
-        rev: range.until_commit_id,
-        path: block.filePath,
-        preview: false,
-      },
-      block.priority,
-    ) as any;
 
-    block.blameJobRef?.promise
-      .then(async (blame) => {
-        const lines = parseLines(blame);
+    const lines = parseLines(blame);
 
-        const [selectedStartDate, selectedEndDate] = match(query.time)
-          .with(QueryPattern.time.rangeByDate, ({ rangeByDate }) => {
-            return resolveRangeByDate(rangeByDate);
-          })
-          .with(QueryPattern.time.rangeByRef, (t) => {
-            throw new Error("Unsupported time range");
-          })
-          .with(QueryPattern.time.sinceFirstCommitBy, (t) => {
-            throw new Error("Unsupported time range");
-          })
-          .with(Pattern.nullish, () => {
-            throw new Error("Unsupported time range");
-          })
-          .exhaustive();
-
-        if (lines.length === 0) {
-          return;
-        }
-        const visualizationConfig: VisualizationConfig = {
-          colors: {
-            newest: visualizationSettings.colors.new.value,
-            oldest: visualizationSettings.colors.old.value,
-            notLoaded: visualizationSettings.colors.notLoaded.value,
-          },
-          style: {
-            lineLength: visualizationSettings.style.lineLength.value,
-          },
-        };
-
-        let coloringMode: "age" | "author" = "age";
-
-        if (query.preset && "gradientByAge" in query.preset) {
-          visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
-          visualizationConfig.colors.newest = query.preset.gradientByAge[1];
-        } else if (query.preset && "paletteByAuthor" in query.preset) {
-          coloringMode = "author";
-        }
-
-        const { result } = await renderPool.renderCanvas({
-          type: RenderType.FileLines,
-          fileContent: lines,
-          lineLengthMax: 120,
-          coloringMode,
-          authors: cachedAuthors,
-          showContent,
-          dpr: requiredDpr,
-          earliestTimestamp: selectedStartDate.getTime() / 1000, // TODO: should be removed
-          latestTimestamp: selectedEndDate.getTime() / 1000, // TODO: should be removed
-          selectedStartDate,
-          selectedEndDate,
-          rect: new DOMRect(0, 0, 300, lines.length * 10),
-          isPreview: false,
-          visualizationConfig,
-        });
-
-        if (block.url) {
-          URL.revokeObjectURL(block.url);
-          block.url = undefined;
-        }
-
-        block.url = result;
-        block.blameJobRef = undefined;
-        block.currentImageCacheKey = currentCacheKey;
-        block.upcomingImageCacheKey = undefined;
-        block.dpr = requiredDpr;
-
-        this.emit("block:updated", id, {
-          url: result,
-          isPreview: false,
-        });
+    const [selectedStartDate, selectedEndDate] = match(query.time)
+      .with(QueryPattern.time.rangeByDate, ({ rangeByDate }) => {
+        return resolveRangeByDate(rangeByDate);
       })
-      .catch((error) => {
-        console.error("Error while rendering block", error);
-      });
+      .with(QueryPattern.time.rangeByRef, (t) => {
+        throw new Error("Unsupported time range");
+      })
+      .with(QueryPattern.time.sinceFirstCommitBy, (t) => {
+        throw new Error("Unsupported time range");
+      })
+      .with(Pattern.nullish, () => {
+        throw new Error("Unsupported time range");
+      })
+      .exhaustive();
+
+    if (lines.length === 0) {
+      return;
+    }
+    const visualizationConfig: VisualizationConfig = {
+      colors: {
+        newest: visualizationSettings.colors.new.value,
+        oldest: visualizationSettings.colors.old.value,
+        notLoaded: visualizationSettings.colors.notLoaded.value,
+      },
+      style: {
+        lineLength: visualizationSettings.style.lineLength.value,
+      },
+    };
+
+    let coloringMode: "age" | "author" = "age";
+
+    if (query.preset && "gradientByAge" in query.preset) {
+      visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
+      visualizationConfig.colors.newest = query.preset.gradientByAge[1];
+    } else if (query.preset && "paletteByAuthor" in query.preset) {
+      coloringMode = "author";
+    }
+
+    const { result } = await renderPool.renderCanvas({
+      type: RenderType.FileLines,
+      fileContent: lines,
+      lineLengthMax: 120,
+      coloringMode,
+      authors: cachedAuthors,
+      showContent,
+      dpr: requiredDpr,
+      earliestTimestamp: selectedStartDate.getTime() / 1000, // TODO: should be removed
+      latestTimestamp: selectedEndDate.getTime() / 1000, // TODO: should be removed
+      selectedStartDate,
+      selectedEndDate,
+      rect: new DOMRect(0, 0, 300, lines.length * 10),
+      isPreview: false,
+      visualizationConfig,
+    });
+
+    if (block.url) {
+      URL.revokeObjectURL(block.url);
+      block.url = undefined;
+    }
+
+    block.url = result;
+    block.currentImageCacheKey = currentCacheKey;
+    block.upcomingImageCacheKey = undefined;
+    block.dpr = requiredDpr;
+
+    this.emit("block:updated", id, {
+      url: result,
+      isPreview: false,
+    });
   };
 
   // ---------------------------------------------
@@ -974,7 +974,7 @@ type BlockEntry = Block & {
   // internal
   currentImageCacheKey?: string;
   upcomingImageCacheKey?: string;
-  priority?: number;
+  inView?: boolean;
   dpr: number;
   blameJobRef?: JobRef<Blame>;
 };

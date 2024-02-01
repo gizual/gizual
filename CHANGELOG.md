@@ -4,6 +4,9 @@
 
 - **app:canvas:** implement minimap and legend overlay, constrain canvas viewport
 - **app:frontend:** add welcome screen preview videos for all loaders
+- **app:maestro:** cache blames to improve performance
+- **app:maestro:** auto re-render with higher dpr based on current scale to increase sharpness
+- **app:maestro:** fallback to image/png mime-type for images which are too large for image/webp
 
 ### Changes
 
