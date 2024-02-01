@@ -99,10 +99,10 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   setScale = (scale: number) => {
     let dpr = 1;
 
-    if (scale > 2.5) {
+    if (scale > 2.8) {
       dpr = 3.5;
     } else if (scale > 1.5) {
-      dpr = 3;
+      dpr = 2.5;
     } else if (scale > 1) {
       dpr = 2;
     }
@@ -706,8 +706,16 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       cachedAuthors,
       renderCacheKey,
       range,
-      requiredDpr,
     } = this;
+
+    let { requiredDpr } = this;
+
+    let showContent = true;
+
+    if (block.height > 10_000) {
+      requiredDpr = 1;
+      showContent = false;
+    }
 
     if (block.currentImageCacheKey === renderCacheKey && block.dpr === requiredDpr) {
       // Already rendered
@@ -783,7 +791,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
           lineLengthMax: 120,
           coloringMode,
           authors: cachedAuthors,
-          showContent: true,
+          showContent,
           dpr: requiredDpr,
           earliestTimestamp: selectedStartDate.getTime() / 1000, // TODO: should be removed
           latestTimestamp: selectedEndDate.getTime() / 1000, // TODO: should be removed

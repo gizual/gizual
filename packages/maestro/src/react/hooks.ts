@@ -1,4 +1,5 @@
 import { CreateTRPCReact } from "@trpc/react-query";
+import { debounce } from "lodash";
 import React from "react";
 
 import { CommitInfo, FileTreeNode } from "@giz/explorer";
@@ -8,7 +9,6 @@ import type { AppRouter } from "../maestro-worker";
 import { Block, Metrics, State } from "../maestro-worker-v2";
 
 import { MaestroContext, TrpcContext } from "./providers";
-import { debounce } from "lodash";
 
 function isSupportedBrowser() {
   return "showDirectoryPicker" in window;
