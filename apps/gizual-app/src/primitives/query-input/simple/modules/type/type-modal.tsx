@@ -103,8 +103,8 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
     gradientColors && gradientColors.length > 0
       ? gradientColors
       : [
-          settingsController.settings.visualizationSettings.colors.old.defaultValue,
-          settingsController.settings.visualizationSettings.colors.new.defaultValue,
+          settingsController.settings.visualizationSettings.colors.old.value,
+          settingsController.settings.visualizationSettings.colors.new.value,
         ];
 
   const setSelectedType = (type: Type) => {

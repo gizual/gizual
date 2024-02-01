@@ -10,9 +10,6 @@ import { makeAutoObservable, toJS } from "mobx";
 
 import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
 
-const VIEW_MODES = ["block", "flex"] as const;
-type ViewMode = (typeof VIEW_MODES)[number];
-
 const TIMELINE_MODES = ["visible", "collapsed"] as const;
 type TimelineMode = (typeof TIMELINE_MODES)[number];
 
@@ -26,7 +23,6 @@ export type VisualizationSettings = {
     notLoaded: SettingsEntry<string, "color">;
   } & GroupEntry;
   canvas: {
-    viewMode: SettingsEntry<ViewMode, "select">;
     rootMargin: SettingsEntry<number, "number">;
   } & GroupEntry;
   style: {
@@ -109,14 +105,6 @@ export class SettingsController {
     },
     canvas: {
       groupName: "Canvas",
-      viewMode: createSelectSetting(
-        "View Mode",
-        "The view mode of the main canvas. Block assigns a fixed size to each file, while flex tries to allocate space as necessary.",
-        "block",
-        VIEW_MODES.map((s) => {
-          return { value: s, label: s };
-        }),
-      ),
       rootMargin: createNumberSetting(
         "Root Margin",
         "The margin of the canvas for evaluating file visibility, given in pixels. Positive margins enlarge the bounding box, negative margins shrink it.",
@@ -142,6 +130,8 @@ export class SettingsController {
     },
   };
 
+  eventCallbacks: Record<string, ((...args: any[]) => void)[]> = {};
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -152,6 +142,19 @@ export class SettingsController {
       timelineSettings: this.timelineSettings,
       visualizationSettings: this.visualizationSettings,
     };
+  }
+
+  on(
+    event: "visualSettings:changed",
+    cb: (visualSettings: VisualizationSettings) => void,
+    fireImmediately = false,
+  ) {
+    this.eventCallbacks[event] = this.eventCallbacks[event] || [];
+    this.eventCallbacks[event].push(cb);
+
+    if (fireImmediately) {
+      cb(toJS(this.visualizationSettings));
+    }
   }
 
   updateValue(entry: SettingsEntry<any, any>, newValue: any) {
@@ -178,6 +181,9 @@ export class SettingsController {
 
   storeSettings() {
     localStorage.setItem("gizual-app.settings", JSON.stringify(this.settings));
+    for (const cb of this.eventCallbacks["visualSettings:changed"] ?? []) {
+      cb(toJS(this.visualizationSettings));
+    }
   }
 
   downloadSettingsJSON() {

@@ -96,6 +96,7 @@ function BlockHeader({ isPreview, path, icon, iconColor }: BlockHeaderProps) {
             </div>
           }
           title={`${truncateSmart(path, 80)} (Read-Only)`}
+          contentClassName={style.EditorDialog}
         >
           <BlockEditor path={path} />
         </DialogProvider>

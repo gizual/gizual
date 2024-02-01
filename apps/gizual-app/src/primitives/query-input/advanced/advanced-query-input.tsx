@@ -76,7 +76,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
         onChange={(e) => parseInput(e)}
         width="unset"
         theme={theme === "light" ? "light" : "vs-dark"}
-        height="45vh"
+        height="100%"
       ></Editor>
       {vm.contentHasErrors && <>Validation error: {vm.validationOutput.join(", ")}</>}
     </div>

@@ -86,7 +86,7 @@ export const DialogProvider = React.memo(
                   }}
                 ></div>
                 <div
-                  className={style.Dialog}
+                  className={clsx(style.Dialog, style.DialogWithFooter)}
                   ref={ref}
                   style={{
                     minWidth: width,

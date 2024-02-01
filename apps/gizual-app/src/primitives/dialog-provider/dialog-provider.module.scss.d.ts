@@ -5,6 +5,7 @@ declare const classNames: {
   readonly DialogClose: "DialogClose";
   readonly Trigger: "Trigger";
   readonly Dialog: "Dialog";
+  readonly DialogWithFooter: "DialogWithFooter";
   readonly DialogHead: "DialogHead";
   readonly DialogBody: "DialogBody";
   readonly DialogTitle: "DialogTitle";

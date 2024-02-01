@@ -57,15 +57,13 @@ export class MainController {
     this._fileRendererPool = new FileRendererPool();
     this._maestro = maestro;
 
-    /* TODO:
-    this._settingsController.on("change", () => {
-      this._maestro.setVisualizationSettings(
-        this.settingsController.settings.visualizationSettings,
-      );
-    });
-    */
-
-    this._maestro.setVisualizationSettings(this.settingsController.settings.visualizationSettings);
+    this._settingsController.on(
+      "visualSettings:changed",
+      (s) => {
+        this._maestro.setVisualizationSettings(s);
+      },
+      true,
+    );
   }
 
   get repoController() {

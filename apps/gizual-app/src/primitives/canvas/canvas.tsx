@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { useBlocks, useSetScale } from "@giz/maestro/react";
+import { useBlocks, useQuery, useSetScale } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { Timeline } from "../timeline";
@@ -161,10 +161,21 @@ const InnerCanvas = observer<any, HTMLDivElement>(
 
     const [showMinimap, setShowMinimap] = useState(true);
     const [showLegend, setShowLegend] = useState(true);
+    const { query } = useQuery();
 
-    const wrapperWidth = interactiveRef?.current?.instance.wrapperComponent?.clientWidth ?? 0;
-    //const contentHeight = interactiveRef?.current?.instance.contentComponent?.clientHeight ?? 0;
-    const wrapperHeight = interactiveRef?.current?.instance.wrapperComponent?.clientHeight ?? 0;
+    const wrapperComponent = interactiveRef?.current?.instance.wrapperComponent;
+    const contentComponent = interactiveRef?.current?.instance.contentComponent;
+
+    // Whenever the query changes, we probably need to do a reflow to make sure everything fits within bounds.
+    React.useEffect(() => {
+      vm.reflow();
+    }, [query]);
+
+    const wrapperWidth = wrapperComponent?.clientWidth ?? 0;
+    const wrapperHeight = wrapperComponent?.clientHeight ?? 0;
+
+    const contentWidth = contentComponent?.clientWidth ?? 0;
+    const contentHeight = contentComponent?.clientHeight ?? 0;
 
     const { debugLayout } = React.useContext(CanvasContext);
 
@@ -212,8 +223,8 @@ const InnerCanvas = observer<any, HTMLDivElement>(
         {debugLayout && (
           <div className={style.DebugOverlay}>
             <p className={sharedStyle["Text-Bold"]}>Canvas Debug Panel</p>
-            <code>{`wrapper: ${interactiveRef.current?.instance.wrapperComponent?.clientWidth}px × ${interactiveRef.current?.instance.wrapperComponent?.clientHeight}px`}</code>
-            <code>{`transform-component: ${interactiveRef.current?.instance.contentComponent?.clientWidth}px × ${interactiveRef.current?.instance.contentComponent?.clientHeight}px`}</code>
+            <code>{`wrapper: ${wrapperWidth}px × ${wrapperHeight}px`}</code>
+            <code>{`transform-component: ${contentWidth}px × ${contentHeight}px`}</code>
             <code>{`css transform: scale=${state.scale}, positionX=${state.positionX}px, positionY=${state.positionY}`}</code>
           </div>
         )}
@@ -267,7 +278,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             }}
             contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
           >
-            <MasonryCanvas vm={vm} wrapper={interactiveRef?.current?.instance.wrapperComponent} />
+            <MasonryCanvas vm={vm} wrapper={wrapperComponent} />
           </TransformComponent>
           <div
             className={style.MinimapContainer}

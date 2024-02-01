@@ -188,8 +188,8 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       },
       preset: {
         gradientByAge: [
-          this.visualizationSettings.colors.old.defaultValue,
-          this.visualizationSettings.colors.new.defaultValue,
+          this.visualizationSettings.colors.old.value,
+          this.visualizationSettings.colors.new.value,
         ],
       },
     };
@@ -347,6 +347,13 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       }
       queryCacheParts.push([key2, value].join(keyValueDelimiter));
     }
+
+    // TODO: Extend this
+    queryCacheParts.push(
+      this.visualizationSettings.colors.old.value,
+      this.visualizationSettings.colors.new.value,
+      this.visualizationSettings.colors.notLoaded.value,
+    );
 
     this.renderCacheKey = queryCacheParts.join(pairDelimiter);
   }
@@ -870,6 +877,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       newValue: this.visualizationSettings,
     });
 
+    this.updateQueryCacheKey();
     this.scheduleAllBlockRenders();
   };
 

@@ -33,8 +33,8 @@ function Editor({ fileContent, isLoading }: EditorProps) {
           setIsMounted(true);
         }}
         theme={theme === "light" ? "light" : "vs-dark"}
-        height="85vw"
-        width="80vw"
+        height="100%"
+        width="100%"
         options={{ readOnly: true, rulers: [200] }}
       />
     </div>

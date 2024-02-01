@@ -1,4 +1,4 @@
-## Gizual 3.0.0-alpha.15 (XX.XX.XXXX)
+## Gizual 3.0.0-alpha.15 (01.02.2024)
 
 ### Features
 
@@ -12,6 +12,7 @@
 
 - **app:frontend:** improve behavior and layout of the color-picker
 - **app:frontend:** improve layout of welcome screen and vis-type dialog
+- **app:frontend:** add file-tree root node
 
 ## Gizual 3.0.0-alpha.14 (16.01.2024)
 
