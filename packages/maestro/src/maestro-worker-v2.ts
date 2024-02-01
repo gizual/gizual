@@ -365,7 +365,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     this.updateQueryCacheKey();
 
     if (!isEqual(query.time, oldQuery.time) || !isEqual(query.branch, oldQuery.branch)) {
-      this.range = await match(query.time)
+      this.range = await match(this.query.time)
         .with(QueryPattern.time.rangeByDate, ({ rangeByDate }) => {
           const [startDate, endDate] = resolveRangeByDate(rangeByDate);
 
