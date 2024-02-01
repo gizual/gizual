@@ -1,4 +1,5 @@
 import { CreateTRPCReact } from "@trpc/react-query";
+import { debounce } from "lodash";
 import React from "react";
 
 import { CommitInfo, FileTreeNode } from "@giz/explorer";
@@ -169,7 +170,7 @@ export type UseQueryResult = {
 export function useQuery(): UseQueryResult {
   const trpc = useTrpc();
 
-  const [query, setQueryCache] = React.useState<SearchQueryType>({});
+  const [query, setQueryCache] = React.useState<SearchQueryType>({} as any);
 
   trpc.query.useSubscription(undefined, {
     onData: (data) => {
@@ -200,6 +201,28 @@ export function useQuery(): UseQueryResult {
   return { query, updateQuery, setQuery };
 }
 
+export function useSetScale(): (scale: number) => void {
+  const trpc = useTrpc();
+
+  const setScaleMutation = trpc.setScale.useMutation();
+
+  const setScale = React.useCallback(
+    debounce(
+      (scale: number) => {
+        setScaleMutation.mutate({ scale });
+      },
+      400,
+      {
+        leading: false,
+        trailing: true,
+      },
+    ),
+    [setScaleMutation.mutate],
+  );
+
+  return setScale;
+}
+
 export function useQueryIsValid(): boolean {
   return useGlobalState().queryValid;
 }
@@ -227,6 +250,9 @@ export function useGlobalState(): GlobalState {
     commitsIndexed: false,
     filesIndexed: false,
     error: undefined,
+    branches: [],
+    remotes: [],
+    tags: [],
   });
 
   const trpc = useTrpc();
@@ -334,13 +360,18 @@ export type UseBlockImageResult = {
 export function useBlockImage(id: string) {
   const trpc = useTrpc();
 
-  const setPriorityMutation = trpc.setPriority.useMutation();
+  const setBlockInViewMutation = trpc.setBlockInViewMutation.useMutation();
+  const ref = React.useRef<boolean>(false);
 
   const setPriority = React.useCallback(
     (priority: number) => {
-      setPriorityMutation.mutate({ id, priority });
+      const inView = priority > 0;
+      const changed = ref.current !== inView;
+      if (!changed) return;
+      ref.current = inView;
+      setBlockInViewMutation.mutate({ id, inView });
     },
-    [setPriorityMutation.mutate],
+    [setBlockInViewMutation.mutate],
   );
 
   const [blockImage, setBlockImage] = React.useState({

@@ -1,14 +1,18 @@
-## Gizual 3.0.0-alpha.15 (XX.XX.XXXX)
+## Gizual 3.0.0-alpha.15 (01.02.2024)
 
 ### Features
 
 - **app:canvas:** implement minimap and legend overlay, constrain canvas viewport
 - **app:frontend:** add welcome screen preview videos for all loaders
+- **app:maestro:** cache blames to improve performance
+- **app:maestro:** auto re-render with higher dpr based on current scale to increase sharpness
+- **app:maestro:** fallback to image/png mime-type for images which are too large for image/webp
 
 ### Changes
 
 - **app:frontend:** improve behavior and layout of the color-picker
 - **app:frontend:** improve layout of welcome screen and vis-type dialog
+- **app:frontend:** add file-tree root node
 
 ## Gizual 3.0.0-alpha.14 (16.01.2024)
 

@@ -49,11 +49,14 @@ export const FileTree = observer(({ files, checked, onChange }: FileTreeProps) =
   return (
     <div className={style.FileTree__Root}>
       <div className={style.FileTree}>
-        {vm.fileTreeRoot.children.map((i) => (
-          <React.Fragment key={i.path.join("/")}>
-            <FileTreeItem item={i} vm={vm} renderDepth={MAX_RENDER_DEPTH} onChange={onChangeCb} />
-          </React.Fragment>
-        ))}
+        <FileTreeItem
+          item={vm.fileTreeRoot}
+          vm={vm}
+          renderDepth={MAX_RENDER_DEPTH}
+          onChange={onChangeCb}
+          expanded={true}
+          customDisplayName="/"
+        />
       </div>
     </div>
   );
@@ -65,13 +68,17 @@ const FileTreeItem = observer(
     vm,
     renderDepth = 1,
     onChange,
+    expanded = false,
+    customDisplayName,
   }: {
     item: FileTreeNode;
     vm: FileTreeViewModel;
     renderDepth: number;
     onChange?: () => void;
+    expanded?: boolean;
+    customDisplayName?: string;
   }) => {
-    const [isExpanded, setExpanded] = React.useState(false);
+    const [isExpanded, setExpanded] = React.useState(expanded);
     const { showContextMenu } = useContextMenu();
 
     const variants = {
@@ -142,7 +149,7 @@ const FileTreeItem = observer(
               },
             ])}
           >
-            {item.path.slice(-1, undefined)}
+            {customDisplayName ?? item.path.slice(-1, undefined)}
           </p>
         </div>
         <AnimatePresence>

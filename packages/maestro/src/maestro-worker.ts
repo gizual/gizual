@@ -85,10 +85,13 @@ const router = t.router({
     .mutation(({ input }) => {
       maestro.updateQuery(input.input);
     }),
-  setPriority: t.procedure
-    .input(z.object({ id: z.string(), priority: z.number() }))
+  setScale: t.procedure.input(z.object({ scale: z.number() })).mutation(({ input }) => {
+    maestro.setScale(input.scale);
+  }),
+  setBlockInViewMutation: t.procedure
+    .input(z.object({ id: z.string(), inView: z.boolean() }))
     .mutation(async ({ input }) => {
-      maestro.setBlockPriority(input.id, input.priority);
+      maestro.setBlockInView(input.id, input.inView);
     }),
   availableFiles: t.procedure.subscription(() => {
     return observable<FileTreeNode[]>((emit) => {

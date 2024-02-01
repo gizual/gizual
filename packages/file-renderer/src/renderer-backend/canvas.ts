@@ -35,7 +35,13 @@ export class CanvasRenderer implements BaseRenderer {
     // We try to use WebP, but the browser will fall back to PNG if it's not supported.
     // Safari doesn't support WebP here, see:
     // https://caniuse.com/mdn-api_offscreencanvas_converttoblob_option_type_parameter_webp
-    const blob = await this.canvas.convertToBlob({ type: "image/webp" });
+    // We try to use webp only if the image is not too large. Check https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types#webp_image
+    // for more info.
+
+    let type = "image/png";
+    if (this.canvas.width < 16_383 && this.canvas.height < 16_383) type = "image/webp";
+
+    const blob = await this.canvas.convertToBlob({ type });
     const url = URL.createObjectURL(blob);
     return url;
   }
