@@ -65,7 +65,7 @@ export const FileMenuItems = React.memo(
         onClick: () => {
           query.updateQuery({ files: { changedInRef: "" } });
         },
-        disabled: true,
+        //disabled: true,
       },
       {
         key: "contains",

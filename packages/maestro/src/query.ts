@@ -92,6 +92,7 @@ export async function evaluateTimeRange(
       };
     })
     .with(QueryPattern.time.rangeByRef, async ({ rangeByRef }) => {
+      //TODO: need to check if rev[0] to rev[1] is a valid range of commits
       const errors: QueryError[] = [];
 
       if (typeof rangeByRef === "string") {
@@ -138,6 +139,11 @@ export async function evaluateTimeRange(
           since: { date: new GizDate(+sinceCommit.timestamp * 1000), commit: sinceCommit },
           until: { date: new GizDate(+untilCommit.timestamp * 1000), commit: untilCommit },
         },
+      };
+    })
+    .with(QueryPattern.time.sinceFirstCommitBy, async () => {
+      return {
+        errors: [{ selector: "time.sinceFirstCommitBy", message: "Not implemented" }],
       };
     })
     .otherwise(() => ({

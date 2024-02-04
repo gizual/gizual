@@ -1,5 +1,5 @@
 import { IconFile } from "@app/assets";
-import { Select } from "@app/primitives/select";
+import { Input } from "@app/primitives/input";
 import { useLocalQueryCtx } from "@app/utils";
 
 import { SearchQueryType } from "@giz/query";
@@ -28,11 +28,12 @@ export function FileChangedInRefModule() {
       helpContent="Enter a valid git revision to search for. Example: HEAD, master, origin/master, etc."
     >
       <div className={style.SpacedChildren}>
-        <Select
+        <Input
           onBlur={() => publishLocalQuery()}
-          onChange={(e) => updateLocalQuery({ files: { path: e ?? "" } })}
+          onChange={(e) =>
+            updateLocalQuery({ files: { changedInRef: e.currentTarget.value ?? "" } })
+          }
           value={value}
-          data={[{ label: "HEAD", value: "HEAD" }]}
           style={{ width: 80 }}
         />
       </div>
