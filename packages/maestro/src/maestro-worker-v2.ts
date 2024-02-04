@@ -6,14 +6,7 @@ import { minimatch } from "minimatch";
 import { match, Pattern } from "ts-pattern";
 
 import { Database } from "@giz/database";
-import {
-  Author,
-  Blame,
-  CommitIds,
-  CommitInfo,
-  FileTreeNode,
-  InitialDataResult,
-} from "@giz/explorer";
+import { Author, Blame, CommitInfo, FileTreeNode, InitialDataResult } from "@giz/explorer";
 import {
   FileIcon,
   getFileIcon,
@@ -24,10 +17,22 @@ import {
 } from "@giz/explorer-web";
 import { FileRendererPool, RenderType } from "@giz/file-renderer";
 import { SearchQueryType } from "@giz/query";
-import { getDateFromTimestamp, getStringDate, GizDate } from "@giz/utils/gizdate";
+import { getStringDate, GizDate } from "@giz/utils/gizdate";
+
+import { EvaluatedRange, evaluateTimeRange, QueryError, QueryWithErrors } from "./query";
 
 export type Metrics = typeof Maestro.prototype.metrics;
 export type State = typeof Maestro.prototype.state;
+
+export type TimeMode = "rangeByDate" | "rangeByRef" | "sinceFirstCommitBy";
+
+export type FileMode =
+  | "pattern"
+  | "filePicker"
+  | "lastEditedBy"
+  | "editedBy"
+  | "createdBy"
+  | "changedInRef";
 
 export type ObjectChangeEventArguments<O extends {}> = [
   {
@@ -55,7 +60,7 @@ export type Events = {
   "state:updated": ObjectChangeEventArguments<State>;
   "metrics:updated": ObjectChangeEventArguments<Metrics>;
 
-  "query:updated": ObjectReplaceEventArguments<SearchQueryType>;
+  "query:updated": [QueryWithErrors];
   "visualization-settings:updated": ObjectReplaceEventArguments<VisualizationSettings>;
 
   "device-pixel-ratio:updated": ChangeEventArguments<number>;
@@ -158,33 +163,65 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     return this.explorerPoolController;
   };
 
+  getDefaultRangeByDate = () => {
+    if (this.range) {
+      return [getStringDate(this.range.since.date), getStringDate(this.range.until.date)];
+    }
+
+    const endDate = new GizDate(this.state.lastCommitTimestamp * 1000);
+    const startDate = endDate.subtractDays(365);
+    return [getStringDate(startDate), getStringDate(endDate)];
+  };
+
+  getDefaultRangeByRef = async () => {
+    if (this.range) {
+      return [this.range.since.commit.oid, this.range.until.commit.oid];
+    }
+
+    return ["", ""];
+  };
+
   setInitialQuery = async () => {
-    const { lastCommit, branches, currentBranch, remotes, tags } =
+    const { branches, currentBranch, remotes, tags } =
       await this.explorerPool.execute<InitialDataResult>("get_initial_data", {}).promise;
+
+    const headCommit = await this.explorerPool.getCommit({ rev: "HEAD" });
 
     // TODO: determine name of repo from remote urls if possible
 
-    console.log({ branches, remotes, tags });
-
+    const files = [
+      ...headCommit.files.added,
+      ...headCommit.files.modified,
+      ...headCommit.files.deleted,
+      ...headCommit.files.renamed.map((f) => f[1]),
+    ];
     this.updateState({
+      lastCommitTimestamp: +headCommit.timestamp,
+      lastCommitAuthorId: headCommit.aid,
+      currentBranch,
       branches,
       remotes,
       tags,
     });
 
-    const endDate = getDateFromTimestamp(lastCommit.timestamp);
-
-    const startDate = endDate.subtractDays(365);
+    console.log({
+      branches,
+      remotes,
+      tags,
+      lastCommit: headCommit,
+      currentBranch,
+      initialrange: this.getDefaultRangeByDate(),
+    });
 
     const query: SearchQueryType = {
       branch: currentBranch,
       type: "file-lines",
       time: {
-        rangeByDate: [getStringDate(startDate), getStringDate(endDate)],
+        rangeByDate: this.getDefaultRangeByDate(),
       },
       files: {
         //changedInRef: initial_data.currentBranch,
-        path: "*.js",
+        path: files,
       },
       preset: {
         gradientByAge: [
@@ -232,6 +269,10 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     filesIndexed: false,
     error: undefined as string | undefined,
 
+    lastCommitTimestamp: 0,
+    lastCommitAuthorId: "",
+    currentBranch: "",
+
     tags: [] as string[],
     branches: [] as string[],
 
@@ -246,6 +287,13 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   updateState = (state: Partial<State>) => {
     const oldState = { ...this.state };
     this.state = { ...this.state, ...state };
+
+    const hasChanged = !isEqual(oldState, this.state);
+
+    if (!hasChanged) {
+      return;
+    }
+
     this.emit("state:updated", {
       changedKeys: [] as const, // TODO
       oldValue: oldState,
@@ -278,10 +326,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   // ------------------- Query -------------------
   // ---------------------------------------------
 
-  range: CommitIds = {
-    since_commit_id: "",
-    until_commit_id: "",
-  };
+  range!: EvaluatedRange;
 
   query: SearchQueryType = {
     branch: "",
@@ -296,6 +341,8 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       gradientByAge: ["#EFEFEF", "#EFEFEF"],
     },
   };
+
+  queryErrors: QueryError[] = [];
 
   /**
    * A unique key for the current query as a shortened string-concatenation of all query parameters.
@@ -358,45 +405,64 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     this.renderCacheKey = queryCacheParts.join(pairDelimiter);
   }
 
+  setTimeMode = async (mode: string | TimeMode) => {
+    switch (mode) {
+      case "rangeByDate": {
+        this.updateQuery({ time: { rangeByDate: this.getDefaultRangeByDate() } });
+        break;
+      }
+      case "rangeByRef": {
+        const rangeByRef = await this.getDefaultRangeByRef();
+        this.updateQuery({ time: { rangeByRef } });
+        break;
+      }
+      case "sinceFirstCommitBy": {
+        this.updateQuery({ time: { sinceFirstCommitBy: "" } });
+        break;
+      }
+      default: {
+        throw new Error("Unsupported time mode");
+      }
+    }
+  };
+
   updateQuery = async (query: Partial<SearchQueryType>) => {
     const oldQuery = { ...this.query };
     this.query = { ...this.query, ...query };
+    const hasChanged = !isEqual(oldQuery, this.query);
 
-    this.updateQueryCacheKey();
+    if (!hasChanged) {
+      return;
+    }
+
+    this.queryErrors = [];
 
     if (!isEqual(query.time, oldQuery.time) || !isEqual(query.branch, oldQuery.branch)) {
-      this.range = await match(this.query.time)
-        .with(QueryPattern.time.rangeByDate, ({ rangeByDate }) => {
-          const [startDate, endDate] = resolveRangeByDate(rangeByDate);
+      const { result, errors } = await evaluateTimeRange(
+        this.query.time,
+        this.explorerPool,
+        this.query.branch,
+      );
 
-          const startSeconds = toSeconds(startDate);
-          const endSeconds = toSeconds(endDate);
+      if (errors) {
+        this.queryErrors.push(...errors);
 
-          return this.explorerPool.getCommitIdsForTimeRange({
-            start_seconds: startSeconds,
-            end_seconds: endSeconds,
-            branch: this.query.branch,
-          });
-        })
-        .with(QueryPattern.time.rangeByRef, ({ rangeByRef }) => {
-          return this.explorerPool.getCommitIdsForRefs({
-            start_ref: rangeByRef[0],
-            end_ref: rangeByRef[1],
-          });
-        })
-        .with(QueryPattern.time.sinceFirstCommitBy, ({ sinceFirstCommitBy: _ }) => {
-          throw new Error("Unsupported time range");
-        })
-        .with(Pattern.nullish, () => {
-          throw new Error("Unsupported time range");
-        })
-        .exhaustive();
+        this.emit("query:updated", {
+          query: this.query,
+          errors: this.queryErrors,
+        });
+
+        return;
+      }
+      this.range = result;
     }
 
     this.emit("query:updated", {
-      oldValue: oldQuery,
-      newValue: this.query,
+      query: this.query,
+      errors: this.queryErrors,
     });
+
+    this.updateQueryCacheKey();
 
     if (
       !isEqual(query.branch, oldQuery.branch) ||
@@ -443,7 +509,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
     if (typeChanged || branchChanged || timeChanged || presetChanged || initial) {
       const tree = await this.explorerPool!.getFileTree({
-        rev: this.range.until_commit_id,
+        rev: this.range.until.commit.oid,
       });
 
       const oldFiles = this.availableFiles;
@@ -692,7 +758,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
   };
 
   scheduleAllBlockRenders = () => {
-    console.log("scheduleAllBlockRenders");
     for (const block of this.blocks) {
       this.scheduleBlockRender(block.id);
     }
@@ -743,10 +808,10 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     if (!block.blameJobRef || block.currentImageCacheKey !== renderCacheKey) {
       block.blameJobRef = explorerPool!.getBlame(
         {
-          rev: range.until_commit_id,
+          rev: range.until.commit.oid,
           path: block.filePath,
           preview: false,
-          sinceRev: range.since_commit_id,
+          sinceRev: range.since.commit.oid,
         },
         10,
       ) as any;
@@ -759,20 +824,8 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
     const lines = parseLines(blame);
 
-    const [selectedStartDate, selectedEndDate] = match(query.time)
-      .with(QueryPattern.time.rangeByDate, ({ rangeByDate }) => {
-        return resolveRangeByDate(rangeByDate);
-      })
-      .with(QueryPattern.time.rangeByRef, (t) => {
-        throw new Error("Unsupported time range");
-      })
-      .with(QueryPattern.time.sinceFirstCommitBy, (t) => {
-        throw new Error("Unsupported time range");
-      })
-      .with(Pattern.nullish, () => {
-        throw new Error("Unsupported time range");
-      })
-      .exhaustive();
+    const selectedStartDate = this.range.since.date;
+    const selectedEndDate = this.range.until.date;
 
     if (lines.length === 0) {
       return;
@@ -858,7 +911,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
   async getFileContent(path: string): Promise<string> {
     return this.explorerPool!.getFileContent({
-      rev: this.range.until_commit_id,
+      rev: this.range.until.commit.oid,
       path,
     });
   }
@@ -1001,21 +1054,6 @@ function serializableBlock(block: BlockEntry): Block {
 // ------------------ Helpers ------------------
 // ---------------------------------------------
 
-function parseCommitTimestamps(blame: Blame): {
-  earliestTimestamp: number;
-  latestTimestamp: number;
-} {
-  let earliestTimestamp = Number.MAX_SAFE_INTEGER;
-  let latestTimestamp = Number.MIN_SAFE_INTEGER;
-
-  for (const commit of Object.values(blame.commits)) {
-    earliestTimestamp = Math.min(+commit.timestamp, earliestTimestamp);
-    latestTimestamp = Math.max(+commit.timestamp, latestTimestamp);
-  }
-
-  return { earliestTimestamp, latestTimestamp };
-}
-
 export type Line = {
   content: string;
   commit?: CommitInfo;
@@ -1048,34 +1086,3 @@ function simpleHash(input: string): string {
   }
   return (hash >>> 0).toString(36);
 }
-
-function resolveRangeByDate(range: string | string[]): [GizDate, GizDate] {
-  if (typeof range === "string") {
-    return [new GizDate(range), new GizDate()];
-  }
-
-  const startDate = new GizDate(range[0]);
-  const endDate = new GizDate(range[1]);
-
-  return [startDate, endDate];
-}
-
-function toSeconds(d: GizDate): number {
-  return Math.round(d.getTime() / 1000);
-}
-
-const QueryPattern = {
-  time: {
-    rangeByDate: {
-      rangeByDate: Pattern.union(Pattern.array(Pattern.string), Pattern.string),
-    },
-
-    rangeByRef: {
-      rangeByRef: Pattern.union(Pattern.array(Pattern.string), Pattern.string),
-    },
-
-    sinceFirstCommitBy: {
-      sinceFirstCommitBy: Pattern.string,
-    },
-  },
-};

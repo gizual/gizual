@@ -121,7 +121,7 @@ export const TimeRangeByDateModule = observer(() => {
             publishLocalQuery();
           }}
           value={branchValue}
-          data={branches}
+          data={[{ label: "HEAD", value: "HEAD" }, ...branches]}
           style={{ width: 150 }}
         ></Select>
 

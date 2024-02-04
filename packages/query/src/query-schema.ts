@@ -74,6 +74,7 @@ export const SearchQuery = Type.Object({
 
 export type SearchQueryType = Static<typeof SearchQuery>;
 export type SearchQueryKeys = keyof SearchQueryType;
+export type TimeQueryType = Static<typeof TimeQuery>;
 
 export function getSchema(): any {
   return { ...Type.Strict(SearchQuery), additionalProperties: false };

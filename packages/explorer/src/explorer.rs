@@ -9,7 +9,7 @@ use specta::Type;
 use crate::authors::StreamAuthorsParams;
 use crate::blame::BlameParams;
 use crate::branches::GetCommitsForBranchParams;
-use crate::commits::{self, GetCommitIdsForRefsParams, GetCommitIdsForTimeRangeParams, StreamCommitsParams};
+use crate::commits::{self, GetCommitParams, GetCommitsForTimeRangeParams, IsValidRevParams, StreamCommitsParams};
 use crate::file_content::GetFileContentParams;
 use crate::file_tree::GetFileTreeParams;
 
@@ -52,11 +52,8 @@ pub struct InitialDataResult {
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "method", content = "params")]
 pub enum Request {
-    #[serde(rename = "get_commit_ids_for_refs")]
-    GetCommitIdsForRefs(GetCommitIdsForRefsParams),
-
-    #[serde(rename = "get_commit_ids_for_time_range")]
-    GetCommitIdsForTimeRange(GetCommitIdsForTimeRangeParams),
+    #[serde(rename = "get_commits_for_time_range")]
+    GetCommitsForTimeRange(GetCommitsForTimeRangeParams),
 
     #[serde(rename = "open_repository")]
     OpenRepository(OpenRepositoryParams),
@@ -93,6 +90,12 @@ pub enum Request {
     
     #[serde(rename = "get_initial_data")]
     GetInitialData(NoParams),
+
+    #[serde(rename = "is_valid_rev")]
+    IsValidRev(IsValidRevParams),
+
+    #[serde(rename = "get_commit")]
+    GetCommit(GetCommitParams),
 }
 
 #[cfg_attr(feature = "bindings", derive(Type))]
@@ -193,15 +196,8 @@ impl Explorer {
 
         let head = repo.head().unwrap();
         let head_commit = head.peel_to_commit().unwrap();
-        let head_tree = head_commit.tree().unwrap();
-    
-        let mut files = Vec::new();
-
-        for entry in head_tree.iter() {
-            let name = entry.name().unwrap().to_string();
-            files.push(name);
-        }
-
+        let head_commit_id = head_commit.id().to_string();
+            
         let remote_names = repo.remotes().unwrap();
         let remote_names: Vec<String> = remote_names.iter().map(|r| r.unwrap().to_string()).collect();
 
@@ -228,13 +224,7 @@ impl Explorer {
 
         let data = InitialDataResult {
             current_branch: head.shorthand().unwrap().to_string(),
-            last_commit: commits::Commit {
-                oid: head_commit.id().to_string(),
-                aid: head_commit.author().email().unwrap().to_string(),
-                message: head_commit.message().unwrap().to_string(),
-                files,
-                timestamp: head_commit.time().seconds().to_string(),
-            },
+            last_commit: self.get_commit(&head_commit_id).unwrap(),
             remotes,
             branches,
             tags,
@@ -259,8 +249,9 @@ impl Explorer {
             Request::GetCommitsForBranch(params) => self.cmd_get_commits_for_branch(&params),
             Request::StreamCommits(_) => self.cmd_stream_commits(),
             Request::GetInitialData(_) => self.cmd_get_initial_data(),
-            Request::GetCommitIdsForRefs(params) => self.cmd_get_commit_ids_for_refs(params),
-            Request::GetCommitIdsForTimeRange(params) => self.cmd_get_commit_ids_for_time_range(params),
+            Request::GetCommitsForTimeRange(params) => self.cmd_get_commits_for_time_range(params),
+            Request::IsValidRev(params) => self.cmd_is_valid_rev(&params),
+            Request::GetCommit(params) => self.cmd_get_commit(&params),
             Request::Shutdown(_) => {
                 self.shutdown.store(true, Ordering::Relaxed);
             }
