@@ -189,12 +189,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
     // TODO: determine name of repo from remote urls if possible
 
-    const files = [
-      ...headCommit.files.added,
-      ...headCommit.files.modified,
-      ...headCommit.files.deleted,
-      ...headCommit.files.renamed.map((f) => f[1]),
-    ];
     this.updateState({
       lastCommitTimestamp: +headCommit.timestamp,
       lastCommitAuthorId: headCommit.aid,
@@ -220,8 +214,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         rangeByDate: this.getDefaultRangeByDate(),
       },
       files: {
-        //changedInRef: initial_data.currentBranch,
-        path: files,
+        changedInRef: currentBranch,
       },
       preset: {
         gradientByAge: [
@@ -435,9 +428,16 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       return;
     }
 
+    const hadErrors = this.queryErrors.length > 0;
+
     this.queryErrors = [];
 
-    if (!isEqual(query.time, oldQuery.time) || !isEqual(query.branch, oldQuery.branch)) {
+    // validate query.time.* fields
+    if (
+      hadErrors ||
+      !isEqual(query.time, oldQuery.time) ||
+      !isEqual(query.branch, oldQuery.branch)
+    ) {
       const { result, errors } = await evaluateTimeRange(
         this.query.time,
         this.explorerPool,
@@ -446,21 +446,35 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
       if (errors) {
         this.queryErrors.push(...errors);
-
-        this.emit("query:updated", {
-          query: this.query,
-          errors: this.queryErrors,
-        });
-
-        return;
+      } else {
+        this.range = result;
       }
-      this.range = result;
+    }
+
+    // validate query.files.* fields
+    if (
+      (hadErrors || !isEqual(query.files, oldQuery.files)) &&
+      query.files &&
+      "changedInRef" in query.files &&
+      typeof query.files.changedInRef === "string"
+    ) {
+      const valid = await this.explorerPool.isValidRev({ rev: query.files.changedInRef });
+      if (!valid) {
+        this.queryErrors.push({
+          selector: "files.changedInRef",
+          message: "Invalid ref",
+        });
+      }
     }
 
     this.emit("query:updated", {
       query: this.query,
       errors: this.queryErrors,
     });
+
+    if (this.queryErrors.length > 0) {
+      return;
+    }
 
     this.updateQueryCacheKey();
 
@@ -546,7 +560,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       return;
     }
 
-    const selectedFiles = match(files)
+    const selectedFiles = await match(files)
       .with({ path: Pattern.string }, (f) => {
         // select files by path glob (one or multiple)
         const globPatterns = [f.path];
@@ -591,8 +605,23 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       .with({ createdBy: Pattern._ }, (f) => {
         throw new Error("Unsupported file selection");
       })
-      .with({ changedInRef: Pattern._ }, (f) => {
-        throw new Error("Unsupported file selection");
+      .with({ changedInRef: Pattern.string }, async ({ changedInRef }) => {
+        const commit = await this.explorerPool.getCommit({ rev: changedInRef });
+
+        const paths = new Set([
+          ...commit.files.added,
+          ...commit.files.modified,
+          ...commit.files.deleted,
+          ...commit.files.renamed.map((f) => f[1]),
+        ]);
+
+        return this.availableFiles!.filter((node) => {
+          if (node.kind === "folder") {
+            return false;
+          }
+          const result = paths.has(node.path.join("/"));
+          return result;
+        });
       })
       .with({ contains: Pattern._ }, (f) => {
         throw new Error("Unsupported file selection");
