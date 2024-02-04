@@ -8,10 +8,10 @@ import { expose, transfer } from "comlink";
 
 import { FileTreeNode } from "@giz/explorer";
 import { PoolControllerOpts } from "@giz/explorer-web";
-import { SearchQueryType } from "@giz/query";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
 import { Block, BlockImage, Events, Maestro, State } from "./maestro-worker-v2";
+import { QueryWithErrors } from "./query";
 import { t } from "./trpc-worker";
 
 if (typeof window !== "undefined") {
@@ -54,13 +54,16 @@ const router = t.router({
     });
   }),
   query: t.procedure.subscription(() => {
-    return observable<SearchQueryType>((emit) => {
+    return observable<QueryWithErrors>((emit) => {
       const onUpdate = (data: Events["query:updated"][0]) => {
-        emit.next(data.newValue);
+        emit.next(data);
       };
       maestro.on("query:updated", onUpdate);
 
-      emit.next(maestro.query);
+      emit.next({
+        query: maestro.query,
+        errors: maestro.queryErrors,
+      });
 
       return () => {
         maestro.off("query:updated", onUpdate);
@@ -85,6 +88,9 @@ const router = t.router({
     .mutation(({ input }) => {
       maestro.updateQuery(input.input);
     }),
+  setTimeMode: t.procedure.input(z.object({ mode: z.string() })).mutation(({ input }) => {
+    maestro.setTimeMode(input.mode);
+  }),
   setScale: t.procedure.input(z.object({ scale: z.number() })).mutation(({ input }) => {
     maestro.setScale(input.scale);
   }),

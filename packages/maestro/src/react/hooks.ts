@@ -6,7 +6,8 @@ import { CommitInfo, FileTreeNode } from "@giz/explorer";
 import { SearchQueryType } from "@giz/query";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
-import { Block, Metrics, State } from "../maestro-worker-v2";
+import { Block, Metrics, State, TimeMode } from "../maestro-worker-v2";
+import { QueryError, QueryWithErrors } from "../query";
 
 import { MaestroContext, TrpcContext } from "./providers";
 
@@ -163,17 +164,19 @@ export function useCommits(_startDate: Date, _endDate: Date): CommitInfo[] {
 
 export type UseQueryResult = {
   query: SearchQueryType;
+  errors?: QueryError[];
   updateQuery: (input: Partial<SearchQueryType>) => void;
   setQuery: (input: SearchQueryType) => void;
+  setTimeMode: (mode: "rangeByDate" | "rangeByRef" | "sinceFirstCommitBy") => void;
 };
 
 export function useQuery(): UseQueryResult {
   const trpc = useTrpc();
 
-  const [query, setQueryCache] = React.useState<SearchQueryType>({} as any);
+  const [cache, setQueryCache] = React.useState<QueryWithErrors>({} as any);
 
   trpc.query.useSubscription(undefined, {
-    onData: (data) => {
+    onData: (data: QueryWithErrors) => {
       setQueryCache(data);
     },
     onError: (err) => {
@@ -183,6 +186,7 @@ export function useQuery(): UseQueryResult {
 
   const setMutation = trpc.setQuery.useMutation();
   const updateMutation = trpc.updateQuery.useMutation();
+  const setTimeModeMutation = trpc.setTimeMode.useMutation();
 
   const updateQuery = React.useCallback(
     (input: Partial<SearchQueryType>) => {
@@ -198,7 +202,14 @@ export function useQuery(): UseQueryResult {
     [setMutation.mutate],
   );
 
-  return { query, updateQuery, setQuery };
+  const setTimeMode = React.useCallback(
+    (mode: TimeMode) => {
+      setTimeModeMutation.mutate({ mode });
+    },
+    [setTimeModeMutation.mutate],
+  );
+
+  return { query: cache.query ?? {}, errors: cache.errors, updateQuery, setQuery, setTimeMode };
 }
 
 export function useSetScale(): (scale: number) => void {
@@ -253,7 +264,7 @@ export function useGlobalState(): GlobalState {
     branches: [],
     remotes: [],
     tags: [],
-  });
+  } as any);
 
   const trpc = useTrpc();
 

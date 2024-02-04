@@ -138,7 +138,8 @@ impl Explorer {
         let repo = self.repo.as_ref().unwrap();
 
         let rev = params.rev.clone();
-        let commit_id = repo.revparse_single(rev.as_str())?.id();
+        let commit_id = self.get_commit_oid_from_rev(rev.as_str())?;
+
         let commit = repo.find_commit(commit_id)?;
         let tree = commit.tree()?;
 

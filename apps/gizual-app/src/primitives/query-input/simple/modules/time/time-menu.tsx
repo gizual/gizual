@@ -25,24 +25,24 @@ export const TimeMenuItems = React.memo(
         key: "sinceFirstCommitBy",
         title: "Since first commit by",
         onClick: () => {
-          query.updateQuery({ time: { sinceFirstCommitBy: "" } });
+          query.setTimeMode("sinceFirstCommitBy");
         },
-        disabled: true,
+        //disabled: true,
       },
       {
         key: "rangeByDate",
         title: "Range by date",
         onClick: () => {
-          query.updateQuery({ time: { rangeByDate: "" } });
+          query.setTimeMode("rangeByDate");
         },
       },
       {
         key: "rangeByRef",
         title: "Range by revision",
         onClick: () => {
-          query.updateQuery({ time: { rangeByRef: "" } });
+          query.setTimeMode("rangeByRef");
         },
-        disabled: true,
+        //disabled: true,
       },
     ]
       .filter((item) => !hideItems?.includes(item.key))

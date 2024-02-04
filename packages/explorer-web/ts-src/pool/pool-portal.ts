@@ -1,10 +1,4 @@
-import {
-  CommitIds,
-  FinalPayload,
-  GetCommitIdsForRefsParams,
-  GetCommitIdsForTimeRangeParams,
-  ParameterPayloadMap,
-} from "@giz/explorer";
+import { FinalPayload, ParameterPayloadMap } from "@giz/explorer";
 import { Author, Blame, FileTreeNode, GitGraph } from "../types";
 
 import { PoolResponse, PoolTask } from "./types";
@@ -234,13 +228,11 @@ export class PoolPortal {
     return ref;
   }
 
-  getCommitIdsForTimeRange(input: GetCommitIdsForTimeRangeParams) {
-    return this.execute<CommitIds>("get_commit_ids_for_time_range", input).promise;
-  }
-
-  getCommitIdsForRefs(input: GetCommitIdsForRefsParams) {
-    return this.execute<FinalPayload<"get_commit_ids_for_refs">>("get_commit_ids_for_refs", input)
-      .promise;
+  getCommitsForTimeRange(input: ParameterPayloadMap["get_commits_for_time_range"]) {
+    return this.execute<FinalPayload<"get_commits_for_time_range">>(
+      "get_commits_for_time_range",
+      input,
+    ).promise;
   }
 
   setPriority(jobId: number, priority: number) {
@@ -264,6 +256,14 @@ export class PoolPortal {
 
   getFileTree(params: ParameterPayloadMap["get_file_tree"]) {
     return this.execute<FinalPayload<"get_file_tree">>("get_file_tree", params).promise;
+  }
+
+  isValidRev(params: ParameterPayloadMap["is_valid_rev"]) {
+    return this.execute<boolean>("is_valid_rev", params).promise;
+  }
+
+  getCommit(params: ParameterPayloadMap["get_commit"]) {
+    return this.execute<FinalPayload<"get_commit">>("get_commit", params).promise;
   }
 
   /**

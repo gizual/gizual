@@ -1,5 +1,5 @@
 import { IconClock } from "@app/assets";
-import { Select } from "@app/primitives/select";
+import { Input } from "@app/primitives/input";
 import { useLocalQueryCtx } from "@app/utils/hooks";
 import { observer } from "mobx-react-lite";
 
@@ -48,20 +48,18 @@ export const TimeRangeByRefModule = observer(() => {
     >
       <div className={style.SpacedChildren}>
         From:
-        <Select
+        <Input
           onBlur={() => publishLocalQuery()}
-          onChange={onChangeStartRef}
+          onChange={(e) => onChangeStartRef(e.currentTarget.value)}
           value={from}
-          data={[{ label: "HEAD", value: "HEAD" }]}
-          style={{ width: 80 }}
+          style={{ width: 120 }}
         />
         To:
-        <Select
+        <Input
           onBlur={() => publishLocalQuery()}
-          onChange={onChangeEndRef}
+          onChange={(e) => onChangeEndRef(e.currentTarget.value)}
           value={to}
-          data={[{ label: "HEAD", value: "HEAD" }]}
-          style={{ width: 80 }}
+          style={{ width: 120 }}
         />
       </div>
     </TimeBaseQueryModule>

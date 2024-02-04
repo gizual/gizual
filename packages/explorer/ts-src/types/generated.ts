@@ -12,11 +12,15 @@ export type BlameParams = { rev: string; path: string; preview?: boolean | null;
 
 export type BranchInfo = { id: string; name: string; last_commit_id: string }
 
-export type Commit = { oid: string; aid: string; message: string; files: string[]; timestamp: string }
+export type Commit = { oid: string; aid: string; message: string; files: CommitFiles; timestamp: string }
 
-export type CommitIds = { since_commit_id: string; until_commit_id: string }
+export type CommitFiles = { deleted: string[]; modified: string[]; added: string[]; renamed: ([string, string])[] }
 
 export type CommitInfo = { commitId: string; authorId: string; timestamp: string }
+
+export type CommitMeta = { oid: string; aid: string; message: string; timestamp: string }
+
+export type CommitRange = { sinceCommit: Commit; untilCommit: Commit }
 
 export type CommitTree = { graph: HistoryGraph; dot: string }
 
@@ -24,11 +28,11 @@ export type CommitsForBranch = { start_commit: string; end_commit: string }
 
 export type FileTreeNode = { path: string[]; kind?: any | null; loading?: boolean | null }
 
-export type GetCommitIdsForRefsParams = { start_ref: string; end_ref: string }
-
-export type GetCommitIdsForTimeRangeParams = { branch: string; start_seconds: number; end_seconds: number }
+export type GetCommitParams = { rev: string }
 
 export type GetCommitsForBranchParams = { branch: string }
+
+export type GetCommitsForTimeRangeParams = { branch: string; startSeconds: number; endSeconds: number }
 
 export type GetFileContentParams = { path: string; rev: string }
 
@@ -41,6 +45,8 @@ export type HistoryGraph = { commit_indices: { [key in string]: number }; commit
 export type Infallible = never
 
 export type InitialDataResult = { currentBranch: string; lastCommit: Commit; remotes: Remote[]; branches: string[]; tags: string[] }
+
+export type IsValidRevParams = { rev: string }
 
 export type NoParams = Record<string, never>
 
