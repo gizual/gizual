@@ -2,7 +2,7 @@ import { SvgAttributes, SvgBaseElement, SvgElement } from "@app/utils/svg";
 
 export type AnnotationContext = Object;
 
-export type AnnotationRect = {
+export type RectAnnotation = {
   width: number;
   height: number;
   x: number;
@@ -11,7 +11,7 @@ export type AnnotationRect = {
   ctx: AnnotationContext;
 };
 
-export type AnnotationText = {
+export type TextAnnotation = {
   text: string;
   x: number;
   y: number;
@@ -19,7 +19,7 @@ export type AnnotationText = {
   ctx: AnnotationContext;
 };
 
-export type AnnotationObject = AnnotationText | AnnotationRect;
+export type AnnotationObject = TextAnnotation | RectAnnotation;
 
 export type ValidContext = OffscreenCanvas | SvgElement | AnnotationObject[];
 
@@ -27,7 +27,7 @@ export interface BaseRenderer {
   prepareContext(width: number, height: number, dpr?: number): void;
   assignContext(ctx: ValidContext): void;
   getContext(): ValidContext | undefined;
-  getReturnValue(): Promise<string | SvgBaseElement[] | AnnotationObject[]>;
+  getReturnValue(): Promise<string | SvgBaseElement[]>;
 
   applyTransform(x: number, y: number): void;
   drawRect(attr: SvgAttributes, annotationCtx?: AnnotationContext): void;

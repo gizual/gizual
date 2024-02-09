@@ -77,7 +77,7 @@ export class FileRendererWorker {
     fileCtx: RendererContext,
     mode: "annotations",
     renderCtx?: AnnotationObject[],
-  ): Promise<{ result: AnnotationObject[] }>;
+  ): Promise<{ result: string }>;
   async draw(ctx: RendererContext, mode: RenderingMode = "canvas", renderCtx?: ValidContext) {
     await this.prepareFont();
 

@@ -1,4 +1,5 @@
 import { getPrettyConsoleCSS } from "@app/utils";
+import { Remote, transfer, wrap } from "comlink";
 import React from "react";
 
 import { LINEAR_COLOR_RANGE } from "@giz/color-manager";
@@ -9,6 +10,7 @@ import {
   RenderType,
 } from "@giz/file-renderer";
 import { FileRendererWorker } from "@giz/file-renderer/worker";
+import FileRendererWorkerURL from "@giz/file-renderer/worker?worker&url";
 import { GizDate } from "@giz/utils/gizdate";
 
 import { testPackageJSON } from "./renderer.mock";
@@ -201,14 +203,22 @@ function prepareContext(props: RendererProps) {
 export function Renderer(props: RendererProps) {
   const renderer = useRenderer();
   const [imageSrc, setImageSrc] = React.useState<string>("");
+  const [annotationSrc, setAnnotationSrc] = React.useState<string>("");
 
   React.useEffect(() => {
     setImageSrc("");
-    renderer?.draw(prepareContext(props), "canvas").then(({ result }) => {
+
+    const rawWorker = new Worker(FileRendererWorkerURL, {
+      type: "module",
+    });
+
+    const worker = wrap<FileRendererWorker>(rawWorker);
+
+    worker.draw(prepareContext(props), "canvas").then(({ result }) => {
       setImageSrc(result);
     });
 
-    renderer?.draw(prepareContext(props), "annotations").then(({ result }) => {
+    worker.draw(prepareContext(props), "annotations").then(({ result }) => {
       console.log(
         "%c%s %s",
         getPrettyConsoleCSS("#599810"),
@@ -216,7 +226,8 @@ export function Renderer(props: RendererProps) {
         "Annotation layer for:",
         props.type,
       );
-      console.table(result);
+
+      setAnnotationSrc(result);
     });
   }, [props]);
 
@@ -227,10 +238,13 @@ export function Renderer(props: RendererProps) {
         {imageSrc === "" ? (
           <Loading />
         ) : (
-          <img
-            src={imageSrc}
-            style={{ maxWidth: "70vw", maxHeight: "70vh", border: "2px solid black" }}
-          ></img>
+          <div style={{ position: "relative", border: "2px solid orange" }}>
+            <img
+              src={imageSrc}
+              style={{ maxWidth: "70vw", maxHeight: "70vh", width: "300px" }}
+            ></img>
+            <div dangerouslySetInnerHTML={{ __html: annotationSrc }} />
+          </div>
         )}
       </div>
     </div>
