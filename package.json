@@ -10,11 +10,16 @@
     "./tools/*",
     "./apps/gizual-app/src/*"
   ],
+  "dependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
   "devDependencies": {
     "@astro/check": "portal:./packages/noop",
     "@astro/react": "portal:./packages/noop",
     "@astro/tailwind": "portal:./packages/noop",
     "@giz/please": "workspace:*",
+    "@types/node": "20.11.17",
     "astro": "portal:./packages/noop",
     "husky": "8.0.3",
     "knip": "^3.6.0",
@@ -38,7 +43,7 @@
     "clean": "turbo run clean",
     "type-check": "turbo run type-check",
     "prettier:check": "prettier --check \"{**/*,*}.{mjs,js,jsx,ts,tsx,md,html,json,yml,yaml,scss,css,toml}\"",
-    "prettier:fix": "prettier --loglevel warn --write \"{**/*,*}.{mjs,js,jsx,ts,tsx,md,html,json,yml,yaml,scss,css,toml}\"",
+    "prettier:fix": "prettier --log-level warn --write \"{**/*,*}.{mjs,js,jsx,ts,tsx,md,html,json,yml,yaml,scss,css,toml}\"",
     "prepare": "husky install"
   },
   "lint-staged": {
@@ -47,6 +52,6 @@
   },
   "engines": {
     "yarn": ">=3.5.0",
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   }
 }

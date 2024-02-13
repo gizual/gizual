@@ -54,7 +54,9 @@ export default defineConfig(() => ({
         });
       },
     },
-    svgr(),
+    svgr({
+      include: [/\.svg$/],
+    }),
     react({
       tsDecorators: true,
     }),
