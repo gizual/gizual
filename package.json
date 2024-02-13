@@ -22,7 +22,7 @@
     "@types/node": "20.11.17",
     "astro": "portal:./packages/noop",
     "husky": "8.0.3",
-    "knip": "^3.6.0",
+    "knip": "5.0.1",
     "lint-staged": "13.2.3",
     "prettier": "3.0.0",
     "prettier-plugin-astro": "0.12.1",
