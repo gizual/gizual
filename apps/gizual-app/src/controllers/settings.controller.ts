@@ -24,6 +24,7 @@ export type VisualizationSettings = {
   } & GroupEntry;
   canvas: {
     rootMargin: SettingsEntry<number, "number">;
+    masonryColumns: SettingsEntry<number, "number">;
   } & GroupEntry;
   style: {
     lineLength: SettingsEntry<LineLengthMode, "select">;
@@ -110,6 +111,11 @@ export class SettingsController {
         "The margin of the canvas for evaluating file visibility, given in pixels. Positive margins enlarge the bounding box, negative margins shrink it.",
         200,
       ),
+      masonryColumns: createNumberSetting(
+        "Masonry Columns",
+        "The amount of columns to show in the main canvas.",
+        10,
+      ),
     },
     style: {
       groupName: "Style",
@@ -180,7 +186,8 @@ export class SettingsController {
   }
 
   storeSettings() {
-    localStorage.setItem("gizual-app.settings", JSON.stringify(this.settings));
+    console.log("storeSettings", toJS(this.settings));
+    localStorage.setItem("gizual-app.settings", JSON.stringify(toJS(this.settings)));
     for (const cb of this.eventCallbacks["visualSettings:changed"] ?? []) {
       cb(toJS(this.visualizationSettings));
     }

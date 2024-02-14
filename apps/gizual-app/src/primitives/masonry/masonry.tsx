@@ -13,15 +13,16 @@ type ChildInfo = {
 type MasonryGridProps = {
   children: React.ReactElement[];
   childInfo: ChildInfo[];
-  width: number;
+  numColumns?: number;
   css?: React.CSSProperties;
   className?: string;
 };
 
 export const MasonryGrid = observer(
-  ({ children, css, className, width, childInfo }: MasonryGridProps) => {
+  ({ children, css, className, numColumns, childInfo }: MasonryGridProps) => {
+    console.log("Constructing masonryGrid", numColumns);
     const sortedColumns = React.useMemo(() => {
-      const masonry = new Masonry<React.ReactElement>({ canvasWidth: width });
+      const masonry = new Masonry<React.ReactElement>({ numColumns });
       for (const [index, child] of children.entries()) {
         if (childInfo[index].height === 0) continue;
 
@@ -33,7 +34,7 @@ export const MasonryGrid = observer(
       }
       masonry.sortAndPack();
       return masonry.columns;
-    }, [children, childInfo]);
+    }, [children, childInfo, numColumns]);
 
     return (
       <div className={clsx(style.Row, className)} style={{ ...css }} key="masonry">

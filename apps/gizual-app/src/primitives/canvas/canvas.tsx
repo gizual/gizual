@@ -305,7 +305,12 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               width={minimapWidth}
               height={minimapHeight}
             >
-              <MiniMapContent masonryWidth={vm.canvasWidth} />
+              <MiniMapContent
+                numColumns={
+                  mainController.settingsController.settings.visualizationSettings.canvas
+                    .masonryColumns.value
+                }
+              />
             </MiniMap>
           </div>
           <LegendComponent

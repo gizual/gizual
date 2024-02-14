@@ -14,14 +14,14 @@ import style from "./canvas.module.scss";
 import { useResize } from "./use-resize";
 
 type MiniMapContentProps = {
-  masonryWidth: number;
+  numColumns: number;
 };
 
-function MiniMapContent({ masonryWidth }: MiniMapContentProps) {
+function MiniMapContent({ numColumns }: MiniMapContentProps) {
   const blocks = React.useContext(CanvasContext).useBlocks();
   return (
     <MasonryGrid
-      width={masonryWidth}
+      numColumns={numColumns}
       childInfo={blocks.map((b) => ({ id: b.id, height: b.height + 26 }))}
     >
       {blocks.map((block, index) => {

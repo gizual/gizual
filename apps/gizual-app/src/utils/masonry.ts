@@ -22,6 +22,7 @@ export type MasonryOpts = {
   columnWidth?: number;
   horizontalPadding?: number;
   gap?: number;
+  numColumns?: number;
 };
 
 export type InsertedPosition = {
@@ -38,18 +39,39 @@ export class Masonry<T> {
   gap: number;
   columns: Column<T>[];
   maxHeight = 0;
+  numColumns?: number;
 
   constructor(opts: MasonryOpts) {
-    const { canvasWidth = 1200, columnWidth = 300, horizontalPadding = 16, gap = 16 } = opts;
+    const {
+      canvasWidth = 1200,
+      columnWidth = 300,
+      horizontalPadding = 16,
+      gap = 16,
+      numColumns,
+    } = opts;
     this.canvasWidth = canvasWidth;
     this.columnWidth = columnWidth;
     this.horizontalPadding = horizontalPadding;
     this.gap = gap;
+    this.numColumns = numColumns;
     this.columns = this.createColumns();
   }
 
+  /**
+   * Creates the columns for the masonry layout.
+   * If `numColumns` was specified in the constructor, it creates `numColumns` columns.
+   * Otherwise, it creates as many columns as can fit in the canvas width.
+   */
   createColumns() {
     const columns: Column<T>[] = [];
+
+    if (this.numColumns !== undefined) {
+      for (let i = 0; i < this.numColumns; i++) {
+        columns.push({ index: i, width: this.columnWidth, content: [], currentHeight: 0 });
+      }
+      console.log("Masonry created", columns.length, `columns (${this.numColumns} specified)`);
+      return columns;
+    }
 
     let index = 0;
     for (
@@ -61,6 +83,7 @@ export class Masonry<T> {
       index++;
     }
 
+    console.log("Masonry created", columns.length, "columns (fit-width)");
     if (columns.length === 0) return [];
     return columns;
   }

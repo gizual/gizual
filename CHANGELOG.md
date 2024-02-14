@@ -4,6 +4,10 @@
 
 - **api:** implement gizual-api server to support on-demand url cloning
 
+### Changes
+
+- **app:frontend:** add setting to control the amount of masonry columns to render within the canvas, disable reflow automation
+
 ---
 
 ## Gizual 3.0.0-alpha.15 (01.02.2024)
@@ -21,6 +25,8 @@
 - **app:frontend:** improve behavior and layout of the color-picker
 - **app:frontend:** improve layout of welcome screen and vis-type dialog
 - **app:frontend:** add file-tree root node
+
+---
 
 ## Gizual 3.0.0-alpha.14 (16.01.2024)
 

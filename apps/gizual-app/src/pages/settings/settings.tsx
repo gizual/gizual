@@ -95,6 +95,7 @@ export const RenderedSettingsEntry = observer(
     entry,
     prefix,
     onChange,
+    onInputChange,
     onCheckChange,
     onResetToDefault,
     isDefault,
@@ -102,6 +103,7 @@ export const RenderedSettingsEntry = observer(
     entry: SettingsEntry<any, any>;
     prefix?: string;
     onChange?: (e: any) => void;
+    onInputChange?: (e: any) => void;
     onCheckChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onResetToDefault?: () => void;
     isDefault?: () => boolean;
@@ -113,6 +115,15 @@ export const RenderedSettingsEntry = observer(
       onChange = (e: any) => {
         runInAction(() => {
           entry.value = e;
+          settingsController.storeSettings();
+          displayNotification("updated");
+        });
+      };
+
+    if (!onInputChange)
+      onInputChange = (e: any) => {
+        runInAction(() => {
+          entry.value = e.target.value;
           settingsController.storeSettings();
           displayNotification("updated");
         });
@@ -160,7 +171,7 @@ export const RenderedSettingsEntry = observer(
           </span>
           <span className={style.SettingsEntryDescription}>{entry.description}</span>
           <div>
-            {entry.controlType === "text" && <Input onChange={onChange} value={entry.value} />}
+            {entry.controlType === "text" && <Input onChange={onInputChange} value={entry.value} />}
             {entry.controlType === "select" && (
               <Select
                 value={entry.value}
@@ -178,7 +189,7 @@ export const RenderedSettingsEntry = observer(
               />
             )}
             {entry.controlType === "number" && (
-              <Input value={entry.value} onChange={onChange} type="number" />
+              <Input value={entry.value} onChange={onInputChange} type="number" />
             )}
             {entry.controlType === "checkbox" && (
               <Checkbox checked={entry.value} onChange={onCheckChange} />
