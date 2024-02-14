@@ -71,16 +71,13 @@ export class AnnotationRenderer implements BaseRenderer {
   }
   parseAnnotationsToHtml(): string {
     if (!this.annotations) return "";
-    let html =
-      "<div style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; line-height: normal; user-select: none'>";
+    let html = `<pre class='annotation' style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; line-height: ${10}px; font-size: 4.1px'>`;
     for (const annotation of this.annotations) {
       if ("text" in annotation) {
-        const posX = (annotation.x + this.transform.x) / this.dpr;
-        const posY = (annotation.y + this.transform.y) / this.dpr;
-
-        html += `<pre class="annotation" style="position: absolute; left: ${posX}px; top: ${posY}px; font-size: ${annotation.fontSize}px">${annotation.text}</pre>`;
+        html += annotation.text + "\n";
       }
     }
+    html += "</pre>";
     return html;
   }
 }
