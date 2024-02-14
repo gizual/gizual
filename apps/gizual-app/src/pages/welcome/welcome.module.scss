@@ -143,10 +143,14 @@
 
 .DetailColumn {
   gap: 1rem;
-  flex-grow: 1;
   padding: 1rem 0;
   overflow-x: hidden;
   overflow-y: auto;
+  height: 100%;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(6, auto) 1fr;
 }
 
 .Grow {
@@ -365,31 +369,31 @@
 //  --_min-width: 200px;
 //}
 //
+
 .GifPanel {
   --_aspect-ratio: 1.7777777778;
-  --_width: 550px;
-  --_min-width: 200px;
 
   position: relative;
-  //min-width: var(--_min-width);
-  //min-height: calc(var(--_min-width) / var(--_aspect-ratio));
   aspect-ratio: var(--_aspect-ratio);
-  width: var(--_width);
-
-  background-color: var(--background-secondary);
+  background-color: var(--background-primary);
+  height: 100%;
+  max-width: 100%;
 }
 
 .LoadButton {
   width: 300px;
   min-width: 150px;
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
 }
 
 .Gif {
-  width: var(--_width);
   aspect-ratio: var(--_aspect-ratio);
   object-fit: cover;
   opacity: 0;
   animation: fadein 0.25s ease-in-out forwards;
+  max-width: 100%;
 }
 
 .GifDescription {
