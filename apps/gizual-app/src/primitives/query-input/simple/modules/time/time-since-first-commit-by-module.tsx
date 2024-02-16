@@ -2,10 +2,13 @@ import { IconClock } from "@app/assets";
 import { Input } from "@app/primitives/input";
 import { useLocalQueryCtx } from "@app/utils";
 
+import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
 
 import { TimeBaseQueryModule } from "./time-base-module";
+
+const QUERY_ID = "time.sinceFirstCommitBy";
 
 function getSinceFirstCommitByEntry(query: SearchQueryType) {
   if (
@@ -17,12 +20,17 @@ function getSinceFirstCommitByEntry(query: SearchQueryType) {
   return "";
 }
 
+function checkErrors(errors: QueryError[] | undefined) {
+  return errors?.some((e) => e.selector === QUERY_ID);
+}
+
 export function TimeSinceFirstCommitByModule() {
-  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
+  const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQueryCtx();
   const value = getSinceFirstCommitByEntry(localQuery);
 
   return (
     <TimeBaseQueryModule
+      containsErrors={checkErrors(errors)}
       icon={<IconClock />}
       title={"Since first commit by:"}
       hasSwapButton
@@ -31,6 +39,7 @@ export function TimeSinceFirstCommitByModule() {
     >
       <div className={style.SpacedChildren}>
         <Input
+          error={checkErrors(errors)}
           value={value}
           placeholder="Enter author email"
           onBlur={() => publishLocalQuery()}

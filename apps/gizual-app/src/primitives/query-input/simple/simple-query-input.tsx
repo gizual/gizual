@@ -17,7 +17,7 @@ export const SimpleQueryInput = observer(() => {
   // Since the Monaco component contains some of the validation logic,
   // it's easier to share state via MobX than to try and pass props around.
   const queryVm = React.useMemo(() => new QueryViewModel(), []);
-  const { setQuery, errors } = useQuery();
+  const { setQuery } = useQuery();
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -69,18 +69,6 @@ export const SimpleQueryInput = observer(() => {
           >
             <AdvancedEditor vm={queryVm} />
           </DialogProvider>
-
-          {errors && errors.length > 0 && (
-            <Tooltip label={<pre>{JSON.stringify(errors, undefined, 2)}</pre>}>
-              <div
-                style={{
-                  backgroundColor: "red",
-                  width: 30,
-                  height: 30,
-                }}
-              ></div>
-            </Tooltip>
-          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useMainController, useViewModelController } from "@app/controllers";
 import { CanvasScale } from "@app/utils";
+import clsx from "clsx";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ import { CanvasViewModel } from "./canvas.vm";
 import { LegendComponent, MasonryCanvas, Toolbar } from "./components";
 import { ContextModal } from "./components/context-modal";
 import { MiniMap, MiniMapContent } from "./minimap";
+import { Alert } from "@mantine/core";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;
@@ -161,7 +163,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
 
     const [showMinimap, setShowMinimap] = useState(true);
     const [showLegend, setShowLegend] = useState(true);
-    const { query } = useQuery();
+    const { query, errors } = useQuery();
 
     const wrapperComponent = interactiveRef?.current?.instance.wrapperComponent;
     const contentComponent = interactiveRef?.current?.instance.contentComponent;
@@ -228,6 +230,17 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             <code>{`css transform: scale=${state.scale}, positionX=${state.positionX}px, positionY=${state.positionY}`}</code>
           </div>
         )}
+        <div
+          className={clsx(
+            style.ErrorOverlay,
+            errors && errors.length > 0 && style.ErrorOverlayVisible,
+          )}
+        >
+          <Alert variant="light" color="red" title="Query invalid">
+            The query you entered was invalid. TODO: This is where we put a detailed list of errors.
+            <pre style={{ marginTop: "1rem" }}>{JSON.stringify(errors, undefined, 2)}</pre>
+          </Alert>
+        </div>
         <TransformWrapper
           initialScale={CanvasScale.default}
           minScale={CanvasScale.min}

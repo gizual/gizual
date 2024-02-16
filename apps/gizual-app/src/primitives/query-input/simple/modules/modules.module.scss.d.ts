@@ -28,5 +28,6 @@ declare const classNames: {
   readonly IconUnToggled: "IconUnToggled";
   readonly FileTreeWrapper: "FileTreeWrapper";
   readonly CloseIcon: "CloseIcon";
+  readonly ContainsErrors: "ContainsErrors";
 };
 export = classNames;

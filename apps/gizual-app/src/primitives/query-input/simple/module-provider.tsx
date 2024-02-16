@@ -18,7 +18,7 @@ import { TimeSinceFirstCommitByModule } from "./modules/time/time-since-first-co
 import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
 
 export function ModuleProvider() {
-  const { query } = useQuery();
+  const { query, errors } = useQuery();
   const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
 
   const presetMatch = match(query)
@@ -92,7 +92,7 @@ export function ModuleProvider() {
   //});
 
   return (
-    <LocalQueryContext.Provider value={{ localQuery, updateLocalQuery, publishLocalQuery }}>
+    <LocalQueryContext.Provider value={{ localQuery, updateLocalQuery, publishLocalQuery, errors }}>
       {[presetMatch, timeMatch, fileMatch]}
     </LocalQueryContext.Provider>
   );

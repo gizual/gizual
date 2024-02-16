@@ -4,10 +4,13 @@ import { Button, DialogProvider, FileTree } from "@app/primitives";
 import { useLocalQueryCtx } from "@app/utils";
 import React from "react";
 
+import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
 
 import { FileBaseQueryModule } from "./file-base-module";
+
+const QUERY_ID = "files.path";
 
 function getTreeEntries(query: SearchQueryType) {
   if (query.files && "path" in query.files && Array.isArray(query.files.path))
@@ -15,14 +18,19 @@ function getTreeEntries(query: SearchQueryType) {
   return [];
 }
 
+function checkErrors(errors: QueryError[] | undefined) {
+  return errors?.some((e) => e.selector === QUERY_ID);
+}
+
 export function FileTreeModule() {
   const mainController = useMainController();
-  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
+  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQueryCtx();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const values = getTreeEntries(localQuery);
 
   return (
     <FileBaseQueryModule
+      containsErrors={checkErrors(errors)}
       icon={<IconFile />}
       title={"Files:"}
       hasSwapButton
