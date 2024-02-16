@@ -1,5 +1,7 @@
 .Progress {
   height: 8px;
+  animation: fadeInDelayed 2s ease-in-out forwards;
+
   :global(.ant-progress-inner) {
     background-color: var(--background-tertiary);
   }
@@ -17,6 +19,18 @@
       transform: scaleX(2);
       animation: reducedIndeterminate 1s linear infinite;
     }
+  }
+}
+
+@keyframes fadeInDelayed {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 

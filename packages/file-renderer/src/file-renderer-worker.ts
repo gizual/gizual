@@ -274,7 +274,7 @@ export class FileRendererWorker {
     const colors: string[] = [];
     const { width } = calculateDimensions(ctx.dpr, ctx.rect);
     const lineHeight = 10 * ctx.dpr;
-    this.colorManager.init({ domain: ctx.authors.map((a) => a.id) });
+    this.colorManager.init(ctx.colorDefinition);
 
     let currentY = 0;
     const widthPerCharacter = width / ctx.lineLengthMax;

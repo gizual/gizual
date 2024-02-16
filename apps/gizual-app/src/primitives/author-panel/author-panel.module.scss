@@ -2,6 +2,7 @@
 
 .SettingsPanel {
   @include panel;
+  max-width: 100%;
   border-left: 1px solid var(--border-primary);
 }
 
@@ -20,4 +21,8 @@
 .Table {
   position: relative;
   width: 100%;
+}
+
+.DataTable {
+  font-family: "Iosevka Extended";
 }

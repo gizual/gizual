@@ -5,6 +5,7 @@ import { differenceBy, isEqual, isNumber, omit, result } from "lodash";
 import { minimatch } from "minimatch";
 import { match, Pattern } from "ts-pattern";
 
+import { ColorManager } from "@giz/color-manager";
 import { Database } from "@giz/database";
 import { Author, Blame, CommitInfo, FileTreeNode, InitialDataResult } from "@giz/explorer";
 import {
@@ -153,6 +154,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       this.db.countAuthors().then((count) => {
         this.db.queryAuthors(0, count).then((authors) => {
           this.cachedAuthors = authors;
+          this.colorManager.init({ domain: authors.map((a) => a.id) });
         });
       });
     });
@@ -474,6 +476,14 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
     if (this.queryErrors.length > 0) {
       return;
+    }
+
+    if (
+      !isEqual(query.preset, oldQuery.preset) &&
+      query.preset &&
+      "paletteByAuthor" in query.preset
+    ) {
+      this.colorManager.init({ assignedColors: query.preset.paletteByAuthor });
     }
 
     this.updateQueryCacheKey();
@@ -803,9 +813,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       explorerPool,
       renderPool,
       visualizationSettings,
-      cachedAuthors,
       renderCacheKey,
       range,
+      colorManager,
     } = this;
 
     let { requiredDpr } = this;
@@ -884,7 +894,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       fileContent: lines,
       lineLengthMax: 120,
       coloringMode,
-      authors: cachedAuthors,
       showContent,
       dpr: requiredDpr,
       earliestTimestamp: selectedStartDate.getTime() / 1000, // TODO: should be removed
@@ -894,6 +903,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       rect: new DOMRect(0, 0, 300, lines.length * 10),
       isPreview: false,
       visualizationConfig,
+      colorDefinition: colorManager.state,
     });
 
     if (block.url) {
@@ -923,7 +933,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     return await this.db.countAuthors();
   }
 
-  async getAuthors(offset: number, limit?: number): Promise<Author[]> {
+  async getAuthors(offset: number, limit?: number): Promise<(Author & { color: string })[]> {
     await this.untilState("authorsLoaded", true);
 
     if (!limit) {
@@ -931,7 +941,10 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
 
     const authors = await this.db.queryAuthors(offset, limit);
-    return authors;
+    return authors.map((a) => {
+      const color = this.colorManager.getBandColor(a.id);
+      return { ...a, color };
+    });
   }
 
   // ---------------------------------------------
@@ -962,6 +975,12 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     this.updateQueryCacheKey();
     this.scheduleAllBlockRenders();
   };
+
+  // ---------------------------------------------
+  // --------------- Color Manager ---------------
+  // ---------------------------------------------
+
+  colorManager: ColorManager = new ColorManager();
 
   // ---------------------------------------------
   // ------------------- Other -------------------

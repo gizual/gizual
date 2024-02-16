@@ -43,6 +43,7 @@ export function TimeSinceFirstCommitByModule() {
           onChange={(e) =>
             updateLocalQuery({ time: { sinceFirstCommitBy: e.currentTarget.value } })
           }
+          style={{ width: 200 }}
         />
       </div>
     </TimeBaseQueryModule>

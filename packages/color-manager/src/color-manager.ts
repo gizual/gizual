@@ -41,7 +41,7 @@ export function parseRgbString(rgb: string): [number, number, number, number] {
   return [r, g, b, a];
 }
 
-function componentToHex(c: number) {
+function componentToHex(c = 0) {
   const hex = c.toString(16);
   return hex.length == 1 ? "0" + hex : hex;
 }
@@ -88,10 +88,10 @@ export function enforceAlphaChannel(hex: string): string {
 
 const WARN_MIN_BAND_COLORS = 10;
 
-type ColorSetDefinition = {
-  excludedColors?: HCLColor[];
-  assignedColors?: Map<string, string>;
-  domain: string[];
+export type ColorSetDefinition = {
+  excludedColors?: string[];
+  assignedColors?: [string, string][];
+  domain?: string[];
   bandLength?: number;
 };
 
@@ -115,19 +115,30 @@ export class ColorManager {
   assignedColors: Map<string, string> = new Map();
 
   // The length of the color band
-  bandLength = 16;
+  bandLength = 8;
 
   constructor(ctx?: ColorSetDefinition) {
     if (ctx) this.init(ctx);
   }
 
   init({ excludedColors, assignedColors, domain, bandLength }: ColorSetDefinition) {
-    if (excludedColors) this.excludedColors = excludedColors;
-    if (assignedColors) this.assignedColors = assignedColors;
-    if (bandLength) this.bandLength = bandLength;
+    if (excludedColors) for (const c of excludedColors) this.excludeColor(c);
+    if (assignedColors) this.assignedColors = new Map(assignedColors);
+    if (domain && domain.length > 0) this.domain = domain;
 
-    this.domain = domain;
+    if (bandLength) this.bandLength = bandLength;
+    else if (domain && domain.length > 0) this.bandLength = Math.min(domain.length, 30);
+
     this.initializeColorBand();
+  }
+
+  get state(): ColorSetDefinition {
+    return {
+      excludedColors: this.excludedColors.map((c) => c.toString()),
+      assignedColors: [...this.assignedColors.entries()],
+      domain: [...this.domain],
+      bandLength: this.bandLength,
+    };
   }
 
   assignColor(identifier: string, color: string) {
@@ -147,7 +158,7 @@ export class ColorManager {
   initializeColorBand() {
     this.colorBand = [];
     for (let i = 0; i < this.bandLength; i++) {
-      const hclColor = hcl((i * 360) / this.bandLength, 70, 50);
+      const hclColor = hcl((i * 360) / this.bandLength, 70, 65);
       if (!this.excludedColors.includes(hclColor)) this.colorBand.push(hclColor.toString());
     }
 
@@ -233,7 +244,7 @@ export class ColorManager {
         return this.interpolateLineColorByAge(ctx, line);
       }
       case "author": {
-        return this.interpolateLineColorByAuthor(ctx, line);
+        return this.interpolateLineColorByAuthor(line);
       }
     }
   }
@@ -252,10 +263,8 @@ export class ColorManager {
       : ctx.visualizationConfig.colors.notLoaded;
   }
 
-  private interpolateLineColorByAuthor(ctx: FileLinesContext, line: Line) {
-    const author = ctx.authors.find((a) => a.id === line.commit?.authorId);
-
-    return this.getBandColor(author?.id ?? "");
+  private interpolateLineColorByAuthor(line: Line) {
+    return this.getBandColor(line.commit?.authorId ?? "");
   }
 
   private interpolateContributionColor(ctx: AuthorContributionsContext, contributionTime: GizDate) {

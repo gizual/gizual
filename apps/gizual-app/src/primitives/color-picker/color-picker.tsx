@@ -17,9 +17,30 @@ type ColorPickerProps = {
 
 const colorManager = new ColorManager({ domain: [] });
 
+function isValidHexValue(value: string) {
+  return /^#([\dA-Fa-f]{6}|[\dA-Fa-f]{3})$/.test(value);
+}
+
+function convertRgbToHex(rgb: string) {
+  return ColorManager.stringToHex(rgb);
+}
+
+function getValidHexValue(value: string) {
+  if (isValidHexValue(value)) {
+    return value;
+  }
+
+  const convertedValue = convertRgbToHex(value);
+  if (isValidHexValue(convertedValue)) {
+    return convertedValue;
+  }
+
+  return "#000000";
+}
+
 export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [color, setColor] = React.useState(hexValue);
+  const [color, setColor] = React.useState(getValidHexValue(hexValue));
   const ref = useClickOutside(() => setIsOpen(false));
 
   return (
@@ -89,7 +110,7 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
             if (e.key === "Escape") setIsOpen(false);
           }}
         >
-          <div className={style.ColorPreview} style={{ backgroundColor: hexValue }}></div>
+          <div className={style.ColorPreview} style={{ backgroundColor: color }}></div>
         </IconButton>
       </Popover.Target>
     </Popover>
