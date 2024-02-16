@@ -1,5 +1,6 @@
 import previewFileLines from "@app/assets/previews/preview-file-lines.png";
 import { useSettingsController, useViewModelController } from "@app/controllers";
+import { AuthorTable } from "@app/primitives/author-panel";
 import { Button } from "@app/primitives/button";
 import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
@@ -9,8 +10,6 @@ import clsx from "clsx";
 import React from "react";
 import { match } from "ts-pattern";
 
-import { ColorManager } from "@giz/color-manager";
-import { useAuthorList } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
 
@@ -38,8 +37,6 @@ const StyleRadioDescriptions = {
 };
 
 const NUM_STEPS = 3;
-
-const colorManager = new ColorManager();
 
 function getTypeEntry(query: SearchQueryType) {
   if (query && query.type) return query.type;
@@ -562,75 +559,21 @@ export type AuthorColorCustomizationProps = {
   onChange: (colors: [string, string][]) => void;
 };
 
-export const AuthorColorCustomization = React.memo(
-  ({ selectedColors, onChange }: AuthorColorCustomizationProps) => {
-    const { data: authors, isLoading } = useAuthorList(100, 0);
-    const [ready, setReady] = React.useState(false);
-
-    React.useEffect(() => {
-      if (!isLoading && authors?.authors) {
-        colorManager.init({ domain: authors.authors.map((a) => a.id) });
-        setReady(true);
-      }
-    }, [isLoading, authors?.authors, colorManager]);
-
-    return (
-      <>
-        {ready ? (
-          <div
-            className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-1"])}
-            style={{
-              maxHeight: "300px",
-              overflowY: "auto",
-              justifyContent: "center",
-              alignItems: "left",
-            }}
-          >
-            {authors!.authors.map((author) => {
-              return (
-                <div
-                  className={clsx(
-                    sharedStyle.FlexRow,
-                    sharedStyle["Gap-2"],
-                    sharedStyle["Items-Center"],
-                  )}
-                  key={author.id}
-                  style={{ display: "flex" }}
-                >
-                  <ColorPicker
-                    hexValue={(() => {
-                      const customizedColor = selectedColors.find((c) => c[0] === author.id);
-                      if (customizedColor) return customizedColor[1];
-                      return ColorManager.stringToHex(colorManager.getBandColor(author.id));
-                    })()}
-                    onAccept={(c) => {
-                      insertAuthorColor(selectedColors, author.id, c);
-                      onChange([...selectedColors]);
-                    }}
-                  />
-                  <p className={clsx(sharedStyle["Text-Base"], sharedStyle["Text-Left"])}>
-                    {author.name} ({author.email})
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div>Loading authors - Please wait ...</div>
-        )}
-      </>
-    );
-  },
-);
-
-function insertAuthorColor(authorColors: [string, string][], authorId: string, color: string) {
-  const index = authorColors.findIndex((c) => c[0] === authorId);
-  if (index === -1) {
-    authorColors.push([authorId, color]);
-  } else {
-    authorColors[index][1] = color;
-  }
-}
+export const AuthorColorCustomization = React.memo(({}: AuthorColorCustomizationProps) => {
+  return (
+    <>
+      <div
+        className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-1"])}
+        style={{
+          justifyContent: "center",
+          alignItems: "left",
+        }}
+      >
+        <AuthorTable id="vis-type-modal-authors" />
+      </div>
+    </>
+  );
+});
 
 export type FinalizeChangesBlockProps = {
   selectedType?: Type;

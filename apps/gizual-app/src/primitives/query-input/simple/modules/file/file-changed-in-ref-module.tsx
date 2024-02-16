@@ -34,7 +34,7 @@ export function FileChangedInRefModule() {
             updateLocalQuery({ files: { changedInRef: e.currentTarget.value ?? "" } })
           }
           value={value}
-          style={{ width: 80 }}
+          style={{ width: 150 }}
         />
       </div>
     </FileBaseQueryModule>

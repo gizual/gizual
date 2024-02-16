@@ -1,6 +1,7 @@
 import type { ColoringMode } from "@app/types";
 import type { SvgBaseElement } from "@app/utils";
 
+import type { ColorSetDefinition } from "@giz/color-manager";
 import type { Author } from "@giz/explorer";
 import type { Line } from "@giz/gizual-app/controllers";
 import type { VisualizationConfig } from "@giz/gizual-app/types";
@@ -71,8 +72,8 @@ export type FileLinesContext = {
   fileContent: Line[];
   lineLengthMax: number;
   coloringMode: ColoringMode;
-  authors: Author[];
   showContent: boolean;
+  colorDefinition: ColorSetDefinition;
 } & BaseContext;
 
 export type FileMosaicContext = {
