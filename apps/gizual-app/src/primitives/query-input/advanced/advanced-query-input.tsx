@@ -41,7 +41,7 @@ export type AdvancedEditorProps = {
 };
 
 export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
-  const { query } = useQuery();
+  const { query, errors } = useQuery();
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -66,7 +66,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
       <Editor
         className={clsx(style.AdvancedEditor, isLoading && style.AdvancedEditorLoading)}
         defaultLanguage="json"
-        value={JSON.stringify(query, undefined, 1)}
+        value={JSON.stringify(query, undefined, 2)}
         onValidate={vm.handleEditorValidation.bind(vm)}
         beforeMount={handleEditorWillMount}
         onMount={(_e, m) => {
@@ -78,7 +78,8 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
         theme={theme === "light" ? "light" : "vs-dark"}
         height="100%"
       ></Editor>
-      {vm.contentHasErrors && <>Validation error: {vm.validationOutput.join(", ")}</>}
+      <pre>{vm.contentHasErrors && <>Validation error: {vm.validationOutput.join(", ")}</>}</pre>
+      {errors && errors.length > 0 && <pre>{JSON.stringify(errors, undefined, 2)}</pre>}
     </div>
   );
 });
