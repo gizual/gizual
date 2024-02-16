@@ -2,10 +2,13 @@ import { IconFile } from "@app/assets";
 import { Input } from "@app/primitives/input";
 import { useLocalQueryCtx } from "@app/utils";
 
+import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
 
 import { FileBaseQueryModule } from "./file-base-module";
+
+const QUERY_ID = "files.changedInRef";
 
 function getChangedInRefEntry(query: SearchQueryType) {
   if (query.files && "changedInRef" in query.files && !Array.isArray(query.files.changedInRef))
@@ -13,12 +16,17 @@ function getChangedInRefEntry(query: SearchQueryType) {
   return "";
 }
 
+function checkErrors(errors: QueryError[] | undefined) {
+  return errors?.some((e) => e.selector === QUERY_ID);
+}
+
 export function FileChangedInRefModule() {
-  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
+  const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQueryCtx();
   const value = getChangedInRefEntry(localQuery);
 
   return (
     <FileBaseQueryModule
+      containsErrors={checkErrors(errors)}
       icon={<IconFile />}
       title={"Changed in revision:"}
       hasSwapButton
@@ -29,6 +37,7 @@ export function FileChangedInRefModule() {
     >
       <div className={style.SpacedChildren}>
         <Input
+          error={checkErrors(errors)}
           onBlur={() => publishLocalQuery()}
           onChange={(e) =>
             updateLocalQuery({ files: { changedInRef: e.currentTarget.value ?? "" } })

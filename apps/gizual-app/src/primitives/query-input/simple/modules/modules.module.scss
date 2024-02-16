@@ -11,6 +11,7 @@
   position: relative;
   flex-shrink: 0;
   color: var(--foreground-primary);
+  box-sizing: border-box;
 }
 
 .PlaceholderQueryModule {
@@ -245,4 +246,8 @@
     fill: var(--foreground-primary);
   }
   cursor: pointer;
+}
+
+.ContainsErrors {
+  border-bottom: 2px solid var(--accent-tertiary);
 }

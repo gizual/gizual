@@ -12,5 +12,7 @@ declare const classNames: {
   readonly Minimap: "Minimap";
   readonly LegendContainer: "LegendContainer";
   readonly DebugOverlay: "DebugOverlay";
+  readonly ErrorOverlay: "ErrorOverlay";
+  readonly ErrorOverlayVisible: "ErrorOverlayVisible";
 };
 export = classNames;

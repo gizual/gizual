@@ -10,6 +10,7 @@ import {
 
 import { useQuery } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
+import { QueryError } from "@giz/maestro";
 
 export function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -64,6 +65,7 @@ export const LocalQueryContext = createContext<
       localQuery: SearchQueryType;
       updateLocalQuery: (partial: Partial<SearchQueryType>) => void;
       publishLocalQuery: () => void;
+      errors: QueryError[] | undefined;
     }
   | undefined
 >(undefined);

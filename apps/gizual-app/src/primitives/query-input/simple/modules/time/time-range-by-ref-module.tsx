@@ -3,10 +3,13 @@ import { Input } from "@app/primitives/input";
 import { useLocalQueryCtx } from "@app/utils/hooks";
 import { observer } from "mobx-react-lite";
 
+import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
 
 import { TimeBaseQueryModule } from "./time-base-module";
+
+const QUERY_ID = "time.rangeByRef";
 
 function getTimeRangeByRefEntry(query: SearchQueryType) {
   if (query.time && "rangeByRef" in query.time) {
@@ -18,8 +21,18 @@ function getTimeRangeByRefEntry(query: SearchQueryType) {
   return { from: "", to: "" };
 }
 
+function checkErrors(errors: QueryError[] | undefined): {
+  error?: boolean;
+  errorField1?: boolean;
+  errorField2?: boolean;
+} {
+  const errorField1 = errors?.some((e) => e.selector === `${QUERY_ID}[0]`);
+  const errorField2 = errors?.some((e) => e.selector === `${QUERY_ID}[1]`);
+  return { error: errorField1 || errorField2, errorField1, errorField2 };
+}
+
 export const TimeRangeByRefModule = observer(() => {
-  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
+  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQueryCtx();
   const { from, to } = getTimeRangeByRefEntry(localQuery);
 
   const onChangeStartRef = (ref: string) => {
@@ -40,6 +53,7 @@ export const TimeRangeByRefModule = observer(() => {
 
   return (
     <TimeBaseQueryModule
+      containsErrors={checkErrors(errors).error}
       icon={<IconClock />}
       title={"Range by revision:"}
       hasSwapButton
@@ -49,6 +63,7 @@ export const TimeRangeByRefModule = observer(() => {
       <div className={style.SpacedChildren}>
         From:
         <Input
+          error={checkErrors(errors).errorField1}
           onBlur={() => publishLocalQuery()}
           onChange={(e) => onChangeStartRef(e.currentTarget.value)}
           value={from}
@@ -56,6 +71,7 @@ export const TimeRangeByRefModule = observer(() => {
         />
         To:
         <Input
+          error={checkErrors(errors).errorField2}
           onBlur={() => publishLocalQuery()}
           onChange={(e) => onChangeEndRef(e.currentTarget.value)}
           value={to}
