@@ -10,6 +10,7 @@ declare const classNames: {
   readonly ToolbarButton: "ToolbarButton";
   readonly MinimapContainer: "MinimapContainer";
   readonly Minimap: "Minimap";
+  readonly MinimapPreview: "MinimapPreview";
   readonly LegendContainer: "LegendContainer";
   readonly DebugOverlay: "DebugOverlay";
   readonly ErrorOverlay: "ErrorOverlay";

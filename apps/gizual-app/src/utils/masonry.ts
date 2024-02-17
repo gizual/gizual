@@ -69,7 +69,6 @@ export class Masonry<T> {
       for (let i = 0; i < this.numColumns; i++) {
         columns.push({ index: i, width: this.columnWidth, content: [], currentHeight: 0 });
       }
-      console.log("Masonry created", columns.length, `columns (${this.numColumns} specified)`);
       return columns;
     }
 
@@ -83,7 +82,6 @@ export class Masonry<T> {
       index++;
     }
 
-    console.log("Masonry created", columns.length, "columns (fit-width)");
     if (columns.length === 0) return [];
     return columns;
   }

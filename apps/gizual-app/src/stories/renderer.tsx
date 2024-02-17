@@ -1,5 +1,5 @@
 import { getPrettyConsoleCSS } from "@app/utils";
-import { Remote, transfer, wrap } from "comlink";
+import { wrap } from "comlink";
 import React from "react";
 
 import { LINEAR_COLOR_RANGE } from "@giz/color-manager";

@@ -74,11 +74,14 @@
   right: 16px;
   border: 1px solid var(--border-primary);
   background-color: var(--background-primary);
-  pointer-events: none;
 }
 
 .Minimap {
   display: block;
+}
+
+.MinimapPreview {
+  border: 2px solid green !important;
 }
 
 .LegendContainer {

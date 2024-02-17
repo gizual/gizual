@@ -18,7 +18,9 @@ type MiniMapContentProps = {
 };
 
 function MiniMapContent({ numColumns }: MiniMapContentProps) {
-  const blocks = React.useContext(CanvasContext).useBlocks();
+  const canvasCtx = React.useContext(CanvasContext);
+  const blocks = canvasCtx.useBlocks();
+
   return (
     <MasonryGrid
       numColumns={numColumns}
@@ -214,20 +216,115 @@ const MiniMap: React.FC<MiniMapProps> = ({
     } as const;
   }, []);
 
+  // --- Minimap Mouse Movement
+  /**
+   * This function sets the transform of the main element, but respects the defined
+   * bounding boxes. If the rectangle would overlap the bounding box, it will snap
+   * to the edge of the bounding box.
+   */
+  function transformWithinBoundingBox(scale: number, posX: number, posY: number) {
+    const bounds = instance.bounds;
+    if (!bounds) return instance.setTransformState(scale, posX, posY);
+
+    const { minPositionX, maxPositionX, minPositionY, maxPositionY } = bounds;
+
+    let x = posX;
+    let y = posY;
+
+    if (posX < minPositionX) {
+      x = minPositionX;
+    } else if (posX > maxPositionX) {
+      x = maxPositionX;
+    }
+
+    if (posY < minPositionY) {
+      y = minPositionY;
+    } else if (posY > maxPositionY) {
+      y = maxPositionY;
+    }
+
+    instance.setTransformState(scale, x, y);
+  }
+
+  const [clickPosition, setClickPosition] = React.useState({
+    x: 0,
+    y: 0,
+    transformX: 0,
+    transformY: 0,
+  });
+  const [isDragging, setIsDragging] = React.useState(false);
+
+  function onMinimapMouseDown(e: React.MouseEvent) {
+    setClickPosition({
+      x: e.clientX,
+      y: e.clientY,
+      transformX: instance.transformState.positionX,
+      transformY: instance.transformState.positionY,
+    });
+    setIsDragging(true);
+  }
+
+  function stopDragging(e: React.MouseEvent) {
+    setIsDragging(false);
+
+    // If the mouse didn't move at all, we treat this as a click event.
+    if (clickPosition.x === e.clientX && clickPosition.y === e.clientY) {
+      const scale = computeMiniMapScale();
+      const previewScale = scale * (1 / instance.transformState.scale);
+
+      const dx = e.clientX - e.currentTarget.getBoundingClientRect().left;
+      const dy = e.clientY - e.currentTarget.getBoundingClientRect().top;
+
+      const { scale: transformScale } = instance.transformState;
+
+      // `posX` and `posY` are the center coordinates of the preview box.
+      const posX = -dx / previewScale + (previewRef.current?.clientWidth ?? 0) / previewScale / 2;
+      const posY = -dy / previewScale + (previewRef.current?.clientHeight ?? 0) / previewScale / 2;
+
+      transformWithinBoundingBox(transformScale, posX, posY);
+    }
+  }
+
+  function onMinimapMouseMove(e: React.MouseEvent) {
+    if (isDragging) {
+      const scale = computeMiniMapScale();
+      const previewScale = scale * (1 / instance.transformState.scale);
+
+      const dx = e.clientX - clickPosition.x;
+      const dy = e.clientY - clickPosition.y;
+
+      const { scale: transformScale } = instance.transformState;
+
+      instance.setTransformState(
+        transformScale,
+        clickPosition.transformX - dx / previewScale,
+        clickPosition.transformY - dy / previewScale,
+      );
+    }
+  }
+  // ---
+
   return (
     <div
       {...rest}
       ref={mainRef}
       style={wrapperStyle}
       className={clsx("rzpp-mini-map", style.Minimap, rest.className)}
+      onMouseDown={onMinimapMouseDown}
+      onMouseUp={stopDragging}
+      onMouseOut={stopDragging}
+      onMouseMove={onMinimapMouseMove}
     >
       <div {...rest} ref={wrapperRef} className="rzpp-wrapper">
         {children}
       </div>
       <div
-        className="rzpp-preview"
+        className={clsx("rzpp-preview", style.MinimapPreview)}
         ref={previewRef}
-        style={{ ...defaultPreviewStyles, ...previewStyles }}
+        style={{
+          ...defaultPreviewStyles,
+          ...previewStyles,
+        }}
       />
     </div>
   );

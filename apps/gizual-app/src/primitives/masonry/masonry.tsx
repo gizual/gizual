@@ -20,7 +20,6 @@ type MasonryGridProps = {
 
 export const MasonryGrid = observer(
   ({ children, css, className, numColumns, childInfo }: MasonryGridProps) => {
-    console.log("Constructing masonryGrid", numColumns);
     const sortedColumns = React.useMemo(() => {
       const masonry = new Masonry<React.ReactElement>({ numColumns });
       for (const [index, child] of children.entries()) {

@@ -18,7 +18,7 @@ type CanvasContextProps = {
   debugLayout: boolean;
 };
 
-const CanvasContext = React.createContext({ useBlocks: useBlocks, debugLayout: false });
+const CanvasContext = React.createContext({} as CanvasContextProps);
 
 export { CanvasContext };
 export type { CanvasContextProps };

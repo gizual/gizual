@@ -7,6 +7,7 @@
 ### Changes
 
 - **app:frontend:** add setting to control the amount of masonry columns to render within the canvas, disable reflow automation
+- **app:frontend:** implement drag and click functionality for canvas minimap
 
 ---
 

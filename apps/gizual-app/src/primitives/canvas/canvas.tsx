@@ -145,9 +145,6 @@ type InnerCanvasProps = {
   interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const MINIMAP_HIDE_ON_HOVER = true;
-const LEGEND_HIDE_ON_HOVER = true;
-
 const CANVAS_PADDING = 16;
 
 const InnerCanvas = observer<any, HTMLDivElement>(
@@ -160,9 +157,6 @@ const InnerCanvas = observer<any, HTMLDivElement>(
       positionX: 0,
       positionY: 0,
     });
-
-    const [showMinimap, setShowMinimap] = useState(true);
-    const [showLegend, setShowLegend] = useState(true);
     const { query, errors } = useQuery();
 
     const wrapperComponent = interactiveRef?.current?.instance.wrapperComponent;
@@ -190,38 +184,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     const minimapHeight = wrapperHeight - legendHeight; //Math.min(contentHeight / 10, wrapperHeight);
 
     return (
-      <div
-        ref={ref}
-        className={style.Canvas}
-        {...defaultProps}
-        style={{ padding: CANVAS_PADDING }}
-        onMouseMove={(e) => {
-          // Get position relative to element
-          const rect = e.currentTarget.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-
-          if (
-            MINIMAP_HIDE_ON_HOVER &&
-            y < minimapHeight + CANVAS_PADDING &&
-            x > rect.width - minimapWidth - CANVAS_PADDING
-          ) {
-            setShowMinimap(false);
-          } else {
-            setShowMinimap(true);
-          }
-
-          if (
-            LEGEND_HIDE_ON_HOVER &&
-            y > wrapperHeight - legendHeight + CANVAS_PADDING &&
-            x > rect.width - legendWidth - CANVAS_PADDING
-          ) {
-            setShowLegend(false);
-          } else {
-            setShowLegend(true);
-          }
-        }}
-      >
+      <div ref={ref} className={style.Canvas} {...defaultProps} style={{ padding: CANVAS_PADDING }}>
         {debugLayout && (
           <div className={style.DebugOverlay}>
             <p className={sharedStyle["Text-Bold"]}>Canvas Debug Panel</p>
@@ -296,8 +259,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
           <div
             className={style.MinimapContainer}
             style={{
-              opacity: showMinimap ? 0.8 : 0,
-              transition: "opacity 0.2s ease-out",
+              opacity: 0.8,
             }}
           >
             <MiniMap
@@ -313,11 +275,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               />
             </MiniMap>
           </div>
-          <LegendComponent
-            showLegend={showLegend}
-            legendWidth={legendWidth}
-            legendHeight={legendHeight}
-          />
+          <LegendComponent legendWidth={legendWidth} legendHeight={legendHeight} />
         </TransformWrapper>
       </div>
     );
