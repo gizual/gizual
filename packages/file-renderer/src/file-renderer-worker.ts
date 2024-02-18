@@ -240,9 +240,7 @@ export class FileRendererWorker {
 
     let currentX = 0;
     let currentY = 0;
-    for (const [index, line] of ctx.fileContent.entries()) {
-      if (index + 1 > VisualizationDefaults.maxLineCount) break;
-
+    for (const [_, line] of ctx.fileContent.entries()) {
       let color = ctx.visualizationConfig.colors.notLoaded;
       if (line.commit && !ctx.isPreview) color = this.colorManager.interpolateColor(ctx, line);
 

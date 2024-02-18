@@ -80,7 +80,7 @@ export type FileMosaicContext = {
   type: RenderType.FileMosaic;
   coloringMode: ColoringMode;
   fileContent: Omit<Line[], "content">; // We don't need the content, just the metadata
-  authors: Author[];
+  colorDefinition: ColorSetDefinition;
 } & BaseContext &
   BaseMosaicContext;
 

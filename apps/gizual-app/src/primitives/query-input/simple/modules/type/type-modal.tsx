@@ -8,7 +8,7 @@ import { useLocalQuery } from "@app/utils";
 import { Stepper, StepperStepProps } from "@mantine/core";
 import clsx from "clsx";
 import React from "react";
-import { match } from "ts-pattern";
+import { match, Pattern } from "ts-pattern";
 
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
@@ -207,18 +207,6 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
         </StepperItem>
       ),
     },
-    //{
-    //  title: "Review",
-    //  children: (
-    //    <StepperItem currentStep={step} hasButtons={false}>
-    //      <FinalizeChangesBlock
-    //        selectedType={selectedType}
-    //        selectedStyle={selectedStyle}
-    //        selectedColors={selectedColors}
-    //      />
-    //    </StepperItem>
-    //  ),
-    //},
   ];
 
   return (
@@ -490,7 +478,7 @@ export const DefaultStyleSelect = React.memo(
     return (
       <div className={sharedStyle.FlexColumn}>
         {match(type)
-          .with("file-lines", () => (
+          .with(Pattern.union("file-lines", "file-mosaic"), () => (
             <div className={style.TypeDialogGrid}>
               {DefaultStyles.map((s) => (
                 <RadioGridItem<Style>
