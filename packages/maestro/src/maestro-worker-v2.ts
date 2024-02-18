@@ -16,7 +16,7 @@ import {
   PoolControllerOpts,
   PoolPortal,
 } from "@giz/explorer-web";
-import { FileRendererPool, RenderType } from "@giz/file-renderer";
+import { BaseContext, FileRendererPool, RenderType } from "@giz/file-renderer";
 import { SearchQueryType } from "@giz/query";
 import { getStringDate, GizDate } from "@giz/utils/gizdate";
 
@@ -721,15 +721,26 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         const fileContents = await Promise.all(
           this.selectedFiles.map((file) => this.getFileContent(file.path.join("/"))),
         );
-        return this.selectedFiles.map(
-          (file, index): Block => ({
+
+        return this.selectedFiles.map((file, index): Block => {
+          const numLines = fileContents[index].split("\n").length;
+          const blockHeight = match(type)
+            .with("file-lines", () => (numLines - 1) * 10)
+            .with("file-mosaic", () => Math.max((Math.floor(numLines / 10) + 1) * 10, 10))
+            .otherwise(() => {
+              throw new Error("Unsupported block type (height calculation)");
+            });
+
+          //type === "file-lines" ? (numLines - 1) * 10 : Math.max(((numLines - 1) % 10) * 10, 10);
+
+          return {
             id: `${t}:${file.path.join("/")}`,
             type: t,
             filePath: file.path.join("/"),
             fileType: isNumber(file.kind) ? getFileIcon(file.kind) : undefined,
-            height: (fileContents[index].split("\n").length - 1) * 10,
-          }),
-        );
+            height: blockHeight,
+          };
+        });
       })
       .with("author-mosaic", () => {
         throw new Error("Unsupported block type");
@@ -840,9 +851,13 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       return;
     }
 
-    if (block.type !== "file-lines") {
-      throw new Error("Unsupported block type");
-    }
+    console.log("scheduleBlockRender", block.type);
+
+    match(block.type)
+      .with(Pattern.union("file-lines", "file-mosaic"), () => {})
+      .otherwise(() => {
+        throw new Error("Unsupported block type");
+      });
 
     if (!block.blameJobRef || block.currentImageCacheKey !== renderCacheKey) {
       block.blameJobRef = explorerPool!.getBlame(
@@ -889,12 +904,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       coloringMode = "author";
     }
 
-    const { result } = await renderPool.renderCanvas({
-      type: RenderType.FileLines,
-      fileContent: lines,
-      lineLengthMax: 120,
-      coloringMode,
-      showContent,
+    const baseCtx: BaseContext = {
       dpr: requiredDpr,
       earliestTimestamp: selectedStartDate.getTime() / 1000, // TODO: should be removed
       latestTimestamp: selectedEndDate.getTime() / 1000, // TODO: should be removed
@@ -903,8 +913,37 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       rect: new DOMRect(0, 0, 300, lines.length * 10),
       isPreview: false,
       visualizationConfig,
-      colorDefinition: colorManager.state,
-    });
+    };
+
+    const { result } = await match(query.type)
+      .with("file-lines", async () => {
+        return renderPool.renderCanvas({
+          ...baseCtx,
+          type: RenderType.FileLines,
+          fileContent: lines,
+          lineLengthMax: 120,
+          coloringMode,
+          showContent,
+          rect: new DOMRect(0, 0, 300, lines.length * 10),
+          colorDefinition: colorManager.state,
+        });
+      })
+      .with("file-mosaic", async () => {
+        return renderPool.renderCanvas({
+          ...baseCtx,
+          type: RenderType.FileMosaic,
+          tilesPerRow: 10,
+          fileContent: lines,
+          coloringMode,
+          selectedStartDate,
+          selectedEndDate,
+          rect: new DOMRect(0, 0, 300, lines.length),
+          colorDefinition: colorManager.state,
+        });
+      })
+      .otherwise(() => {
+        throw new Error("Unsupported render type.");
+      });
 
     if (block.url) {
       URL.revokeObjectURL(block.url);

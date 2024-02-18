@@ -229,7 +229,7 @@ export class ColorManager {
     return ctx.visualizationConfig.colors.notLoaded;
   }
 
-  private interpolateLineColor(ctx: FileLinesContext, line: Line) {
+  private interpolateLineColor(ctx: RequiredColorInfo, line: Line) {
     const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
 
     // If the line was updated before the start or after the end date, grey it out.
@@ -249,7 +249,7 @@ export class ColorManager {
     }
   }
 
-  private interpolateLineColorByAge(ctx: FileLinesContext | FileMosaicContext, line: Line) {
+  private interpolateLineColorByAge(ctx: RequiredColorInfo, line: Line) {
     const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
 
     const timeRange: [number, number] = [ctx.earliestTimestamp, ctx.latestTimestamp];
@@ -292,6 +292,17 @@ export class ColorManager {
   }
 
   private interpolateFileMosaicColor(ctx: FileMosaicContext, line: Line) {
-    return this.interpolateLineColorByAge(ctx, line);
+    return this.interpolateLineColor(ctx, line);
   }
 }
+
+type RequiredColorInfo = Pick<
+  FileLinesContext,
+  | "selectedStartDate"
+  | "selectedEndDate"
+  | "visualizationConfig"
+  | "coloringMode"
+  | "earliestTimestamp"
+  | "latestTimestamp"
+  | "authors"
+>;
