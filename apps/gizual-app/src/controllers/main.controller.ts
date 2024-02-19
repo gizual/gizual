@@ -1,5 +1,4 @@
 import { ColoringMode, FileNodeInfos, VisualizationConfig } from "@app/types";
-import { CanvasScale } from "@app/utils/defaults";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
@@ -46,7 +45,6 @@ export class MainController {
     makeObservable(this, undefined, { autoBind: true });
 
     this._repo = new Repository();
-    this.setScale(CanvasScale.default);
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
     this._startDate = new GizDate("2023-01-01");
@@ -266,17 +264,17 @@ export class MainController {
     };
   }
 
-  @action.bound
-  setScale(scale: number) {
-    const root = document.documentElement;
-    root.style.setProperty("--canvas-scale", scale.toString());
-    root.style.setProperty("--canvas-scale-reverse", (1 / scale).toString());
-    this._scale = scale;
-  }
+  //@action.bound
+  //setScale(scale: number) {
+  //  const root = document.documentElement;
+  //  root.style.setProperty("--canvas-scale", scale.toString());
+  //  root.style.setProperty("--canvas-scale-reverse", (1 / scale).toString());
+  //  this._scale = scale;
+  //}
 
-  get scale() {
-    return this._scale;
-  }
+  //get scale() {
+  //  return this._scale;
+  //}
 
   get vmController() {
     return this._vmController;

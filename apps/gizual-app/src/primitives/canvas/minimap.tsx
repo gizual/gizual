@@ -266,34 +266,30 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const [isDragging, setIsDragging] = React.useState(false);
 
   function onMinimapMouseDown(e: React.MouseEvent) {
+    const scale = computeMiniMapScale();
+    const previewScale = scale * (1 / instance.transformState.scale);
+
+    const dx = e.clientX - e.currentTarget.getBoundingClientRect().left;
+    const dy = e.clientY - e.currentTarget.getBoundingClientRect().top;
+
+    const { scale: transformScale } = instance.transformState;
+
+    // `posX` and `posY` are the center coordinates of the preview box.
+    const posX = -dx / previewScale + (previewRef.current?.clientWidth ?? 0) / previewScale / 2;
+    const posY = -dy / previewScale + (previewRef.current?.clientHeight ?? 0) / previewScale / 2;
+
+    setIsDragging(true);
+    transformWithinBoundingBox(transformScale, posX, posY);
     setClickPosition({
       x: e.clientX,
       y: e.clientY,
-      transformX: instance.transformState.positionX,
-      transformY: instance.transformState.positionY,
+      transformX: posX,
+      transformY: posY,
     });
-    setIsDragging(true);
   }
 
-  function stopDragging(e: React.MouseEvent) {
+  function onMinimapMouseUp() {
     setIsDragging(false);
-
-    // If the mouse didn't move at all, we treat this as a click event.
-    if (clickPosition.x === e.clientX && clickPosition.y === e.clientY) {
-      const scale = computeMiniMapScale();
-      const previewScale = scale * (1 / instance.transformState.scale);
-
-      const dx = e.clientX - e.currentTarget.getBoundingClientRect().left;
-      const dy = e.clientY - e.currentTarget.getBoundingClientRect().top;
-
-      const { scale: transformScale } = instance.transformState;
-
-      // `posX` and `posY` are the center coordinates of the preview box.
-      const posX = -dx / previewScale + (previewRef.current?.clientWidth ?? 0) / previewScale / 2;
-      const posY = -dy / previewScale + (previewRef.current?.clientHeight ?? 0) / previewScale / 2;
-
-      transformWithinBoundingBox(transformScale, posX, posY);
-    }
   }
 
   function onMinimapMouseMove(e: React.MouseEvent) {
@@ -322,8 +318,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
       style={wrapperStyle}
       className={clsx("rzpp-mini-map", style.Minimap, rest.className)}
       onMouseDown={onMinimapMouseDown}
-      onMouseUp={stopDragging}
-      onMouseOut={stopDragging}
+      onMouseUp={onMinimapMouseUp}
       onMouseMove={onMinimapMouseMove}
     >
       <div {...rest} ref={wrapperRef} className="rzpp-wrapper">

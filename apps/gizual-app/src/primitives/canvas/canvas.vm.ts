@@ -59,15 +59,6 @@ export class CanvasViewModel {
     this.canvasContainerRef.current.zoomOut(0.25);
   }
 
-  center(scale?: number) {
-    if (!this.canvasContainerRef?.current) return;
-    this.canvasContainerRef.current.setTransform(0, 0, scale ?? this._mainController.scale);
-  }
-
-  resetScale() {
-    this.center(CanvasScale.default);
-  }
-
   zoomTo(n: number | null) {
     if (!this.canvasContainerRef?.current || !n) return;
     n = n / 100;
@@ -84,16 +75,45 @@ export class CanvasViewModel {
     this.canvasContainerRef?.current?.zoomToElement(el, 0);
   }
 
+  @computed
+  get initialScale() {
+    const initialScale =
+      (this.canvasContainerRef?.current?.instance.wrapperComponent?.clientWidth ?? 0) /
+      this.requiredWidth;
+
+    return initialScale;
+  }
+
+  @computed
+  get requiredWidth() {
+    const numColumns =
+      this._mainController.settingsController.settings.visualizationSettings.canvas.masonryColumns
+        .value;
+
+    const gap = 16;
+    const padding = 16;
+
+    return numColumns * 300 + (numColumns - 1) * gap + padding * 2;
+  }
+
+  @action.bound
+  center() {
+    this.canvasContainerRef?.current?.resetTransform();
+  }
+
+  /**
+   * @deprecated
+   */
   @action.bound
   reflow() {
-    if (
-      this._canvasContainerRef?.current &&
-      this._canvasContainerRef.current.instance.contentComponent
-    ) {
-      this._canvasContainerRef.current.instance.contentComponent.style.width = `calc(100% / ${this._mainController.scale})`;
-      this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
-    }
-    this.center();
+    //if (
+    //  this._canvasContainerRef?.current &&
+    //  this._canvasContainerRef.current.instance.contentComponent
+    //) {
+    //  this._canvasContainerRef.current.instance.contentComponent.style.width = `calc(100% / ${this._mainController.scale})`;
+    //  this._canvasWidth = this._canvasContainerRef.current.instance.contentComponent.clientWidth;
+    //}
+    //this.center();
   }
 
   get canvasWidth() {
@@ -138,7 +158,8 @@ export class CanvasViewModel {
   }
 
   @action.bound
-  async drawSvg(width = this.canvasWidth, appearance: "dark" | "light" = "light") {
+  async drawSvg(numCols = 12, appearance: "dark" | "light" = "light") {
+    const width = numCols * 316;
     const svgChildren: SvgBaseElement[] = [];
 
     const masonry = new Masonry<SvgBaseElement>({ canvasWidth: width, gap: 16 });
