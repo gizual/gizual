@@ -18,7 +18,7 @@ import style from "./canvas.module.scss";
 import { CanvasViewModel } from "./canvas.vm";
 import { LegendComponent, MasonryCanvas, Toolbar } from "./components";
 import { ContextModal } from "./components/context-modal";
-import { MiniMap, MiniMapContent } from "./minimap";
+import { MiniMap, MiniMapContent, MiniMapWrapper } from "./minimap";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;
@@ -76,10 +76,10 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
         )}
         <div className={style.CanvasWrapper}>
           <CanvasContext.Provider
-            value={{ useBlocks: useBlocks, debugLayout: false, ...contextProps }}
+            value={{ useBlocks: useBlocks, debugLayout: false, rzppRef: ref, ...contextProps }}
           >
             <Toolbar vm={vm} vmController={vmController} />
-            <InteractiveCanvas vm={vm} showModal={showModal} interactiveRef={ref} />
+            <InteractiveCanvas vm={vm} showModal={showModal} />
           </CanvasContext.Provider>
           {vmController.isAuthorPanelVisible && <AuthorPanel />}
         </div>
@@ -90,7 +90,6 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
 
 type InteractiveCanvasProps = {
   vm: CanvasViewModel;
-  interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
   showModal: () => void;
 };
 
@@ -99,7 +98,7 @@ type InteractiveCanvasProps = {
  * the `react-zoom-pan-pinch` wrapper component.
  */
 const InteractiveCanvas = observer<any, HTMLDivElement>(
-  ({ vm, interactiveRef, showModal }: InteractiveCanvasProps, ref) => {
+  ({ vm, showModal }: InteractiveCanvasProps, ref) => {
     const { showContextMenu } = useContextMenu();
     const contextMenu: ContextMenuContent = React.useMemo(
       () => [
@@ -128,29 +127,22 @@ const InteractiveCanvas = observer<any, HTMLDivElement>(
       [vm, showModal],
     );
 
-    return (
-      <InnerCanvas
-        vm={vm}
-        ref={ref}
-        interactiveRef={interactiveRef}
-        onContextMenu={showContextMenu(contextMenu)}
-      />
-    );
+    return <InnerCanvas vm={vm} ref={ref} onContextMenu={showContextMenu(contextMenu)} />;
   },
   { forwardRef: true },
 );
 
 type InnerCanvasProps = {
   vm: CanvasViewModel;
-  interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const CANVAS_PADDING = 16;
 
 const InnerCanvas = observer<any, HTMLDivElement>(
-  ({ vm, interactiveRef, ...defaultProps }: InnerCanvasProps, ref) => {
+  ({ vm, ...defaultProps }: InnerCanvasProps, ref) => {
     const mainController = useMainController();
     const maestroSetScale = useSetScale();
+    const rzppRef = React.useContext(CanvasContext).rzppRef;
     const [isPanning, setIsPanning] = useState(false);
     const [state, setState] = useState<{ scale: number; positionX: number; positionY: number }>({
       scale: 1,
@@ -159,8 +151,8 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     });
     const { query, errors } = useQuery();
 
-    const wrapperComponent = interactiveRef?.current?.instance.wrapperComponent;
-    const contentComponent = interactiveRef?.current?.instance.contentComponent;
+    const wrapperComponent = rzppRef?.current?.instance.wrapperComponent;
+    const contentComponent = rzppRef?.current?.instance.contentComponent;
 
     // Whenever the query changes, we probably need to do a reflow to make sure everything fits within bounds.
     React.useEffect(() => {
@@ -215,7 +207,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
           centerZoomedOut={true}
           disablePadding={false}
           panning={{ velocityDisabled: false }}
-          ref={interactiveRef}
+          ref={rzppRef}
           onInit={() => vm.reflow()}
           onPanningStart={() => {
             setIsPanning(true);
@@ -256,13 +248,9 @@ const InnerCanvas = observer<any, HTMLDivElement>(
           >
             <MasonryCanvas vm={vm} wrapper={wrapperComponent} />
           </TransformComponent>
-          <div
-            className={style.MinimapContainer}
-            style={{
-              opacity: 0.8,
-            }}
-          >
-            <MiniMap
+
+          <div className={style.MinimapContainer}>
+            <MiniMapWrapper
               previewStyles={{ borderColor: "orange" }}
               width={minimapWidth}
               height={minimapHeight}
@@ -273,8 +261,9 @@ const InnerCanvas = observer<any, HTMLDivElement>(
                     .masonryColumns.value
                 }
               />
-            </MiniMap>
+            </MiniMapWrapper>
           </div>
+
           <LegendComponent legendWidth={legendWidth} legendHeight={legendHeight} />
         </TransformWrapper>
       </div>

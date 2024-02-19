@@ -1,11 +1,6 @@
 import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ReactZoomPanPinchRef,
-  useTransformContext,
-  useTransformEffect,
-  useTransformInit,
-} from "react-zoom-pan-pinch";
+import { ReactZoomPanPinchContext, ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
 import { MasonryGrid } from "../masonry";
 
@@ -46,8 +41,18 @@ function MiniMapContent({ numColumns }: MiniMapContentProps) {
   );
 }
 
+function MiniMapWrapper(props: Omit<MiniMapProps, "rzppInstance">) {
+  const { rzppRef } = React.useContext(CanvasContext);
+  if (!rzppRef.current) {
+    return <></>;
+  }
+
+  return <MiniMap {...props} rzppInstance={rzppRef.current.instance} />;
+}
+
 export type MiniMapProps = {
   children: React.ReactNode;
+  rzppInstance: ReactZoomPanPinchContext;
   width?: number;
   height?: number;
   previewStyles?: React.CSSProperties;
@@ -73,12 +78,17 @@ const defaultPreviewStyles = {
 const MiniMap: React.FC<MiniMapProps> = ({
   width = 200,
   height = 200,
+  rzppInstance,
   children,
   previewStyles,
   ...rest
 }) => {
   const [initialized, setInitialized] = useState(false);
-  const instance = useTransformContext();
+
+  // Instead of using the rzpp-provided context, we need to use our own because our minimap is not
+  // a direct descendant of the rzpp component.
+  const instance = rzppInstance;
+
   const miniMapInstance = useRef<ReactZoomPanPinchRef>(null);
 
   const mainRef = useRef<HTMLDivElement | null>(null);
@@ -184,14 +194,15 @@ const MiniMap: React.FC<MiniMapProps> = ({
     transformMiniMap();
   };
 
-  useTransformEffect(() => {
+  // Originally, rzpp uses custom hooks here that rely on the rzpp context.
+  React.useEffect(() => {
     transformMiniMap();
-  });
+  }, [instance, transformMiniMap]);
 
-  useTransformInit(() => {
+  React.useEffect(() => {
     initialize();
     setInitialized(true);
-  });
+  }, [initialize, setInitialized, instance]);
 
   useResize(instance.contentComponent, initialize, [initialized]);
 
@@ -330,4 +341,4 @@ const MiniMap: React.FC<MiniMapProps> = ({
   );
 };
 
-export { MiniMap, MiniMapContent };
+export { MiniMap, MiniMapContent, MiniMapWrapper };

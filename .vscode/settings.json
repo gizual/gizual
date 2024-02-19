@@ -7,6 +7,7 @@
     "keymap",
     "lezer",
     "mantine",
+    "rzpp",
     "tanstack",
     "trpc"
   ],
