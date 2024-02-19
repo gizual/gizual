@@ -360,9 +360,10 @@ const StepItemButtons = React.memo(
   },
 );
 
-export type RadioGridItemProps<T> = {
+type RadioGridItemProps<T> = Omit<React.HTMLAttributes<HTMLInputElement>, "onChange" | "value"> & {
   value: T;
   checked: boolean;
+  disabled?: boolean;
   onChange: (value: T) => void;
   title: string;
   description: string;
@@ -372,21 +373,25 @@ export type RadioGridItemProps<T> = {
 export function RadioGridItemComponent<T>({
   value,
   checked,
+  disabled,
   onChange,
   title,
   description,
   inputName,
+  ...rest
 }: RadioGridItemProps<T>) {
   return (
     <label className={style.TypeDialogGridItem}>
       <input
+        {...rest}
         type="radio"
         name={inputName ?? "type"}
         checked={checked}
+        disabled={disabled}
         onChange={() => onChange(value)}
         onClick={() => onChange(value)}
       />
-      <div className={style.TypeDialogGridItemTile}>
+      <div className={style.TypeDialogGridItemTile} data-disabled={disabled}>
         <div className={style.TypeDialogGridItemContent}>
           <h3 className={style.TypeDialogGridItemTitle}>{title}</h3>
           <p className={style.TypeDialogGridItemDescription}>{description}</p>
@@ -413,6 +418,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "author-mosaic"}
         description="Displays authors in a mosaic."
         inputName="type"
+        disabled
       />
 
       <RadioGridItem<Type>
@@ -422,6 +428,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "author-contributions"}
         description="Displays the individual contributions of each author."
         inputName="type"
+        disabled
       />
 
       <RadioGridItem<Type>
@@ -449,6 +456,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "file-bar"}
         description="Displays each file as a stacked bar."
         inputName="type"
+        disabled
       />
 
       <RadioGridItem<Type>
@@ -458,6 +466,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "author-bar"}
         description="Displays each author as a stacked bar."
         inputName="type"
+        disabled
       />
     </div>
   );

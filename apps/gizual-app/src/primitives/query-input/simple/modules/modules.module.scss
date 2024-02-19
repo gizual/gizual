@@ -116,11 +116,18 @@
   border: 1px solid var(--border-primary);
   background-color: var(--background-primary);
   transition: background-color 0.25s;
+  cursor: pointer;
+
+  &[data-disabled="true"] {
+    background-color: var(--background-secondary);
+    cursor: not-allowed;
+  }
 
   &:hover {
-    background-color: var(--background-tertiary) !important;
-    border-color: var(--accent-main);
-    cursor: pointer;
+    &[data-disabled="false"] {
+      background-color: var(--background-tertiary) !important;
+      border-color: var(--accent-main);
+    }
   }
 }
 
