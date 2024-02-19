@@ -731,8 +731,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
               throw new Error("Unsupported block type (height calculation)");
             });
 
-          //type === "file-lines" ? (numLines - 1) * 10 : Math.max(((numLines - 1) % 10) * 10, 10);
-
           return {
             id: `${t}:${file.path.join("/")}`,
             type: t,
