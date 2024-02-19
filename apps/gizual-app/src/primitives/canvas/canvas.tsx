@@ -167,12 +167,12 @@ const InnerCanvas = observer<any, HTMLDivElement>(
 
     const { debugLayout } = React.useContext(CanvasContext);
 
-    const legendWidth = Math.min(wrapperWidth / 10 + 100, 300);
+    const legendWidth = Math.min(wrapperWidth / 10 + 100, 200);
     const legendHeight = 50;
 
     // TODO: This is counter-intuitive because the minimap component decides on it's dimensions
     // even if we pass it a width and height. We should probably fix this in the minimap component.
-    const minimapWidth = Math.min(wrapperWidth / 10 + 100, 300);
+    const minimapWidth = Math.min(wrapperWidth / 10 + 100, 200);
     const minimapHeight = wrapperHeight - legendHeight; //Math.min(contentHeight / 10, wrapperHeight);
 
     return (
@@ -248,7 +248,9 @@ const InnerCanvas = observer<any, HTMLDivElement>(
           >
             <MasonryCanvas vm={vm} wrapper={wrapperComponent} />
           </TransformComponent>
+        </TransformWrapper>
 
+        <div className={style.SidePanel}>
           <div className={style.MinimapContainer}>
             <MiniMapWrapper
               previewStyles={{ borderColor: "orange" }}
@@ -263,9 +265,8 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               />
             </MiniMapWrapper>
           </div>
-
           <LegendComponent legendWidth={legendWidth} legendHeight={legendHeight} />
-        </TransformWrapper>
+        </div>
       </div>
     );
   },

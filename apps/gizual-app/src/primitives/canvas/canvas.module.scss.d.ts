@@ -8,6 +8,7 @@ declare const classNames: {
   readonly ControlWithLabel: "ControlWithLabel";
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";
   readonly ToolbarButton: "ToolbarButton";
+  readonly SidePanel: "SidePanel";
   readonly MinimapContainer: "MinimapContainer";
   readonly Minimap: "Minimap";
   readonly MinimapPreview: "MinimapPreview";

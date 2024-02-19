@@ -3,10 +3,10 @@
 
 .Canvas {
   display: flex;
+  flex-direction: row;
   gap: 1rem;
   flex-grow: 1;
   padding: 1rem; /* Override from JavaScript */
-  flex-flow: row wrap;
   align-content: center;
   overflow-y: auto;
   position: relative;
@@ -68,10 +68,18 @@
   height: 2rem;
 }
 
+.SidePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-left: 1px solid var(--border-primary);
+  padding-left: 1rem;
+  min-width: calc(200px + 1rem);
+  position: relative;
+  justify-content: space-between;
+}
+
 .MinimapContainer {
-  position: absolute;
-  top: 16px;
-  right: 16px;
   border: 1px solid var(--border-primary);
   background-color: var(--background-primary);
 }
@@ -85,12 +93,9 @@
 }
 
 .LegendContainer {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
+  position: relative;
+  display: block;
   background-color: var(--background-primary);
-  border: 1px solid var(--border-primary);
-  pointer-events: none;
 }
 
 .DebugOverlay {
