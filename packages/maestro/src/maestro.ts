@@ -35,6 +35,7 @@ export class Maestro {
 
   // TODO: remove observability
   @observable state: "init" | "ready" | "loading" = "init";
+  @observable progressText = "";
 
   constructor() {
     this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
@@ -67,7 +68,47 @@ export class Maestro {
   async openRepoFromURL(service: string, repoName: string) {
     this.state = "loading";
 
-    const response = await fetch(`http://localhost:5172/clone/${service}/${repoName}`);
+    const sseResponse = new EventSource(`/api/on-demand-clone/${service}/${repoName}`);
+
+    let zipFileName = "";
+    const onMessage = (e: MessageEvent) => {
+      const data = JSON.parse(e.data);
+      if (data.type === "snapshot-created") {
+        zipFileName = data.snapshotName;
+        return;
+      }
+      if (data.type === "clone-progress") {
+        runInAction(() => {
+          this.progressText = `${data.state}: ${data.numProcessed}/${data.numTotal} (${data.progress}%)`;
+        });
+      }
+    };
+
+    sseResponse.addEventListener("message", onMessage);
+
+    await new Promise<void>((resolve) => {
+      sseResponse.addEventListener("error", (e) => {
+        resolve();
+      });
+    });
+
+    sseResponse.removeEventListener("message", onMessage);
+    sseResponse.close();
+
+    runInAction(() => {
+      this.progressText = `Downloading ...`;
+    });
+
+    if (!zipFileName) {
+      runInAction(() => {
+        this.progressText = ``;
+      });
+
+      this.state = "ready";
+      return;
+    }
+
+    const response = await fetch(`/api/snapshots/${zipFileName}`);
 
     const data = await response.arrayBuffer();
 
@@ -75,7 +116,7 @@ export class Maestro {
 
     opts.directoryHandle = await importZipFile(data);
     opts.directoryHandle = await seekRepo(opts.directoryHandle!);
-    await printFileTree(opts.directoryHandle!);
+    //await printFileTree(opts.directoryHandle!);
 
     const result = await this.worker.setupPool(opts);
 
@@ -85,6 +126,7 @@ export class Maestro {
 
     runInAction(() => {
       this.state = "ready";
+      this.progressText = ``;
     });
   }
 

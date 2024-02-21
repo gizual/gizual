@@ -66,4 +66,13 @@ export default defineConfig(() => ({
       enabledMode: ["development", "production"],
     }),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:5172",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
 }));

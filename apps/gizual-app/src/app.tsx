@@ -51,7 +51,7 @@ function App() {
       <Notifications position="top-right" />
       <ContextMenuProvider>
         <div className={style.App}>
-          {shouldDisplayLoadingIndicator && <Loading />}
+          {shouldDisplayLoadingIndicator && <Loading progressText={mainController.progressText} />}
           <div className={style.Main}>
             {screen === "welcome" && <WelcomePage />}
             {screen === "main" && <MainPage />}
