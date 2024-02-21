@@ -1,7 +1,10 @@
 import type { Router } from "express";
-import awilix from "awilix";
+import * as awilix from "awilix";
 import type { GitService } from "@/services/git.service";
 import type { ConfigService } from "@/services/config.service";
+import type { SnapshotsService } from "@/services/snapshots.service";
+import type { OnDemandQueue } from "@/services/on-demand-queue.service";
+import type { EventService } from "@/services/event.service";
 
 export type Constructor<T> = awilix.Constructor<T>;
 
@@ -12,6 +15,11 @@ export interface Controller {
 export interface RuntimeDependencies {
   gitService: GitService;
   configService: ConfigService;
+  snapshotsService: SnapshotsService;
+  onDemandQueue: OnDemandQueue;
+  eventService: EventService;
+  reposCacheFolder: string;
+  zipsCacheFolder: string;
 }
 
 export class Runtime {
@@ -47,7 +55,7 @@ export class Runtime {
     });
   }
 
-  resolve<K extends keyof RuntimeDependencies>(name: K) {
+  resolve<K extends keyof RuntimeDependencies>(name: K): RuntimeDependencies[K] {
     return this.container.resolve(name);
   }
 }

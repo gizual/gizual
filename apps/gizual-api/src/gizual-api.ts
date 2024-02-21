@@ -4,7 +4,6 @@ import { GitService } from "@/services/git.service";
 import { ConfigService } from "@/services/config.service";
 
 import { ErrorHandlerMiddleware } from "@/middlewares/error-handler.middleware";
-import { RateLimitMiddleware, RateSlowDownMiddleware } from "./middlewares/rate-limit.middleware";
 import { OnDemandCloneController } from "./controllers/on-demand-clone.controller";
 
 export function createApp(): express.Router {
@@ -19,17 +18,14 @@ export function createApp(): express.Router {
   runtime.registerClass("configService", ConfigService);
   runtime.registerClass("gitService", GitService);
 
-  router.use(RateLimitMiddleware);
-  router.use(RateSlowDownMiddleware);
-
-  router.use(ErrorHandlerMiddleware);
-
   registerController("/on-demand-clone", OnDemandCloneController);
 
   //new CloneController(router);
-  router.get("/", (req, res) => {
-    res.send("Express + TypeScript Server 2");
+  router.get("/", async (req, res) => {
+    res.send("Hello World");
   });
+
+  router.use(ErrorHandlerMiddleware);
 
   return router;
 }

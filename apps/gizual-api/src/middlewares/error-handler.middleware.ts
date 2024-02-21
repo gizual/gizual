@@ -17,18 +17,16 @@ function hasStack(err: unknown): err is { stack: unknown } {
 }
 
 export function ErrorHandlerMiddleware(
-  req: express.Request,
+  err: unknown,
+  _req: express.Request,
   res: express.Response,
   next: express.NextFunction,
 ) {
-  try {
-    next();
-  } catch (err) {
-    handleError(err, res);
+  console.log("HERE");
+  if (res.headersSent) {
+    return next(err);
   }
-}
 
-function handleError(err: unknown, res: express.Response) {
   const errStatus = hasStatusCode(err) ? err.statusCode : 500;
   const errMsg = hasErrorMessage(err) ? err.message : "Something went wrong";
   res.status(errStatus).json({
