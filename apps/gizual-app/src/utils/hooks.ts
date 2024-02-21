@@ -8,9 +8,9 @@ import {
   useState,
 } from "react";
 
+import { QueryError } from "@giz/maestro";
 import { useQuery } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
-import { QueryError } from "@giz/maestro";
 
 export function useWindowSize() {
   const [size, setSize] = useState([0, 0]);

@@ -24,6 +24,7 @@ declare const classNames: {
   readonly ControlWithLabel: "ControlWithLabel";
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";
   readonly IconBase: "IconBase";
+  readonly IconLarge: "IconLarge";
   readonly IconToggled: "IconToggled";
   readonly IconUnToggled: "IconUnToggled";
   readonly FileTreeWrapper: "FileTreeWrapper";

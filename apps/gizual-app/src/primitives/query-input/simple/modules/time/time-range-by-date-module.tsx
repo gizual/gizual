@@ -1,7 +1,9 @@
 import { IconClock, IconGitBranchLine, IconRuler } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
+import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
 import { useLocalQueryCtx } from "@app/utils";
+import { Tooltip } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -92,14 +94,15 @@ export const TimeRangeByDateModule = observer(() => {
       <div className={style.SpacedChildren}>
         <DatePickerInput
           error={checkErrors(errors)}
-          defaultValue={startDate.toDate()}
-          onChange={(d) => onChangeStartDate(d)}
+          value={startDate.toDate()}
+          onChange={onChangeStartDate}
           styles={{
             input: {
               height: 30,
               minHeight: 30,
               maxHeight: 30,
               padding: "0 0.5rem",
+              minWidth: 150,
             },
           }}
         />
@@ -113,6 +116,7 @@ export const TimeRangeByDateModule = observer(() => {
               minHeight: 30,
               maxHeight: 30,
               padding: "0 0.5rem",
+              minWidth: 150,
             },
           }}
         />
@@ -136,21 +140,29 @@ export const TimeRangeByDateModule = observer(() => {
           style={{ width: 150 }}
         ></Select>
 
-        <IconRuler
-          className={clsx(style.IconBase, isTimelineOpen ? style.IconToggled : style.IconUnToggled)}
-          onClick={() => {
-            //notifications.show({
-            //  title: "Info",
-            //  message: "The timeline is disabled in this demo build.",
-            //  role: "alert",
-            //});
-            runInAction(() => {
-              settingsController.timelineSettings.displayMode.value = isTimelineOpen
-                ? "collapsed"
-                : "visible";
-            });
-          }}
-        />
+        <Tooltip label="Toggle timeline visibility" position="top" withArrow>
+          <IconButton style={{ padding: 0 }}>
+            <IconRuler
+              className={clsx(
+                style.IconBase,
+                style.IconLarge,
+                isTimelineOpen ? style.IconToggled : style.IconUnToggled,
+              )}
+              onClick={() => {
+                //notifications.show({
+                //  title: "Info",
+                //  message: "The timeline is disabled in this demo build.",
+                //  role: "alert",
+                //});
+                runInAction(() => {
+                  settingsController.timelineSettings.displayMode.value = isTimelineOpen
+                    ? "collapsed"
+                    : "visible";
+                });
+              }}
+            />
+          </IconButton>
+        </Tooltip>
       </div>
     </TimeBaseQueryModule>
   );

@@ -337,7 +337,7 @@ export class TimelineEventHandler {
       this.vm.viewBox.width,
       this.vm.selectEndX + this.vm.currentTranslationX,
     );
-    this.vm.triggerSearchBarUpdate();
+    this.vm.propagateUpdate();
     if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
       this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
     }
@@ -347,7 +347,7 @@ export class TimelineEventHandler {
   stopMovingSelection() {
     this.isMovingSelectionBox = false;
     this.setDatesFromSelectionCoordinates();
-    this.vm.triggerSearchBarUpdate();
+    this.vm.propagateUpdate();
   }
 
   @action.bound
@@ -378,6 +378,6 @@ export class TimelineEventHandler {
   stopResizingSelectionBox() {
     this.isResizingSelectionBox = false;
     this.setDatesFromSelectionCoordinates();
-    this.vm.triggerSearchBarUpdate();
+    this.vm.propagateUpdate();
   }
 }
