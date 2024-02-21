@@ -96,7 +96,27 @@
 }
 
 .MinimapPreview {
+  background-color: unset;
+  transition: 0.15s background-color;
   //border: 2px solid green !important;
+}
+
+.MinimapPreviewHover {
+  background-color: #00000030;
+  transition: 0.15s background-color;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #ffffff30;
+  }
+}
+
+.MinimapPreviewDragging {
+  background-color: #00000050;
+  transition: 0.15s background-color;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #ffffff50;
+  }
 }
 
 .LegendContainer {

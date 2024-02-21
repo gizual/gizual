@@ -66,7 +66,7 @@ const defaultPreviewStyles = {
   boxSizing: "border-box",
   border: "2px solid red",
   transformOrigin: "0% 0%",
-  boxShadow: "rgba(0,0,0,0.2) 0 0 0 10000000px",
+  boxShadow: "rgba(0,0,0,0.1) 0 0 0 10000000px",
 } as const;
 
 /**
@@ -264,6 +264,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
     transformY: 0,
   });
   const [isDragging, setIsDragging] = React.useState(false);
+  const [isHovering, setIsHovering] = React.useState(false);
 
   function onMinimapMouseDown(e: React.MouseEvent) {
     const scale = computeMiniMapScale();
@@ -309,6 +310,15 @@ const MiniMap: React.FC<MiniMapProps> = ({
       );
     }
   }
+
+  function onMinimapMouseEnter() {
+    setIsHovering(true);
+  }
+
+  function onMinimapMouseLeave() {
+    setIsHovering(false);
+  }
+
   // ---
 
   return (
@@ -320,12 +330,18 @@ const MiniMap: React.FC<MiniMapProps> = ({
       onMouseDown={onMinimapMouseDown}
       onMouseUp={onMinimapMouseUp}
       onMouseMove={onMinimapMouseMove}
+      onMouseEnter={onMinimapMouseEnter}
+      onMouseLeave={onMinimapMouseLeave}
     >
       <div {...rest} ref={wrapperRef} className="rzpp-wrapper">
         {children}
       </div>
       <div
-        className={clsx("rzpp-preview", style.MinimapPreview)}
+        className={clsx(
+          "rzpp-preview",
+          isHovering ? style.MinimapPreviewHover : style.MinimapPreview,
+          isDragging && style.MinimapPreviewDragging,
+        )}
         ref={previewRef}
         style={{
           ...defaultPreviewStyles,

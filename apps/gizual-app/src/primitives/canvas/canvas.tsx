@@ -243,7 +243,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
         <div className={style.SidePanel}>
           <div className={style.MinimapContainer}>
             <MiniMapWrapper
-              previewStyles={{ borderColor: "orange" }}
+              previewStyles={{ borderColor: "var(--accent-main)" }}
               width={minimapWidth}
               height={minimapHeight}
             >

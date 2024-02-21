@@ -12,6 +12,9 @@ declare const classNames: {
   readonly Vr: "Vr";
   readonly MinimapContainer: "MinimapContainer";
   readonly Minimap: "Minimap";
+  readonly MinimapPreview: "MinimapPreview";
+  readonly MinimapPreviewHover: "MinimapPreviewHover";
+  readonly MinimapPreviewDragging: "MinimapPreviewDragging";
   readonly LegendContainer: "LegendContainer";
   readonly DebugOverlay: "DebugOverlay";
   readonly ErrorOverlay: "ErrorOverlay";
