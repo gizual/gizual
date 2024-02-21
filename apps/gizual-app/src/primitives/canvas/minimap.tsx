@@ -302,7 +302,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
 
       const { scale: transformScale } = instance.transformState;
 
-      instance.setTransformState(
+      transformWithinBoundingBox(
         transformScale,
         clickPosition.transformX - dx / previewScale,
         clickPosition.transformY - dy / previewScale,

@@ -157,7 +157,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     // TODO: This is counter-intuitive because the minimap component decides on it's dimensions
     // even if we pass it a width and height. We should probably fix this in the minimap component.
     const minimapWidth = Math.min(wrapperWidth / 10 + 100, 200);
-    const minimapHeight = wrapperHeight - legendHeight;
+    const minimapHeight = wrapperHeight - legendHeight - 16;
 
     React.useEffect(() => {
       maestroSetScale(vm.initialScale);
@@ -237,6 +237,8 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             <MasonryCanvas vm={vm} wrapper={wrapperComponent} />
           </TransformComponent>
         </TransformWrapper>
+
+        <div className={style.Vr} />
 
         <div className={style.SidePanel}>
           <div className={style.MinimapContainer}>
