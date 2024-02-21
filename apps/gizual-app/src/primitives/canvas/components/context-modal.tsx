@@ -1,5 +1,6 @@
 import { useSettingsController } from "@app/controllers";
 import { RenderedSettingsEntry } from "@app/pages/settings";
+import { Button } from "@app/primitives/button";
 import { useTheme } from "@app/utils/hooks";
 import { createNumberSetting, createSelectSetting } from "@app/utils/settings";
 import { Modal } from "@mantine/core";
@@ -32,7 +33,7 @@ const ContextModal = observer(({ vm, isModalOpen, setIsModalOpen }: ContextModal
   const [numCols, setNumCols] = React.useState(numColsDefault);
 
   return (
-    <Modal title="Export to SVG" opened={isModalOpen} onClose={handleOk} onAbort={handleCancel}>
+    <Modal title="Export to SVG" opened={isModalOpen} onClose={handleCancel} onAbort={handleCancel}>
       <RenderedSettingsEntry
         entry={createNumberSetting(
           "Columns",
@@ -57,6 +58,22 @@ const ContextModal = observer(({ vm, isModalOpen, setIsModalOpen }: ContextModal
         onResetToDefault={() => setSelectedAppearance(currentTheme)}
         isDefault={() => selectedAppearance === currentTheme}
       />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: "1rem",
+          paddingTop: "1rem",
+        }}
+      >
+        <Button variant="gray" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button onClick={handleOk}>Export</Button>
+      </div>
     </Modal>
   );
 });
