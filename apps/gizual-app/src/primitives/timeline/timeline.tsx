@@ -3,10 +3,14 @@ import { useMainController, useViewModelController } from "@app/controllers";
 import { NoVmError, useWindowSize } from "@app/utils";
 import { Loader } from "@mantine/core";
 import clsx from "clsx";
+import dayjs from "dayjs";
 import { useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
+
+import { useQuery } from "@giz/maestro/react";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { Commits } from "./commits";
 import { RulerTicks } from "./ruler-ticks";
@@ -226,6 +230,8 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     return externalVm || new TimelineViewModel(mainController);
   }, [externalVm]);
 
+  const { query, updateQuery } = useQuery();
+
   const timelineContainerRef = useRef<HTMLDivElement>(null);
   const timelineSvgWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -253,6 +259,27 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     vm.updateSelectionStartCoords();
     vm.updateSelectionEndCoords();
   }, [timelineContainerRef, vmController.isAuthorPanelVisible, vm.commitsForBranch, width]);
+
+  React.useEffect(() => {
+    if (query.time && "rangeByDate" in query.time && Array.isArray(query.time.rangeByDate)) {
+      vm.setSelectedStartDate(new GizDate(dayjs(query.time.rangeByDate.at(0)).toDate()));
+      vm.setSelectedEndDate(new GizDate(dayjs(query.time.rangeByDate.at(-1)).toDate()));
+    }
+  }, [query]);
+
+  React.useEffect(() => {
+    const event = vm.on("timelineSelection:changed", () => {
+      updateQuery({
+        time: {
+          rangeByDate: [vm.selectedStartDate.toString(), vm.selectedEndDate.toString()],
+        },
+      });
+    });
+
+    return () => {
+      event.dispose();
+    };
+  }, []);
 
   return (
     <div className={style.TimelineComponent} id={"TimelineComponent"}>

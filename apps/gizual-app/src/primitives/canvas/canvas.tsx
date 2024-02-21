@@ -1,5 +1,6 @@
 import { useMainController, useViewModelController } from "@app/controllers";
 import { CanvasScale } from "@app/utils";
+import { Alert } from "@mantine/core";
 import clsx from "clsx";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
@@ -18,7 +19,6 @@ import { CanvasViewModel } from "./canvas.vm";
 import { LegendComponent, MasonryCanvas, Toolbar } from "./components";
 import { ContextModal } from "./components/context-modal";
 import { MiniMap, MiniMapContent } from "./minimap";
-import { Alert } from "@mantine/core";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;

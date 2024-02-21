@@ -35,6 +35,7 @@ export class TimelineViewModel {
   private _isContextMenuOpen = false;
 
   private _eventHandler: TimelineEventHandler;
+  private eventCallbacks: Record<string, ((...args: any[]) => void)[]> = {};
 
   private _currentTranslationX = 0;
 
@@ -167,8 +168,38 @@ export class TimelineViewModel {
     }
   }
 
-  triggerSearchBarUpdate(_ = true) {
-    //TODO: This is where we used to update the search bar. This can be removed once the timeline is attached to the query.
+  on(
+    event: "timelineSelection:changed",
+    cb: (startDate: GizDate, endDate: GizDate) => void,
+    fireImmediately = false,
+  ) {
+    this.eventCallbacks[event] = this.eventCallbacks[event] || [];
+    this.eventCallbacks[event].push(cb);
+
+    if (fireImmediately) {
+      cb(this.selectedStartDate, this.selectedEndDate);
+    }
+
+    return {
+      dispose: () => {
+        this.eventCallbacks[event] = this.eventCallbacks[event].filter((fn) => fn !== cb);
+      },
+    };
+  }
+
+  notify(event: string, ...args: any[]) {
+    if (!this.eventCallbacks[event]) return;
+
+    for (const cb of this.eventCallbacks[event]) {
+      cb(...args);
+    }
+  }
+
+  /**
+   * Function called by the EventHandler whenever the user finishes interacting with a part of the timeline
+   */
+  propagateUpdate() {
+    this.notify("timelineSelection:changed", this.selectedStartDate, this.selectedEndDate);
   }
 
   // -------------------------------------------------------------------------- //
@@ -508,10 +539,6 @@ export class TimelineViewModel {
         onClick: () => {
           this.setIsContextMenuOpen(false);
           this.setSelectedStartDate(earliestDate);
-
-          // Setting the end date is usually what triggers an update on the SearchBar.
-          // If we're in here, we want this immediately.
-          this.triggerSearchBarUpdate();
         },
       },
       {
