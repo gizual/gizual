@@ -16,9 +16,13 @@ type ContextModalProps = {
 };
 
 const ContextModal = observer(({ vm, isModalOpen, setIsModalOpen }: ContextModalProps) => {
+  const settingsController = useSettingsController();
+
   const handleOk = React.useCallback(() => {
     setIsModalOpen(false);
-    vm.drawSvg(numCols, selectedAppearance);
+    //vm.drawSvg(numCols, selectedAppearance);
+    const numColumns =
+      settingsController.settings.visualizationSettings.canvas.masonryColumns.value;
   }, [setIsModalOpen]);
 
   const handleCancel = React.useCallback(() => {
@@ -26,7 +30,6 @@ const ContextModal = observer(({ vm, isModalOpen, setIsModalOpen }: ContextModal
   }, [setIsModalOpen]);
 
   const currentTheme = useTheme();
-  const settingsController = useSettingsController();
   const [selectedAppearance, setSelectedAppearance] = React.useState(currentTheme);
   const numColsDefault =
     settingsController.settings.visualizationSettings.canvas.masonryColumns.defaultValue;

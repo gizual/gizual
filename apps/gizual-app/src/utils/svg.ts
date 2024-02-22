@@ -13,6 +13,7 @@ export class SvgBaseElement {
   protected _fill = "#000000";
   protected _stroke = "#000000";
   protected _strokeWidth = "1";
+  protected _className: string | undefined = "";
 
   constructor(tag: string) {
     this._tag = tag;
@@ -96,8 +97,24 @@ export class SvgBaseElement {
     return `stroke="${this._stroke}"`;
   }
 
+  get className() {
+    if (!this._className) return undefined;
+    return `class="${this._className}"`;
+  }
+
+  set className(v: string | undefined) {
+    this._className = v;
+  }
+
   get attributes(): string {
-    return [this.posString, this.sizeString, this.strokeWidth, this.fill, this.stroke].join(" ");
+    return [
+      this.posString,
+      this.sizeString,
+      this.strokeWidth,
+      this.fill,
+      this.stroke,
+      this.className,
+    ].join(" ");
   }
 }
 
@@ -118,6 +135,8 @@ export type SvgAttributes = {
   stroke?: string;
   strokeWidth?: string;
   fontSize?: string;
+  lineHeight?: string;
+  className?: string;
 };
 
 export class SvgGraphicsElement extends SvgBaseElement {
@@ -128,6 +147,7 @@ export class SvgGraphicsElement extends SvgBaseElement {
     this.fill = attributes.fill ?? "#000000";
     this.stroke = attributes.stroke ?? "transparent";
     this.strokeWidth = attributes.strokeWidth ?? "0";
+    this.className = attributes.className;
   }
 }
 
@@ -140,11 +160,17 @@ export class SvgRectElement extends SvgGraphicsElement {
 export class SvgTextElement extends SvgGraphicsElement {
   text: string;
   fontSize: string;
+  lineHeight: string;
 
   constructor(text: string, attributes: SvgAttributes) {
     super("text", attributes);
     this.text = text;
     this.fontSize = attributes.fontSize ?? "12";
+    this.lineHeight = attributes.lineHeight ?? "16";
+  }
+
+  get attributes() {
+    return super.attributes + ` font-size="${this.fontSize}" line-height="${this.lineHeight}"`;
   }
 
   render(): string {

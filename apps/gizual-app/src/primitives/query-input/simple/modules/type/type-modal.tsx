@@ -1,4 +1,3 @@
-import previewFileLines from "@app/assets/previews/preview-file-lines.png";
 import { useSettingsController, useViewModelController } from "@app/controllers";
 import { AuthorTable } from "@app/primitives/author-panel";
 import { Button } from "@app/primitives/button";
@@ -10,6 +9,8 @@ import clsx from "clsx";
 import React from "react";
 import { match, Pattern } from "ts-pattern";
 
+import { ColorManager, getColorScale } from "@giz/color-manager";
+import { useAuthorList } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
 
@@ -250,10 +251,18 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
         <div className={style.VerticalRuler} />
         <div className={style.TypeDialog__Right}>
           Preview:
-          <img
+          {/*<img
             className={style.TypeDialogGridItemImage}
             alt={"Preview image"}
             src={previewFileLines}
+            />*/}
+          <VisTypePreview
+            className={style.TypeDialogGridItemImage}
+            type={selectedType}
+            visStyle={selectedStyle}
+            colors={
+              selectedStyle === "gradient-age" ? gradientColors : authorColors.map((c) => c[1])
+            }
           />
         </div>
       </div>
@@ -266,6 +275,93 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
     </div>
   );
 });
+
+type VisTypePreviewProps = {
+  type?: Type;
+  visStyle?: Style;
+  colors?: string[];
+} & React.SVGProps<SVGSVGElement>;
+
+function* pickColor(style?: Style, colors?: string[]) {
+  if (style === "gradient-age" && (!colors || colors.length < 2)) {
+    yield "#00ded0"; // Fallback color
+    return;
+  }
+  let steps = 0;
+  let stepCounter = 0;
+
+  let interpolatedColor = "#00ded0"; // Fallback color
+  while (true) {
+    if (stepCounter >= steps) {
+      // Move to next color
+      steps = Math.floor(Math.random() * 15);
+      stepCounter = 0;
+      if (style === "gradient-age")
+        interpolatedColor = getColorScale([1, 100], [colors![0], colors![1]])(Math.random() * 100);
+      else interpolatedColor = "#123123";
+    }
+
+    stepCounter++;
+    yield interpolatedColor;
+  }
+}
+
+const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewProps) => {
+  const WIDTH = 300;
+  const CHAR_COUNT = 100;
+  const LINE_HEIGHT = 10;
+  const LINE_COUNT = 100;
+  const CHAR_WIDTH = WIDTH / CHAR_COUNT;
+  const HEIGHT = LINE_HEIGHT * LINE_COUNT;
+  const MOSAICS = 10;
+
+  const [colorGenerator, setColorGenerator] = React.useState(() => pickColor(visStyle, colors));
+
+  React.useEffect(() => {
+    setColorGenerator(pickColor(visStyle, colors));
+  }, [visStyle, colors]);
+
+  return match(type)
+    .with("file-lines", () => {
+      return (
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} {...svgProps}>
+          {Array.from({ length: LINE_COUNT }).map((_, index) => (
+            <rect
+              key={`${index}`}
+              x={0}
+              y={index * LINE_HEIGHT}
+              width={Math.random() * CHAR_COUNT * CHAR_WIDTH}
+              height={LINE_HEIGHT}
+              fill={colorGenerator.next().value ?? ""}
+            />
+          ))}
+        </svg>
+      );
+    })
+    .with("file-mosaic", () => {
+      return (
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} {...svgProps}>
+          {Array.from({ length: LINE_COUNT }).map((_, lineIndex) =>
+            Array.from({ length: MOSAICS }).map((_, mosaicIndex) => (
+              <rect
+                key={`${lineIndex}-${mosaicIndex}`}
+                x={mosaicIndex * (WIDTH / MOSAICS)}
+                y={lineIndex * LINE_HEIGHT}
+                width={WIDTH / MOSAICS}
+                height={HEIGHT}
+                fill={colorGenerator.next().value ?? ""}
+                stroke="black"
+                strokeWidth="0.3"
+              />
+            )),
+          )}
+        </svg>
+      );
+    })
+    .otherwise(() => {
+      return <div>TODO: Visualization preview not available for this type.</div>;
+    });
+};
 
 export type StepItemWithButtonsProps = {
   currentStep: number;

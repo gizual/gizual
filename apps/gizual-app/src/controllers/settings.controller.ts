@@ -46,6 +46,13 @@ type TimelineSettings = {
   weekModeThreshold: SettingsEntry<number, "number">;
 } & GroupEntry;
 
+const BLOCK_HTML_BASES = ["div", "svg"] as const;
+type BlockHtmlBase = (typeof BLOCK_HTML_BASES)[number];
+
+type DevSettings = {
+  blockHtmlBase: SettingsEntry<BlockHtmlBase, "select">;
+} & GroupEntry;
+
 export class SettingsController {
   editor: EditorSettings = {
     groupName: "Editor Settings",
@@ -135,6 +142,17 @@ export class SettingsController {
       ),
     },
   };
+  devSettings: DevSettings = {
+    groupName: "Dev Settings",
+    blockHtmlBase: createSelectSetting(
+      "Block HTML Base",
+      "The HTML base element to use for block elements.",
+      "div",
+      BLOCK_HTML_BASES.map((b) => {
+        return { value: b, label: b };
+      }),
+    ),
+  };
 
   eventCallbacks: Record<string, ((...args: any[]) => void)[]> = {};
 
@@ -147,6 +165,7 @@ export class SettingsController {
       editor: this.editor,
       timelineSettings: this.timelineSettings,
       visualizationSettings: this.visualizationSettings,
+      devSettings: this.devSettings,
     };
   }
 
@@ -183,6 +202,7 @@ export class SettingsController {
       parsed.visualizationSettings,
     );
     this.timelineSettings = mergeObj(toJS(this.timelineSettings), parsed.timelineSettings);
+    this.devSettings = mergeObj(toJS(this.devSettings), parsed.devSettings);
   }
 
   storeSettings() {

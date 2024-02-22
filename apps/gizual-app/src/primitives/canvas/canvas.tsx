@@ -100,14 +100,7 @@ const InteractiveCanvas = observer<any, HTMLDivElement>(
         },
         {
           key: "2",
-          title: "Unselect all",
-          onClick: () => {
-            vm.unloadAllFiles();
-          },
-        },
-        {
-          key: "3",
-          title: "Export SVG",
+          title: "Export entire canvas as SVG",
           onClick: () => {
             showModal();
           },
