@@ -35,6 +35,9 @@ export class OnDemandQueue {
         return this.snapshotsService.createSnapshot(repoDescriptor, repoPath);
       });
     } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error cloning repo", error);
+      }
       this.eventService.emit({
         type: "clone-failed",
         repoSlug: slug,

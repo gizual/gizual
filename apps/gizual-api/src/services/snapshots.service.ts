@@ -2,7 +2,7 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { RepoDescriptor, getRepoSlug } from "@/utils/repo-utils";
-import * as archiver from "archiver";
+import archiver from "archiver";
 import glob from "fast-glob";
 import { EventService } from "./event.service";
 import { RuntimeDependencies } from "@/utils/di";
@@ -52,6 +52,8 @@ export class SnapshotsService {
       repoDescriptor,
       suffix: "date",
     });
+
+    await fsp.mkdir(this.zipCacheFolder, { recursive: true });
 
     const zipPath = path.join(this.zipCacheFolder, zipName);
 
