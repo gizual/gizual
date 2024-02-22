@@ -9,6 +9,7 @@ export default defineConfig(({ command, mode }) => ({
   build: {
     ssr: "./src/main.ts",
     outDir,
+    target: "node18",
   },
   resolve: {
     alias: {
@@ -30,6 +31,7 @@ export default defineConfig(({ command, mode }) => ({
 
         const distPackageJson = {
           name: packageJson.name,
+          type: "module",
           version: packageJson.version || "0.0.0",
           main: "main.js",
           dependencies: packageJson.dependencies,

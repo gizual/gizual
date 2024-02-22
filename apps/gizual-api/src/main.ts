@@ -24,7 +24,7 @@ app.set("trust proxy", proxyCount);
 
 app.use(
   cors({
-    origin: ["https://app.gizual.com", "http://localhost:5173"],
+    origin: ["https://app.gizual.com", "http://localhost:5173", "http://localhost:4173"],
   }),
 );
 
