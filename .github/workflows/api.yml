@@ -38,7 +38,7 @@ jobs:
       - name: Store the build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: web-dist
+          name: api-dist
           path: apps/gizual-api/dist/
           retention-days: 1
 
@@ -52,7 +52,7 @@ jobs:
       - name: Retrieve the build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: web-dist
+          name: api-dist
           path: apps/gizual-api/dist/
 
       - name: Log in to the Container registry

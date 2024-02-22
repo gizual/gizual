@@ -7,13 +7,7 @@ import { webWorkerLink } from "@giz/trpc-webworker/link";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import {
-  importDirectoryEntry,
-  importFromFileList,
-  importZipFile,
-  printFileTree,
-  seekRepo,
-} from "./fileio-utils";
+import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "./fileio-utils";
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
 
@@ -171,7 +165,7 @@ export class Maestro {
 
     if (opts2.directoryHandle) {
       opts2.directoryHandle = await seekRepo(opts2.directoryHandle!);
-      await printFileTree(opts2.directoryHandle!);
+      //await printFileTree(opts2.directoryHandle!);
     }
 
     let legacy_explorerPort: MessagePort;

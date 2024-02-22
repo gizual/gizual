@@ -75,5 +75,5 @@ cron.schedule(
 );
 
 app.listen(port, () => {
-  console.log(`Server is running at a http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
