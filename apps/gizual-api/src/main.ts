@@ -1,5 +1,6 @@
 import express from "express";
 import cron from "node-cron";
+import cors from "cors";
 
 // This is required to handle async errors in express
 import "express-async-errors";
@@ -20,6 +21,12 @@ const app: express.Express = express();
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 5172;
 const proxyCount = process.env.PROXY_COUNT ? Number.parseInt(process.env.PROXY_COUNT) : 0;
 app.set("trust proxy", proxyCount);
+
+app.use(
+  cors({
+    origin: ["https://app.gizual.com", "http://localhost:5173"],
+  }),
+);
 
 if (isProduction) {
   app.use(RateLimitMiddleware);

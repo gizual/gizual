@@ -2749,6 +2749,7 @@ __metadata:
   resolution: "@giz/gizual-api@workspace:apps/gizual-api"
   dependencies:
     "@types/archiver": 6.0.1
+    "@types/cors": 2.8.17
     "@types/express": 4.17.21
     "@types/node": 20.9.2
     "@types/node-cron": 3.0.11
@@ -2756,15 +2757,18 @@ __metadata:
     archiver: 6.0.1
     async-mutex: 0.4.1
     awilix: 10.0.1
+    cors: 2.8.5
     express: 4.18.2
     express-async-errors: 3.1.1
     express-rate-limit: 7.1.5
     express-slow-down: 2.0.1
+    fast-glob: 3.3.2
     node-cron: 3.0.3
     nodemon: 3.0.3
     simple-git: 3.20.0
     vite: 5.0.8
     vite-node: 1.0.2
+    zod: 3.22.4
   languageName: unknown
   linkType: soft
 
@@ -5892,6 +5896,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cors@npm:2.8.17":
+  version: 2.8.17
+  resolution: "@types/cors@npm:2.8.17"
+  dependencies:
+    "@types/node": "*"
+  checksum: 469bd85e29a35977099a3745c78e489916011169a664e97c4c3d6538143b0a16e4cc72b05b407dc008df3892ed7bf595f9b7c0f1f4680e169565ee9d64966bde
+  languageName: node
+  linkType: hard
+
 "@types/cross-spawn@npm:^6.0.2":
   version: 6.0.4
   resolution: "@types/cross-spawn@npm:6.0.4"
@@ -8920,6 +8933,16 @@ __metadata:
   version: 1.0.3
   resolution: "core-util-is@npm:1.0.3"
   checksum: 9de8597363a8e9b9952491ebe18167e3b36e7707569eed0ebf14f8bba773611376466ae34575bca8cfe3c767890c859c74056084738f09d4e4a6f902b2ad7d99
+  languageName: node
+  linkType: hard
+
+"cors@npm:2.8.5":
+  version: 2.8.5
+  resolution: "cors@npm:2.8.5"
+  dependencies:
+    object-assign: ^4
+    vary: ^1
+  checksum: ced838404ccd184f61ab4fdc5847035b681c90db7ac17e428f3d81d69e2989d2b680cc254da0e2554f5ed4f8a341820a1ce3d1c16b499f6e2f47a1b9b07b5006
   languageName: node
   linkType: hard
 
@@ -15217,7 +15240,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
+"object-assign@npm:^4, object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
@@ -19975,7 +19998,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vary@npm:~1.1.2":
+"vary@npm:^1, vary@npm:~1.1.2":
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
   checksum: ae0123222c6df65b437669d63dfa8c36cee20a504101b2fcd97b8bf76f91259c17f9f2b4d70a1e3c6bbcee7f51b28392833adb6b2770b23b01abec84e369660b

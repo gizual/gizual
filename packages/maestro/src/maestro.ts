@@ -16,7 +16,6 @@ import {
 } from "./fileio-utils";
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
-import { t } from "./trpc-worker";
 
 export type RepoSetupOpts = {
   maxConcurrency?: number;

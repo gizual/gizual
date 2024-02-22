@@ -64,25 +64,4 @@ export class OnDemandCloneController implements Controller {
       client.end();
     });
   }
-
-  /*
-  constructor(router: Router) {
-    this.clone = this.clone.bind(this);
-    router.get("/clone/:service/:org/:repo", this.clone);
-  }
-  
-  async clone(req: Request, res: Response) {
-    const { service, org, repo } = req.params;
-
-    const zip = await getRecentZip(service, org, repo, 1000 * 60 * 60 * 24 * 7);
-
-    if (zip) {
-      res.sendFile(zip.zipPath);
-      return;
-    }
-
-    const zipPath = await createZip(service, org, repo);
-
-    res.sendFile(zipPath);
-  }*/
 }
