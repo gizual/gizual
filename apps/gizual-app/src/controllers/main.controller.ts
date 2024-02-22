@@ -189,6 +189,12 @@ export class MainController {
     return this._repo.state === "loading" || this._maestro.state === "loading";
   }
 
+  @computed
+  get progressText() {
+    if (!this.isLoading) return "";
+    return this._maestro.progressText;
+  }
+
   /**
    * @deprecated
    */

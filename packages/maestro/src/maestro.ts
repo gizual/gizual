@@ -29,6 +29,7 @@ export class Maestro {
 
   // TODO: remove observability
   @observable state: "init" | "ready" | "loading" = "init";
+  @observable progressText = "";
 
   constructor() {
     this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
@@ -58,6 +59,87 @@ export class Maestro {
     this.dispose = dispose;
   }
 
+  async openRepoFromURL(url: string) {
+    this.state = "loading";
+
+    try {
+      const urlObj = new URL(url);
+      let service = urlObj.hostname;
+      service = service.replace("www.", "");
+      service = service.slice(0, Math.max(0, urlObj.hostname.indexOf(".")));
+      const repoName = urlObj.pathname.slice(1);
+      await this.openRepoFromUrlUnsafe(service, repoName);
+    } catch (error) {
+      console.error(error);
+      alert(`Error opening repo: ${error}`);
+      runInAction(() => {
+        this.state = "ready";
+        this.progressText = "";
+      });
+    }
+  }
+
+  async openRepoFromUrlUnsafe(service: string, repoName: string) {
+    const host = import.meta.env.API_HOST ?? "";
+
+    const sseResponse = new EventSource(`${host}/on-demand-clone/${service}/${repoName}`);
+
+    let zipFileName = "";
+    const onMessage = (e: MessageEvent) => {
+      const data = JSON.parse(e.data);
+      if (data.type === "snapshot-created") {
+        zipFileName = data.snapshotName;
+        return;
+      }
+      if (data.type === "clone-progress") {
+        runInAction(() => {
+          this.progressText = `${data.state}: ${data.numProcessed}/${data.numTotal} (${data.progress}%)`;
+        });
+      }
+    };
+
+    sseResponse.addEventListener("message", onMessage);
+
+    await new Promise<void>((resolve) => {
+      // wait until the EventSource is closed
+      sseResponse.addEventListener("error", () => {
+        resolve();
+      });
+    });
+
+    sseResponse.removeEventListener("message", onMessage);
+    sseResponse.close();
+
+    runInAction(() => {
+      this.progressText = `Downloading ...`;
+    });
+
+    if (!zipFileName) {
+      throw new Error("Failed to clone repository");
+    }
+
+    const response = await fetch(`${host}/snapshots/${zipFileName}`);
+
+    const data = await response.arrayBuffer();
+
+    const opts: PoolControllerOpts = {};
+
+    opts.directoryHandle = await importZipFile(data);
+    opts.directoryHandle = await seekRepo(opts.directoryHandle!);
+    //await printFileTree(opts.directoryHandle!);
+
+    const result = await this.worker.setupPool(opts);
+
+    const legacy_explorerPort = result.legacy_explorerPort;
+
+    await mainController.openRepository("?", legacy_explorerPort);
+
+    runInAction(() => {
+      this.state = "ready";
+      this.progressText = ``;
+    });
+  }
+
   async openRepo(opts: RepoSetupOpts) {
     this.state = "loading";
 
@@ -75,7 +157,7 @@ export class Maestro {
         const zipDataArray = new Uint8Array(zipData);
         opts2.zipFile = zipDataArray;
       } else {
-        opts2.directoryHandle = await importZipFile(opts.zipFile!);
+        opts2.directoryHandle = await importZipFile(await opts.zipFile.arrayBuffer());
       }
     } else if (opts.directoryHandle) {
       opts2.directoryHandle = opts.directoryHandle;
@@ -83,6 +165,7 @@ export class Maestro {
 
     if (opts2.directoryHandle) {
       opts2.directoryHandle = await seekRepo(opts2.directoryHandle!);
+      //await printFileTree(opts2.directoryHandle!);
     }
 
     let legacy_explorerPort: MessagePort;
@@ -102,8 +185,6 @@ export class Maestro {
     runInAction(() => {
       this.state = "ready";
     });
-
-    return legacy_explorerPort;
   }
 
   debugPrint() {

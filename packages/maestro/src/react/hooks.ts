@@ -116,6 +116,13 @@ export function useFileLoaders(): FileLoaders {
     [maestro],
   );
 
+  const urlCallback = React.useCallback(
+    (url: string) => {
+      maestro.openRepoFromURL(url);
+    },
+    [maestro],
+  );
+
   const localLoaders: FileLoaderLocal[] = [];
 
   if (isSupportedBrowser()) {
@@ -132,7 +139,7 @@ export function useFileLoaders(): FileLoaders {
     url: {
       id: "url",
       name: "From URL",
-      load: (url: string) => console.warn("Not implemented. Called with URL:", url),
+      load: urlCallback,
     },
     zip: { id: "zip-file", name: ".zip file", load: zipFileCallback },
   };

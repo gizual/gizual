@@ -1,8 +1,10 @@
 import { IconCollapse } from "@app/assets";
 import { Button } from "@app/primitives";
 import shared from "@app/primitives/css/shared-styles.module.scss";
+import { Input } from "@app/primitives/input";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import { FileLoaderUrl } from "@giz/maestro/react";
 import style from "../../welcome.module.scss";
@@ -13,11 +15,8 @@ type UrlDetailPanel = {
   loader: FileLoaderUrl;
 } & Omit<DetailPanelProps, "loader" | "vm">;
 
-const onAction = () => {
-  console.error("URL not implemented! :)");
-};
-
-export const UrlDetailPanel = observer(({ backArrow, onBackArrow }: UrlDetailPanel) => {
+export const UrlDetailPanel = observer(({ backArrow, onBackArrow, loader }: UrlDetailPanel) => {
+  const [url, setUrl] = React.useState("");
   return (
     <div className={clsx(style.DetailColumn, shared.FlexColumn, style.Grow)}>
       <div className={style.CollapsibleHeader}>
@@ -31,9 +30,16 @@ export const UrlDetailPanel = observer(({ backArrow, onBackArrow }: UrlDetailPan
         amount of repositories can be cloned within a given time period. Due to this limitation,
         this operation might fail.
       </p>
+      <Input placeholder="Repository URL" value={url} onChange={(e) => setUrl(e.target.value)} />
 
-      <Button className={style.LoadButton} variant="filled" onClick={onAction}>
-        {`Load from URL (not yet implemented)`}
+      <Button
+        className={style.LoadButton}
+        variant="filled"
+        onClick={() => {
+          loader.load(url);
+        }}
+      >
+        {`Load from URL`}
       </Button>
     </div>
   );

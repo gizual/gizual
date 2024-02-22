@@ -170,12 +170,10 @@ export async function importFromFileList(files: FileList) {
   return directory;
 }
 
-export async function importZipFile(fs: File): Promise<FileSystemDirectoryHandle> {
+export async function importZipFile(data: ArrayBuffer): Promise<FileSystemDirectoryHandle> {
   let directory = await navigator.storage.getDirectory();
   await clearDirectory(directory);
   directory = await directory.getDirectoryHandle("repo", { create: true });
-
-  const data = await fs.arrayBuffer();
 
   const unzipped = unzipSync(new Uint8Array(data), {
     filter: (info: UnzipFileInfo) => !shouldIgnoreFilePath(info.name),

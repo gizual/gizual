@@ -30,12 +30,19 @@ export const Footer = observer(() => {
     totalWorkers: paddedNumber(mainController.numRenderWorkers, 2),
   };
 
+  const version = import.meta.env.VERSION ?? "?";
+  const commitHash = import.meta.env.COMMIT_HASH ?? "?";
+
   return (
     <div className={style.Footer}>
       <div className={style.LeftSection}>
         <DialogProvider
           title="Changelog"
-          trigger={<p>Gizual v3.0.0-alpha.15 - Build #{__COMMIT_HASH__}</p>}
+          trigger={
+            <p>
+              Gizual {version} - Build #{commitHash}
+            </p>
+          }
         >
           <MarkdownViewer src={ChangelogMd} />
         </DialogProvider>

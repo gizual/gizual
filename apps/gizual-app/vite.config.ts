@@ -1,4 +1,5 @@
 import * as child from "node:child_process";
+import fsp from "node:fs/promises";
 import path from "node:path";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
@@ -8,9 +9,12 @@ import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 
 const commitHash = child.execSync("git rev-parse --short HEAD").toString();
+const rootDir = child.execSync("git rev-parse --show-toplevel").toString().trim();
+
+const packageJson = await fsp.readFile(path.join(rootDir, "package.json"), "utf8").then(JSON.parse);
 
 // https://vitejs.dev/config/
-export default defineConfig(() => ({
+export default defineConfig(({ mode }) => ({
   base: "./",
   build: {
     rollupOptions: {
@@ -28,7 +32,11 @@ export default defineConfig(() => ({
     ],
   },
   define: {
-    __COMMIT_HASH__: JSON.stringify(commitHash),
+    "import.meta.env.COMMIT_HASH": JSON.stringify(commitHash),
+    "import.meta.env.API_HOST": JSON.stringify(
+      mode === "development" ? "/api" : "https://api.gizual.com",
+    ),
+    "import.meta.env.VERSION": JSON.stringify(packageJson.version),
   },
   resolve: {
     alias: {
@@ -66,4 +74,13 @@ export default defineConfig(() => ({
       enabledMode: ["development", "production"],
     }),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:5172",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
 }));

@@ -1,0 +1,9 @@
+{
+  "extends": "@giz/tsconfig/tsconfig.node.json",
+  "include": ["src/**/*.ts", "src/**/*.mts"],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
