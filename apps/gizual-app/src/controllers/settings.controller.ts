@@ -10,6 +10,8 @@ import { makeAutoObservable, toJS } from "mobx";
 
 import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
 
+const version: string = import.meta.env.VERSION ?? "";
+
 const TIMELINE_MODES = ["visible", "collapsed"] as const;
 type TimelineMode = (typeof TIMELINE_MODES)[number];
 
@@ -192,7 +194,7 @@ export class SettingsController {
   }
 
   loadSettings() {
-    const settings = localStorage.getItem("gizual-app.settings");
+    const settings = localStorage.getItem(`gizual-app.settings.${version}`);
     if (!settings) return;
 
     const parsed = JSON.parse(settings);
@@ -206,8 +208,7 @@ export class SettingsController {
   }
 
   storeSettings() {
-    console.log("storeSettings", toJS(this.settings));
-    localStorage.setItem("gizual-app.settings", JSON.stringify(toJS(this.settings)));
+    localStorage.setItem(`gizual-app.settings.${version}`, JSON.stringify(toJS(this.settings)));
     for (const cb of this.eventCallbacks["visualSettings:changed"] ?? []) {
       cb(toJS(this.visualizationSettings));
     }

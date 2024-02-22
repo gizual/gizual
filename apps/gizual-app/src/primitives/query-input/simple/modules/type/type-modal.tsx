@@ -251,11 +251,6 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
         <div className={style.VerticalRuler} />
         <div className={style.TypeDialog__Right}>
           Preview:
-          {/*<img
-            className={style.TypeDialogGridItemImage}
-            alt={"Preview image"}
-            src={previewFileLines}
-            />*/}
           <VisTypePreview
             className={style.TypeDialogGridItemImage}
             type={selectedType}

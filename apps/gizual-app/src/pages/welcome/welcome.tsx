@@ -30,8 +30,6 @@ export const WelcomePage = observer(() => {
   const loaders = useFileLoaders();
   const selectedLoader = prepareSelectedLoaders(loaders, selectedSource);
 
-  console.log("Reloading WelcomePage");
-
   const onBackArrow = () => {
     setCurrentPanel("left");
     setSelectedSource(undefined);

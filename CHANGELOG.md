@@ -1,13 +1,18 @@
-## Gizual 3.0.0-alpha.16 (XX.XX.2024)
+## Gizual 3.0.0-alpha.16 (22.02.2024)
 
 ### Features
 
 - **api:** implement gizual-api server to support on-demand url cloning
+- **app:maestro:** implement query error management
+- **app:frontend:** display query errors in modules and canvas
+- **app:frontend:** implement dynamic preview for vis-types
 
 ### Changes
 
 - **app:frontend:** add setting to control the amount of masonry columns to render within the canvas, disable reflow automation
+- **app:frontend:** move minimap and legend containers into sidebar component
 - **app:frontend:** implement drag and click functionality for canvas minimap
+- **app:frontend:** rewrite file blocks into SVG elements
 
 ---
 
