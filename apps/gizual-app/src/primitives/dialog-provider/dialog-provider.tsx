@@ -43,7 +43,10 @@ export const DialogProvider = React.memo(
       [isOpen, setIsOpen] = React.useState(false);
 
     const ref = React.useRef<HTMLDivElement>(null);
-    const isFullScreen = useMediaQuery({ max: 900 });
+
+    const narrowWidth = useMediaQuery({ max: 900 }, "width");
+    const narrowHeight = useMediaQuery({ max: 700 }, "height");
+    const isFullScreen = narrowHeight || narrowWidth;
 
     return (
       <>

@@ -1,4 +1,3 @@
-import { LocalQueryContext, useLocalQuery } from "@app/utils";
 import { match, P } from "ts-pattern";
 
 import { useQuery } from "@giz/maestro/react";
@@ -19,7 +18,6 @@ import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
 
 export function ModuleProvider() {
   const { query, errors } = useQuery();
-  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
 
   const presetMatch = match(query)
     .with({ type: P.select() }, (type) => {
@@ -91,9 +89,5 @@ export function ModuleProvider() {
   //  });
   //});
 
-  return (
-    <LocalQueryContext.Provider value={{ localQuery, updateLocalQuery, publishLocalQuery, errors }}>
-      {[presetMatch, timeMatch, fileMatch]}
-    </LocalQueryContext.Provider>
-  );
+  return <>{[presetMatch, timeMatch, fileMatch]}</>;
 }

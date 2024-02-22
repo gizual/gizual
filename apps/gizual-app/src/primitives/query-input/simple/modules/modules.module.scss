@@ -146,6 +146,8 @@
   @container type-modal-container (width < 900px) {
     width: 150px;
   }
+
+  max-height: 70dvh;
 }
 
 .TypeDialogGridItemContent {

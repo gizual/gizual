@@ -30,7 +30,10 @@ export function useWindowSize() {
   return size;
 }
 
-export function useMediaQuery(breakpoint: { min?: number; max?: number }) {
+export function useMediaQuery(
+  breakpoint: { min?: number; max?: number },
+  dimension: "width" | "height" = "width",
+) {
   const [matches, setMatches] = useState(false);
   const { min, max } = breakpoint;
 
@@ -44,11 +47,11 @@ export function useMediaQuery(breakpoint: { min?: number; max?: number }) {
 
   let query = "";
   if (min === undefined && max !== undefined) {
-    query = `(max-width: ${max}px)`;
+    query = `(max-${dimension}: ${max}px)`;
   } else if (max === undefined && min !== undefined) {
-    query = `(min-width: ${min}px)`;
+    query = `(min-${dimension}: ${min}px)`;
   } else {
-    query = `(min-width: ${min}px) and (max-width: ${max}px)`;
+    query = `(min-${dimension}: ${min}px) and (max-width: ${max}px)`;
   }
 
   useEffect(() => {
@@ -103,6 +106,7 @@ export const LocalQueryContext = createContext<
       updateLocalQuery: (partial: Partial<SearchQueryType>) => void;
       publishLocalQuery: () => void;
       errors: QueryError[] | undefined;
+      resetLocalQuery: () => void;
     }
   | undefined
 >(undefined);

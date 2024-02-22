@@ -1,3 +1,4 @@
+import { useLocalQueryCtx } from "@app/utils";
 import { Avatar, Skeleton } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
@@ -6,7 +7,7 @@ import type { DataTableColumn } from "mantine-datatable";
 import { DataTable } from "mantine-datatable";
 import React from "react";
 
-import { useAuthorList, useQuery } from "@giz/maestro/react";
+import { useAuthorList } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
 import { ColorPicker } from "../color-picker";
 import sharedStyle from "../css/shared-styles.module.scss";
@@ -60,11 +61,16 @@ type AuthorTableProps = {
 export function AuthorTable({ id, className, style: cssStyle, dataTableProps }: AuthorTableProps) {
   const [page, setPage] = React.useState(1);
   const { data, isLoading, isPlaceholderData } = useAuthorList(10, (page - 1) * 10);
-  const { query, updateQuery } = useQuery();
-  const authorColors = getAuthorColors(query);
+  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
+  const authorColors = getAuthorColors(localQuery);
   const { showContextMenu } = useContextMenu();
 
-  const columns = getAuthorColumns(authorColors, updateQuery, showContextMenu);
+  const columns = getAuthorColumns(
+    authorColors,
+    updateLocalQuery,
+    publishLocalQuery,
+    showContextMenu,
+  );
 
   if (!isLoading && data === undefined) {
     return <div>An unknown error occurred.</div>;
@@ -118,6 +124,7 @@ function insertAuthorColor(authorColors: [string, string][], authorId: string, c
 function getAuthorColumns(
   authorColors: [string, string][],
   updateQuery: (q: Partial<SearchQueryType>) => void,
+  publishLocalQuery: () => void,
   showContextMenu: ShowContextMenuFunction,
 ): DataTableColumn<AuthorType>[] {
   return [

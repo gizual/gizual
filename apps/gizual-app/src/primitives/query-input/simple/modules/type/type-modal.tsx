@@ -3,7 +3,7 @@ import { AuthorTable } from "@app/primitives/author-panel";
 import { Button } from "@app/primitives/button";
 import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
-import { useLocalQuery } from "@app/utils";
+import { useLocalQueryCtx } from "@app/utils";
 import { Stepper, StepperStepProps } from "@mantine/core";
 import clsx from "clsx";
 import React from "react";
@@ -64,7 +64,7 @@ export type TypePlaceholderModalProps = {
 export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderModalProps) => {
   const vmController = useViewModelController();
   const settingsController = useSettingsController();
-  const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQuery();
+  const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQueryCtx();
   const [step, setStep] = React.useState(0);
 
   const selectedType = getTypeEntry(localQuery);
@@ -344,11 +344,20 @@ const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewP
         mergedColors.push(ColorManager.stringToHex(a.color));
       }
     }
-    console.log(data?.authors, mergedColors);
     setColorGenerator(
       pickColor(visStyle, visStyle === "gradient-age" ? (colors as string[]) : mergedColors),
     );
   }, [visStyle, colors, data, isLoading]);
+
+  const memoizedColors = React.useMemo(() => {
+    if (colorGenerator) {
+      return Array.from({ length: LINE_COUNT * MOSAICS }).map(() => colorGenerator.next().value);
+    }
+  }, [colorGenerator]);
+
+  const memoizedWidths = React.useMemo(() => {
+    return Array.from({ length: LINE_COUNT }).map(() => Math.random() * CHAR_COUNT * CHAR_WIDTH);
+  }, [colorGenerator]);
 
   return match(type)
     .with("file-lines", () => {
@@ -359,9 +368,9 @@ const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewP
               key={`${index}`}
               x={0}
               y={index * LINE_HEIGHT}
-              width={Math.random() * CHAR_COUNT * CHAR_WIDTH}
+              width={memoizedWidths?.[index]}
               height={LINE_HEIGHT}
-              fill={colorGenerator?.next().value ?? ""}
+              fill={memoizedColors?.[index] ?? "#00ded0"}
             />
           ))}
         </svg>
@@ -378,7 +387,7 @@ const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewP
                 y={lineIndex * LINE_HEIGHT}
                 width={WIDTH / MOSAICS}
                 height={HEIGHT}
-                fill={colorGenerator?.next().value ?? ""}
+                fill={memoizedColors?.[lineIndex * MOSAICS + mosaicIndex] ?? "#00ded0"}
                 stroke="black"
                 strokeWidth="0.3"
               />
