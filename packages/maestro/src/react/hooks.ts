@@ -118,12 +118,7 @@ export function useFileLoaders(): FileLoaders {
 
   const urlCallback = React.useCallback(
     (url: string) => {
-      const urlObj = new URL(url);
-      let service = urlObj.hostname;
-      service = service.replace("www.", "");
-      service = service.slice(0, Math.max(0, urlObj.hostname.indexOf(".")));
-      const repoName = urlObj.pathname.slice(1);
-      maestro.openRepoFromURL(service, repoName);
+      maestro.openRepoFromURL(url);
     },
     [maestro],
   );

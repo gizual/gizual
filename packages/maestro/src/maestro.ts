@@ -16,6 +16,7 @@ import {
 } from "./fileio-utils";
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
+import { t } from "./trpc-worker";
 
 export type RepoSetupOpts = {
   maxConcurrency?: number;
@@ -65,10 +66,30 @@ export class Maestro {
     this.dispose = dispose;
   }
 
-  async openRepoFromURL(service: string, repoName: string) {
+  async openRepoFromURL(url: string) {
     this.state = "loading";
 
-    const sseResponse = new EventSource(`/api/on-demand-clone/${service}/${repoName}`);
+    try {
+      const urlObj = new URL(url);
+      let service = urlObj.hostname;
+      service = service.replace("www.", "");
+      service = service.slice(0, Math.max(0, urlObj.hostname.indexOf(".")));
+      const repoName = urlObj.pathname.slice(1);
+      await this.openRepoFromUrlUnsafe(service, repoName);
+    } catch (error) {
+      console.error(error);
+      alert(`Error opening repo: ${error}`);
+      runInAction(() => {
+        this.state = "ready";
+        this.progressText = "";
+      });
+    }
+  }
+
+  async openRepoFromUrlUnsafe(service: string, repoName: string) {
+    const host = import.meta.env.API_HOST ?? "";
+
+    const sseResponse = new EventSource(`${host}/on-demand-clone/${service}/${repoName}`);
 
     let zipFileName = "";
     const onMessage = (e: MessageEvent) => {
@@ -87,7 +108,8 @@ export class Maestro {
     sseResponse.addEventListener("message", onMessage);
 
     await new Promise<void>((resolve) => {
-      sseResponse.addEventListener("error", (e) => {
+      // wait until the EventSource is closed
+      sseResponse.addEventListener("error", () => {
         resolve();
       });
     });
@@ -100,15 +122,10 @@ export class Maestro {
     });
 
     if (!zipFileName) {
-      runInAction(() => {
-        this.progressText = ``;
-      });
-
-      this.state = "ready";
-      return;
+      throw new Error("Failed to clone repository");
     }
 
-    const response = await fetch(`/api/snapshots/${zipFileName}`);
+    const response = await fetch(`${host}/snapshots/${zipFileName}`);
 
     const data = await response.arrayBuffer();
 

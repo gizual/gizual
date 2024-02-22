@@ -37,8 +37,9 @@ export class GitService {
         numTotal: total,
       });
     };
+    await fsp.mkdir(this.reposCacheFolder, { recursive: true });
 
-    const repoPath = path.join(this.reposCacheFolder, service, org, repo);
+    const repoPath = path.join(this.reposCacheFolder, `${service}-${org}-${repo}`);
     if (await exists(path.join(repoPath, "HEAD"))) {
       await simpleGit(repoPath, { progress })
         .remote(["update"])
@@ -49,11 +50,16 @@ export class GitService {
       return repoPath;
     }
 
-    await fsp.mkdir(repoPath, { recursive: true });
-    let git = simpleGit(undefined, { progress });
+    let git = simpleGit(undefined, {
+      progress,
+      baseDir: this.reposCacheFolder,
+      config: ["http.emptyAuth=true", "core.askpass=", "credential.helper="],
+    });
 
-    // disable any git-lfs downloads
     git = git.env("GIT_LFS_SKIP_SMUDGE", "1");
+    git = git.env("GIT_SSH_COMMAND", "exit 1;"); // disable ssh
+    git = git.env("GIT_ASKPASS", "");
+    git = git.env("GIT_TERMINAL_PROMPT", "");
 
     this.eventService.emit({
       type: "clone-start",
@@ -61,7 +67,9 @@ export class GitService {
     });
 
     await git.clone(repoUrl, repoPath, ["--bare", "--progress"]).catch((error) => {
-      console.error("Error cloning repo", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error cloning repo", error);
+      }
       throw error;
     });
 
