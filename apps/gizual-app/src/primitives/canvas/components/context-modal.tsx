@@ -7,22 +7,16 @@ import { Modal } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { CanvasViewModel } from "../canvas.vm";
-
 type ContextModalProps = {
-  vm: CanvasViewModel;
   isModalOpen: boolean;
   setIsModalOpen: (o: boolean) => void;
 };
 
-const ContextModal = observer(({ vm, isModalOpen, setIsModalOpen }: ContextModalProps) => {
+const ContextModal = observer(({ isModalOpen, setIsModalOpen }: ContextModalProps) => {
   const settingsController = useSettingsController();
 
   const handleOk = React.useCallback(() => {
     setIsModalOpen(false);
-    //vm.drawSvg(numCols, selectedAppearance);
-    const numColumns =
-      settingsController.settings.visualizationSettings.canvas.masonryColumns.value;
   }, [setIsModalOpen]);
 
   const handleCancel = React.useCallback(() => {

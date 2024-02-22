@@ -17,7 +17,7 @@ import { TimeSinceFirstCommitByModule } from "./modules/time/time-since-first-co
 import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
 
 export function ModuleProvider() {
-  const { query, errors } = useQuery();
+  const { query } = useQuery();
 
   const presetMatch = match(query)
     .with({ type: P.select() }, (type) => {

@@ -1,4 +1,4 @@
-import { Loader, Tooltip } from "@mantine/core";
+import { Loader } from "@mantine/core";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";

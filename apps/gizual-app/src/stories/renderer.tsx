@@ -201,7 +201,6 @@ function prepareContext(props: RendererProps) {
 }
 
 export function Renderer(props: RendererProps) {
-  const renderer = useRenderer();
   const [imageSrc, setImageSrc] = React.useState<string>("");
   const [annotationSrc, setAnnotationSrc] = React.useState<string>("");
 
@@ -253,11 +252,6 @@ export function Renderer(props: RendererProps) {
 
 function Loading() {
   return <div>Loading...</div>;
-}
-
-function useRenderer() {
-  const [renderer] = React.useState<FileRendererWorker | null>(new FileRendererWorker());
-  return renderer;
 }
 
 export default RendererProps;
