@@ -10,6 +10,8 @@ import { makeAutoObservable, toJS } from "mobx";
 
 import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
 
+const version: string = import.meta.env.VERSION ?? "";
+
 const TIMELINE_MODES = ["visible", "collapsed"] as const;
 type TimelineMode = (typeof TIMELINE_MODES)[number];
 
@@ -24,6 +26,7 @@ export type VisualizationSettings = {
   } & GroupEntry;
   canvas: {
     rootMargin: SettingsEntry<number, "number">;
+    masonryColumns: SettingsEntry<number, "number">;
   } & GroupEntry;
   style: {
     lineLength: SettingsEntry<LineLengthMode, "select">;
@@ -43,6 +46,13 @@ type TimelineSettings = {
   snap: SettingsEntry<boolean, "checkbox">;
   defaultRange: SettingsEntry<number, "number">;
   weekModeThreshold: SettingsEntry<number, "number">;
+} & GroupEntry;
+
+const BLOCK_HTML_BASES = ["div", "svg"] as const;
+type BlockHtmlBase = (typeof BLOCK_HTML_BASES)[number];
+
+type DevSettings = {
+  blockHtmlBase: SettingsEntry<BlockHtmlBase, "select">;
 } & GroupEntry;
 
 export class SettingsController {
@@ -110,6 +120,11 @@ export class SettingsController {
         "The margin of the canvas for evaluating file visibility, given in pixels. Positive margins enlarge the bounding box, negative margins shrink it.",
         200,
       ),
+      masonryColumns: createNumberSetting(
+        "Masonry Columns",
+        "The amount of columns to show in the main canvas.",
+        10,
+      ),
     },
     style: {
       groupName: "Style",
@@ -129,6 +144,17 @@ export class SettingsController {
       ),
     },
   };
+  devSettings: DevSettings = {
+    groupName: "Dev Settings",
+    blockHtmlBase: createSelectSetting(
+      "Block HTML Base",
+      "The HTML base element to use for block elements.",
+      "div",
+      BLOCK_HTML_BASES.map((b) => {
+        return { value: b, label: b };
+      }),
+    ),
+  };
 
   eventCallbacks: Record<string, ((...args: any[]) => void)[]> = {};
 
@@ -141,6 +167,7 @@ export class SettingsController {
       editor: this.editor,
       timelineSettings: this.timelineSettings,
       visualizationSettings: this.visualizationSettings,
+      devSettings: this.devSettings,
     };
   }
 
@@ -167,7 +194,7 @@ export class SettingsController {
   }
 
   loadSettings() {
-    const settings = localStorage.getItem("gizual-app.settings");
+    const settings = localStorage.getItem(`gizual-app.settings.${version}`);
     if (!settings) return;
 
     const parsed = JSON.parse(settings);
@@ -177,10 +204,11 @@ export class SettingsController {
       parsed.visualizationSettings,
     );
     this.timelineSettings = mergeObj(toJS(this.timelineSettings), parsed.timelineSettings);
+    this.devSettings = mergeObj(toJS(this.devSettings), parsed.devSettings);
   }
 
   storeSettings() {
-    localStorage.setItem("gizual-app.settings", JSON.stringify(this.settings));
+    localStorage.setItem(`gizual-app.settings.${version}`, JSON.stringify(toJS(this.settings)));
     for (const cb of this.eventCallbacks["visualSettings:changed"] ?? []) {
       cb(toJS(this.visualizationSettings));
     }

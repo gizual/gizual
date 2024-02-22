@@ -1,4 +1,4 @@
-import { Loader, Tooltip } from "@mantine/core";
+import { Loader } from "@mantine/core";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
@@ -179,15 +179,13 @@ export function LanguageDistributionChart({ languages }: LanguagesProps) {
               const barHeight = yMax - yPoint(d);
               return (
                 <Group key={`bar-${i}`}>
-                  <Tooltip label={`${d.x} - ${Math.round((d.y ?? 0) * 100) / 100}%`}>
-                    <Bar
-                      x={xPoint(d) + margin.left}
-                      y={yMax - barHeight}
-                      height={Math.max(barHeight, 0)}
-                      width={xScale.bandwidth()}
-                      fill={d.c}
-                    />
-                  </Tooltip>
+                  <Bar
+                    x={xPoint(d) + margin.left}
+                    y={yMax - barHeight}
+                    height={Math.max(barHeight, 0)}
+                    width={xScale.bandwidth()}
+                    fill={d.c}
+                  />
                 </Group>
               );
             })}

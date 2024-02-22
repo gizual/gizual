@@ -1,4 +1,5 @@
 import React from "react";
+import type { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
 import { useBlocks } from "@giz/maestro/react";
 
@@ -16,9 +17,14 @@ type CanvasContextProps = {
    * Enables rendering of additional borders and text elements to debug layout issues.
    */
   debugLayout: boolean;
+
+  /**
+   * Provides a ref to the rzpp instance because our minimap is placed outside the rzpp component.
+   */
+  rzppRef: React.RefObject<ReactZoomPanPinchRef>;
 };
 
-const CanvasContext = React.createContext({ useBlocks: useBlocks, debugLayout: false });
+const CanvasContext = React.createContext({} as CanvasContextProps);
 
 export { CanvasContext };
 export type { CanvasContextProps };

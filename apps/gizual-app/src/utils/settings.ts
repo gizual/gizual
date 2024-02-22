@@ -1,5 +1,6 @@
 export type GroupEntry = {
   groupName: string;
+  [key: string]: any;
 };
 
 export type ControlType = "select" | "color" | "number" | "checkbox" | "text";

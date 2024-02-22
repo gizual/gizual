@@ -77,7 +77,7 @@ export class FileRendererWorker {
     fileCtx: RendererContext,
     mode: "annotations",
     renderCtx?: AnnotationObject[],
-  ): Promise<{ result: AnnotationObject[] }>;
+  ): Promise<{ result: string }>;
   async draw(ctx: RendererContext, mode: RenderingMode = "canvas", renderCtx?: ValidContext) {
     await this.prepareFont();
 
@@ -240,9 +240,7 @@ export class FileRendererWorker {
 
     let currentX = 0;
     let currentY = 0;
-    for (const [index, line] of ctx.fileContent.entries()) {
-      if (index + 1 > VisualizationDefaults.maxLineCount) break;
-
+    for (const [_, line] of ctx.fileContent.entries()) {
       let color = ctx.visualizationConfig.colors.notLoaded;
       if (line.commit && !ctx.isPreview) color = this.colorManager.interpolateColor(ctx, line);
 
@@ -274,7 +272,7 @@ export class FileRendererWorker {
     const colors: string[] = [];
     const { width } = calculateDimensions(ctx.dpr, ctx.rect);
     const lineHeight = 10 * ctx.dpr;
-    this.colorManager.init({ domain: ctx.authors.map((a) => a.id) });
+    this.colorManager.init(ctx.colorDefinition);
 
     let currentY = 0;
     const widthPerCharacter = width / ctx.lineLengthMax;

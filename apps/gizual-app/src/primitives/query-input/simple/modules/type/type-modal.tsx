@@ -1,15 +1,15 @@
-import previewFileLines from "@app/assets/previews/preview-file-lines.png";
 import { useSettingsController, useViewModelController } from "@app/controllers";
+import { AuthorTable } from "@app/primitives/author-panel";
 import { Button } from "@app/primitives/button";
 import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
-import { useLocalQuery } from "@app/utils";
+import { useLocalQueryCtx } from "@app/utils";
 import { Stepper, StepperStepProps } from "@mantine/core";
 import clsx from "clsx";
 import React from "react";
-import { match } from "ts-pattern";
+import { match, Pattern } from "ts-pattern";
 
-import { ColorManager } from "@giz/color-manager";
+import { ColorManager, getColorScale } from "@giz/color-manager";
 import { useAuthorList } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
 import style from "../modules.module.scss";
@@ -39,8 +39,6 @@ const StyleRadioDescriptions = {
 
 const NUM_STEPS = 3;
 
-const colorManager = new ColorManager();
-
 function getTypeEntry(query: SearchQueryType) {
   if (query && query.type) return query.type;
 }
@@ -66,7 +64,7 @@ export type TypePlaceholderModalProps = {
 export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderModalProps) => {
   const vmController = useViewModelController();
   const settingsController = useSettingsController();
-  const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQuery();
+  const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQueryCtx();
   const [step, setStep] = React.useState(0);
 
   const selectedType = getTypeEntry(localQuery);
@@ -188,7 +186,7 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
       ),
     },
     {
-      title: "Customize Colors",
+      title: "Customize",
       children: (
         <StepperItem currentStep={step} hasButtons={false}>
           {selectedStyle === "gradient-age" && (
@@ -210,18 +208,6 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
         </StepperItem>
       ),
     },
-    //{
-    //  title: "Review",
-    //  children: (
-    //    <StepperItem currentStep={step} hasButtons={false}>
-    //      <FinalizeChangesBlock
-    //        selectedType={selectedType}
-    //        selectedStyle={selectedStyle}
-    //        selectedColors={selectedColors}
-    //      />
-    //    </StepperItem>
-    //  ),
-    //},
   ];
 
   return (
@@ -265,10 +251,11 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
         <div className={style.VerticalRuler} />
         <div className={style.TypeDialog__Right}>
           Preview:
-          <img
+          <VisTypePreview
             className={style.TypeDialogGridItemImage}
-            alt={"Preview image"}
-            src={previewFileLines}
+            type={selectedType}
+            visStyle={selectedStyle}
+            colors={selectedStyle === "gradient-age" ? gradientColors : authorColors}
           />
         </div>
       </div>
@@ -281,6 +268,133 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
     </div>
   );
 });
+
+type VisTypePreviewProps = {
+  type?: Type;
+  visStyle?: Style;
+  colors?: string[] | [string, string][];
+} & React.SVGProps<SVGSVGElement>;
+
+function* pickColor(style?: Style, colors?: string[]) {
+  if (style === "gradient-age" && (!colors || colors.length < 2)) {
+    yield "#00ded0"; // Fallback color
+    return;
+  }
+  let steps = 0;
+  let stepCounter = 0;
+
+  let interpolatedColor = "#00ded0"; // Fallback color
+  while (true) {
+    if (stepCounter >= steps) {
+      // Move to next color
+      steps = Math.floor(Math.random() * 15);
+      stepCounter = 0;
+      if (style === "gradient-age" && isStringArray(colors))
+        interpolatedColor = getColorScale([1, 100], [colors[0], colors[1]])(Math.random() * 100);
+      else if (colors) interpolatedColor = colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    stepCounter++;
+    yield interpolatedColor;
+  }
+}
+
+function isStringArray(colors?: string[] | [string, string][]): colors is string[] {
+  return colors !== undefined && colors.length > 0 && typeof colors[0] === "string";
+}
+
+function isStringTupleArray(colors?: string[] | [string, string][]): colors is [string, string][] {
+  return (
+    colors !== undefined &&
+    colors.length > 0 &&
+    colors[0].length === 2 &&
+    typeof colors[0][0] === "string" &&
+    typeof colors[0][1] === "string"
+  );
+}
+
+const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewProps) => {
+  const WIDTH = 300;
+  const CHAR_COUNT = 100;
+  const LINE_HEIGHT = 10;
+  const LINE_COUNT = 100;
+  const CHAR_WIDTH = WIDTH / CHAR_COUNT;
+  const HEIGHT = LINE_HEIGHT * LINE_COUNT;
+  const MOSAICS = 10;
+
+  const [colorGenerator, setColorGenerator] = React.useState<Generator | undefined>(undefined);
+  const { data, isLoading } = useAuthorList(16, 0);
+
+  React.useEffect(() => {
+    const mergedColors: string[] = [];
+    if (visStyle === "palette-author" && data) {
+      for (const a of data.authors) {
+        if (isStringTupleArray(colors)) {
+          const assignedColor = colors.find((c) => c[0] === a.id);
+          if (assignedColor) {
+            mergedColors.push(assignedColor[1]);
+            continue;
+          }
+        }
+        mergedColors.push(ColorManager.stringToHex(a.color));
+      }
+    }
+    setColorGenerator(
+      pickColor(visStyle, visStyle === "gradient-age" ? (colors as string[]) : mergedColors),
+    );
+  }, [visStyle, colors, data, isLoading]);
+
+  const memoizedColors = React.useMemo(() => {
+    if (colorGenerator) {
+      return Array.from({ length: LINE_COUNT * MOSAICS }).map(() => colorGenerator.next().value);
+    }
+  }, [colorGenerator]);
+
+  const memoizedWidths = React.useMemo(() => {
+    return Array.from({ length: LINE_COUNT }).map(() => Math.random() * CHAR_COUNT * CHAR_WIDTH);
+  }, [colorGenerator]);
+
+  return match(type)
+    .with("file-lines", () => {
+      return (
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} {...svgProps}>
+          {Array.from({ length: LINE_COUNT }).map((_, index) => (
+            <rect
+              key={`${index}`}
+              x={0}
+              y={index * LINE_HEIGHT}
+              width={memoizedWidths?.[index]}
+              height={LINE_HEIGHT}
+              fill={memoizedColors?.[index] ?? "#00ded0"}
+            />
+          ))}
+        </svg>
+      );
+    })
+    .with("file-mosaic", () => {
+      return (
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} {...svgProps}>
+          {Array.from({ length: LINE_COUNT }).map((_, lineIndex) =>
+            Array.from({ length: MOSAICS }).map((_, mosaicIndex) => (
+              <rect
+                key={`${lineIndex}-${mosaicIndex}`}
+                x={mosaicIndex * (WIDTH / MOSAICS)}
+                y={lineIndex * LINE_HEIGHT}
+                width={WIDTH / MOSAICS}
+                height={HEIGHT}
+                fill={memoizedColors?.[lineIndex * MOSAICS + mosaicIndex] ?? "#00ded0"}
+                stroke="black"
+                strokeWidth="0.3"
+              />
+            )),
+          )}
+        </svg>
+      );
+    })
+    .otherwise(() => {
+      return <div>TODO: Visualization preview not available for this type.</div>;
+    });
+};
 
 export type StepItemWithButtonsProps = {
   currentStep: number;
@@ -375,9 +489,10 @@ const StepItemButtons = React.memo(
   },
 );
 
-export type RadioGridItemProps<T> = {
+type RadioGridItemProps<T> = Omit<React.HTMLAttributes<HTMLInputElement>, "onChange" | "value"> & {
   value: T;
   checked: boolean;
+  disabled?: boolean;
   onChange: (value: T) => void;
   title: string;
   description: string;
@@ -387,21 +502,25 @@ export type RadioGridItemProps<T> = {
 export function RadioGridItemComponent<T>({
   value,
   checked,
+  disabled,
   onChange,
   title,
   description,
   inputName,
+  ...rest
 }: RadioGridItemProps<T>) {
   return (
     <label className={style.TypeDialogGridItem}>
       <input
+        {...rest}
         type="radio"
         name={inputName ?? "type"}
         checked={checked}
+        disabled={disabled}
         onChange={() => onChange(value)}
         onClick={() => onChange(value)}
       />
-      <div className={style.TypeDialogGridItemTile}>
+      <div className={style.TypeDialogGridItemTile} data-disabled={disabled}>
         <div className={style.TypeDialogGridItemContent}>
           <h3 className={style.TypeDialogGridItemTitle}>{title}</h3>
           <p className={style.TypeDialogGridItemDescription}>{description}</p>
@@ -428,6 +547,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "author-mosaic"}
         description="Displays authors in a mosaic."
         inputName="type"
+        disabled
       />
 
       <RadioGridItem<Type>
@@ -437,6 +557,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "author-contributions"}
         description="Displays the individual contributions of each author."
         inputName="type"
+        disabled
       />
 
       <RadioGridItem<Type>
@@ -464,6 +585,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "file-bar"}
         description="Displays each file as a stacked bar."
         inputName="type"
+        disabled
       />
 
       <RadioGridItem<Type>
@@ -473,6 +595,7 @@ export const TypeSelectionGrid = React.memo(({ type, onChange }: TypeSelectionGr
         checked={type === "author-bar"}
         description="Displays each author as a stacked bar."
         inputName="type"
+        disabled
       />
     </div>
   );
@@ -493,7 +616,7 @@ export const DefaultStyleSelect = React.memo(
     return (
       <div className={sharedStyle.FlexColumn}>
         {match(type)
-          .with("file-lines", () => (
+          .with(Pattern.union("file-lines", "file-mosaic"), () => (
             <div className={style.TypeDialogGrid}>
               {DefaultStyles.map((s) => (
                 <RadioGridItem<Style>
@@ -536,7 +659,9 @@ export const GradientColorCustomization = React.memo(
               )}
               key={index}
             >
-              <p className={sharedStyle["Text-Base"]}>Color {index + 1}:</p>
+              <p className={sharedStyle["Text-Base"]}>
+                Color {index === 0 ? "(Start date)" : "(End date)"}:
+              </p>
               <ColorPicker
                 hexValue={color}
                 onAccept={(c) => {
@@ -562,75 +687,21 @@ export type AuthorColorCustomizationProps = {
   onChange: (colors: [string, string][]) => void;
 };
 
-export const AuthorColorCustomization = React.memo(
-  ({ selectedColors, onChange }: AuthorColorCustomizationProps) => {
-    const { data: authors, isLoading } = useAuthorList(100, 0);
-    const [ready, setReady] = React.useState(false);
-
-    React.useEffect(() => {
-      if (!isLoading && authors?.authors) {
-        colorManager.init({ domain: authors.authors.map((a) => a.id) });
-        setReady(true);
-      }
-    }, [isLoading, authors?.authors, colorManager]);
-
-    return (
-      <>
-        {ready ? (
-          <div
-            className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-1"])}
-            style={{
-              maxHeight: "300px",
-              overflowY: "auto",
-              justifyContent: "center",
-              alignItems: "left",
-            }}
-          >
-            {authors!.authors.map((author) => {
-              return (
-                <div
-                  className={clsx(
-                    sharedStyle.FlexRow,
-                    sharedStyle["Gap-2"],
-                    sharedStyle["Items-Center"],
-                  )}
-                  key={author.id}
-                  style={{ display: "flex" }}
-                >
-                  <ColorPicker
-                    hexValue={(() => {
-                      const customizedColor = selectedColors.find((c) => c[0] === author.id);
-                      if (customizedColor) return customizedColor[1];
-                      return ColorManager.stringToHex(colorManager.getBandColor(author.id));
-                    })()}
-                    onAccept={(c) => {
-                      insertAuthorColor(selectedColors, author.id, c);
-                      onChange([...selectedColors]);
-                    }}
-                  />
-                  <p className={clsx(sharedStyle["Text-Base"], sharedStyle["Text-Left"])}>
-                    {author.name} ({author.email})
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div>Loading authors - Please wait ...</div>
-        )}
-      </>
-    );
-  },
-);
-
-function insertAuthorColor(authorColors: [string, string][], authorId: string, color: string) {
-  const index = authorColors.findIndex((c) => c[0] === authorId);
-  if (index === -1) {
-    authorColors.push([authorId, color]);
-  } else {
-    authorColors[index][1] = color;
-  }
-}
+export const AuthorColorCustomization = React.memo(({}: AuthorColorCustomizationProps) => {
+  return (
+    <>
+      <div
+        className={clsx(sharedStyle.FlexColumn, sharedStyle["Gap-1"])}
+        style={{
+          justifyContent: "center",
+          alignItems: "left",
+        }}
+      >
+        <AuthorTable id="vis-type-modal-authors" />
+      </div>
+    </>
+  );
+});
 
 export type FinalizeChangesBlockProps = {
   selectedType?: Type;

@@ -1,7 +1,7 @@
 import { IconClose } from "@app/assets";
 import { Panel, PANELS, useMainController } from "@app/controllers";
 import { Select, SelectOption } from "@app/primitives/select";
-import { useWindowSize } from "@app/utils";
+import { useMediaQuery } from "@app/utils";
 import { Modal, Stack, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import clsx from "clsx";
@@ -15,7 +15,7 @@ import { Button } from "..";
 import style from "./title-bar.module.scss";
 
 export const TitleBar = observer(() => {
-  const [width] = useWindowSize();
+  const isLargeScreen = useMediaQuery({ min: 768 });
   const screen = useScreen();
 
   return (
@@ -25,7 +25,7 @@ export const TitleBar = observer(() => {
         <h1 className={style.Title}>gizual</h1>
       </a>
       <div className={style.Menu}>
-        {width > 768 ? <DesktopTitleBar screen={screen} /> : <MobileTitleBar screen={screen} />}
+        {isLargeScreen ? <DesktopTitleBar screen={screen} /> : <MobileTitleBar screen={screen} />}
       </div>
     </div>
   );

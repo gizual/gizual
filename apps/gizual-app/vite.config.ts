@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@/mixins": path.join(__dirname, "/src/mixins.scss"),
+      "@/colors": path.join(__dirname, "/src/colors.scss"),
       "@/shared": path.join(__dirname, "/src/primitives/css/shared-styles.module.scss"),
 
       /**

@@ -44,13 +44,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
 const ExplorePage = observer(({ vm }: MainPageProps) => {
   if (!vm) return <div />;
 
-  return (
-    <>
-      {/*vmController.isRepoPanelVisible && <RepoPanel />*/}
-      <Canvas />
-      {/*vmController.isAuthorPanelVisible && <AuthorPanel />*/}
-    </>
-  );
+  return <Canvas />;
 });
 
 const AnalyzePage = observer(({ vm }: MainPageProps) => {

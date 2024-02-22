@@ -1,11 +1,6 @@
 import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ReactZoomPanPinchRef,
-  useTransformContext,
-  useTransformEffect,
-  useTransformInit,
-} from "react-zoom-pan-pinch";
+import { ReactZoomPanPinchContext, ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
 import { MasonryGrid } from "../masonry";
 
@@ -14,14 +9,16 @@ import style from "./canvas.module.scss";
 import { useResize } from "./use-resize";
 
 type MiniMapContentProps = {
-  masonryWidth: number;
+  numColumns: number;
 };
 
-function MiniMapContent({ masonryWidth }: MiniMapContentProps) {
-  const blocks = React.useContext(CanvasContext).useBlocks();
+function MiniMapContent({ numColumns }: MiniMapContentProps) {
+  const canvasCtx = React.useContext(CanvasContext);
+  const blocks = canvasCtx.useBlocks();
+
   return (
     <MasonryGrid
-      width={masonryWidth}
+      numColumns={numColumns}
       childInfo={blocks.map((b) => ({ id: b.id, height: b.height + 26 }))}
     >
       {blocks.map((block, index) => {
@@ -44,8 +41,18 @@ function MiniMapContent({ masonryWidth }: MiniMapContentProps) {
   );
 }
 
+function MiniMapWrapper(props: Omit<MiniMapProps, "rzppInstance">) {
+  const { rzppRef } = React.useContext(CanvasContext);
+  if (!rzppRef.current) {
+    return <></>;
+  }
+
+  return <MiniMap {...props} rzppInstance={rzppRef.current.instance} />;
+}
+
 export type MiniMapProps = {
   children: React.ReactNode;
+  rzppInstance: ReactZoomPanPinchContext;
   width?: number;
   height?: number;
   previewStyles?: React.CSSProperties;
@@ -59,7 +66,7 @@ const defaultPreviewStyles = {
   boxSizing: "border-box",
   border: "2px solid red",
   transformOrigin: "0% 0%",
-  boxShadow: "rgba(0,0,0,0.2) 0 0 0 10000000px",
+  boxShadow: "rgba(0,0,0,0.1) 0 0 0 10000000px",
 } as const;
 
 /**
@@ -71,12 +78,17 @@ const defaultPreviewStyles = {
 const MiniMap: React.FC<MiniMapProps> = ({
   width = 200,
   height = 200,
+  rzppInstance,
   children,
   previewStyles,
   ...rest
 }) => {
   const [initialized, setInitialized] = useState(false);
-  const instance = useTransformContext();
+
+  // Instead of using the rzpp-provided context, we need to use our own because our minimap is not
+  // a direct descendant of the rzpp component.
+  const instance = rzppInstance;
+
   const miniMapInstance = useRef<ReactZoomPanPinchRef>(null);
 
   const mainRef = useRef<HTMLDivElement | null>(null);
@@ -182,14 +194,15 @@ const MiniMap: React.FC<MiniMapProps> = ({
     transformMiniMap();
   };
 
-  useTransformEffect(() => {
+  // Originally, rzpp uses custom hooks here that rely on the rzpp context.
+  React.useEffect(() => {
     transformMiniMap();
-  });
+  }, [instance, transformMiniMap]);
 
-  useTransformInit(() => {
+  React.useEffect(() => {
     initialize();
     setInitialized(true);
-  });
+  }, [initialize, setInitialized, instance]);
 
   useResize(instance.contentComponent, initialize, [initialized]);
 
@@ -214,23 +227,129 @@ const MiniMap: React.FC<MiniMapProps> = ({
     } as const;
   }, []);
 
+  // --- Minimap Mouse Movement
+  /**
+   * This function sets the transform of the main element, but respects the defined
+   * bounding boxes. If the rectangle would overlap the bounding box, it will snap
+   * to the edge of the bounding box.
+   */
+  function transformWithinBoundingBox(scale: number, posX: number, posY: number) {
+    const bounds = instance.bounds;
+    if (!bounds) return instance.setTransformState(scale, posX, posY);
+
+    const { minPositionX, maxPositionX, minPositionY, maxPositionY } = bounds;
+
+    let x = posX;
+    let y = posY;
+
+    if (posX < minPositionX) {
+      x = minPositionX;
+    } else if (posX > maxPositionX) {
+      x = maxPositionX;
+    }
+
+    if (posY < minPositionY) {
+      y = minPositionY;
+    } else if (posY > maxPositionY) {
+      y = maxPositionY;
+    }
+
+    instance.setTransformState(scale, x, y);
+  }
+
+  const [clickPosition, setClickPosition] = React.useState({
+    x: 0,
+    y: 0,
+    transformX: 0,
+    transformY: 0,
+  });
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [isHovering, setIsHovering] = React.useState(false);
+
+  function onMinimapMouseDown(e: React.MouseEvent) {
+    const scale = computeMiniMapScale();
+    const previewScale = scale * (1 / instance.transformState.scale);
+
+    const dx = e.clientX - e.currentTarget.getBoundingClientRect().left;
+    const dy = e.clientY - e.currentTarget.getBoundingClientRect().top;
+
+    const { scale: transformScale } = instance.transformState;
+
+    // `posX` and `posY` are the center coordinates of the preview box.
+    const posX = -dx / previewScale + (previewRef.current?.clientWidth ?? 0) / previewScale / 2;
+    const posY = -dy / previewScale + (previewRef.current?.clientHeight ?? 0) / previewScale / 2;
+
+    setIsDragging(true);
+    transformWithinBoundingBox(transformScale, posX, posY);
+    setClickPosition({
+      x: e.clientX,
+      y: e.clientY,
+      transformX: posX,
+      transformY: posY,
+    });
+  }
+
+  function onMinimapMouseUp() {
+    setIsDragging(false);
+  }
+
+  function onMinimapMouseMove(e: React.MouseEvent) {
+    if (isDragging) {
+      const scale = computeMiniMapScale();
+      const previewScale = scale * (1 / instance.transformState.scale);
+
+      const dx = e.clientX - clickPosition.x;
+      const dy = e.clientY - clickPosition.y;
+
+      const { scale: transformScale } = instance.transformState;
+
+      transformWithinBoundingBox(
+        transformScale,
+        clickPosition.transformX - dx / previewScale,
+        clickPosition.transformY - dy / previewScale,
+      );
+    }
+  }
+
+  function onMinimapMouseEnter() {
+    setIsHovering(true);
+  }
+
+  function onMinimapMouseLeave() {
+    setIsHovering(false);
+  }
+
+  // ---
+
   return (
     <div
       {...rest}
       ref={mainRef}
       style={wrapperStyle}
       className={clsx("rzpp-mini-map", style.Minimap, rest.className)}
+      onMouseDown={onMinimapMouseDown}
+      onMouseUp={onMinimapMouseUp}
+      onMouseMove={onMinimapMouseMove}
+      onMouseEnter={onMinimapMouseEnter}
+      onMouseLeave={onMinimapMouseLeave}
     >
       <div {...rest} ref={wrapperRef} className="rzpp-wrapper">
         {children}
       </div>
       <div
-        className="rzpp-preview"
+        className={clsx(
+          "rzpp-preview",
+          isHovering ? style.MinimapPreviewHover : style.MinimapPreview,
+          isDragging && style.MinimapPreviewDragging,
+        )}
         ref={previewRef}
-        style={{ ...defaultPreviewStyles, ...previewStyles }}
+        style={{
+          ...defaultPreviewStyles,
+          ...previewStyles,
+        }}
       />
     </div>
   );
 };
 
-export { MiniMap, MiniMapContent };
+export { MiniMap, MiniMapContent, MiniMapWrapper };

@@ -8,9 +8,16 @@ declare const classNames: {
   readonly ControlWithLabel: "ControlWithLabel";
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";
   readonly ToolbarButton: "ToolbarButton";
+  readonly SidePanel: "SidePanel";
+  readonly Vr: "Vr";
   readonly MinimapContainer: "MinimapContainer";
   readonly Minimap: "Minimap";
+  readonly MinimapPreview: "MinimapPreview";
+  readonly MinimapPreviewHover: "MinimapPreviewHover";
+  readonly MinimapPreviewDragging: "MinimapPreviewDragging";
   readonly LegendContainer: "LegendContainer";
   readonly DebugOverlay: "DebugOverlay";
+  readonly ErrorOverlay: "ErrorOverlay";
+  readonly ErrorOverlayVisible: "ErrorOverlayVisible";
 };
 export = classNames;

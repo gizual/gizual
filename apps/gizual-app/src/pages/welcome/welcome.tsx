@@ -1,5 +1,5 @@
 import { TitleBar } from "@app/primitives";
-import { useWindowSize } from "@app/utils";
+import { useMediaQuery } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { match } from "ts-pattern";
@@ -23,8 +23,8 @@ export const WelcomePage = observer(() => {
     return new WelcomeViewModel();
   }, []);
 
-  const [width, _] = useWindowSize();
-  const isLargeScreen = width >= 1024;
+  const isLargeScreen = useMediaQuery({ min: 1024 });
+
   const [selectedSource, setSelectedSource] = React.useState<RepoSource | undefined>("local");
   const [currentPanel, setCurrentPanel] = React.useState<"left" | "right">("left");
   const loaders = useFileLoaders();

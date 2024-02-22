@@ -1,4 +1,5 @@
 @use "mixins" as *;
+@use "colors.scss";
 
 @layer reset, components, overrides;
 
@@ -93,78 +94,13 @@
   font-style: normal;
 }
 
-:root {
-  /* Main colors */
-  --color-lightgray: #ececef;
-  --color-darkgray: #13161a;
-  --color-white: #fff;
-  --color-black: #000;
-  --color-zinc: #dedede;
-  --color-gunmetal: #2b303a;
-  --color-gray: #cecece;
-  --color-darkslate: #35404e;
-  --color-disabled: #8d8d8d;
-  --color-darkred: #200202;
-  --color-peach: #fbe5eb;
-
-  /* Accent colors */
-  --color-gizblue: #007acc;
-  --color-gizblue-dark: #005086;
-  --color-tomato: #e94f37;
-  --color-lavender: #d4cdf4;
-  --color-plum: #5c29af;
-  --color-gold: #ffb800;
-
-  /* Color definitions */
-  @media (prefers-color-scheme: light) {
-    --background-primary: var(--color-white);
-    --background-secondary: var(--color-lightgray);
-    --background-tertiary: var(--color-zinc);
-    --background-red: var(--color-peach);
-    --foreground-primary: var(--color-darkgray);
-    --foreground-secondary: var(--color-black);
-    --foreground-tertiary: var(--color-gunmetal);
-    --foreground-disabled: var(--color-disabled);
-    --foreground-link: #0069c2;
-
-    --accent-main: var(--color-gizblue);
-    --accent-main-dark: var(--color-gizblue-dark);
-    --accent-main-fg: var(--color-white);
-    --accent-secondary: var(--color-lavender);
-    --accent-secondary-fg: var(--color-black);
-    --accent-tertiary: var(--color-tomato);
-    --accent-tertiary-fg: var(--color-white);
-
-    --border-primary: var(--color-gray);
-    --border-secondary: var(--color-darkslate);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    --background-primary: var(--color-darkgray);
-    --background-secondary: var(--color-black);
-    --background-tertiary: var(--color-gunmetal);
-    --background-red: var(--color-darkred);
-    --foreground-primary: var(--color-lightgray);
-    --foreground-secondary: var(--color-white);
-    --foreground-tertiary: var(--color-zinc);
-    --foreground-disabled: var(--color-disabled);
-    --foreground-link: #8cb4ff;
-
-    --accent-main: var(--color-gizblue);
-    --accent-main-dark: var(--color-gizblue-dark);
-    --accent-main-fg: var(--color-white);
-    --accent-secondary: var(--color-plum);
-    --accent-secondary-fg: var(--color-white);
-    --accent-tertiary: var(--color-tomato);
-    --accent-tertiary-fg: var(--color-white);
-
-    --border-primary: var(--color-darkslate);
-    --border-secondary: var(--color-gray);
-  }
+html {
+  display: block !important;
 }
 
 @layer reset {
   html {
+    display: block;
     font-family: "FiraGO", system-ui, sans-serif;
     background-color: var(--color-giz-white);
     height: 100%;
@@ -476,4 +412,8 @@
   background-color: var(--background-primary);
   color: var(--foreground-primary);
   height: 36px;
+}
+
+.annotation {
+  user-select: text;
 }

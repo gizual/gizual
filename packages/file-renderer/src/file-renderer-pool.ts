@@ -2,7 +2,7 @@ import * as Comlink from "comlink";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
 import type { FileRendererWorker as FileRendererWorkerI } from "./file-renderer-worker";
-import type { FileLinesContext } from "./types";
+import type { RendererContext } from "./types";
 
 export type RenderJobResult = {
   result: string;
@@ -11,7 +11,7 @@ export type RenderJobResult = {
 
 export type RenderJob = {
   id: number;
-  ctx: FileLinesContext;
+  ctx: RendererContext;
   onEnd: (data: RenderJobResult) => void;
   onErr: (err: any) => void;
 };
@@ -128,7 +128,7 @@ export class FileRendererPool {
   }
 
   @action.bound
-  renderCanvas(ctx: FileLinesContext): Promise<RenderJobResult> {
+  renderCanvas(ctx: RendererContext): Promise<RenderJobResult> {
     const promise = new Promise<RenderJobResult>((resolve, reject) => {
       const job = { id: this.counter++, ctx, onEnd: resolve, onErr: reject };
       this.jobs.push(job);

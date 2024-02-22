@@ -15,6 +15,7 @@ export type BaseQueryModuleProps = {
   onSwap?: () => void;
   menuItems?: React.ReactNode;
 
+  containsErrors?: boolean;
   hasHelpTooltip?: boolean;
   helpContent?: string;
   hasEditButton?: boolean;
@@ -30,6 +31,7 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
     hasSwapButton,
     onSwap,
     menuItems,
+    containsErrors,
     hasHelpTooltip,
     helpContent,
     hasEditButton,
@@ -38,7 +40,7 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
   } = props;
 
   return (
-    <div className={style.BaseQueryModule}>
+    <div className={clsx(style.BaseQueryModule, containsErrors && style.ContainsErrors)}>
       <div className={style.QueryModuleIconWithText}>
         {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
         {title && <div className={style.QueryModuleTitle}>{title}</div>}

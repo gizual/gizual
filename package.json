@@ -1,6 +1,6 @@
 {
   "name": "gizual",
-  "version": "3.0.0-alpha.15",
+  "version": "3.0.0-alpha.16",
   "packageManager": "yarn@3.5.0",
   "license": "Apache-2.0",
   "private": true,

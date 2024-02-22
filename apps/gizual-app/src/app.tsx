@@ -1,12 +1,13 @@
 import { WelcomePage } from "@app/pages/welcome";
 import { Loading } from "@app/primitives/loading";
 import { useTheme } from "@app/utils";
+import { LocalQueryContext, useLocalQuery } from "@app/utils/hooks";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { ContextMenuProvider } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 
-import { useScreen } from "@giz/maestro/react";
+import { useQuery, useScreen } from "@giz/maestro/react";
 
 import style from "./app.module.scss";
 import { useMainController } from "./controllers";
@@ -21,6 +22,8 @@ import "@mantine/notifications/styles.css";
 
 function App() {
   const mainController = useMainController();
+  const { errors } = useQuery();
+  const { localQuery, updateLocalQuery, resetLocalQuery, publishLocalQuery } = useLocalQuery();
 
   const mantineTheme = createTheme({
     colors: {
@@ -50,14 +53,20 @@ function App() {
     <MantineProvider theme={mantineTheme} defaultColorScheme={theme}>
       <Notifications position="top-right" />
       <ContextMenuProvider>
-        <div className={style.App}>
-          {shouldDisplayLoadingIndicator && <Loading progressText={mainController.progressText} />}
-          <div className={style.Main}>
-            {screen === "welcome" && <WelcomePage />}
-            {screen === "main" && <MainPage />}
+        <LocalQueryContext.Provider
+          value={{ localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery, errors }}
+        >
+          <div className={style.App}>
+            {shouldDisplayLoadingIndicator && (
+              <Loading progressText={mainController.progressText} />
+            )}
+            <div className={style.Main}>
+              {screen === "welcome" && <WelcomePage />}
+              {screen === "main" && <MainPage />}
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
+        </LocalQueryContext.Provider>
       </ContextMenuProvider>
     </MantineProvider>
   );

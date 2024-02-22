@@ -8,9 +8,15 @@ import {
   useState,
 } from "react";
 
+import { QueryError } from "@giz/maestro";
 import { useQuery } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
 
+/**
+ *  Get the current window size on every resize event.
+ *
+ *  @deprecated Use `useMediaQuery`, unless you specifically need the exact size.
+ */
 export function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
   useLayoutEffect(() => {
@@ -22,6 +28,41 @@ export function useWindowSize() {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
   return size;
+}
+
+export function useMediaQuery(
+  breakpoint: { min?: number; max?: number },
+  dimension: "width" | "height" = "width",
+) {
+  const [matches, setMatches] = useState(false);
+  const { min, max } = breakpoint;
+
+  if (min === undefined && max === undefined) {
+    throw new Error("Either min or max must be defined");
+  }
+
+  if (min !== undefined && max !== undefined && min > max) {
+    throw new Error("min must be less than or equal to max");
+  }
+
+  let query = "";
+  if (min === undefined && max !== undefined) {
+    query = `(max-${dimension}: ${max}px)`;
+  } else if (max === undefined && min !== undefined) {
+    query = `(min-${dimension}: ${min}px)`;
+  } else {
+    query = `(min-${dimension}: ${min}px) and (max-width: ${max}px)`;
+  }
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+    const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
+    mediaQuery.addEventListener("change", listener);
+    setMatches(mediaQuery.matches);
+    return () => mediaQuery.removeEventListener("change", listener);
+  }, [min, max]);
+
+  return matches;
 }
 
 export const useTheme = () => {
@@ -50,7 +91,7 @@ export const useDoc = () => {
 export const useStyle = (key: string) => {
   const doc = useDoc();
   const theme = useTheme();
-  const [style, setStyle] = useState<string>("#f00");
+  const [style, setStyle] = useState<string>("#00000000");
   useEffect(() => {
     if (!doc) return;
     setStyle(getComputedStyle(doc).getPropertyValue(key));
@@ -64,6 +105,8 @@ export const LocalQueryContext = createContext<
       localQuery: SearchQueryType;
       updateLocalQuery: (partial: Partial<SearchQueryType>) => void;
       publishLocalQuery: () => void;
+      errors: QueryError[] | undefined;
+      resetLocalQuery: () => void;
     }
   | undefined
 >(undefined);

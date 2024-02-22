@@ -1,8 +1,10 @@
 import { useMainController, useViewModelController } from "@app/controllers";
 import { CanvasScale } from "@app/utils";
+import { Alert } from "@mantine/core";
+import clsx from "clsx";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { useBlocks, useQuery, useSetScale } from "@giz/maestro/react";
@@ -16,7 +18,7 @@ import style from "./canvas.module.scss";
 import { CanvasViewModel } from "./canvas.vm";
 import { LegendComponent, MasonryCanvas, Toolbar } from "./components";
 import { ContextModal } from "./components/context-modal";
-import { MiniMap, MiniMapContent } from "./minimap";
+import { MiniMapContent, MiniMapWrapper } from "./minimap";
 
 export type CanvasProps = {
   vm?: CanvasViewModel;
@@ -51,20 +53,9 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
     setIsModalOpen(true);
   }, [setIsModalOpen]);
 
-  const [selectedWidth, setSelectedWidth] = useState(vm.canvasWidth);
-  useEffect(() => {
-    setSelectedWidth(vm.canvasWidth);
-  }, [vm.canvasWidth]);
-
   return (
     <div className={style.Stage}>
-      <ContextModal
-        vm={vm}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        selectedWidth={selectedWidth}
-        setSelectedWidth={setSelectedWidth}
-      />
+      <ContextModal vm={vm} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
       <div className={style.StageRow}>
         {visibleTimeline && (
           <>
@@ -74,10 +65,10 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
         )}
         <div className={style.CanvasWrapper}>
           <CanvasContext.Provider
-            value={{ useBlocks: useBlocks, debugLayout: false, ...contextProps }}
+            value={{ useBlocks: useBlocks, debugLayout: false, rzppRef: ref, ...contextProps }}
           >
             <Toolbar vm={vm} vmController={vmController} />
-            <InteractiveCanvas vm={vm} showModal={showModal} interactiveRef={ref} />
+            <InteractiveCanvas vm={vm} showModal={showModal} />
           </CanvasContext.Provider>
           {vmController.isAuthorPanelVisible && <AuthorPanel />}
         </div>
@@ -88,7 +79,6 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
 
 type InteractiveCanvasProps = {
   vm: CanvasViewModel;
-  interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
   showModal: () => void;
 };
 
@@ -97,7 +87,7 @@ type InteractiveCanvasProps = {
  * the `react-zoom-pan-pinch` wrapper component.
  */
 const InteractiveCanvas = observer<any, HTMLDivElement>(
-  ({ vm, interactiveRef, showModal }: InteractiveCanvasProps, ref) => {
+  ({ vm, showModal }: InteractiveCanvasProps, ref) => {
     const { showContextMenu } = useContextMenu();
     const contextMenu: ContextMenuContent = React.useMemo(
       () => [
@@ -105,19 +95,12 @@ const InteractiveCanvas = observer<any, HTMLDivElement>(
           key: "1",
           title: "Reset zoom",
           onClick: () => {
-            vm.center(1);
+            vm.center();
           },
         },
         {
           key: "2",
-          title: "Unselect all",
-          onClick: () => {
-            vm.unloadAllFiles();
-          },
-        },
-        {
-          key: "3",
-          title: "Export SVG",
+          title: "Export entire canvas as SVG",
           onClick: () => {
             showModal();
           },
@@ -126,50 +109,32 @@ const InteractiveCanvas = observer<any, HTMLDivElement>(
       [vm, showModal],
     );
 
-    return (
-      <InnerCanvas
-        vm={vm}
-        ref={ref}
-        interactiveRef={interactiveRef}
-        onContextMenu={showContextMenu(contextMenu)}
-      />
-    );
+    return <InnerCanvas vm={vm} ref={ref} onContextMenu={showContextMenu(contextMenu)} />;
   },
   { forwardRef: true },
 );
 
 type InnerCanvasProps = {
   vm: CanvasViewModel;
-  interactiveRef: React.RefObject<ReactZoomPanPinchRef>;
 } & React.HTMLAttributes<HTMLDivElement>;
-
-const MINIMAP_HIDE_ON_HOVER = true;
-const LEGEND_HIDE_ON_HOVER = true;
 
 const CANVAS_PADDING = 16;
 
 const InnerCanvas = observer<any, HTMLDivElement>(
-  ({ vm, interactiveRef, ...defaultProps }: InnerCanvasProps, ref) => {
+  ({ vm, ...defaultProps }: InnerCanvasProps, ref) => {
     const mainController = useMainController();
     const maestroSetScale = useSetScale();
+    const rzppRef = React.useContext(CanvasContext).rzppRef;
     const [isPanning, setIsPanning] = useState(false);
     const [state, setState] = useState<{ scale: number; positionX: number; positionY: number }>({
       scale: 1,
       positionX: 0,
       positionY: 0,
     });
+    const { errors } = useQuery();
 
-    const [showMinimap, setShowMinimap] = useState(true);
-    const [showLegend, setShowLegend] = useState(true);
-    const { query } = useQuery();
-
-    const wrapperComponent = interactiveRef?.current?.instance.wrapperComponent;
-    const contentComponent = interactiveRef?.current?.instance.contentComponent;
-
-    // Whenever the query changes, we probably need to do a reflow to make sure everything fits within bounds.
-    React.useEffect(() => {
-      vm.reflow();
-    }, [query]);
+    const wrapperComponent = rzppRef?.current?.instance.wrapperComponent;
+    const contentComponent = rzppRef?.current?.instance.contentComponent;
 
     const wrapperWidth = wrapperComponent?.clientWidth ?? 0;
     const wrapperHeight = wrapperComponent?.clientHeight ?? 0;
@@ -179,47 +144,21 @@ const InnerCanvas = observer<any, HTMLDivElement>(
 
     const { debugLayout } = React.useContext(CanvasContext);
 
-    const legendWidth = Math.min(wrapperWidth / 10 + 100, 300);
+    const legendWidth = Math.min(wrapperWidth / 10 + 100, 200);
     const legendHeight = 50;
 
     // TODO: This is counter-intuitive because the minimap component decides on it's dimensions
     // even if we pass it a width and height. We should probably fix this in the minimap component.
-    const minimapWidth = Math.min(wrapperWidth / 10 + 100, 300);
-    const minimapHeight = wrapperHeight - legendHeight; //Math.min(contentHeight / 10, wrapperHeight);
+    const minimapWidth = Math.min(wrapperWidth / 10 + 100, 200);
+    const minimapHeight = wrapperHeight - legendHeight - 16;
+
+    React.useEffect(() => {
+      maestroSetScale(vm.initialScale);
+      rzppRef.current?.setTransform(0, 0, vm.initialScale);
+    }, [vm.initialScale]);
 
     return (
-      <div
-        ref={ref}
-        className={style.Canvas}
-        {...defaultProps}
-        style={{ padding: CANVAS_PADDING }}
-        onMouseMove={(e) => {
-          // Get position relative to element
-          const rect = e.currentTarget.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-
-          if (
-            MINIMAP_HIDE_ON_HOVER &&
-            y < minimapHeight + CANVAS_PADDING &&
-            x > rect.width - minimapWidth - CANVAS_PADDING
-          ) {
-            setShowMinimap(false);
-          } else {
-            setShowMinimap(true);
-          }
-
-          if (
-            LEGEND_HIDE_ON_HOVER &&
-            y > wrapperHeight - legendHeight + CANVAS_PADDING &&
-            x > rect.width - legendWidth - CANVAS_PADDING
-          ) {
-            setShowLegend(false);
-          } else {
-            setShowLegend(true);
-          }
-        }}
-      >
+      <div ref={ref} className={style.Canvas} {...defaultProps} style={{ padding: CANVAS_PADDING }}>
         {debugLayout && (
           <div className={style.DebugOverlay}>
             <p className={sharedStyle["Text-Bold"]}>Canvas Debug Panel</p>
@@ -228,8 +167,19 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             <code>{`css transform: scale=${state.scale}, positionX=${state.positionX}px, positionY=${state.positionY}`}</code>
           </div>
         )}
+        <div
+          className={clsx(
+            style.ErrorOverlay,
+            errors && errors.length > 0 && style.ErrorOverlayVisible,
+          )}
+        >
+          <Alert variant="light" color="red" title="Query invalid">
+            The query you entered was invalid. TODO: This is where we put a detailed list of errors.
+            <pre style={{ marginTop: "1rem" }}>{JSON.stringify(errors, undefined, 2)}</pre>
+          </Alert>
+        </div>
         <TransformWrapper
-          initialScale={CanvasScale.default}
+          initialScale={vm.initialScale ?? 1}
           minScale={CanvasScale.min}
           maxScale={CanvasScale.max}
           initialPositionX={0}
@@ -239,8 +189,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
           centerZoomedOut={true}
           disablePadding={false}
           panning={{ velocityDisabled: false }}
-          ref={interactiveRef}
-          onInit={() => vm.reflow()}
+          ref={rzppRef}
           onPanningStart={() => {
             setIsPanning(true);
           }}
@@ -256,7 +205,6 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               positionY: number;
             },
           ) => {
-            mainController.setScale(state.scale);
             maestroSetScale(state.scale);
             setState(state);
           }}
@@ -275,32 +223,33 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               gap: "1rem",
               boxSizing: "inherit",
               border: debugLayout ? "2px dashed pink" : undefined,
+              width: vm.requiredWidth,
             }}
             contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
           >
             <MasonryCanvas vm={vm} wrapper={wrapperComponent} />
           </TransformComponent>
-          <div
-            className={style.MinimapContainer}
-            style={{
-              opacity: showMinimap ? 0.8 : 0,
-              transition: "opacity 0.2s ease-out",
-            }}
-          >
-            <MiniMap
-              previewStyles={{ borderColor: "orange" }}
+        </TransformWrapper>
+
+        <div className={style.Vr} />
+
+        <div className={style.SidePanel}>
+          <div className={style.MinimapContainer}>
+            <MiniMapWrapper
+              previewStyles={{ borderColor: "var(--accent-main)" }}
               width={minimapWidth}
               height={minimapHeight}
             >
-              <MiniMapContent masonryWidth={vm.canvasWidth} />
-            </MiniMap>
+              <MiniMapContent
+                numColumns={
+                  mainController.settingsController.settings.visualizationSettings.canvas
+                    .masonryColumns.value
+                }
+              />
+            </MiniMapWrapper>
           </div>
-          <LegendComponent
-            showLegend={showLegend}
-            legendWidth={legendWidth}
-            legendHeight={legendHeight}
-          />
-        </TransformWrapper>
+          <LegendComponent legendWidth={legendWidth} legendHeight={legendHeight} />
+        </div>
       </div>
     );
   },

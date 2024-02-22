@@ -2,7 +2,7 @@ import { useMainController } from "@app/controllers";
 import { Loader } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 import React, { useContext } from "react";
-import { match } from "ts-pattern";
+import { match, Pattern } from "ts-pattern";
 
 import { FileBlock } from "../../file/block";
 import { MasonryGrid } from "../../masonry";
@@ -21,6 +21,8 @@ type MasonryCanvasProps = {
  */
 export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
   const mainController = useMainController();
+  const settingsController = mainController.settingsController;
+
   const blocks = useContext(CanvasContext).useBlocks();
 
   console.log({ blocks, wrapper, cw: vm.canvasWidth });
@@ -34,16 +36,16 @@ export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
       )}
 
       <MasonryGrid
-        width={vm.canvasWidth}
         childInfo={blocks.map((f) => {
           return { id: f.id, height: f.height + 26 };
         })}
+        numColumns={settingsController.settings.visualizationSettings.canvas.masonryColumns.value}
       >
         {blocks.map((block, index) => {
           if (!wrapper) return <React.Fragment key={index}></React.Fragment>;
 
           return match(block)
-            .with({ type: "file-lines" }, (b) => (
+            .with(Pattern.union({ type: "file-lines" }, { type: "file-mosaic" }), (b) => (
               <FileBlock
                 key={b.id}
                 parentContainer={wrapper}

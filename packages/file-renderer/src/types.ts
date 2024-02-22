@@ -1,7 +1,7 @@
 import type { ColoringMode } from "@app/types";
 import type { SvgBaseElement } from "@app/utils";
 
-import type { Author } from "@giz/explorer";
+import type { ColorSetDefinition } from "@giz/color-manager";
 import type { Line } from "@giz/gizual-app/controllers";
 import type { VisualizationConfig } from "@giz/gizual-app/types";
 
@@ -71,15 +71,15 @@ export type FileLinesContext = {
   fileContent: Line[];
   lineLengthMax: number;
   coloringMode: ColoringMode;
-  authors: Author[];
   showContent: boolean;
+  colorDefinition: ColorSetDefinition;
 } & BaseContext;
 
 export type FileMosaicContext = {
   type: RenderType.FileMosaic;
   coloringMode: ColoringMode;
   fileContent: Omit<Line[], "content">; // We don't need the content, just the metadata
-  authors: Author[];
+  colorDefinition: ColorSetDefinition;
 } & BaseContext &
   BaseMosaicContext;
 

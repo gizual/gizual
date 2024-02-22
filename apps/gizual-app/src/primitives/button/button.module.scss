@@ -1,4 +1,5 @@
 @use "@/mixins" as *;
+@use "@/colors";
 
 .Button {
   @include transition-all;
@@ -15,10 +16,10 @@
 }
 
 .ButtonFilled {
-  background-color: var(--accent-main);
+  background-color: colors.$accent-main;
   color: var(--accent-main-fg);
   &:hover {
-    background-color: var(--accent-main-dark);
+    background-color: colors.lighten(colors.$accent-main, 20%);
     color: var(--accent-main-fg);
     cursor: pointer;
   }

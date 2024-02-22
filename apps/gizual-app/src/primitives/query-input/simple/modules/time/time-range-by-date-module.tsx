@@ -1,7 +1,9 @@
 import { IconClock, IconGitBranchLine, IconRuler } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
+import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
 import { useLocalQueryCtx } from "@app/utils";
+import { Tooltip } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -10,21 +12,29 @@ import weekday from "dayjs/plugin/weekday";
 import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 
+import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
 import { DATE_FORMAT } from "@giz/utils/gizdate";
 import style from "../modules.module.scss";
 
 import { TimeBaseQueryModule } from "./time-base-module";
+
 dayjs.extend(weekday);
 dayjs.extend(localeData);
+
+const QUERY_ID = "time.rangeByDate";
 
 function getBranchEntry(query: SearchQueryType) {
   if (query.branch) return query.branch;
   return "";
 }
 
+function checkErrors(errors: QueryError[] | undefined) {
+  return errors?.some((e) => e.selector === QUERY_ID);
+}
+
 export const TimeRangeByDateModule = observer(() => {
-  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
+  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQueryCtx();
   const mainController = useMainController();
   const settingsController = useSettingsController();
 
@@ -72,6 +82,7 @@ export const TimeRangeByDateModule = observer(() => {
 
   return (
     <TimeBaseQueryModule
+      containsErrors={checkErrors(errors)}
       icon={<IconClock />}
       title={"Range by date:"}
       hasSwapButton
@@ -82,18 +93,21 @@ export const TimeRangeByDateModule = observer(() => {
     >
       <div className={style.SpacedChildren}>
         <DatePickerInput
-          defaultValue={startDate.toDate()}
-          onChange={(d) => onChangeStartDate(d)}
+          error={checkErrors(errors)}
+          value={startDate.toDate()}
+          onChange={onChangeStartDate}
           styles={{
             input: {
               height: 30,
               minHeight: 30,
               maxHeight: 30,
               padding: "0 0.5rem",
+              minWidth: 150,
             },
           }}
         />
         <DatePickerInput
+          error={checkErrors(errors)}
           value={endDate.toDate()}
           onChange={onChangeEndDate}
           styles={{
@@ -102,6 +116,7 @@ export const TimeRangeByDateModule = observer(() => {
               minHeight: 30,
               maxHeight: 30,
               padding: "0 0.5rem",
+              minWidth: 150,
             },
           }}
         />
@@ -121,25 +136,33 @@ export const TimeRangeByDateModule = observer(() => {
             publishLocalQuery();
           }}
           value={branchValue}
-          data={branches}
+          data={[{ label: "HEAD", value: "HEAD" }, ...branches]}
           style={{ width: 150 }}
         ></Select>
 
-        <IconRuler
-          className={clsx(style.IconBase, isTimelineOpen ? style.IconToggled : style.IconUnToggled)}
-          onClick={() => {
-            //notifications.show({
-            //  title: "Info",
-            //  message: "The timeline is disabled in this demo build.",
-            //  role: "alert",
-            //});
-            runInAction(() => {
-              settingsController.timelineSettings.displayMode.value = isTimelineOpen
-                ? "collapsed"
-                : "visible";
-            });
-          }}
-        />
+        <Tooltip label="Toggle timeline visibility" position="top" withArrow>
+          <IconButton style={{ padding: 0 }}>
+            <IconRuler
+              className={clsx(
+                style.IconBase,
+                style.IconLarge,
+                isTimelineOpen ? style.IconToggled : style.IconUnToggled,
+              )}
+              onClick={() => {
+                //notifications.show({
+                //  title: "Info",
+                //  message: "The timeline is disabled in this demo build.",
+                //  role: "alert",
+                //});
+                runInAction(() => {
+                  settingsController.timelineSettings.displayMode.value = isTimelineOpen
+                    ? "collapsed"
+                    : "visible";
+                });
+              }}
+            />
+          </IconButton>
+        </Tooltip>
       </div>
     </TimeBaseQueryModule>
   );

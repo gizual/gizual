@@ -60,7 +60,7 @@ export const FilesDetailPanel = observer(
     const [isHoveringImage, setHoveringImage] = React.useState(false);
 
     return (
-      <div className={clsx(style.DetailColumn, shared.FlexColumn, style.Grow)}>
+      <div className={clsx(style.DetailColumn)}>
         <div className={style.CollapsibleHeader}>
           {backArrow && <IconCollapse className={style.BackIcon} onClick={onBackArrow} />}
           <h1 className={clsx(style.DetailHeader, shared.Grow)}>Open from local directory</h1>
