@@ -86,8 +86,6 @@ export function enforceAlphaChannel(hex: string): string {
   return out;
 }
 
-const WARN_MIN_BAND_COLORS = 10;
-
 export type ColorSetDefinition = {
   excludedColors?: string[];
   assignedColors?: [string, string][];
@@ -163,12 +161,6 @@ export class ColorManager {
     }
 
     this.colorScale = getBandColorScale(this.domain, this.colorBand);
-
-    if (this.colorBand.length < WARN_MIN_BAND_COLORS) {
-      console.warn(
-        `Color band is limited to only ${this.colorBand.length} colors. WARN_MIN_BAND_COLORS = ${WARN_MIN_BAND_COLORS}`,
-      );
-    }
   }
 
   getBandColor(identifier: string): string {

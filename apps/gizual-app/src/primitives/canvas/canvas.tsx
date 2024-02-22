@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { useBlocks, useSetScale } from "@giz/maestro/react";
+import { useBlocks, useQuery, useSetScale } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { Timeline } from "../timeline";
@@ -131,7 +131,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
       positionX: 0,
       positionY: 0,
     });
-    const { query, errors } = useQuery();
+    const { errors } = useQuery();
 
     const wrapperComponent = rzppRef?.current?.instance.wrapperComponent;
     const contentComponent = rzppRef?.current?.instance.contentComponent;

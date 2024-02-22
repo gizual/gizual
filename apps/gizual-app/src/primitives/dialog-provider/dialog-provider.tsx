@@ -1,5 +1,5 @@
 import { IconClose } from "@app/assets";
-import { useWindowSize } from "@app/utils";
+import { useMediaQuery } from "@app/utils";
 import clsx from "clsx";
 import React from "react";
 import { createPortal } from "react-dom";
@@ -25,9 +25,6 @@ export type PopoverProviderProps = {
   stableSize?: boolean;
 };
 
-const MIN_FULL_SCREEN_WIDTH = 768;
-const MIN_FULL_SCREEN_HEIGHT = 768;
-
 export const DialogProvider = React.memo(
   ({
     trigger,
@@ -41,29 +38,12 @@ export const DialogProvider = React.memo(
     withFooter,
     footerComponent,
     defaultFooterOpts,
-    stableSize,
   }: PopoverProviderProps) => {
     if (isOpen === undefined || setIsOpen === undefined)
       [isOpen, setIsOpen] = React.useState(false);
 
     const ref = React.useRef<HTMLDivElement>(null);
-    const [width, setWidth] = React.useState<string | undefined>(undefined);
-    const [height, setHeight] = React.useState<string | undefined>(undefined);
-    const [screenWidth, screenHeight] = useWindowSize();
-
-    // Assign a stable width and height to the popover so that it doesn't
-    // jump around when the content gets smaller.
-    React.useEffect(() => {
-      if (ref.current && isOpen && stableSize) {
-        const newWidth = Math.min(ref.current.clientWidth, screenWidth - 100);
-        const newHeight = Math.min(ref.current.clientHeight, screenHeight - 100);
-        setWidth(newWidth + "px");
-        setHeight(newHeight + "px");
-      }
-    }, [ref.current, isOpen, screenWidth, screenHeight, stableSize]);
-
-    const isFullscreen =
-      screenWidth < MIN_FULL_SCREEN_WIDTH || screenHeight < MIN_FULL_SCREEN_HEIGHT;
+    const isFullScreen = useMediaQuery({ max: 900 });
 
     return (
       <>
@@ -89,12 +69,12 @@ export const DialogProvider = React.memo(
                   className={clsx(style.Dialog, style.DialogWithFooter)}
                   ref={ref}
                   style={{
-                    minWidth: width,
-                    minHeight: height,
-                    width: isFullscreen ? screenWidth : undefined,
-                    maxWidth: isFullscreen ? screenWidth : "85%",
-                    height: isFullscreen ? screenHeight : undefined,
-                    maxHeight: isFullscreen ? screenHeight : "80%",
+                    width: isFullScreen ? "100dvw" : undefined,
+                    maxWidth: isFullScreen ? "100dvw" : "min(1500px, 95dvw)",
+                    minWidth: isFullScreen ? "100dvw" : "min(80dvw, 1500px)",
+                    height: isFullScreen ? "100dvh" : undefined,
+                    maxHeight: isFullScreen ? "100dvh" : "min(1200px, 95dvh)",
+                    minHeight: isFullScreen ? "100dvh" : "min(80dvh, 400px)",
                   }}
                 >
                   <div className={style.DialogHead}>

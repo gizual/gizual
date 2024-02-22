@@ -46,18 +46,13 @@
   flex-grow: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  width: 80dvw;
-  height: auto;
-
-  max-width: 1500px;
-
   display: block;
   container: type-modal-container / inline-size;
 }
 
 .TypeDialogSplit {
   display: grid;
-  grid-template-columns: 1fr 1px 0.25fr;
+  grid-template-columns: 1fr 1px auto;
   gap: 1rem;
   padding-right: 0.5rem;
 }
@@ -147,6 +142,10 @@
 .TypeDialogGridItemImage {
   width: 100%;
   background-color: var(--background-secondary);
+
+  @container type-modal-container (width < 900px) {
+    width: 150px;
+  }
 }
 
 .TypeDialogGridItemContent {

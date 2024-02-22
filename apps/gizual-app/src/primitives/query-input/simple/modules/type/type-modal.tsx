@@ -186,7 +186,7 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
       ),
     },
     {
-      title: "Customize Colors",
+      title: "Customize",
       children: (
         <StepperItem currentStep={step} hasButtons={false}>
           {selectedStyle === "gradient-age" && (
@@ -260,9 +260,7 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
             className={style.TypeDialogGridItemImage}
             type={selectedType}
             visStyle={selectedStyle}
-            colors={
-              selectedStyle === "gradient-age" ? gradientColors : authorColors.map((c) => c[1])
-            }
+            colors={selectedStyle === "gradient-age" ? gradientColors : authorColors}
           />
         </div>
       </div>
@@ -279,7 +277,7 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
 type VisTypePreviewProps = {
   type?: Type;
   visStyle?: Style;
-  colors?: string[];
+  colors?: string[] | [string, string][];
 } & React.SVGProps<SVGSVGElement>;
 
 function* pickColor(style?: Style, colors?: string[]) {
@@ -296,14 +294,28 @@ function* pickColor(style?: Style, colors?: string[]) {
       // Move to next color
       steps = Math.floor(Math.random() * 15);
       stepCounter = 0;
-      if (style === "gradient-age")
-        interpolatedColor = getColorScale([1, 100], [colors![0], colors![1]])(Math.random() * 100);
-      else interpolatedColor = "#123123";
+      if (style === "gradient-age" && isStringArray(colors))
+        interpolatedColor = getColorScale([1, 100], [colors[0], colors[1]])(Math.random() * 100);
+      else if (colors) interpolatedColor = colors[Math.floor(Math.random() * colors.length)];
     }
 
     stepCounter++;
     yield interpolatedColor;
   }
+}
+
+function isStringArray(colors?: string[] | [string, string][]): colors is string[] {
+  return colors !== undefined && colors.length > 0 && typeof colors[0] === "string";
+}
+
+function isStringTupleArray(colors?: string[] | [string, string][]): colors is [string, string][] {
+  return (
+    colors !== undefined &&
+    colors.length > 0 &&
+    colors[0].length === 2 &&
+    typeof colors[0][0] === "string" &&
+    typeof colors[0][1] === "string"
+  );
 }
 
 const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewProps) => {
@@ -315,11 +327,28 @@ const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewP
   const HEIGHT = LINE_HEIGHT * LINE_COUNT;
   const MOSAICS = 10;
 
-  const [colorGenerator, setColorGenerator] = React.useState(() => pickColor(visStyle, colors));
+  const [colorGenerator, setColorGenerator] = React.useState<Generator | undefined>(undefined);
+  const { data, isLoading } = useAuthorList(16, 0);
 
   React.useEffect(() => {
-    setColorGenerator(pickColor(visStyle, colors));
-  }, [visStyle, colors]);
+    const mergedColors: string[] = [];
+    if (visStyle === "palette-author" && data) {
+      for (const a of data.authors) {
+        if (isStringTupleArray(colors)) {
+          const assignedColor = colors.find((c) => c[0] === a.id);
+          if (assignedColor) {
+            mergedColors.push(assignedColor[1]);
+            continue;
+          }
+        }
+        mergedColors.push(ColorManager.stringToHex(a.color));
+      }
+    }
+    console.log(data?.authors, mergedColors);
+    setColorGenerator(
+      pickColor(visStyle, visStyle === "gradient-age" ? (colors as string[]) : mergedColors),
+    );
+  }, [visStyle, colors, data, isLoading]);
 
   return match(type)
     .with("file-lines", () => {
@@ -332,7 +361,7 @@ const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewP
               y={index * LINE_HEIGHT}
               width={Math.random() * CHAR_COUNT * CHAR_WIDTH}
               height={LINE_HEIGHT}
-              fill={colorGenerator.next().value ?? ""}
+              fill={colorGenerator?.next().value ?? ""}
             />
           ))}
         </svg>
@@ -349,7 +378,7 @@ const VisTypePreview = ({ type, visStyle, colors, ...svgProps }: VisTypePreviewP
                 y={lineIndex * LINE_HEIGHT}
                 width={WIDTH / MOSAICS}
                 height={HEIGHT}
-                fill={colorGenerator.next().value ?? ""}
+                fill={colorGenerator?.next().value ?? ""}
                 stroke="black"
                 strokeWidth="0.3"
               />
@@ -626,7 +655,9 @@ export const GradientColorCustomization = React.memo(
               )}
               key={index}
             >
-              <p className={sharedStyle["Text-Base"]}>Color {index + 1}:</p>
+              <p className={sharedStyle["Text-Base"]}>
+                Color {index === 0 ? "(Start date)" : "(End date)"}:
+              </p>
               <ColorPicker
                 hexValue={color}
                 onAccept={(c) => {
