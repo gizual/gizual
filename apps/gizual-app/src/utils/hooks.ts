@@ -88,7 +88,7 @@ export const useDoc = () => {
 export const useStyle = (key: string) => {
   const doc = useDoc();
   const theme = useTheme();
-  const [style, setStyle] = useState<string>("#f00");
+  const [style, setStyle] = useState<string>("#00000000");
   useEffect(() => {
     if (!doc) return;
     setStyle(getComputedStyle(doc).getPropertyValue(key));

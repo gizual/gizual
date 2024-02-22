@@ -94,8 +94,13 @@
   font-style: normal;
 }
 
+html {
+  display: block !important;
+}
+
 @layer reset {
   html {
+    display: block;
     font-family: "FiraGO", system-ui, sans-serif;
     background-color: var(--color-giz-white);
     height: 100%;
