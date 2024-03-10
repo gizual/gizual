@@ -1,8 +1,13 @@
 // Contains helper functions for date and time manipulation.
 
+import dayjs from "dayjs";
+
 // Date format for `dayjs` for interoperability with `GizDate`.
 // All displayed and parsed dates must be in this format, or stuff will inevitably break.
 export const DATE_FORMAT = "YYYY/MM/DD";
+
+// Shared date format for all user-facing UI elements.
+export const DATE_DISPLAY_FORMAT = "DD MMM YYYY";
 
 export const DAYS_MS_FACTOR = 1000 * 60 * 60 * 24;
 
@@ -30,17 +35,26 @@ export class GizDate extends Date {
     return getStringDate(this);
   }
 
-  toDateTimeString() {
-    const hours = this.getHours().toString().padStart(2, "0");
-    const minutes = this.getMinutes().toString().padStart(2, "0");
-    const time = `${hours}:${minutes}`;
-
-    return `${this.toString()} ${time}`;
+  toDisplayString() {
+    return dayjs(this).format(DATE_DISPLAY_FORMAT);
   }
 
   isBetween(start: GizDate, end: GizDate) {
     return isDateBetween(this, start, end);
   }
+
+  /**
+   * Returns the date in the default format for internal processing.
+   * The format is controlled through the `DATE_FORMAT` constant.
+   * @default "YYYY/MM/DD"
+   */
+  getFormattedDate() {
+    return getStringDate(this);
+  }
+}
+
+export function getDateFromFormattedString(date: string) {
+  return new GizDate(dayjs(date, DATE_FORMAT).toDate());
 }
 
 export function getDateFromTimestamp(timestamp: string) {

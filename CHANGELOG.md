@@ -1,4 +1,10 @@
-## Gizual 3.0.0-alpha.XX (XX.XX.2024)
+## Gizual 3.0.0-alpha.17 (XX.XX.2024)
+
+### Features
+
+### Changes
+
+- **app:frontend:** unify date format across all UI components
 
 ### Bug Fixes
 

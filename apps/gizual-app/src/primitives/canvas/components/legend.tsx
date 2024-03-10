@@ -3,6 +3,7 @@ import React from "react";
 import { match } from "ts-pattern";
 
 import { useQuery } from "@giz/maestro/react";
+import { getDateFromFormattedString } from "@giz/utils/gizdate";
 import style from "../canvas.module.scss";
 
 type LegendProps = {
@@ -31,8 +32,10 @@ const LegendComponent = React.memo(
         ) {
           colorStart = query.preset.gradientByAge[0];
           colorEnd = query.preset.gradientByAge[1];
-          descriptionStart = query.time.rangeByDate[0];
-          descriptionEnd = query.time.rangeByDate[1];
+          descriptionStart = getDateFromFormattedString(
+            query.time.rangeByDate[0],
+          ).toDisplayString();
+          descriptionEnd = getDateFromFormattedString(query.time.rangeByDate[1]).toDisplayString();
         } else {
           return <></>;
         }

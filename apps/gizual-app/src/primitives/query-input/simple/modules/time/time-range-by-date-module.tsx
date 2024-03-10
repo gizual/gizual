@@ -44,8 +44,8 @@ export const TimeRangeByDateModule = observer(() => {
   });
   const isTimelineOpen = settingsController.timelineSettings.displayMode.value === "visible";
 
-  let startDate = dayjs("2023-01-01");
-  let endDate = dayjs("2023-12-31");
+  let startDate = dayjs("2023/01/01", DATE_FORMAT);
+  let endDate = dayjs("2023/12/31", DATE_FORMAT);
 
   if (
     localQuery.time &&
