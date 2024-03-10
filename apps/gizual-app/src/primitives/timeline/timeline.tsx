@@ -260,10 +260,12 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     vm.updateSelectionEndCoords();
   }, [timelineContainerRef, vmController.isAuthorPanelVisible, vm.commitsForBranch, width]);
 
+  // If the query changed, update the start & end dates and re-center the timeline.
   React.useEffect(() => {
     if (query.time && "rangeByDate" in query.time && Array.isArray(query.time.rangeByDate)) {
       vm.setSelectedStartDate(new GizDate(dayjs(query.time.rangeByDate.at(0)).toDate()));
       vm.setSelectedEndDate(new GizDate(dayjs(query.time.rangeByDate.at(-1)).toDate()));
+      vm.initializePositionsFromSelection();
     }
   }, [query]);
 

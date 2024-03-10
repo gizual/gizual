@@ -7,6 +7,7 @@
 - **app:frontend:** unify date format across all UI components
 - **app:frontend:** disable pagination on author tables with less than `PAGE_SIZE` authors
 - **app:frontend:** implement consistent blur behavior for all input fields
+- **app:frontend:** implement automatic centering of the timeline on changes to query dates
 
 ### Bug Fixes
 

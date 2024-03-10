@@ -155,6 +155,11 @@ export class TimelineViewModel {
     this.selectEndX = xCoords - this._currentTranslationX;
   }
 
+  updateSelectionBoxCoords() {
+    this.updateSelectionStartCoords();
+    this.updateSelectionEndCoords();
+  }
+
   offsetDateByPx(startDate: Date, px: number): GizDate {
     const days = px / this.dayWidthInPx;
 
@@ -243,6 +248,10 @@ export class TimelineViewModel {
 
   setSelectedStartDate(date?: GizDate) {
     if (date === undefined) date = this.defaultStartDate ?? new GizDate();
+    if (getDaysBetweenAbs(date, this.selectedEndDate) < 1) {
+      date = date.subtractDays(1);
+    }
+
     this.mainController.setSelectedStartDate(date);
     this.updateSelectionStartCoords();
     this.zoom(0);
@@ -254,6 +263,9 @@ export class TimelineViewModel {
 
   setSelectedEndDate(date?: GizDate) {
     if (date === undefined) date = this.defaultStartDate ?? new GizDate();
+    if (getDaysBetweenAbs(date, this.selectedStartDate) < 1) {
+      date = date.addDays(1);
+    }
 
     this.mainController.setSelectedEndDate(date);
     this.updateSelectionEndCoords();
@@ -279,6 +291,8 @@ export class TimelineViewModel {
 
     this.setStartDate(newStartDate);
     this.setEndDate(newEndDate);
+
+    this.updateSelectionBoxCoords();
   }
 
   // ------------------------------------------------------------------------ //

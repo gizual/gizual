@@ -14,7 +14,7 @@ import {
 import _ from "lodash";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
-import { estimateDayOnScale, getDateFromTimestamp, getStringDate } from "@giz/utils/gizdate";
+import { estimateDayOnScale, getDateFromTimestamp } from "@giz/utils/gizdate";
 
 import { PRERENDER_MULTIPLIER, TimelineViewModel } from "./timeline.vm";
 
@@ -335,10 +335,13 @@ export class TimelineEventHandler {
       this.vm.viewBox.width,
       this.vm.selectEndX + this.vm.currentTranslationX,
     );
-    this.vm.propagateUpdate();
+
     if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
       this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
+    } else {
+      this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent());
     }
+    this.vm.propagateUpdate();
   }
 
   @action.bound
