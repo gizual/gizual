@@ -60,10 +60,31 @@ type AuthorTableProps = {
 
 export function AuthorTable({ id, className, style: cssStyle, dataTableProps }: AuthorTableProps) {
   const [page, setPage] = React.useState(1);
-  const { data, isLoading, isPlaceholderData } = useAuthorList(10, (page - 1) * 10);
+  const { data, isLoading, isPlaceholderData } = useAuthorList(PAGE_SIZE, (page - 1) * PAGE_SIZE);
   const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
   const authorColors = getAuthorColors(localQuery);
   const { showContextMenu } = useContextMenu();
+
+  // We only want pagination if there are more than `PAGE_SIZE` entries.
+  // The Mantine DataTable attaches the pagination component whenever the `paginationProps` are set.
+  const hasPagination = (data?.total ?? 0) > PAGE_SIZE;
+
+  /** Contains the required properties to enable pagination. Undefined when pagination is disabled. */
+  const paginationProps:
+    | Pick<
+        React.ComponentProps<typeof DataTable<AuthorType>>,
+        "page" | "onPageChange" | "totalRecords" | "recordsPerPage"
+      >
+    | undefined = hasPagination
+    ? {
+        page,
+        onPageChange: (p) => {
+          setPage(p);
+        },
+        totalRecords: data?.total,
+        recordsPerPage: PAGE_SIZE,
+      }
+    : undefined;
 
   const columns = getAuthorColumns(
     authorColors,
@@ -86,7 +107,7 @@ export function AuthorTable({ id, className, style: cssStyle, dataTableProps }: 
 
   return (
     <div className={clsx(style.Table, className)} style={cssStyle} id={id}>
-      <DataTable
+      <DataTable<AuthorType>
         className={clsx(style.DataTable, dataTableProps?.className)}
         style={dataTableProps?.style}
         withTableBorder
@@ -95,17 +116,12 @@ export function AuthorTable({ id, className, style: cssStyle, dataTableProps }: 
         highlightOnHover
         records={data?.authors}
         columns={columns}
-        recordsPerPage={PAGE_SIZE}
-        onPageChange={(p) => {
-          setPage(p);
-        }}
-        totalRecords={data?.total}
-        page={page}
         backgroundColor={"var(--background-primary)"}
         stripedColor={"var(--background-secondary)"}
         highlightOnHoverColor={"var(--background-tertiary)"}
         borderColor={"var(--border-primary)"}
         paginationSize="xs"
+        {...(paginationProps as any)}
       />
       {isPlaceholderData && <LinearProgress className={style.Progress} />}
     </div>
@@ -141,6 +157,7 @@ function getAuthorColumns(
               const colors = [...authorColors];
               insertAuthorColor(colors, id, c);
               updateQuery({ preset: { paletteByAuthor: colors } });
+              publishLocalQuery();
             }}
           />
         );
