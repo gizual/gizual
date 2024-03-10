@@ -145,7 +145,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     const { debugLayout } = React.useContext(CanvasContext);
 
     const legendWidth = Math.min(wrapperWidth / 10 + 100, 200);
-    const legendHeight = 50;
+    const legendHeight = 60;
 
     // TODO: This is counter-intuitive because the minimap component decides on it's dimensions
     // even if we pass it a width and height. We should probably fix this in the minimap component.

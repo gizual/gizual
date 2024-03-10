@@ -42,6 +42,9 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
   const [isOpen, setIsOpen] = React.useState(false);
   const [color, setColor] = React.useState(getValidHexValue(hexValue));
   const ref = useClickOutside(() => setIsOpen(false));
+  React.useEffect(() => {
+    setColor(getValidHexValue(hexValue));
+  }, [hexValue]);
 
   return (
     <Popover opened={isOpen} withArrow>

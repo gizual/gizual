@@ -8,6 +8,7 @@
 - **app:frontend:** disable pagination on author tables with less than `PAGE_SIZE` authors
 - **app:frontend:** implement consistent blur behavior for all input fields
 - **app:frontend:** implement automatic centering of the timeline on changes to query dates
+- **app:frontend:** add color pickers to canvas legend component
 
 ### Bug Fixes
 
