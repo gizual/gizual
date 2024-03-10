@@ -39,12 +39,6 @@ export function FileGlobModule() {
           value={value}
           placeholder="Example: *.tsx"
           onBlur={() => publishLocalQuery()}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              publishLocalQuery();
-              e.currentTarget.blur();
-            }
-          }}
           onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
         />
       </div>
