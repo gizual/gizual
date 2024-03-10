@@ -1,10 +1,10 @@
 import { IconClock, IconGitBranchLine, IconRuler } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
+import { DatePicker } from "@app/primitives/date-picker";
 import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
 import { useLocalQueryCtx } from "@app/utils";
 import { Tooltip } from "@mantine/core";
-import { DatePickerInput } from "@mantine/dates";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
@@ -92,33 +92,15 @@ export const TimeRangeByDateModule = observer(() => {
       helpContent="Select a date range to filter the results by. Additionally, this module requires the selection of a branch."
     >
       <div className={style.SpacedChildren}>
-        <DatePickerInput
+        <DatePicker
           error={checkErrors(errors)}
           value={startDate.toDate()}
           onChange={onChangeStartDate}
-          styles={{
-            input: {
-              height: 30,
-              minHeight: 30,
-              maxHeight: 30,
-              padding: "0 0.5rem",
-              minWidth: 150,
-            },
-          }}
         />
-        <DatePickerInput
+        <DatePicker
           error={checkErrors(errors)}
           value={endDate.toDate()}
           onChange={onChangeEndDate}
-          styles={{
-            input: {
-              height: 30,
-              minHeight: 30,
-              maxHeight: 30,
-              padding: "0 0.5rem",
-              minWidth: 150,
-            },
-          }}
         />
 
         <div
