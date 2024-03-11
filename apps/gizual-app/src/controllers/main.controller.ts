@@ -64,6 +64,20 @@ export class MainController {
     );
   }
 
+  attachUnloadListener() {
+    console.log("attaching unload listener");
+    window.addEventListener("beforeunload", this.beforeUnloadHandler);
+  }
+
+  detachUnloadListener() {
+    window.removeEventListener("beforeunload", this.beforeUnloadHandler);
+  }
+
+  beforeUnloadHandler(event: BeforeUnloadEvent) {
+    event?.preventDefault();
+    event.returnValue = true;
+  }
+
   get repoController() {
     return this._repoController;
   }
@@ -200,6 +214,7 @@ export class MainController {
   async openRepository(name: string, port: MessagePort) {
     await this._repo.setup(port);
     this.setRepoName(name);
+    this.attachUnloadListener();
   }
 
   get isPendingTransition() {
@@ -318,6 +333,8 @@ export class MainController {
   closeRepository() {
     this.setRepoName("");
     this._repo = new Repository();
+    this.detachUnloadListener();
+    window.location.reload();
   }
 
   @action.bound

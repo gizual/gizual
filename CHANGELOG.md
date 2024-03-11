@@ -9,6 +9,7 @@
 - **app:frontend:** implement consistent blur behavior for all input fields
 - **app:frontend:** implement automatic centering of the timeline on changes to query dates
 - **app:frontend:** add color pickers to canvas legend component
+- **app:frontend:** add warning dialog if a repository is open and the user tries to exit the page
 
 ### Bug Fixes
 
