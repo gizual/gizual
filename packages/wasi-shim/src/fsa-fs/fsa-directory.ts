@@ -66,11 +66,7 @@ export class OpenFSADirectory extends Fd {
   }
 
   async fd_readdir_single(cookie: bigint): Promise<RetVal_dirent> {
-    const children: Record<string, FileSystemDirectoryHandle | FileSystemFileHandle> = {};
-
-    for await (const [name, handle] of this.dir.handle.entries()) {
-      children[name] = handle;
-    }
+    const children = await this.dir.cache.getFilesInDirectory();
 
     if (cookie >= BigInt(Object.keys(children).length)) {
       return { ret: 0, dirent: null };

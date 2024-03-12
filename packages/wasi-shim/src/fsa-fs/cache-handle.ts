@@ -13,6 +13,7 @@ export type CacheHandlerI = {
     filePath: string,
   ): FileSystemFileHandle | FileSystemDirectoryHandle | undefined;
   lookup(path: string): FileSystemFileHandle | FileSystemDirectoryHandle | undefined;
+  getFilesInDirectory(): Record<string, FileSystemDirectoryHandle | FileSystemFileHandle>;
 };
 
 export class CacheHandler implements CacheHandlerI {
@@ -33,6 +34,10 @@ export class CacheHandler implements CacheHandlerI {
   lookupInDir(dirPath: string, filePath: string) {
     return this.lookup(pathJoin(dirPath, filePath));
   }
+
+  getFilesInDirectory() {
+    return getFilesOfDirectoryFromCache(this.fs.cache, "");
+  }
 }
 
 export class PrefixedCacheHandler implements CacheHandlerI {
@@ -51,4 +56,28 @@ export class PrefixedCacheHandler implements CacheHandlerI {
   lookupInDir(dirPath: string, filePath: string) {
     return this.lookup(pathJoin(dirPath, filePath));
   }
+
+  getFilesInDirectory() {
+    const dirPath = this.prefix;
+
+    return getFilesOfDirectoryFromCache(this.parent.fs.cache, dirPath);
+  }
+}
+
+function getFilesOfDirectoryFromCache(
+  cache: Record<string, FileSystemDirectoryHandle | FileSystemFileHandle>,
+  dirPath: string,
+) {
+  const result: Record<string, FileSystemDirectoryHandle | FileSystemFileHandle> = {};
+  const entries = Object.keys(cache)
+    .filter((k) => k.startsWith(dirPath))
+    .filter((k) => k !== dirPath)
+    .map((k) => k.replace(dirPath + "/", ""))
+    .filter((k) => !k.includes("/"));
+
+  for (const entry of entries) {
+    result[entry] = cache[pathJoin(dirPath, entry)];
+  }
+
+  return result;
 }
