@@ -274,7 +274,7 @@ export const Timeline = observer(() => {
     return () => {
       event.dispose();
     };
-  }, []);
+  }, [updateLocalQuery, publishLocalQuery, vm]);
 
   return (
     <div className={style.TimelineComponent} id={"TimelineComponent"}>
