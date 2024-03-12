@@ -1,9 +1,9 @@
 import { Container, parseLanguages } from "@app/charts";
 import { LanguageDistributionChart } from "@app/charts/languages/language-distribution";
 import { useMainController } from "@app/controllers";
+import { useWindowSize } from "@app/hooks/use-window-size";
 import { Canvas, MessageBar, TitleBar } from "@app/primitives";
 import { SimpleQueryInput } from "@app/primitives/query-input";
-import { useWindowSize } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";

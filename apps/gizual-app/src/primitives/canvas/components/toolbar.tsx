@@ -1,8 +1,8 @@
 import { IconCenterFocus, IconMagnifyMinus, IconMagnifyPlus } from "@app/assets";
 import { ViewModelController } from "@app/controllers/vm.controller";
+import { useForwardedRef } from "@app/hooks/use-forwarded-ref";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import { IconButton } from "@app/primitives/icon-button";
-import { useForwardedRef } from "@app/utils/hooks";
 import { Tooltip } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 

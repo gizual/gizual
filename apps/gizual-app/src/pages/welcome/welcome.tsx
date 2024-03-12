@@ -1,5 +1,5 @@
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import { TitleBar } from "@app/primitives";
-import { useMediaQuery } from "@app/utils";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { match } from "ts-pattern";

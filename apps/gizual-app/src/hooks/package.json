@@ -1,0 +1,7 @@
+{
+  "name": "@app/hooks",
+  "dependencies": {
+    "@giz/maestro": "workspace:*",
+    "@giz/query": "workspace:*"
+  }
+}

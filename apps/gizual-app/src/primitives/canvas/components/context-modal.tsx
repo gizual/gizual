@@ -1,7 +1,7 @@
 import { useSettingsController } from "@app/controllers";
+import { useTheme } from "@app/hooks/use-theme";
 import { RenderedSettingsEntry } from "@app/pages/settings";
 import { Button } from "@app/primitives/button";
-import { useTheme } from "@app/utils/hooks";
 import { createNumberSetting, createSelectSetting } from "@app/utils/settings";
 import { Modal } from "@mantine/core";
 import { observer } from "mobx-react-lite";

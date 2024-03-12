@@ -8,7 +8,9 @@
     "./controllers": "./src/controllers/index.ts",
     "./primitives/": "./src/primitives/",
     "./utils": "./src/utils/index.ts",
-    "./types": "./src/types/index.ts"
+    "./types": "./src/types/index.ts",
+    "./hooks": "./src/hooks/index.ts",
+    "./services": "./src/services/index.ts"
   },
   "scripts": {
     "lint": "eslint .",

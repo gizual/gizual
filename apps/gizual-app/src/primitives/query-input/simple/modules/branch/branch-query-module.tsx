@@ -1,7 +1,7 @@
 import { IconGitBranchLine } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { Select } from "@app/primitives/select";
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
 import { observer } from "mobx-react-lite";
 
 import { SearchQueryType } from "@giz/query";
@@ -17,8 +17,8 @@ function getBranchEntry(query: SearchQueryType) {
  * @deprecated This module is deprecated since it has been consolidated with `TimeRangeByDateModule`.
  * @see TimeRangeByDateModule
  */
-export const BranchModule = observer(() => {
-  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
+const BranchModule = observer(() => {
+  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
   const mainController = useMainController();
   const value = getBranchEntry(localQuery);
   const branches = mainController.branchNames.map((b) => {
@@ -41,3 +41,5 @@ export const BranchModule = observer(() => {
     </BaseQueryModule>
   );
 });
+
+export { BranchModule };

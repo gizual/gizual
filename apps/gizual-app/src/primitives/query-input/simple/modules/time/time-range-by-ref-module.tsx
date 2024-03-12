@@ -1,6 +1,6 @@
 import { IconClock } from "@app/assets";
 import { Input } from "@app/primitives/input";
-import { useLocalQueryCtx } from "@app/utils/hooks";
+import { useLocalQuery } from "@app/services/local-query";
 import { observer } from "mobx-react-lite";
 
 import type { QueryError } from "@giz/maestro";
@@ -31,8 +31,8 @@ function checkErrors(errors: QueryError[] | undefined): {
   return { error: errorField1 || errorField2, errorField1, errorField2 };
 }
 
-export const TimeRangeByRefModule = observer(() => {
-  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQueryCtx();
+const TimeRangeByRefModule = observer(() => {
+  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const { from, to } = getTimeRangeByRefEntry(localQuery);
 
   const onChangeStartRef = (ref: string) => {
@@ -81,3 +81,5 @@ export const TimeRangeByRefModule = observer(() => {
     </TimeBaseQueryModule>
   );
 });
+
+export { TimeRangeByRefModule };

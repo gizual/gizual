@@ -1,7 +1,7 @@
 import { IconClose } from "@app/assets";
 import { Panel, PANELS, useMainController } from "@app/controllers";
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import { Select, SelectOption } from "@app/primitives/select";
-import { useMediaQuery } from "@app/utils";
 import { Modal, Stack, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import clsx from "clsx";

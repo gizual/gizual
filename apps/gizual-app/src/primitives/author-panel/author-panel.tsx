@@ -1,10 +1,11 @@
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
 import { Avatar, Skeleton } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
 import { ShowContextMenuFunction, useContextMenu } from "mantine-contextmenu";
 import type { DataTableColumn } from "mantine-datatable";
 import { DataTable } from "mantine-datatable";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useAuthorList } from "@giz/maestro/react";
@@ -56,77 +57,85 @@ type AuthorTableProps = {
     className?: string;
     style?: React.CSSProperties;
   };
+
+  noPublish?: boolean;
 };
 
-export function AuthorTable({ id, className, style: cssStyle, dataTableProps }: AuthorTableProps) {
-  const [page, setPage] = React.useState(1);
-  const { data, isLoading, isPlaceholderData } = useAuthorList(PAGE_SIZE, (page - 1) * PAGE_SIZE);
-  const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQueryCtx();
-  const authorColors = getAuthorColors(localQuery);
-  const { showContextMenu } = useContextMenu();
+type PaginationProps =
+  | Pick<
+      React.ComponentProps<typeof DataTable<AuthorType>>,
+      "page" | "onPageChange" | "totalRecords" | "recordsPerPage"
+    >
+  | undefined;
 
-  // We only want pagination if there are more than `PAGE_SIZE` entries.
-  // The Mantine DataTable attaches the pagination component whenever the `paginationProps` are set.
-  const hasPagination = (data?.total ?? 0) > PAGE_SIZE;
+const AuthorTable = observer(
+  ({ id, className, style: cssStyle, dataTableProps, noPublish }: AuthorTableProps) => {
+    const [page, setPage] = React.useState(1);
+    const { data, isLoading, isPlaceholderData } = useAuthorList(PAGE_SIZE, (page - 1) * PAGE_SIZE);
+    const { localQuery, updateLocalQuery, publishLocalQuery } = useLocalQuery();
+    const authorColors = getAuthorColors(localQuery);
+    const { showContextMenu } = useContextMenu();
 
-  /** Contains the required properties to enable pagination. Undefined when pagination is disabled. */
-  const paginationProps:
-    | Pick<
-        React.ComponentProps<typeof DataTable<AuthorType>>,
-        "page" | "onPageChange" | "totalRecords" | "recordsPerPage"
-      >
-    | undefined = hasPagination
-    ? {
+    // We only want pagination if there are more than `PAGE_SIZE` entries.
+    // The Mantine DataTable attaches the pagination component whenever the `paginationProps` are set.
+    const hasPagination = (data?.total ?? 0) > PAGE_SIZE;
+
+    /** Contains the required properties to enable pagination. Undefined when pagination is disabled. */
+    let paginationProps: PaginationProps = undefined;
+
+    if (hasPagination) {
+      paginationProps = {
         page,
         onPageChange: (p) => {
           setPage(p);
         },
         totalRecords: data?.total,
         recordsPerPage: PAGE_SIZE,
-      }
-    : undefined;
+      };
+    }
 
-  const columns = getAuthorColumns(
-    authorColors,
-    updateLocalQuery,
-    publishLocalQuery,
-    showContextMenu,
-  );
+    const columns = getAuthorColumns(
+      authorColors,
+      updateLocalQuery,
+      noPublish ? () => {} : publishLocalQuery,
+      showContextMenu,
+    );
 
-  if (!isLoading && data === undefined) {
-    return <div>An unknown error occurred.</div>;
-  }
+    if (!isLoading && data === undefined) {
+      return <div>An unknown error occurred.</div>;
+    }
 
-  if (isLoading && data === undefined) {
+    if (isLoading && data === undefined) {
+      return (
+        <div className={style.PaddedPlaceholder}>
+          <Skeleton />
+        </div>
+      );
+    }
+
     return (
-      <div className={style.PaddedPlaceholder}>
-        <Skeleton />
+      <div className={clsx(style.Table, className)} style={cssStyle} id={id}>
+        <DataTable<AuthorType>
+          className={clsx(style.DataTable, dataTableProps?.className)}
+          style={dataTableProps?.style}
+          withTableBorder
+          withColumnBorders
+          striped
+          highlightOnHover
+          records={data?.authors}
+          columns={columns}
+          backgroundColor={"var(--background-primary)"}
+          stripedColor={"var(--background-secondary)"}
+          highlightOnHoverColor={"var(--background-tertiary)"}
+          borderColor={"var(--border-primary)"}
+          paginationSize="xs"
+          {...(paginationProps as any)}
+        />
+        {isPlaceholderData && <LinearProgress className={style.Progress} />}
       </div>
     );
-  }
-
-  return (
-    <div className={clsx(style.Table, className)} style={cssStyle} id={id}>
-      <DataTable<AuthorType>
-        className={clsx(style.DataTable, dataTableProps?.className)}
-        style={dataTableProps?.style}
-        withTableBorder
-        withColumnBorders
-        striped
-        highlightOnHover
-        records={data?.authors}
-        columns={columns}
-        backgroundColor={"var(--background-primary)"}
-        stripedColor={"var(--background-secondary)"}
-        highlightOnHoverColor={"var(--background-tertiary)"}
-        borderColor={"var(--border-primary)"}
-        paginationSize="xs"
-        {...(paginationProps as any)}
-      />
-      {isPlaceholderData && <LinearProgress className={style.Progress} />}
-    </div>
-  );
-}
+  },
+);
 
 function insertAuthorColor(authorColors: [string, string][], authorId: string, color: string) {
   const index = authorColors.findIndex((c) => c[0] === authorId);
@@ -255,3 +264,5 @@ function getAuthorColumns(
     },
   ];
 }
+
+export { AuthorTable };

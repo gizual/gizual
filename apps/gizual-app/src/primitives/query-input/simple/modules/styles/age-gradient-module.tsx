@@ -2,14 +2,15 @@ import { IconPalette } from "@app/assets";
 import { useSettingsController } from "@app/controllers";
 import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
+import { observer } from "mobx-react-lite";
 
 import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
 
-export function AgeGradientModule() {
+const AgeGradientModule = observer(() => {
   const settingsController = useSettingsController();
-  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQueryCtx();
+  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQuery();
   let colorOld = "#FFF";
   let colorNew = "#FFF";
   if (
@@ -67,4 +68,6 @@ export function AgeGradientModule() {
       </div>
     </BaseQueryModule>
   );
-}
+});
+
+export { AgeGradientModule };

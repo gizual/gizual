@@ -1,4 +1,4 @@
-import { useTheme } from "@app/utils";
+import { useTheme } from "@app/hooks/use-theme";
 import clsx from "clsx";
 
 import styles from "./font-icon.module.scss";

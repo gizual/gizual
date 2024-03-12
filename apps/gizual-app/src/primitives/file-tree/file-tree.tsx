@@ -1,5 +1,6 @@
 /* eslint-disable unicorn/no-null */
 import { IconCollapse } from "@app/assets";
+import { useViewModel } from "@app/services/view-model";
 import { Checkbox } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
@@ -32,15 +33,13 @@ const MAX_RENDER_DEPTH = 3;
 
 export const FileTree = observer(({ files, checked, onChange }: FileTreeProps) => {
   const availableFiles = files ?? useAvailableFiles();
-  if (!availableFiles) return <>Empty set of files.</>;
-
-  const vm = React.useMemo(() => {
-    return new FileTreeViewModel(availableFiles, checked);
-  }, [availableFiles]);
+  const vm = useViewModel(FileTreeViewModel, availableFiles, checked);
 
   React.useEffect(() => {
     vm.assignCheckedState(checked);
   }, [checked]);
+
+  if (!availableFiles || availableFiles.length === 0) return <>Empty set of files.</>;
 
   const onChangeCb = () => {
     if (onChange) onChange(vm.checkedFiles);

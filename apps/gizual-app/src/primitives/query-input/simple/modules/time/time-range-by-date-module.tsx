@@ -3,7 +3,7 @@ import { useMainController, useSettingsController } from "@app/controllers";
 import { DatePicker } from "@app/primitives/date-picker";
 import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
 import { Tooltip } from "@mantine/core";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -33,8 +33,8 @@ function checkErrors(errors: QueryError[] | undefined) {
   return errors?.some((e) => e.selector === QUERY_ID);
 }
 
-export const TimeRangeByDateModule = observer(() => {
-  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQueryCtx();
+const TimeRangeByDateModule = observer(() => {
+  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const mainController = useMainController();
   const settingsController = useSettingsController();
 
@@ -149,3 +149,5 @@ export const TimeRangeByDateModule = observer(() => {
     </TimeBaseQueryModule>
   );
 });
+
+export { TimeRangeByDateModule };

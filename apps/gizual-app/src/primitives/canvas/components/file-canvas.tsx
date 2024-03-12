@@ -1,5 +1,4 @@
 import { useMainController } from "@app/controllers";
-import { Loader } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 import React, { useContext } from "react";
 import { match, Pattern } from "ts-pattern";
@@ -28,13 +27,6 @@ export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
   console.log({ blocks, wrapper, cw: vm.canvasWidth });
   return (
     <>
-      {!mainController.repoController.isDoneEstimatingSize && (
-        <>
-          <h2>Estimating size - please wait.</h2>
-          <Loader />
-        </>
-      )}
-
       <MasonryGrid
         childInfo={blocks.map((f) => {
           return { id: f.id, height: f.height + 26 };
