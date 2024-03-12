@@ -1,44 +1,22 @@
-import { FileModel, MainController } from "@app/controllers";
-import { ColoringMode, ColoringModeLabels } from "@app/types";
-import {
-  CanvasScale,
-  Masonry,
-  SvgBaseElement,
-  SvgGroupElement,
-  SvgRectElement,
-  SvgTextElement,
-  truncateSmart,
-} from "@app/utils";
-import { action, computed, makeObservable, observable, toJS } from "mobx";
+import { Dependencies, ViewModel } from "@app/services/view-model";
+import { ColoringModeLabels } from "@app/types";
+import { CanvasScale } from "@app/utils";
+import { action, computed, makeObservable, observable } from "mobx";
 import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
-import { FileLinesContext, RenderType } from "@giz/file-renderer";
-import { FileRendererWorker } from "@giz/file-renderer/worker";
-
-export class CanvasViewModel {
-  @observable private _mainController: MainController;
+export class CanvasViewModel extends ViewModel {
   @observable private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
   @observable private _canvasWidth = 0;
 
-  constructor(mainController: MainController) {
-    this._mainController = mainController;
-    this._mainController.vmController.setCanvasViewModel(this);
+  constructor({ mainController }: Dependencies, ...args: any[]) {
+    super({ mainController }, ...args);
 
-    makeObservable(this, undefined, { autoBind: true });
-  }
-
-  get loadedFiles(): FileModel[] {
-    return this._mainController.repoController.loadedFiles;
-    //return Object.values(this._loadedFileVms);
+    makeObservable(this, undefined);
   }
 
   get canvasContainerRef(): RefObject<ReactZoomPanPinchRef> | undefined {
     return this._canvasContainerRef;
-  }
-
-  get hasLoadedFiles() {
-    return this._mainController.repoController.loadedFiles.length > 0;
   }
 
   @action.bound
@@ -125,22 +103,12 @@ export class CanvasViewModel {
     this._mainController.repoController.unloadAllFiles();
   }
 
-  @action.bound
-  onColoringModeChange = (value: ColoringMode) => {
-    this._mainController.setColoringMode(value);
-
-    if (value !== "author" && this._mainController.vmController.isAuthorPanelVisible)
-      this._mainController.vmController.setAuthorPanelVisibility(false);
-
-    if (value === "author" && !this._mainController.vmController.isAuthorPanelVisible)
-      this._mainController.vmController.setAuthorPanelVisibility(true);
-  };
-
   @computed
   get toggleColoringValues() {
     return Object.entries(ColoringModeLabels).map((c) => ({ value: c[0], label: c[1] }));
   }
 
+  /*
   getDrawingContext(file: FileModel): Partial<FileLinesContext> {
     return {
       type: RenderType.FileLines,
@@ -254,5 +222,5 @@ export class CanvasViewModel {
     element.href = window.URL.createObjectURL(blob);
     element.click();
     element.remove();
-  }
+  }*/
 }

@@ -1,6 +1,7 @@
 import { IconFile } from "@app/assets";
 import { Input } from "@app/primitives/input";
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
+import { observer } from "mobx-react-lite";
 
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
@@ -20,8 +21,8 @@ function checkErrors(errors: QueryError[] | undefined) {
   return errors?.some((e) => e.selector === QUERY_ID);
 }
 
-export function FileGlobModule() {
-  const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQueryCtx();
+const FileGlobModule = observer(() => {
+  const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQuery();
   const value = getGlobEntry(localQuery);
 
   return (
@@ -39,15 +40,11 @@ export function FileGlobModule() {
           value={value}
           placeholder="Example: *.tsx"
           onBlur={() => publishLocalQuery()}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              publishLocalQuery();
-              e.currentTarget.blur();
-            }
-          }}
           onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
         />
       </div>
     </FileBaseQueryModule>
   );
-}
+});
+
+export { FileGlobModule };

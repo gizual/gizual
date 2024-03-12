@@ -1,4 +1,4 @@
-import { useTheme } from "@app/utils";
+import { useTheme } from "@app/hooks/use-theme";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import type { StoryContext, StoryFn } from "@storybook/react";

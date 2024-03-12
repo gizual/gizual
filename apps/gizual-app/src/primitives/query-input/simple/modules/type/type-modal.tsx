@@ -1,11 +1,12 @@
-import { useSettingsController, useViewModelController } from "@app/controllers";
+import { useSettingsController } from "@app/controllers";
 import { AuthorTable } from "@app/primitives/author-panel";
 import { Button } from "@app/primitives/button";
 import { ColorPicker } from "@app/primitives/color-picker";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
 import { Stepper, StepperStepProps } from "@mantine/core";
 import clsx from "clsx";
+import { observer } from "mobx-react-lite";
 import React from "react";
 import { match, Pattern } from "ts-pattern";
 
@@ -57,14 +58,13 @@ function getColorsEntry(query: SearchQueryType) {
   }
 }
 
-export type TypePlaceholderModalProps = {
+type TypePlaceholderModalProps = {
   closeModal: () => void;
 };
 
-export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderModalProps) => {
-  const vmController = useViewModelController();
+const TypePlaceholderModal = observer(({ closeModal }: TypePlaceholderModalProps) => {
   const settingsController = useSettingsController();
-  const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQueryCtx();
+  const { localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery } = useLocalQuery();
   const [step, setStep] = React.useState(0);
 
   const selectedType = getTypeEntry(localQuery);
@@ -144,12 +144,6 @@ export const TypePlaceholderModal = React.memo(({ closeModal }: TypePlaceholderM
   };
 
   const onApply = () => {
-    if (selectedStyle === "palette-author") {
-      vmController.setAuthorPanelVisibility(true);
-    } else {
-      vmController.setAuthorPanelVisibility(false);
-    }
-
     publishLocalQuery();
     closeModal();
   };
@@ -697,7 +691,7 @@ export const AuthorColorCustomization = React.memo(({}: AuthorColorCustomization
           alignItems: "left",
         }}
       >
-        <AuthorTable id="vis-type-modal-authors" />
+        <AuthorTable id="vis-type-modal-authors" noPublish />
       </div>
     </>
   );
@@ -739,3 +733,5 @@ export const FinalizeChangesBlock = React.memo(
     );
   },
 );
+
+export { TypePlaceholderModal };

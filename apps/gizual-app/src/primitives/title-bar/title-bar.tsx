@@ -1,7 +1,7 @@
 import { IconClose } from "@app/assets";
 import { Panel, PANELS, useMainController } from "@app/controllers";
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import { Select, SelectOption } from "@app/primitives/select";
-import { useMediaQuery } from "@app/utils";
 import { Modal, Stack, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import clsx from "clsx";
@@ -96,7 +96,7 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
           <Modal opened={opened} onClose={close} centered title="Close repository">
             <Stack gap="md">
               Do you wish to close the repository?
-              <Button onClick={() => window.location.reload()} variant="filled">
+              <Button onClick={() => mainController.closeRepository()} variant="filled">
                 Close repository
               </Button>
             </Stack>

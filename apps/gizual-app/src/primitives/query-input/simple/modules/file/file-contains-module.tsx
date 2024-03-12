@@ -1,6 +1,7 @@
 import { IconFile } from "@app/assets";
 import { Input } from "@app/primitives/input";
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
+import { observer } from "mobx-react-lite";
 
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
@@ -19,8 +20,8 @@ function checkErrors(errors: QueryError[] | undefined) {
   return errors?.some((e) => e.selector === QUERY_ID);
 }
 
-export function FileContainsModule() {
-  const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQueryCtx();
+const FileContainsModule = observer(() => {
+  const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQuery();
   const value = getContainsEntry(localQuery);
 
   return (
@@ -49,4 +50,6 @@ export function FileContainsModule() {
       </div>
     </FileBaseQueryModule>
   );
-}
+});
+
+export { FileContainsModule };

@@ -1,0 +1,7 @@
+{
+  "name": "@app/services",
+  "dependencies": {
+    "@giz/maestro": "workspace:*",
+    "@giz/query": "workspace:*"
+  }
+}

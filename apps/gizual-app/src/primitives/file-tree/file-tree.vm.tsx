@@ -1,4 +1,5 @@
-import { action, computed, makeObservable, observable } from "mobx";
+import { Dependencies, ViewModel } from "@app/services/view-model";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { match } from "ts-pattern";
 
 export type FileTreeMode = "full" | "favorites";
@@ -22,9 +23,9 @@ export type FileTreeNode = {
   parentPath: string[];
 };
 
-export class FileTreeViewModel {
+export class FileTreeViewModel extends ViewModel {
   /* List of all available files we could render. */
-  private _availableFiles: FileTreeFlatItem[];
+  private _availableFiles!: FileTreeFlatItem[];
 
   /**
     Map of keys to store references to nodes.
@@ -35,16 +36,30 @@ export class FileTreeViewModel {
   /* Root of the constructed tree. */
   private _root: FileTreeNode | undefined;
 
-  constructor(availableFiles: FileTreeFlatItem[], checked: string[] | undefined) {
+  constructor({ mainController }: Dependencies, ...args: any[]) {
+    super({ mainController }, ...args);
+    makeObservable(this, undefined);
+  }
+
+  init(...args: any[]): void {
+    super.init(...args);
+
+    const availableFiles = toJS(args[0]) as FileTreeFlatItem[];
+    const checked = toJS(args[1]) as string[];
+
+    if (!availableFiles || availableFiles.length === 0) {
+      return;
+    }
+
     this._availableFiles = availableFiles
       .sort((a, b) => {
         if (a.kind === "folder" && b.kind !== "folder") return -1;
         return a.path.length - b.path.length;
       })
       .filter((f) => f.path.length > 0);
+
     this.constructTree();
     if (checked) this.assignCheckedState(checked);
-    makeObservable(this, undefined, { autoBind: true });
   }
 
   /**
@@ -82,6 +97,7 @@ export class FileTreeViewModel {
       });
 
       this._nodes[path.join("/")] = node;
+      if (!this._nodes[parentPath]) this._nodes[parentPath] = { ...root, path: path.slice(0, -1) };
       this._nodes[parentPath].children.push(node);
     }
 
@@ -113,7 +129,7 @@ export class FileTreeViewModel {
    */
   @action
   assignCheckedState(checked?: string[]) {
-    if (!checked) return;
+    if (!checked || !this._availableFiles || this._availableFiles.length === 0) return;
 
     for (const path of checked) {
       const node = this._nodes[path];

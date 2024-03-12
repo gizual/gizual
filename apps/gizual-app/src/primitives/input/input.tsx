@@ -2,10 +2,14 @@ import { TextInput as MantineTextInput, TextInputProps } from "@mantine/core";
 
 import style from "./input.module.scss";
 
-export type InputProps = TextInputProps;
+export type InputProps = {} & TextInputProps;
 
+/**
+ * Custom wrapper around Mantine's TextInput.
+ * Attaches an `onBlur` event to the Enter key and applies default styling.
+ */
 export function Input(props: InputProps) {
-  const { ...mantineProps } = props;
+  const { styles, onBlur, onKeyDown, ...mantineProps } = props;
 
   return (
     <MantineTextInput
@@ -16,6 +20,16 @@ export function Input(props: InputProps) {
           height: 30,
           minHeight: 30,
         },
+        ...styles,
+      }}
+      onBlur={(e) => {
+        onBlur?.(e);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.currentTarget.blur();
+        }
+        onKeyDown?.(e);
       }}
       {...mantineProps}
     />

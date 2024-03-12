@@ -1,7 +1,8 @@
 import { IconFile } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { Button, DialogProvider, FileTree } from "@app/primitives";
-import { useLocalQueryCtx } from "@app/utils";
+import { useLocalQuery } from "@app/services/local-query";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import type { QueryError } from "@giz/maestro";
@@ -22,9 +23,9 @@ function checkErrors(errors: QueryError[] | undefined) {
   return errors?.some((e) => e.selector === QUERY_ID);
 }
 
-export function FileTreeModule() {
+const FileTreeModule = observer(() => {
   const mainController = useMainController();
-  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQueryCtx();
+  const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const values = getTreeEntries(localQuery);
 
@@ -79,4 +80,6 @@ export function FileTreeModule() {
       </div>
     </FileBaseQueryModule>
   );
-}
+});
+
+export { FileTreeModule };

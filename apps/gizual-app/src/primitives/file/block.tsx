@@ -1,6 +1,7 @@
 import { IconDownload, IconSource } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
-import { maxCharactersThatFitInWidth, truncateSmart, useStyle } from "@app/utils";
+import { useStyle } from "@app/hooks/use-style";
+import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { SvgGroupElement, SvgRectElement, SvgTextElement } from "@app/utils/svg";
 import { Loader, Menu, Skeleton } from "@mantine/core";
 import clsx from "clsx";

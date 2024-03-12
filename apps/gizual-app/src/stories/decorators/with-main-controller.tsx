@@ -1,5 +1,5 @@
 import { MainContext, MainController } from "@app/controllers";
-import { LocalQueryContext, useLocalQuery } from "@app/utils";
+import { LocalQueryContext, useNewLocalQuery } from "@app/utils";
 import type { StoryContext, StoryFn } from "@storybook/react";
 import React from "react";
 
@@ -42,7 +42,7 @@ const withMainController = (Story: StoryFn, context: StoryContext) => {
 };
 
 function LocalQueryContextProvider({ children }: { children: React.ReactNode }) {
-  const { localQuery, publishLocalQuery, updateLocalQuery } = useLocalQuery();
+  const { localQuery, publishLocalQuery, updateLocalQuery } = useNewLocalQuery();
 
   return (
     <LocalQueryContext.Provider value={{ localQuery, publishLocalQuery, updateLocalQuery }}>

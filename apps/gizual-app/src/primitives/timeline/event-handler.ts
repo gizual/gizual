@@ -14,7 +14,7 @@ import {
 import _ from "lodash";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
-import { estimateDayOnScale, getDateFromTimestamp, getStringDate } from "@giz/utils/gizdate";
+import { estimateDayOnScale, getDateFromTimestamp } from "@giz/utils/gizdate";
 
 import { PRERENDER_MULTIPLIER, TimelineViewModel } from "./timeline.vm";
 
@@ -145,14 +145,12 @@ export class TimelineEventHandler {
     this._forwardEvent("mousemove", e);
     if (this.vm.isContextMenuOpen) return;
     if (this.vm.tooltip) {
-      const date = getStringDate(
-        estimateDayOnScale(
-          this.vm.timelineRenderStart,
-          this.vm.timelineRenderEnd,
-          this.vm.viewBox.width,
-          e.clientX + this.vm.currentTranslationX - this.parentBBox.left,
-        ),
-      );
+      const date = estimateDayOnScale(
+        this.vm.timelineRenderStart,
+        this.vm.timelineRenderEnd,
+        this.vm.viewBox.width,
+        e.clientX + this.vm.currentTranslationX - this.parentBBox.left,
+      ).toDisplayString();
 
       let tooltipContent = date;
       let hoveringId = -1;
@@ -171,7 +169,7 @@ export class TimelineEventHandler {
 
               return `┏━ ${getDateFromTimestamp(
                 commit.timestamp,
-              ).toDateTimeString()} ${author}\n┗━ ${commitMessage}`;
+              ).toDisplayString()} ${author}\n┗━ ${commitMessage}`;
             })
             .join("\n");
         }
@@ -337,10 +335,13 @@ export class TimelineEventHandler {
       this.vm.viewBox.width,
       this.vm.selectEndX + this.vm.currentTranslationX,
     );
-    this.vm.propagateUpdate();
+
     if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
       this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
+    } else {
+      this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent());
     }
+    this.vm.propagateUpdate();
   }
 
   @action.bound

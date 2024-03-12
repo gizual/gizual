@@ -1,5 +1,5 @@
 {
   "extends": "@giz/tsconfig/tsconfig.web.json",
-  "include": ["src"],
+  "include": ["svg.d.ts", "src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

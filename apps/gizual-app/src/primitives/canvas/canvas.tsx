@@ -1,4 +1,5 @@
 import { useMainController, useViewModelController } from "@app/controllers";
+import { useViewModel } from "@app/services/view-model";
 import { CanvasScale } from "@app/utils";
 import { Alert } from "@mantine/core";
 import clsx from "clsx";
@@ -20,24 +21,21 @@ import { LegendComponent, MasonryCanvas, Toolbar } from "./components";
 import { ContextModal } from "./components/context-modal";
 import { MiniMapContent, MiniMapWrapper } from "./minimap";
 
-export type CanvasProps = {
-  vm?: CanvasViewModel;
-} & Partial<CanvasContextProps>;
+export type CanvasProps = {} & Partial<CanvasContextProps>;
 
 /**
  * This is the main component that wraps around the interactive canvas element.
  * It also contains the timeline and toolbar elements.
  */
-function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
+function Canvas({ ...contextProps }: CanvasProps) {
   const mainController = useMainController();
   const vmController = useViewModelController();
+  const { query } = useQuery();
 
   const visibleTimeline =
     mainController.settingsController.settings.timelineSettings.displayMode.value === "visible";
 
-  const vm: CanvasViewModel = React.useMemo(() => {
-    return externalVm || new CanvasViewModel(mainController);
-  }, [externalVm]);
+  const vm = useViewModel(CanvasViewModel);
 
   const ref = React.useRef<ReactZoomPanPinchRef>(null);
 
@@ -55,11 +53,11 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
 
   return (
     <div className={style.Stage}>
-      <ContextModal vm={vm} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <ContextModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
       <div className={style.StageRow}>
         {visibleTimeline && (
           <>
-            <Timeline vm={mainController.vmController.timelineViewModel} />
+            <Timeline />
             <hr />
           </>
         )}
@@ -70,7 +68,7 @@ function Canvas({ vm: externalVm, ...contextProps }: CanvasProps) {
             <Toolbar vm={vm} vmController={vmController} />
             <InteractiveCanvas vm={vm} showModal={showModal} />
           </CanvasContext.Provider>
-          {vmController.isAuthorPanelVisible && <AuthorPanel />}
+          {query && query.preset && "paletteByAuthor" in query.preset && <AuthorPanel />}
         </div>
       </div>
     </div>
@@ -145,7 +143,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     const { debugLayout } = React.useContext(CanvasContext);
 
     const legendWidth = Math.min(wrapperWidth / 10 + 100, 200);
-    const legendHeight = 50;
+    const legendHeight = 60;
 
     // TODO: This is counter-intuitive because the minimap component decides on it's dimensions
     // even if we pass it a width and height. We should probably fix this in the minimap component.

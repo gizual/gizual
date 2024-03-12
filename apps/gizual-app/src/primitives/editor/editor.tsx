@@ -1,4 +1,4 @@
-import { useTheme } from "@app/utils/hooks";
+import { useTheme } from "@app/hooks/use-theme";
 import { Editor as MonacoEditor, useMonaco } from "@monaco-editor/react";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";

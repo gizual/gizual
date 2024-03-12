@@ -49,6 +49,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/hooks@workspace:apps/gizual-app/src/hooks":
+  version: 0.0.0-use.local
+  resolution: "@app/hooks@workspace:apps/gizual-app/src/hooks"
+  dependencies:
+    "@giz/maestro": "workspace:*"
+    "@giz/query": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@app/pages@workspace:apps/gizual-app/src/pages":
   version: 0.0.0-use.local
   resolution: "@app/pages@workspace:apps/gizual-app/src/pages"
@@ -70,6 +79,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/services@workspace:apps/gizual-app/src/services":
+  version: 0.0.0-use.local
+  resolution: "@app/services@workspace:apps/gizual-app/src/services"
+  dependencies:
+    "@giz/maestro": "workspace:*"
+    "@giz/query": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@app/types@workspace:*, @app/types@workspace:apps/gizual-app/src/types":
   version: 0.0.0-use.local
   resolution: "@app/types@workspace:apps/gizual-app/src/types"
@@ -82,12 +100,6 @@ __metadata:
   dependencies:
     "@giz/maestro": "workspace:*"
     "@giz/query": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@app/workers@workspace:apps/gizual-app/src/workers":
-  version: 0.0.0-use.local
-  resolution: "@app/workers@workspace:apps/gizual-app/src/workers"
   languageName: unknown
   linkType: soft
 

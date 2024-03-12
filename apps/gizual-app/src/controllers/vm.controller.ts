@@ -1,63 +1,50 @@
-import type { CanvasViewModel } from "@app/primitives/canvas";
-import type { FileTreeViewModel } from "@app/primitives/file-tree";
 import { TimelineViewModel } from "@app/primitives/timeline/timeline.vm";
-import { makeAutoObservable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 
 import type { MainController } from "./main.controller";
 
+/**
+ * This controller holds a reference to all ViewModels that *could* be
+ * useful to control from within the main thread outside the scope of
+ * the ViewModel itself. ViewModels that are created with `useViewModel`
+ * can be attached to this controller automatically.
+ *
+ * @see `@app/services/view-model`
+ */
 export class ViewModelController {
-  _canvasViewModel?: CanvasViewModel;
-  _fileTreeViewModel?: FileTreeViewModel;
-  _timelineViewModel?: TimelineViewModel;
+  @observable _vms: Record<string, any> = {};
 
   _mainController: MainController;
 
-  _isAuthorPanelVisible = false;
-
   constructor(mainController: MainController) {
-    this._isAuthorPanelVisible = false;
     this._mainController = mainController;
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeObservable(this, undefined, { autoBind: true });
   }
 
-  setTimelineViewModel(vm: TimelineViewModel) {
-    this._timelineViewModel = vm;
+  @action.bound
+  attach(key: string, vm: any) {
+    this._vms[key] = vm;
   }
 
+  @action.bound
+  detach(key: string) {
+    delete this._vms[key];
+  }
+
+  getViewModel<T>(key: string): T | undefined {
+    const vm = this._vms[key];
+    if (vm === undefined) return undefined;
+
+    return vm as T;
+  }
+
+  /**
+   * @deprecated Use `getViewModel` instead.
+   * @see this.getViewModel
+   */
+  @computed
   get timelineViewModel(): TimelineViewModel | undefined {
-    if (!this._timelineViewModel) {
-      runInAction(() => {
-        this._timelineViewModel = new TimelineViewModel(this._mainController);
-      });
-    }
-    return this._timelineViewModel;
-  }
-
-  setCanvasViewModel(vm: CanvasViewModel) {
-    this._canvasViewModel = vm;
-  }
-
-  get canvasViewModel(): CanvasViewModel | undefined {
-    return this._canvasViewModel;
-  }
-
-  setFileTreeViewModel(vm: FileTreeViewModel) {
-    this._fileTreeViewModel = vm;
-  }
-
-  get fileTreeViewModel(): FileTreeViewModel | undefined {
-    return this._fileTreeViewModel;
-  }
-
-  setAuthorPanelVisibility(visible: boolean) {
-    this._isAuthorPanelVisible = visible;
-  }
-
-  get isAuthorPanelVisible() {
-    return this._isAuthorPanelVisible;
-  }
-
-  toggleAuthorPanelVisibility() {
-    this.setAuthorPanelVisibility(!this._isAuthorPanelVisible);
+    if (this._vms["timeline"] === undefined) console.warn("Timeline ViewModel not found");
+    return this._vms["timeline"];
   }
 }

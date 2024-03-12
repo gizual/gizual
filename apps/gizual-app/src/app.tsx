@@ -1,11 +1,12 @@
+import { useTheme } from "@app/hooks/use-theme";
 import { WelcomePage } from "@app/pages/welcome";
 import { Loading } from "@app/primitives/loading";
-import { useTheme } from "@app/utils";
-import { LocalQueryContext, useLocalQuery } from "@app/utils/hooks";
+import { LocalQueryContext, LocalQueryManager } from "@app/services/local-query";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { ContextMenuProvider } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import { useQuery, useScreen } from "@giz/maestro/react";
 
@@ -22,8 +23,13 @@ import "@mantine/notifications/styles.css";
 
 function App() {
   const mainController = useMainController();
-  const { errors } = useQuery();
-  const { localQuery, updateLocalQuery, resetLocalQuery, publishLocalQuery } = useLocalQuery();
+  const { query, setQuery, errors } = useQuery();
+
+  const localQueryManager = React.useMemo(() => {
+    const lqm = new LocalQueryManager(query, setQuery, errors);
+    mainController.setLocalQueryManager(lqm);
+    return lqm;
+  }, [query, setQuery, errors]);
 
   const mantineTheme = createTheme({
     colors: {
@@ -53,9 +59,7 @@ function App() {
     <MantineProvider theme={mantineTheme} defaultColorScheme={theme}>
       <Notifications position="top-right" />
       <ContextMenuProvider>
-        <LocalQueryContext.Provider
-          value={{ localQuery, updateLocalQuery, publishLocalQuery, resetLocalQuery, errors }}
-        >
+        <LocalQueryContext.Provider value={localQueryManager}>
           <div className={style.App}>
             {shouldDisplayLoadingIndicator && (
               <Loading progressText={mainController.progressText} />

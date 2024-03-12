@@ -1,5 +1,5 @@
 import { IconClose } from "@app/assets";
-import { useMediaQuery } from "@app/utils";
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import clsx from "clsx";
 import React from "react";
 import { createPortal } from "react-dom";

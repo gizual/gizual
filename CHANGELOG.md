@@ -1,8 +1,20 @@
 ## Gizual 3.0.0-alpha.XX (XX.XX.2024)
 
+### Features
+
+### Changes
+
+- **app:frontend:** unify date format across all UI components
+- **app:frontend:** disable pagination on author tables with less than `PAGE_SIZE` authors
+- **app:frontend:** implement consistent blur behavior for all input fields
+- **app:frontend:** implement automatic centering of the timeline on changes to query dates
+- **app:frontend:** add color pickers to canvas legend component
+- **app:frontend:** add warning dialog if a repository is open and the user tries to exit the page
+
 ### Bug Fixes
 
 - **app:backend:** fix unstable directory listing of FSA API in chromium 122 & 123 through caching
+- **app:frontend:** fix an issue that caused color updates triggered through the author panel to not be applied properly
 
 ---
 

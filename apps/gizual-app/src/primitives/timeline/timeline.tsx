@@ -1,16 +1,14 @@
 import { IconDragVertical } from "@app/assets";
-import { useMainController, useViewModelController } from "@app/controllers";
-import { NoVmError, useWindowSize } from "@app/utils";
+import { useWindowSize } from "@app/hooks/use-window-size";
+import { useLocalQuery } from "@app/services/local-query";
+import { useViewModel } from "@app/services/view-model";
+import { NoVmError } from "@app/utils";
 import { Loader } from "@mantine/core";
 import clsx from "clsx";
-import dayjs from "dayjs";
 import { useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
-
-import { useQuery } from "@giz/maestro/react";
-import { GizDate } from "@giz/utils/gizdate";
 
 import { Commits } from "./commits";
 import { RulerTicks } from "./ruler-ticks";
@@ -222,15 +220,9 @@ export const Ruler = observer(({ vm }: TimelineProps) => {
   );
 });
 
-export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
-  const mainController = useMainController();
-  const vmController = useViewModelController();
-
-  const vm: TimelineViewModel = React.useMemo(() => {
-    return externalVm || new TimelineViewModel(mainController);
-  }, [externalVm]);
-
-  const { query, updateQuery } = useQuery();
+export const Timeline = observer(() => {
+  const { updateLocalQuery, publishLocalQuery, rangeByDate } = useLocalQuery();
+  const vm = useViewModel(TimelineViewModel);
 
   const timelineContainerRef = useRef<HTMLDivElement>(null);
   const timelineSvgWrapperRef = useRef<HTMLDivElement>(null);
@@ -242,7 +234,7 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
   // the entire component, because the dimensions of the viewport must be changed
   // to adhere the dimensions of the parent.
   const [width, _] = useWindowSize();
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const containerWidth = timelineContainerRef.current?.clientWidth ?? 1000;
 
     const timelineSvgWrapperWidth = containerWidth; //previously: containerWidth - vm.textColumnWidth - 3 * vm.padding;
@@ -258,28 +250,31 @@ export const Timeline = observer(({ vm: externalVm }: TimelineProps) => {
     vm.setViewBoxWidth(timelineSvgWrapperWidth * PRERENDER_MULTIPLIER);
     vm.updateSelectionStartCoords();
     vm.updateSelectionEndCoords();
-  }, [timelineContainerRef, vmController.isAuthorPanelVisible, vm.commitsForBranch, width]);
+  }, [vm, timelineContainerRef, timelineSvgWrapperRef, vm.commitsForBranch, width]);
 
+  // If the query changed, update the start & end dates and re-center the timeline.
   React.useEffect(() => {
-    if (query.time && "rangeByDate" in query.time && Array.isArray(query.time.rangeByDate)) {
-      vm.setSelectedStartDate(new GizDate(dayjs(query.time.rangeByDate.at(0)).toDate()));
-      vm.setSelectedEndDate(new GizDate(dayjs(query.time.rangeByDate.at(-1)).toDate()));
+    if (rangeByDate) {
+      vm.setSelectedStartDate(rangeByDate[0]);
+      vm.setSelectedEndDate(rangeByDate[1]);
+      vm.initializePositionsFromSelection();
     }
-  }, [query]);
+  }, [rangeByDate]);
 
   React.useEffect(() => {
     const event = vm.on("timelineSelection:changed", () => {
-      updateQuery({
+      updateLocalQuery({
         time: {
           rangeByDate: [vm.selectedStartDate.toString(), vm.selectedEndDate.toString()],
         },
       });
+      publishLocalQuery();
     });
 
     return () => {
       event.dispose();
     };
-  }, []);
+  }, [updateLocalQuery, publishLocalQuery, vm]);
 
   return (
     <div className={style.TimelineComponent} id={"TimelineComponent"}>
