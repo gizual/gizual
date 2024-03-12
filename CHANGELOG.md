@@ -1,3 +1,11 @@
+## Gizual 3.0.0-alpha.XX (XX.XX.2024)
+
+### Bug Fixes
+
+- **app:backend:** fix unstable directory listing of FSA API in chromium 122 & 123 through caching
+
+---
+
 ## Gizual 3.0.0-alpha.16 (22.02.2024)
 
 ### Features

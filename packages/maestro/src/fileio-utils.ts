@@ -245,21 +245,43 @@ async function clearDirectory(directoryHandle: FileSystemDirectoryHandle) {
   }
 }
 
+const MAX_DEPTH = 1;
+
 export async function seekRepo(
   directoryHandle: FileSystemDirectoryHandle,
   depth = 0,
 ): Promise<FileSystemDirectoryHandle | undefined> {
   const entries = await directoryHandle.entries();
 
+  let count = 0;
   for await (const [name, handle] of entries) {
+    count++;
     if (name === ".git" && handle.kind === "directory") {
       return directoryHandle;
-    } else if (handle.kind === "directory" && depth < 2) {
-      const found = await seekRepo(handle);
-      if (found) {
-        return found;
+    }
+  }
+
+  if (depth >= MAX_DEPTH) {
+    return undefined;
+  }
+
+  if (count > 1) {
+    console.warn("more than one entry in directory", directoryHandle);
+    return undefined;
+  }
+
+  for await (const [name, handle] of entries) {
+    if (name === "node_modules") {
+      continue;
+    }
+
+    if (handle.kind === "directory") {
+      const result = await seekRepo(handle, depth + 1);
+      if (result) {
+        return result;
       }
     }
   }
+
   return undefined;
 }
