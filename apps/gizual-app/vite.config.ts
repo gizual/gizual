@@ -5,7 +5,6 @@ import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import sassDts from "vite-plugin-sass-dts";
 import svgr from "vite-plugin-svgr";
-import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 
 const commitHash = child.execSync("git rev-parse --short HEAD").toString();
@@ -13,10 +12,16 @@ const rootDir = child.execSync("git rev-parse --show-toplevel").toString().trim(
 
 const packageJson = await fsp.readFile(path.join(rootDir, "package.json"), "utf8").then(JSON.parse);
 
+const target = ["chrome106", "edge106", "firefox110", "safari16", "es2022"];
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   base: "./",
+  esbuild: {
+    target,
+  },
   build: {
+    target,
     rollupOptions: {
       logLevel: process.platform === "win32" ? "silent" : "warn",
     },
@@ -70,7 +75,6 @@ export default defineConfig(({ mode }) => ({
       tsDecorators: true,
     }),
     wasm(),
-    topLevelAwait(),
     sassDts({
       enabledMode: ["development", "production"],
     }),
