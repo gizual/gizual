@@ -500,6 +500,14 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       this.colorManager.init({ assignedColors: query.preset.paletteByAuthor });
     }
 
+    if (
+      !isEqual(query.preset, oldQuery.preset) &&
+      query.preset &&
+      "gradientByAge" in query.preset
+    ) {
+      this.colorManager.init({ assignedColors: [] });
+    }
+
     this.updateQueryCacheKey();
 
     if (

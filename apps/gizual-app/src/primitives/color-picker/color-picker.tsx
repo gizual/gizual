@@ -52,7 +52,7 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
   const [isOpen, setIsOpen] = React.useState(false);
   const [color, setColor] = useColor(hexValue);
   const [initialColor] = useColor(hexValue);
-  const ref = useClickOutside(() => setIsOpen(false));
+  const ref = useClickOutside(() => onCancel());
 
   const onCancel = () => {
     setColor(initialColor);
