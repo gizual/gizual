@@ -1,5 +1,7 @@
 import * as Comlink from "comlink";
 
+import { GizWorker } from "@giz/worker";
+
 import type { DatabaseWorker } from "./database-worker";
 import DatabaseWorkerURL from "./database-worker?worker&url";
 
@@ -7,7 +9,7 @@ export class Database {
   worker: Comlink.Remote<DatabaseWorker>;
 
   constructor() {
-    this.worker = Comlink.wrap(new Worker(DatabaseWorkerURL, { type: "module" }));
+    this.worker = Comlink.wrap(new GizWorker(DatabaseWorkerURL, { type: "module" }));
   }
 
   async init(port: MessagePort) {

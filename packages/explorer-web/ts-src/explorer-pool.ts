@@ -2,7 +2,7 @@ import { isString } from "lodash";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
 import wasmFileUrl from "@giz/explorer/dist/explorer-libgit2.wasm?url";
-import { LOG, Logger } from "@giz/logger";
+import { LOG, Logger } from "@giz/logging";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
 import { Author, Blame, FileTreeNode } from "./types";

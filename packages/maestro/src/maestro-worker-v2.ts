@@ -17,6 +17,7 @@ import {
   PoolPortal,
 } from "@giz/explorer-web";
 import { BaseContext, FileRendererPool, RenderType } from "@giz/file-renderer";
+import { createLogger } from "@giz/logging";
 import { SearchQueryType } from "@giz/query";
 import { getStringDate, GizDate } from "@giz/utils/gizdate";
 
@@ -80,6 +81,7 @@ export type MaestroOpts = {
 };
 
 export class Maestro extends EventEmitter<Events, Maestro> {
+  private logger = createLogger("maestro");
   private explorerPool!: PoolPortal;
   private explorerPoolController!: PoolController;
   private renderPool: FileRendererPool;
@@ -200,7 +202,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       tags,
     });
 
-    console.log({
+    this.logger.log({
       branches,
       remotes,
       tags,
@@ -849,8 +851,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       return;
     }
 
-    console.log("scheduleBlockRender", block.type);
-
     match(block.type)
       .with(Pattern.union("file-lines", "file-mosaic"), () => {})
       .otherwise(() => {
@@ -1071,7 +1071,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     event: T,
     ...args: EventEmitter.ArgumentMap<Events>[Extract<T, keyof Events>]
   ): boolean {
-    console.log("emit", event, ...args);
+    this.logger.log("emit", event, ...args);
     return super.emit(event, ...args);
   }
 }

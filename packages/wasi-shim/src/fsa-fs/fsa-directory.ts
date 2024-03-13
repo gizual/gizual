@@ -8,10 +8,15 @@ import { FSAFile } from "./fsa-file";
 type FileOrDirectory = FSADirectory | FSAFile;
 
 export class FSADirectory {
+  cache!: CacheHandlerI;
   constructor(
     public handle: FileSystemDirectoryHandle,
-    public cache: CacheHandlerI,
-  ) {}
+    cache?: CacheHandlerI,
+  ) {
+    if (cache) {
+      this.cache = cache;
+    }
+  }
 
   stat(): wasi.Filestat {
     return new wasi.Filestat(wasi.FILETYPE_DIRECTORY, 0n);

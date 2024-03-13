@@ -1,6 +1,7 @@
 export interface WasiRuntimeOpts {
   moduleUrl: string;
   moduleName: string;
+  id?: number;
 }
 
 export interface WasiRunOpts {

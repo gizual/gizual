@@ -1,0 +1,7 @@
+{
+  "name": "@giz/worker",
+  "exports": {
+    ".": "./src/giz-worker.ts"
+  },
+  "sideEffects": false
+}

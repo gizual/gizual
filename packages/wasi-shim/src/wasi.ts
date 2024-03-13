@@ -5,6 +5,8 @@
 
 import * as Asyncify from "@xtuc/asyncify-wasm";
 
+import { createLogger } from "@giz/logging";
+
 import { Fd, RetVal_dirent, RetVal_fd_obj, RetVal_filestat, RetVal_nread } from "./file-descriptor";
 import { ConsolePipe, StdIoPipe } from "./stdio";
 import { trace } from "./trace";
@@ -37,9 +39,10 @@ export type WasiCreateOpts = {
 };
 
 export class WASI {
-  stdin: StdIoPipe;
-  stdout: StdIoPipe;
-  stderr: Fd;
+  logger = createLogger("wasi");
+  stdin!: StdIoPipe;
+  stdout!: StdIoPipe;
+  stderr!: Fd;
 
   args: Array<string> = [];
   env: Array<string> = [];
@@ -93,7 +96,7 @@ export class WASI {
   }
 
   async instantiate(input: WebAssembly.Module | URL | Uint8Array) {
-    let data: BufferSource;
+    let data: BufferSource | undefined;
     if (input instanceof URL) {
       data = await fetch(input).then((res) => res.arrayBuffer());
     }
@@ -346,7 +349,7 @@ export class WASI {
         return wasi.ERRNO_SUCCESS;
       },
       fd_fdstat_set_flags(fd: number, fdstat_ptr: number): number {
-        console.error("fd_fdstat_set not implemented");
+        self.logger.error("fd_fdstat_set not implemented");
         return wasi.ERRNO_BADF;
       },
       fd_prestat_get(fd: number, prestat_ptr: number): number {
@@ -506,7 +509,7 @@ export class WASI {
         if (self.hasFd(fd)) {
           const pathStr = new TextDecoder().decode(path);
           if (self.trace) {
-            console.log("path_open", { path: pathStr, fd });
+            self.logger.debug("path_open", { path: pathStr, fd });
           }
           const result = self
             .getFd(fd)

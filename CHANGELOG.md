@@ -2,6 +2,8 @@
 
 ### Features
 
+- **app:general:** Implement custom loggers with pretty prefixes, namespaces and custom filtering
+
 ### Changes
 
 - **app:frontend:** unify date format across all UI components

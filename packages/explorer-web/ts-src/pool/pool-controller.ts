@@ -1,5 +1,7 @@
 import * as Comlink from "comlink";
 
+import { GizWorker } from "@giz/worker";
+
 import type { PoolMaster, PoolMetrics } from "./pool-master";
 
 export type PoolControllerOpts = {
@@ -44,7 +46,7 @@ export class PoolController {
       throw new Error("No directory handle or zip file provided");
     }
 
-    const worker = new Worker(new URL("pool-master.ts", import.meta.url), { type: "module" });
+    const worker = new GizWorker(new URL("pool-master.ts", import.meta.url), { type: "module" });
     const remote = Comlink.wrap<PoolMaster>(worker);
 
     if (opts.directoryHandle) {

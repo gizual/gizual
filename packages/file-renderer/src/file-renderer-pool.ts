@@ -1,6 +1,8 @@
 import * as Comlink from "comlink";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
+import { GizWorker } from "@giz/worker";
+
 import type { FileRendererWorker as FileRendererWorkerI } from "./file-renderer-worker";
 import type { RendererContext } from "./types";
 
@@ -118,7 +120,7 @@ export class FileRendererPool {
   @action.bound
   setupPool() {
     for (let i = 0; i < this.poolSize; i++) {
-      const worker = new Worker(new URL("file-renderer-worker.ts", import.meta.url), {
+      const worker = new GizWorker(new URL("file-renderer-worker.ts", import.meta.url), {
         type: "module",
       });
 

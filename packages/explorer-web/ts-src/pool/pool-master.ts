@@ -1,5 +1,9 @@
+import "@giz/logging/worker";
+
 import * as Comlink from "comlink";
 import { isEqual } from "lodash";
+
+import { createLogger } from "@giz/logging";
 
 import { PoolNode } from "./pool-node";
 import { JobWithOrigin, PoolTask } from "./types";
@@ -25,6 +29,7 @@ const METRICS_UPDATE_INTERVAL = 200;
  * It is controlled by the PoolController from the main thread.
  */
 export class PoolMaster {
+  logger = createLogger();
   maxConcurrency = DEFAULT_MAX_CONCURRENCY;
   directoryHandle!: FileSystemDirectoryHandle;
   zipFile!: Uint8Array;
@@ -103,7 +108,7 @@ export class PoolMaster {
   }
 
   onPortMessageError(message: MessageEvent<unknown>) {
-    console.error("Port message error", message);
+    this.logger.error("Port message error", message);
   }
 
   onPortMessage(message: MessageEvent<PoolTask>) {
@@ -159,10 +164,11 @@ export class PoolMaster {
     const totalWorkersCount = this.totalWorkersCount;
 
     if (totalWorkersCount < this.maxConcurrency) {
-      const newWorkers = Array.from(
-        { length: this.maxConcurrency - totalWorkersCount },
-        () => new PoolNode(),
-      );
+      const newWorkers: PoolNode[] = [];
+
+      for (let i = totalWorkersCount; i < this.maxConcurrency; i++) {
+        newWorkers.push(new PoolNode({ id: i }));
+      }
 
       this.workers.push(...newWorkers);
 
