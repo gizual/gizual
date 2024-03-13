@@ -11,8 +11,14 @@ import { QueryError, QueryWithErrors } from "../query";
 
 import { MaestroContext, TrpcContext } from "./providers";
 
-function isSupportedBrowser() {
+function hasFileSystemAccessAPI() {
   return "showDirectoryPicker" in window;
+}
+
+function canWriteOpfsMainThread() {
+  return (
+    typeof FileSystemFileHandle !== "undefined" && !!FileSystemFileHandle.prototype.createWritable
+  );
 }
 
 export function useTrpc(): CreateTRPCReact<AppRouter, unknown, ""> {
@@ -126,14 +132,16 @@ export function useFileLoaders(): FileLoaders {
 
   const localLoaders: FileLoaderLocal[] = [];
 
-  if (isSupportedBrowser()) {
+  if (hasFileSystemAccessAPI()) {
     localLoaders.push({ id: "fsa", load: fsaCallback, name: "File System Access" });
   }
 
-  localLoaders.push(
-    { id: "drag-and-drop", load: dragAndDropCallback, name: "Drag and drop" },
-    { id: "input-field", load: inputFieldCallback, name: "HTML Input" },
-  );
+  if (canWriteOpfsMainThread()) {
+    localLoaders.push(
+      { id: "drag-and-drop", load: dragAndDropCallback, name: "Drag and drop" },
+      { id: "input-field", load: inputFieldCallback, name: "HTML Input" },
+    );
+  }
 
   const loaders: FileLoaders = {
     local: localLoaders,

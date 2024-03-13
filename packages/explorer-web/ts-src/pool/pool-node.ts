@@ -4,6 +4,7 @@ import { WasiRuntime } from "@giz/wasi-runtime";
 import wasmFileUrl from "../../build/explorer-web.wasm?url";
 
 import { DataResponse, ErrorResponse, JobWithOrigin } from "./types";
+import { FSHandle } from "@giz/opfs";
 
 export type PoolNodeOpts = {
   wasmFileUrl?: string;
@@ -38,11 +39,11 @@ export class PoolNode {
     }
   }
 
-  boot(handle: FileSystemDirectoryHandle | Uint8Array) {
+  boot(handle: FSHandle | Uint8Array) {
     this.starting = this._boot(handle);
   }
 
-  private async _boot(handle: FileSystemDirectoryHandle | Uint8Array): Promise<void> {
+  private async _boot(handle: FSHandle | Uint8Array): Promise<void> {
     const runtime = await WasiRuntime.create({
       moduleUrl: this.wasmFileUrl,
       moduleName: "/module.wasm",

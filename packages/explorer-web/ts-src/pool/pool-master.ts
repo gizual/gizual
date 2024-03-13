@@ -4,6 +4,7 @@ import * as Comlink from "comlink";
 import { isEqual } from "lodash";
 
 import { createLogger } from "@giz/logging";
+import { FSHandle } from "@giz/opfs";
 
 import { PoolNode } from "./pool-node";
 import { JobWithOrigin, PoolTask } from "./types";
@@ -17,7 +18,7 @@ export type PoolMetrics = {
   numOpenPorts: number;
 };
 
-const DEFAULT_MAX_CONCURRENCY = navigator.hardwareConcurrency || 4;
+const DEFAULT_MAX_CONCURRENCY = 2;
 
 const SCHEDULER_INTERVAL = 50;
 
@@ -31,7 +32,7 @@ const METRICS_UPDATE_INTERVAL = 200;
 export class PoolMaster {
   logger = createLogger();
   maxConcurrency = DEFAULT_MAX_CONCURRENCY;
-  directoryHandle!: FileSystemDirectoryHandle;
+  directoryHandle!: FSHandle;
   zipFile!: Uint8Array;
   schedulerInterval: any;
   metricsUpdateInterval: any;
@@ -81,7 +82,7 @@ export class PoolMaster {
     this.maxConcurrency = num;
   }
 
-  init(source: FileSystemDirectoryHandle | Uint8Array, maxConcurrency?: number) {
+  init(source: FSHandle | Uint8Array, maxConcurrency?: number) {
     if (source instanceof Uint8Array) {
       this.zipFile = source;
     } else {

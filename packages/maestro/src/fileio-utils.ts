@@ -210,9 +210,16 @@ export async function importZipFile(data: ArrayBuffer): Promise<FileSystemDirect
     }
 
     const fileHandle = await currentHandle.getFileHandle(fileName, { create: true });
-    const writable = await fileHandle.createWritable();
-    await writable.write(content);
-    await writable.close();
+
+    if (fileHandle.createWritable) {
+      const writable = await fileHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+    } else {
+      const syncHandle = await fileHandle.createSyncAccessHandle();
+      syncHandle.write(content);
+      syncHandle.close();
+    }
   }
 
   return directory;

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "src/main.ts",
   "type": "module",
+  "exports": {
+    "./types": "./src/types.ts"
+  },
   "scripts": {
     "dev": "nodemon ./src/main.ts",
     "build": "vite build",

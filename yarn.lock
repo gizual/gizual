@@ -2911,6 +2911,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@giz/opfs@workspace:packages/opfs":
+  version: 0.0.0-use.local
+  resolution: "@giz/opfs@workspace:packages/opfs"
+  languageName: unknown
+  linkType: soft
+
 "@giz/please@workspace:*, @giz/please@workspace:tools/please":
   version: 0.0.0-use.local
   resolution: "@giz/please@workspace:tools/please"
