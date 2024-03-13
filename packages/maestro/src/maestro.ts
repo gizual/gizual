@@ -40,6 +40,7 @@ export class Maestro {
 
     this.rawWorker = new GizWorker(MaestroWorkerURL, {
       type: "module",
+      name: "maestro-worker",
     });
 
     this.worker = wrap<MaestroWorker>(this.rawWorker);

@@ -27,7 +27,15 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ["@xtuc/asyncify-wasm", "zod", "eventemitter3", "tslog", "lodash/flatten"],
+    include: [
+      "buffer/",
+      "@xtuc/asyncify-wasm",
+      "zod",
+      "eventemitter3",
+      "lodash/flatten",
+      "fflate/browser",
+      "ejs",
+    ],
     exclude: [
       "@sqlite.org/sqlite-wasm",
       "@tanstack/react-query",
@@ -58,16 +66,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
-    {
-      name: "isolation",
-      configureServer(server) {
-        server.middlewares.use((_req, res, next) => {
-          res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-          res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-          next();
-        });
-      },
-    },
     svgr({
       include: [/\.svg$/],
     }),
@@ -80,12 +78,22 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   server: {
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+    },
     proxy: {
       "/api": {
         target: "http://localhost:5172",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
+    },
+  },
+  preview: {
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
     },
   },
 }));
