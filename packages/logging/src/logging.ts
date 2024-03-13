@@ -1,4 +1,5 @@
 import { minimatch } from "minimatch";
+export { serializeError } from "serialize-error";
 
 declare global {
   interface Window {

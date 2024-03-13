@@ -4,6 +4,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { GizWorker } from "@giz/worker";
 
 import type { FileRendererWorker as FileRendererWorkerI } from "./file-renderer-worker";
+import FileRendererWorkerUrl from "./file-renderer-worker?worker&url";
 import type { RendererContext } from "./types";
 
 export type RenderJobResult = {
@@ -120,7 +121,7 @@ export class FileRendererPool {
   @action.bound
   setupPool() {
     for (let i = 0; i < this.poolSize; i++) {
-      const worker = new GizWorker(new URL("file-renderer-worker.ts", import.meta.url), {
+      const worker = new GizWorker(FileRendererWorkerUrl, {
         name: `renderer-worker-${i}`,
         type: "module",
       });

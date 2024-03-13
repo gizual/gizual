@@ -1,13 +1,10 @@
 {
   "name": "@giz/wasi-runtime",
   "version": "0.0.1",
-  "module": "dist/index.mjs",
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.mts",
+  "main": "src/index.ts",
   "dependencies": {
     "@giz/logging": "workspace:*",
-    "comlink": "4.4.1",
-    "tsup": "7.1.0"
+    "comlink": "4.4.1"
   },
   "devDependencies": {
     "eslint": "8.45.0",
@@ -16,15 +13,7 @@
     "typescript": "5.0.4"
   },
   "scripts": {
-    "build": "tsup --entry.index src/index.ts --entry.wasi-runtime-worker src/worker/index.ts --format esm --dts",
-    "dev": "turbowatch",
-    "clean": "rimraf dist",
     "lint": "eslint .",
     "type-check": "tsc"
-  },
-  "please": {
-    "build": {
-      "input": "src/*"
-    }
   }
 }

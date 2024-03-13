@@ -9,7 +9,9 @@ export class Database {
   worker: Comlink.Remote<DatabaseWorker>;
 
   constructor() {
-    this.worker = Comlink.wrap(new GizWorker(DatabaseWorkerURL, { type: "module" }));
+    this.worker = Comlink.wrap(
+      new GizWorker(DatabaseWorkerURL, { type: "module", name: "database-worker" }),
+    );
   }
 
   async init(port: MessagePort) {

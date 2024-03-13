@@ -1,4 +1,6 @@
-import { getGlobalState } from "@giz/logging";
+import { getGlobalState, createLogger, serializeError } from "@giz/logging";
+
+const logger = createLogger();
 
 /**
  * A GizWorker is a WebWorker with some additional functionality
@@ -32,6 +34,13 @@ export class GizWorker extends Worker {
     urlObj.searchParams.set("logChannelId", globalState.id);
 
     super(urlObj, options);
+
+    // Add a default error handler to log errors, just in case
+    // the worker doesn't have its own error handler
+    this.onerror = (event) => {
+      const error = event.error ?? new Error("Unknown error");
+      logger.error(`Unable to create worker:`, event, serializeError(error));
+    };
 
     this.name = name;
   }
