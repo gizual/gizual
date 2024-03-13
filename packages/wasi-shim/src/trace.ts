@@ -1,7 +1,9 @@
+import { createLogger } from "@giz/logging";
+
 export function trace<T extends object>(obj: T): T {
-  console.debug(`trace`, obj);
+  const logger = createLogger("trace");
   const proxy = new Proxy(obj, {
-    get(target, propKey, receiver) {
+    get(target: any, propKey, receiver) {
       const origMethod = target[propKey];
 
       // eslint-disable-next-line unicorn/prefer-ternary
@@ -16,22 +18,22 @@ export function trace<T extends object>(obj: T): T {
           try {
             const result = origMethod.apply(target, args);
             if (result instanceof Promise) {
-              console.debug(`call async: ${functionCall}`);
+              logger.debug(`call async: ${functionCall}`);
               result
                 .then((res) => {
-                  console.debug(`call async finished: ${functionCall} => ${res}`);
+                  logger.debug(`call async finished: ${functionCall} => ${res}`);
                   return res;
                 })
                 .catch((error) => {
-                  console.error(`call async error: ${functionCall} => ${error}`);
+                  logger.error(`call async error: ${functionCall} => ${error}`);
                   throw error;
                 });
               return result;
             }
-            console.debug(`call: ${functionCall} => ${result}`);
+            logger.debug(`call: ${functionCall} => ${result}`);
             return result;
           } catch (error) {
-            console.error(`call error: ${functionCall} => ${error}`);
+            logger.error(`call error: ${functionCall} => ${error}`);
             throw error;
           }
         };

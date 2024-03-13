@@ -7,12 +7,14 @@ import { DataResponse, ErrorResponse, JobWithOrigin } from "./types";
 
 export type PoolNodeOpts = {
   wasmFileUrl?: string;
+  id?: number;
 };
 
 /**
  * A PoolNode represents single worker in the pool, but lives within the pool-master thread
  */
 export class PoolNode {
+  id = 0;
   wasmFileUrl = wasmFileUrl;
   starting!: Promise<void>;
 
@@ -31,6 +33,9 @@ export class PoolNode {
     if (opts.wasmFileUrl) {
       this.wasmFileUrl = opts.wasmFileUrl;
     }
+    if (opts.id) {
+      this.id = opts.id;
+    }
   }
 
   boot(handle: FileSystemDirectoryHandle | Uint8Array) {
@@ -44,6 +49,7 @@ export class PoolNode {
       folderMappings: {
         "/repo": handle,
       },
+      id: this.id,
     });
 
     await runtime.run({

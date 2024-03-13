@@ -1,6 +1,6 @@
 import * as Comlink from "comlink";
 
-import { LOG, Logger } from "@giz/logger";
+import { createLogger, Logger } from "@giz/logging";
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 import type { WasiRuntimeWorker } from "../worker/wasi-runtime-worker";
 
@@ -10,21 +10,18 @@ export type ExtendedWasiRuntimeOpts = {
   folderMappings: Record<string, FileSystemDirectoryHandle | Uint8Array>;
 } & WasiRuntimeOpts;
 
-let COUNTER = 0;
-
 const WASM_CACHE: Record<string, Uint8Array> = {};
 
 export class WasiRuntime {
-  id = 0;
+  private id = 0;
   logger: Logger;
   private constructor(
     private opts: ExtendedWasiRuntimeOpts,
     private worker: Comlink.Remote<WasiRuntimeWorker>,
     private terminate: () => void,
   ) {
-    this.id = COUNTER++;
-    this.logger = LOG.getSubLogger({ name: `WasiRuntime-${this.id}` });
-    worker.setId(this.id, this.logger.settings.minLevel);
+    this.id = opts.id ?? 0;
+    this.logger = createLogger(`wasi-runtime-${this.id}`);
   }
 
   async init() {
@@ -72,7 +69,7 @@ export class WasiRuntime {
   }
 
   static async create(opts: ExtendedWasiRuntimeOpts) {
-    const [worker, terminate] = await createWorker();
+    const [worker, terminate] = await createWorker(opts.id ?? 0);
 
     const runtime = new WasiRuntime(opts, worker, terminate);
     await runtime.init();

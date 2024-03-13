@@ -1,0 +1,20 @@
+{
+  "name": "@giz/logging",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./src/logging.ts",
+    "./browser": "./src/browser.ts",
+    "./worker": "./src/worker.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "type-check": "tsc"
+  },
+  "dependencies": {
+    "micromatch": "4.0.5",
+    "serialize-error": "11.0.3"
+  },
+  "devDependencies": {
+    "eslint": "8.45.0"
+  }
+}

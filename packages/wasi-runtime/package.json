@@ -5,7 +5,7 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.mts",
   "dependencies": {
-    "@giz/logger": "workspace:*",
+    "@giz/logging": "workspace:*",
     "comlink": "4.4.1",
     "tsup": "7.1.0"
   },

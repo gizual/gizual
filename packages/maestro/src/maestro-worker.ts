@@ -1,18 +1,20 @@
-import { z } from "zod";
-
-declare const self: DedicatedWorkerGlobalScope;
+import "@giz/logging/worker";
 
 import type { VisualizationSettings } from "@app/controllers";
 import { observable } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
+import { z } from "zod";
 
 import { FileTreeNode } from "@giz/explorer";
 import { PoolControllerOpts } from "@giz/explorer-web";
+import { createLogger } from "@giz/logging";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
 import { Block, BlockImage, Events, Maestro, State } from "./maestro-worker-v2";
 import { QueryWithErrors } from "./query";
 import { t } from "./trpc-worker";
+
+const logger = createLogger("trpc");
 
 if (typeof window !== "undefined") {
   throw new TypeError("Must be run in a worker");
@@ -241,12 +243,12 @@ function debugPrint() {
 }
 
 function setVisualizationSettings(settings: VisualizationSettings) {
-  console.log("setVisualizationSettings", settings);
+  logger.log("setVisualizationSettings", settings);
   maestro.updateVisualizationSettings(settings);
 }
 
 function setDevicePixelRatio(devicePixelRatio: number) {
-  console.log("setDevicePixcelRatio", devicePixelRatio);
+  logger.log("setDevicePixcelRatio", devicePixelRatio);
   maestro.updateDevicePixelRatio(devicePixelRatio);
 }
 

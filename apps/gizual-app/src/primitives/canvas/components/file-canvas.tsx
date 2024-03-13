@@ -3,10 +3,13 @@ import { observer } from "mobx-react-lite";
 import React, { useContext } from "react";
 import { match, Pattern } from "ts-pattern";
 
+import { createLogger } from "@giz/logging";
 import { FileBlock } from "../../file/block";
 import { MasonryGrid } from "../../masonry";
 import { CanvasContext } from "../canvas.context";
 import { CanvasViewModel } from "../canvas.vm";
+
+const logger = createLogger("masonry-canvas");
 
 type MasonryCanvasProps = {
   vm: CanvasViewModel;
@@ -24,7 +27,7 @@ export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
 
   const blocks = useContext(CanvasContext).useBlocks();
 
-  console.log({ blocks, wrapper, cw: vm.canvasWidth });
+  logger.debug({ blocks, wrapper, cw: vm.canvasWidth });
   return (
     <>
       <MasonryGrid

@@ -4,7 +4,6 @@ import { action, computed, makeObservable, observable } from "mobx";
 
 import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
 import { FileTree, Repository } from "@giz/explorer-web";
-import { FileRendererPool } from "@giz/file-renderer";
 import { Maestro } from "@giz/maestro";
 
 import { RepoController } from "./repo.controller";
@@ -24,7 +23,6 @@ export class MainController {
   @observable _vmController = new ViewModelController(this);
   @observable _settingsController: SettingsController;
   @observable _repoController: RepoController;
-  @observable _fileRendererPool: FileRendererPool;
   @observable _localQueryManager?: LocalQueryManager;
 
   @observable _activeRenderWorkers = new Set<string>();
@@ -44,7 +42,6 @@ export class MainController {
     this._settingsController = new SettingsController();
     this._settingsController.loadSettings();
     this._repoController = new RepoController(this);
-    this._fileRendererPool = new FileRendererPool();
     this._maestro = maestro;
 
     this._settingsController.on(
@@ -222,18 +219,6 @@ export class MainController {
   @action.bound
   setIsBusy(busy: boolean) {
     this._isBusy = busy;
-  }
-
-  get numRenderJobs() {
-    return this._fileRendererPool.numJobsInQueue;
-  }
-
-  get numBusyRenderWorkers() {
-    return this._fileRendererPool.numBusyWorkers;
-  }
-
-  get numRenderWorkers() {
-    return this._fileRendererPool.numWorkers;
   }
 
   @action.bound

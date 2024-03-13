@@ -22,7 +22,7 @@ export class FsaFS extends OpenFSADirectory {
     public name: string,
     public handle: FileSystemDirectoryHandle,
   ) {
-    super(new FSADirectory(handle, undefined));
+    super(new FSADirectory(handle));
     this.dir.cache = new CacheHandler(this);
   }
 

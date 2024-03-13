@@ -12,9 +12,9 @@ import {
 import { FileRendererWorker } from "@giz/file-renderer/worker";
 import FileRendererWorkerURL from "@giz/file-renderer/worker?worker&url";
 import { GizDate } from "@giz/utils/gizdate";
+import { GizWorker } from "@giz/worker";
 
 import { testPackageJSON } from "./renderer.mock";
-
 type Colors = {
   colorNewest: string;
   colorOldest: string;
@@ -207,7 +207,7 @@ export function Renderer(props: RendererProps) {
   React.useEffect(() => {
     setImageSrc("");
 
-    const rawWorker = new Worker(FileRendererWorkerURL, {
+    const rawWorker = new GizWorker(FileRendererWorkerURL, {
       type: "module",
     });
 

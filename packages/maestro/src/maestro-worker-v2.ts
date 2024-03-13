@@ -3,6 +3,7 @@ import { VisualizationConfig } from "@app/types";
 import EventEmitter from "eventemitter3";
 import { differenceBy, isEqual, isNumber, omit, result } from "lodash";
 import { minimatch } from "minimatch";
+import { autorun } from "mobx";
 import { match, Pattern } from "ts-pattern";
 
 import { ColorManager } from "@giz/color-manager";
@@ -17,6 +18,7 @@ import {
   PoolPortal,
 } from "@giz/explorer-web";
 import { BaseContext, FileRendererPool, RenderType } from "@giz/file-renderer";
+import { createLogger } from "@giz/logging";
 import { SearchQueryType } from "@giz/query";
 import { getStringDate, GizDate } from "@giz/utils/gizdate";
 
@@ -80,6 +82,7 @@ export type MaestroOpts = {
 };
 
 export class Maestro extends EventEmitter<Events, Maestro> {
+  private logger = createLogger("maestro");
   private explorerPool!: PoolPortal;
   private explorerPoolController!: PoolController;
   private renderPool: FileRendererPool;
@@ -145,6 +148,17 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       });
     });
 
+    autorun(
+      () => {
+        this.updateMetrics({
+          numRendererWorkers: this.renderPool.numWorkers,
+          numRendererWorkersBusy: this.renderPool.numBusyWorkers,
+          numRendererJobs: this.renderPool.numJobsInQueue,
+        });
+      },
+      { delay: 200 },
+    );
+
     const dbPort = await this.explorerPoolController.createPort();
 
     this.db.init(dbPort).then(() => {
@@ -200,7 +214,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       tags,
     });
 
-    console.log({
+    this.logger.log({
       branches,
       remotes,
       tags,
@@ -849,8 +863,6 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       return;
     }
 
-    console.log("scheduleBlockRender", block.type);
-
     match(block.type)
       .with(Pattern.union("file-lines", "file-mosaic"), () => {})
       .otherwise(() => {
@@ -1071,7 +1083,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     event: T,
     ...args: EventEmitter.ArgumentMap<Events>[Extract<T, keyof Events>]
   ): boolean {
-    console.log("emit", event, ...args);
+    this.logger.log("emit", event, ...args);
     return super.emit(event, ...args);
   }
 }

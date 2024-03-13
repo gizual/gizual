@@ -2,6 +2,8 @@
 
 ### Features
 
+- **app:general:** Implement custom loggers with pretty prefixes, namespaces and custom filtering
+
 ### Changes
 
 - **app:frontend:** unify date format across all UI components
@@ -13,6 +15,7 @@
 
 ### Bug Fixes
 
+- **app:general:** re-attach renderer worker metrics to footer
 - **app:backend:** fix unstable directory listing of FSA API in chromium 122 & 123 through caching
 - **app:frontend:** fix an issue that caused color updates triggered through the author panel to not be applied properly
 

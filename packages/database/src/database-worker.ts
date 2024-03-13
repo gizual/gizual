@@ -1,3 +1,5 @@
+import "@giz/logging/worker";
+
 import {
   type Database as SqliteDb,
   default as sqlite3InitModule,
@@ -7,9 +9,9 @@ import { expose } from "comlink";
 import _flatten from "lodash/flatten";
 
 import { Author, PoolPortal } from "@giz/explorer-web";
+import { createLogger } from "@giz/logging";
 
-const log = (...args: any[]) => console.log(...args);
-const error = (...args: any[]) => console.error(...args);
+const logger = createLogger();
 
 const AUTHORS_TABLE = `
     CREATE TABLE authors (
@@ -67,20 +69,20 @@ export class DatabaseWorker {
   db!: SqliteDb;
   portal!: PoolPortal;
   constructor() {
-    console.log("DatabaseWorker constructor");
+    logger.log("DatabaseWorker constructor");
   }
   async init(port: MessagePort) {
     this.portal = new PoolPortal(port);
-    log("Loading and initializing SQLite3 module...");
+    logger.log("Loading and initializing SQLite3 module...");
     return sqlite3InitModule({
-      print: log,
-      printErr: error,
+      print: (m) => logger.log(m),
+      printErr: (e) => logger.error(e),
     }).then((sqlite3) => {
       try {
-        log("Done initializing. Running demo...");
+        logger.log("Done initializing. Running demo...");
         return this.run(sqlite3);
       } catch (error_: any) {
-        error(error_.name, error_.message);
+        logger.error(error_.name, error_.message);
       }
     });
   }
@@ -88,15 +90,15 @@ export class DatabaseWorker {
   initDb(sqlite3: Sqlite3Static) {
     const db = new sqlite3.oo1.DB();
 
-    console.log("Creating authors table ...");
+    logger.log("Creating authors table ...");
     db.exec(AUTHORS_TABLE);
-    console.log("Creating commits table ...");
+    logger.log("Creating commits table ...");
 
     db.exec(COMMITS_TABLE);
-    console.log("Creating files table ...");
+    logger.log("Creating files table ...");
 
     db.exec(FILES_TABLE);
-    console.log("Creating commits_files table ...");
+    logger.log("Creating commits_files table ...");
 
     db.exec(COMMITS_FILES_TABLE);
 
@@ -156,7 +158,7 @@ export class DatabaseWorker {
           counter++;
 
           if (counter % 100 === 0) {
-            console.log("counter", counter);
+            logger.log("counter", counter);
           }
           const files = commit.files;
 
@@ -178,7 +180,7 @@ export class DatabaseWorker {
             });
 
             if (fileId === -1) {
-              console.warn("fileId is -1");
+              logger.warn("fileId is -1");
               continue;
             }
             fileIds.push(fileId);
@@ -201,7 +203,7 @@ export class DatabaseWorker {
           });
 
           if (commitId === -1) {
-            console.warn("fileId is -1");
+            logger.warn("fileId is -1");
             return;
           }
 
@@ -230,12 +232,12 @@ export class DatabaseWorker {
   async run(sqlite3: Sqlite3Static) {
     this.db = this.initDb(sqlite3);
 
-    console.log("Loading authors ...");
+    logger.log("Loading authors ...");
     await this.loadAuthors();
-    //console.log("Loading commits ...");
+    //logger.log("Loading commits ...");
     //const count = await this.loadCommits();
-    //console.log(`Database ready! Indexed ${count} commits.`);
-    console.log(`Database ready!`);
+    //logger.log(`Database ready! Indexed ${count} commits.`);
+    logger.log(`Database ready!`);
 
     return;
 
@@ -245,7 +247,7 @@ export class DatabaseWorker {
     const stmtStr = "INSERT INTO branches (name) VALUES (?)";
     const stmt = this.db.prepare(stmtStr);
 
-    console.log("Adding branches using", stmtStr);
+    logger.log("Adding branches using", stmtStr);
     try {
       for (const branch of branches) {
         stmt.bind([branch]).step();
@@ -255,12 +257,12 @@ export class DatabaseWorker {
       stmt.finalize();
     }
 
-    log("Query data with exec('SELECT id, name FROM branches')");
+    logger.log("Query data with exec('SELECT id, name FROM branches')");
     this.db.exec({
       sql: "SELECT id, name FROM branches",
       rowMode: "object",
       callback: function (this: any, row: any) {
-        log("row", this.counter++, " = ", JSON.stringify(row));
+        logger.log("row", this.counter++, " = ", JSON.stringify(row));
       }.bind({ counter: 0 }),
     });
   }
@@ -286,7 +288,7 @@ export class DatabaseWorker {
     });
 
     const stmt = `SELECT filePath FROM files WHERE filePath LIKE (?) AND id IN (SELECT fid FROM commits_files WHERE cid IN (SELECT id FROM commits WHERE aid IN (SELECT id FROM authors WHERE email LIKE (?))))`;
-    console.log("using SQL:", stmt);
+    logger.log("using SQL:", stmt);
 
     const result = this.db.exec({
       sql: stmt,

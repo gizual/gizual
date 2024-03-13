@@ -2878,12 +2878,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@giz/logger@workspace:*, @giz/logger@workspace:packages/logger":
+"@giz/logging@workspace:*, @giz/logging@workspace:packages/logging":
   version: 0.0.0-use.local
-  resolution: "@giz/logger@workspace:packages/logger"
+  resolution: "@giz/logging@workspace:packages/logging"
   dependencies:
     eslint: 8.45.0
-    tslog: 4.8.2
+    micromatch: 4.0.5
+    serialize-error: 11.0.3
   languageName: unknown
   linkType: soft
 
@@ -2993,7 +2994,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@giz/wasi-runtime@workspace:packages/wasi-runtime"
   dependencies:
-    "@giz/logger": "workspace:*"
+    "@giz/logging": "workspace:*"
     comlink: 4.4.1
     eslint: 8.45.0
     rimraf: 5.0.1
@@ -3021,6 +3022,12 @@ __metadata:
     mkdirp: 3.0.1
     upath: 2.0.1
     zx: 7.2.3
+  languageName: unknown
+  linkType: soft
+
+"@giz/worker@workspace:packages/worker":
+  version: 0.0.0-use.local
+  resolution: "@giz/worker@workspace:packages/worker"
   languageName: unknown
   linkType: soft
 
@@ -17687,6 +17694,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"serialize-error@npm:11.0.3":
+  version: 11.0.3
+  resolution: "serialize-error@npm:11.0.3"
+  dependencies:
+    type-fest: ^2.12.2
+  checksum: 09d1aee6186fd5ff8acc074ee8641116cdd07b12df1e95682c43d8b5d1ef657deecc2efede7f1a08f5ff3ef3d65fb60ab9c8b4b2fdde65867ad3e6d4feed34a9
+  languageName: node
+  linkType: hard
+
 "serialize-error@npm:^11.0.0":
   version: 11.0.0
   resolution: "serialize-error@npm:11.0.0"
@@ -19112,13 +19128,6 @@ __metadata:
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: 329ea56123005922f39642318e3d1f0f8265d1e7fcb92c633e0809521da75eeaca28d2cf96d7248229deb40e5c19adf408259f4b9640afd20d13aecc1430f3ad
-  languageName: node
-  linkType: hard
-
-"tslog@npm:4.8.2":
-  version: 4.8.2
-  resolution: "tslog@npm:4.8.2"
-  checksum: 04d2c2c68be53578b090ff1729b08ee23f3b5c8c509d6ffa332c43d25bcb9599ede8cce1db2c9dcb29ea3647b21c47c1ba11180ee9652a03c901702199dc87cd
   languageName: node
   linkType: hard
 

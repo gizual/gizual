@@ -1,4 +1,4 @@
-import { LOG } from "@giz/logger";
+import { createLogger } from "@giz/logging";
 import { Fd, FsaFS, WASI, ZipFS } from "@giz/wasi-shim";
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
@@ -7,16 +7,9 @@ export class WasiRuntimeWorker {
   private wasi!: WASI;
   private opts!: WasiRuntimeOpts;
   private folderMappings!: Record<string, FileSystemDirectoryHandle | Uint8Array>;
-  private id = 0;
-  private logger = LOG.getSubLogger({ name: "WasiRuntimeWorker" });
+  private logger = createLogger();
   constructor() {
     this.folderMappings = {};
-  }
-
-  setId(id: number, minLevel = 0) {
-    this.id = id;
-    this.logger.settings.name = `WasiRuntimeWorker-${id}`;
-    this.logger.settings.minLevel = minLevel;
   }
 
   addFolderMapping(path: string, handle: FileSystemDirectoryHandle | Uint8Array) {

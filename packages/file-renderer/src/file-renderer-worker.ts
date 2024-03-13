@@ -1,9 +1,12 @@
+import "@giz/logging/worker";
+
 import { VisualizationDefaults } from "@app/utils/defaults";
 import { SvgBaseElement, SvgElement } from "@app/utils/svg";
 import { expose } from "comlink";
 
 import { ColorManager } from "@giz/color-manager";
 import iosevkaUrl from "@giz/fonts/Iosevka-Extended.woff2?url";
+import { createLogger } from "@giz/logging";
 import {
   convertTimestampToMs,
   getDaysBetween,
@@ -35,6 +38,7 @@ import { calculateDimensions, interpolateBandColor } from "./utils";
 export class FileRendererWorker {
   fontsPrepared = false;
   colorManager: ColorManager;
+  logger = createLogger();
 
   constructor() {
     this.colorManager = new ColorManager();
@@ -114,7 +118,7 @@ export class FileRendererWorker {
         return this.drawBar(ctx, renderer);
       }
       default: {
-        console.log("Unknown render type:", ctx);
+        this.logger.error("Unknown render type:", ctx);
         throw new Error("Panic - Unknown render type!");
       }
     }

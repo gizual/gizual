@@ -4,6 +4,7 @@ import { makeObservable, observable, runInAction } from "mobx";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { webWorkerLink } from "@giz/trpc-webworker/link";
+import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
@@ -18,10 +19,12 @@ export type RepoSetupOpts = {
   directoryEntry?: FileSystemDirectoryEntry;
   zipFile?: File;
 };
+import { createLogger } from "@giz/logging";
 
 declare const mainController: MainController;
 
 export class Maestro {
+  logger = createLogger("maestro");
   rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
   link!: ReturnType<typeof webWorkerLink>[0];
@@ -33,9 +36,9 @@ export class Maestro {
 
   constructor() {
     this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
-    console.log("Maestro constructor");
+    this.logger.log("Maestro constructor");
 
-    this.rawWorker = new Worker(MaestroWorkerURL, {
+    this.rawWorker = new GizWorker(MaestroWorkerURL, {
       type: "module",
     });
 

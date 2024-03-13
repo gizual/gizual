@@ -1,4 +1,5 @@
 import { FinalPayload, ParameterPayloadMap } from "@giz/explorer";
+import { createLogger } from "@giz/logging";
 import { Author, Blame, FileTreeNode, GitGraph } from "../types";
 
 import { PoolResponse, PoolTask } from "./types";
@@ -30,7 +31,7 @@ export type CommitStreamData = {
   files: string[];
   timestamp: string;
 };
-
+const logger = createLogger();
 export class JobRef<T> {
   private id_: number;
   private priority_: number;
@@ -67,7 +68,7 @@ export class JobRef<T> {
   }
 
   cancel() {
-    console.warn("cancel", this.id_);
+    logger.warn("cancel", this.id_);
     this.portal.cancelJob(this.id_);
   }
 
@@ -109,7 +110,7 @@ export class PoolPortal {
     const job = this.jobs.find((j) => j.id === jobId);
 
     if (!job) {
-      console.warn("Job not found", jobId);
+      logger.warn("Job not found", jobId);
       return;
     }
 
@@ -140,7 +141,7 @@ export class PoolPortal {
   }
 
   onPortMessageError(message: MessageEvent<unknown>) {
-    console.error("Port message error", message);
+    logger.error("Port message error", message);
   }
 
   execute<T>(method: string, params?: any, priority = 100): JobRef<T> {

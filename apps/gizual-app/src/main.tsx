@@ -1,3 +1,5 @@
+import "@giz/logging/browser";
+
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 
