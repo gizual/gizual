@@ -37,9 +37,10 @@ function RadioGridItemComponent<T>({
       />
       <div className={style.GridItemTile} data-disabled={disabled}>
         {comingSoon && (
-          <div className={style.ComingSoonOverlay}>
-            <span>Coming soon!</span>
-          </div>
+          <>
+            <div className={style.ComingSoonOverlay} />
+            <span className={style.ComingSoonText}>Coming soon!</span>
+          </>
         )}
         <div className={style.GridItemContent}>
           <h3 className={style.GridItemTitle}>{title}</h3>

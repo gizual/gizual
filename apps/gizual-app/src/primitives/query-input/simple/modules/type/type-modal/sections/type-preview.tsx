@@ -69,7 +69,14 @@ const VisTypePreview = observer(({ vm, ...svgProps }: VisTypePreviewProps) => {
         vm.selectedPreset === "gradientByAge" ? vm.queryGradientColorsWithFallback : mergedColors,
       ),
     );
-  }, [vm.selectedType, vm.selectedPreset, data, isLoading]);
+  }, [
+    vm.selectedType,
+    vm.selectedPreset,
+    vm.queryGradientColorsWithFallback,
+    vm.queryAuthorColors,
+    data,
+    isLoading,
+  ]);
 
   const memoizedColors = React.useMemo(() => {
     if (colorGenerator) {

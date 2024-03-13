@@ -30,8 +30,8 @@ class VisTypeViewModel extends ViewModel {
       return this.queryGradientColors;
 
     return [
-      this._mainController.settingsController.settings.visualizationSettings.colors.old.value,
-      this._mainController.settingsController.settings.visualizationSettings.colors.new.value,
+      this._mainController.visualizationSettings.colors.old.value,
+      this._mainController.visualizationSettings.colors.new.value,
     ];
   }
 

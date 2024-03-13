@@ -24,5 +24,8 @@ declare const classNames: {
   readonly FileTreeWrapper: "FileTreeWrapper";
   readonly CloseIcon: "CloseIcon";
   readonly ContainsErrors: "ContainsErrors";
+  readonly GradientColorCustomization: "GradientColorCustomization";
+  readonly GradientColorCustomizationRow: "GradientColorCustomizationRow";
+  readonly GradientColorTitle: "GradientColorTitle";
 };
 export = classNames;

@@ -4,6 +4,7 @@ import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
+import style from "../../../modules.module.scss";
 import { VisTypeViewModel } from "../type-modal.vm";
 
 const GradientColorCustomization = observer(({ vm }: { vm: VisTypeViewModel }) => {
@@ -13,30 +14,28 @@ const GradientColorCustomization = observer(({ vm }: { vm: VisTypeViewModel }) =
   };
 
   return (
-    <div className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-4"])}>
-      {selectedColors &&
-        selectedColors.length > 0 &&
-        selectedColors.map((color, index) => (
-          <div
-            className={clsx(sharedStyle.FlexRow, sharedStyle["Gap-1"], sharedStyle["Items-Center"])}
-            key={index}
-          >
-            <p className={sharedStyle["Text-Base"]}>
-              Color {index === 0 ? "(Start date)" : "(End date)"}:
-            </p>
-            <ColorPicker
-              hexValue={color}
-              onAccept={(c) => {
-                selectedColors[index] = c;
-                onChange([...selectedColors]);
-              }}
-            />
-          </div>
-        ))}
-      {!selectedColors ||
-        (selectedColors.length === 0 && (
-          <div>Open TODO: This selection does not allow for additional color customization.</div>
-        ))}
+    <div className={style.GradientColorCustomization}>
+      <div className={style.GradientColorCustomizationRow}>
+        <ColorPicker
+          hexValue={selectedColors[0]}
+          onAccept={(c) => {
+            selectedColors[0] = c;
+            onChange([...selectedColors]);
+          }}
+        />
+        <p className={style.GradientColorTitle}>Oldest change</p>
+      </div>
+
+      <div className={style.GradientColorCustomizationRow}>
+        <ColorPicker
+          hexValue={selectedColors[1]}
+          onAccept={(c) => {
+            selectedColors[1] = c;
+            onChange([...selectedColors]);
+          }}
+        />
+        <p className={style.GradientColorTitle}>Newest change</p>
+      </div>
     </div>
   );
 });

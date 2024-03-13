@@ -198,12 +198,12 @@ export class MainController {
   get visualizationConfig(): VisualizationConfig {
     return {
       colors: {
-        newest: this.settingsController.settings.visualizationSettings.colors.new.value,
-        oldest: this.settingsController.settings.visualizationSettings.colors.old.value,
-        notLoaded: this.settingsController.settings.visualizationSettings.colors.notLoaded.value,
+        newest: this.visualizationSettings.colors.new.value,
+        oldest: this.visualizationSettings.colors.old.value,
+        notLoaded: this.visualizationSettings.colors.notLoaded.value,
       },
       style: {
-        lineLength: this.settingsController.settings.visualizationSettings.style.lineLength.value,
+        lineLength: this.visualizationSettings.style.lineLength.value,
       },
     };
   }
@@ -253,6 +253,26 @@ export class MainController {
 
   get settingsController() {
     return this._settingsController;
+  }
+
+  get settings() {
+    return this.settingsController.settings;
+  }
+
+  get visualizationSettings() {
+    return this.settings.visualizationSettings;
+  }
+
+  get editorSettings() {
+    return this.settings.editor;
+  }
+
+  get timelineSettings() {
+    return this.settings.timelineSettings;
+  }
+
+  get devSettings() {
+    return this.settings.devSettings;
   }
 
   @action.bound
