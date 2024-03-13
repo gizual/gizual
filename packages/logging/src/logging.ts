@@ -184,9 +184,9 @@ function createPrefix(level: LogLevel, name?: string, proxied?: boolean): string
   return [prefix, ...format];
 }
 
-function createLogFunction(level: LogLevel, name?: string, prefixed?: boolean) {
+function createLogFunction(level: LogLevel, name?: string, proxied?: boolean) {
   const g = typeof window === "undefined" ? self : window;
-  return g.console[level].bind(g.console, ...createPrefix(level, name, prefixed));
+  return g.console[level].bind(g.console, ...createPrefix(level, name, proxied));
 }
 
 type LogFuncs = Record<LogLevel, (...args: any[]) => void>;
@@ -224,10 +224,10 @@ function populateLogger(logger: Logger, ctx: LogState) {
 export const createLogger = (name = "", opts?: LogState): Logger => {
   const logger = {} as Logger;
   const globalState = getGlobalState();
-  name = [globalState.prefix, name].filter(Boolean).join("::");
+  const fullName = [globalState.prefix, name].filter(Boolean).join("::");
 
   populateLogger(logger, {
-    name: name ?? "",
+    name: fullName ?? "",
     maxLevel: globalState.maxLevel,
     filter: globalState.filter,
     ...opts,

@@ -3,6 +3,7 @@ import { VisualizationConfig } from "@app/types";
 import EventEmitter from "eventemitter3";
 import { differenceBy, isEqual, isNumber, omit, result } from "lodash";
 import { minimatch } from "minimatch";
+import { autorun } from "mobx";
 import { match, Pattern } from "ts-pattern";
 
 import { ColorManager } from "@giz/color-manager";
@@ -146,6 +147,17 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         numExplorerJobs: metrics.numJobsInQueue,
       });
     });
+
+    autorun(
+      () => {
+        this.updateMetrics({
+          numRendererWorkers: this.renderPool.numWorkers,
+          numRendererWorkersBusy: this.renderPool.numBusyWorkers,
+          numRendererJobs: this.renderPool.numJobsInQueue,
+        });
+      },
+      { delay: 200 },
+    );
 
     const dbPort = await this.explorerPoolController.createPort();
 

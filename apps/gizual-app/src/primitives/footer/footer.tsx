@@ -25,9 +25,9 @@ export const Footer = observer(() => {
   };
 
   const renderer = {
-    jobs: paddedNumber(mainController.numRenderJobs, 3),
-    busyWorkers: paddedNumber(mainController.numBusyRenderWorkers, 2),
-    totalWorkers: paddedNumber(mainController.numRenderWorkers, 2),
+    jobs: paddedNumber(metrics.numRendererJobs, 3),
+    busyWorkers: paddedNumber(metrics.numRendererWorkersBusy, 2),
+    totalWorkers: paddedNumber(metrics.numRendererWorkers, 2),
   };
 
   const version = import.meta.env.VERSION ?? "?";

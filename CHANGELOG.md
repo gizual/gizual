@@ -15,6 +15,7 @@
 
 ### Bug Fixes
 
+- **app:general:** re-attach renderer worker metrics to footer
 - **app:backend:** fix unstable directory listing of FSA API in chromium 122 & 123 through caching
 - **app:frontend:** fix an issue that caused color updates triggered through the author panel to not be applied properly
 

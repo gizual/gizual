@@ -1,7 +1,7 @@
 import { GlobalLogState, LOG_LEVELS, LogLevel } from "./logging";
 
 if (window === undefined) {
-  throw new TypeError("Must be run in the main thread");
+  throw new TypeError("Must run in the main thread");
 }
 
 if (window.LOG) {

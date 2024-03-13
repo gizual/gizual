@@ -121,6 +121,7 @@ export class FileRendererPool {
   setupPool() {
     for (let i = 0; i < this.poolSize; i++) {
       const worker = new GizWorker(new URL("file-renderer-worker.ts", import.meta.url), {
+        name: `renderer-worker-${i}`,
         type: "module",
       });
 

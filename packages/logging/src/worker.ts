@@ -1,7 +1,7 @@
 import { GlobalLogState, LOG_LEVELS, LogLevel } from "./logging";
 
 if (self === undefined) {
-  throw new TypeError("Must be run in a worker");
+  throw new TypeError("Must run in a worker");
 }
 
 if (self.LOG) {
