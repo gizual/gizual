@@ -4,9 +4,9 @@ import React from "react";
 import { HexAlphaColorPicker } from "react-colorful";
 
 import { ColorManager } from "@giz/color-manager";
+import { Button } from "../button";
 import { IconButton } from "../icon-button";
 
-import { Button } from "..";
 import style from "./color-picker.module.scss";
 
 type ColorPickerProps = {
@@ -38,13 +38,31 @@ function getValidHexValue(value: string) {
   return "#000000";
 }
 
-export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPickerProps) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+function useColor(hexValue: string) {
   const [color, setColor] = React.useState(getValidHexValue(hexValue));
-  const ref = useClickOutside(() => setIsOpen(false));
+
   React.useEffect(() => {
     setColor(getValidHexValue(hexValue));
   }, [hexValue]);
+
+  return [color, setColor] as const;
+}
+
+export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPickerProps) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [color, setColor] = useColor(hexValue);
+  const [initialColor] = useColor(hexValue);
+  const ref = useClickOutside(() => setIsOpen(false));
+
+  const onCancel = () => {
+    setColor(initialColor);
+    setIsOpen(false);
+  };
+
+  const onApply = () => {
+    onAccept?.(color.toString());
+    setIsOpen(false);
+  };
 
   return (
     <Popover opened={isOpen} withArrow>
@@ -52,11 +70,10 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
         ref={ref}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
-            setIsOpen(false);
+            onCancel();
           }
           if (e.key === "Enter") {
-            onAccept?.(color.toString());
-            setIsOpen(false);
+            onApply();
           }
         }}
       >
@@ -88,7 +105,7 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
             <Button
               variant={"gray"}
               onClick={() => {
-                setIsOpen(false);
+                onCancel();
               }}
             >
               Cancel
@@ -97,8 +114,7 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
             <Button
               variant={"filled"}
               onClick={() => {
-                onAccept?.(color.toString());
-                setIsOpen(false);
+                onApply();
               }}
             >
               Accept
@@ -110,7 +126,7 @@ export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPi
         <IconButton
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={(e) => {
-            if (e.key === "Escape") setIsOpen(false);
+            if (e.key === "Escape") onCancel();
           }}
         >
           <div className={style.ColorPreview} style={{ backgroundColor: color }}></div>
