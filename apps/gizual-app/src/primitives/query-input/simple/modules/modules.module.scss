@@ -32,12 +32,6 @@
   display: flex;
 }
 
-.TypeSteps {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
 .TypeDialog {
   position: relative;
   display: flex;
@@ -63,7 +57,8 @@
   height: 100%;
   position: relative;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .VerticalRuler {
@@ -82,19 +77,10 @@
   gap: 0.5rem;
 }
 
-.TypeDialogGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  width: 100%;
-
-  @container type-modal-container (width < 1000px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @container type-modal-container (width < 600px) {
-    grid-template-columns: repeat(1, 1fr);
-  }
+.TypeDialog__Section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .TypeDialogActionButtons {
@@ -103,45 +89,9 @@
   align-self: flex-end;
 }
 
-.TypeDialogGridItemTile {
-  height: 100%;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--border-primary);
-  background-color: var(--background-primary);
-  transition: background-color 0.25s;
-  cursor: pointer;
-
-  &[data-disabled="true"] {
-    background-color: var(--background-secondary);
-    cursor: not-allowed;
-  }
-
-  &:hover {
-    &[data-disabled="false"] {
-      background-color: var(--background-tertiary) !important;
-      border-color: var(--accent-main);
-    }
-  }
-}
-
-.TypeDialogGridItem {
-  position: relative;
-
-  input[type="radio"] {
-    display: none;
-  }
-
-  input[type="radio"]:checked + .TypeDialogGridItemTile {
-    outline: 3px solid var(--accent-main);
-    outline-offset: -3px;
-  }
-}
-
 .TypeDialogGridItemImage {
   width: 100%;
-  background-color: var(--background-secondary);
+  background-color: var(--background-primary);
 
   @container type-modal-container (width < 900px) {
     width: 150px;
@@ -150,22 +100,11 @@
   max-height: 70dvh;
 }
 
-.TypeDialogGridItemContent {
-  padding: 0.5rem;
+.TypeDialogActionButtons {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.TypeDialogGridItemTitle {
-  @include text-base;
-  font-weight: medium;
-  text-align: left;
-}
-
-.TypeDialogGridItemDescription {
-  @include text-sm;
-  text-align: left;
+  flex-direction: row;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .QueryModuleIcon {

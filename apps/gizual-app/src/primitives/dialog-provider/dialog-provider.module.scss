@@ -94,10 +94,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: var(--background-secondary);
-  padding: 1rem;
+  background-color: var(--background-primary);
   border: 1px solid var(--border-primary);
-  gap: 1rem;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr;
@@ -114,6 +112,9 @@
   flex-grow: 0;
   flex-shrink: 0;
   justify-content: space-between;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--background-secondary);
 }
 
 .DialogBody {
@@ -122,6 +123,7 @@
   overflow: auto;
   position: relative;
   display: flex;
+  padding: 1rem 1rem 1rem 1rem;
 }
 
 .DialogTitle {
@@ -137,4 +139,9 @@
   flex-shrink: 0;
   justify-content: flex-end;
   gap: 1rem;
+  padding: 0 1rem 1rem 1rem;
+}
+
+.CloseButton {
+  width: 48px;
 }

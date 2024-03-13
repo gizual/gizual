@@ -5,7 +5,7 @@ import React from "react";
 import { PlaceholderQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
 
-import { TypePlaceholderModal } from "./type-modal";
+import { TypePlaceholderModal } from "./type-modal/type-modal";
 
 export function TypePlaceholderModule() {
   const [isOpen, setIsOpen] = React.useState(false);

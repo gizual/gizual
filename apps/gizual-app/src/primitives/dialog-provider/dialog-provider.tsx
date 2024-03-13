@@ -83,7 +83,7 @@ export const DialogProvider = React.memo(
                   <div className={style.DialogHead}>
                     <h2 className={style.DialogTitle}>{title}</h2>
                     <IconButton
-                      className={sharedStyle.CloseButton}
+                      className={clsx(sharedStyle.CloseButton, style.CloseButton)}
                       onClick={() => {
                         setIsOpen!(false);
                       }}
@@ -95,11 +95,12 @@ export const DialogProvider = React.memo(
                     {children}
                   </div>
 
-                  {withFooter && footerComponent !== undefined ? (
-                    footerComponent
-                  ) : (
-                    <DialogProviderDefaultFooter {...defaultFooterOpts} />
-                  )}
+                  {withFooter &&
+                    (footerComponent === undefined ? (
+                      <DialogProviderDefaultFooter {...defaultFooterOpts} />
+                    ) : (
+                      footerComponent
+                    ))}
                 </div>
               </>
             ) as any,

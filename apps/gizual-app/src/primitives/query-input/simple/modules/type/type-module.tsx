@@ -8,7 +8,7 @@ import { SearchQueryType } from "@giz/query";
 import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
 
-import { TypePlaceholderModal } from "./type-modal";
+import { TypePlaceholderModal } from "./type-modal/type-modal";
 
 function getTypeEntry(query: SearchQueryType) {
   if (query.type) return query.type;
@@ -32,7 +32,7 @@ export function TypeModuleComponent() {
               <IconEdit className={style.CloseIcon} />
             </IconButton>
           }
-          title="Swap visualization type"
+          title="Swap Visualization Type"
           triggerClassName={style.PlaceholderQueryModuleTrigger}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
