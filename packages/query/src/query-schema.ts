@@ -75,6 +75,11 @@ export const SearchQuery = Type.Object({
 export type SearchQueryType = Static<typeof SearchQuery>;
 export type SearchQueryKeys = keyof SearchQueryType;
 export type TimeQueryType = Static<typeof TimeQuery>;
+export type RenderTypeQueryType = Static<typeof RenderType>;
+export type PresetQueryType = Static<typeof PresetQuery>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type PresetQueryKeys = KeysOfUnion<PresetQueryType>;
 
 export function getSchema(): any {
   return { ...Type.Strict(SearchQuery), additionalProperties: false };

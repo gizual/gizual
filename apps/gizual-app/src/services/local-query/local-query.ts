@@ -61,6 +61,7 @@ class LocalQueryManager {
     return this._localQuery;
   }
 
+  /* ---------------------- Query quick access functions ---------------------- */
   @computed
   get rangeByDate(): GizDate[] | undefined {
     if (this.localQuery && this.localQuery.time && "rangeByDate" in this.localQuery.time) {
@@ -70,6 +71,39 @@ class LocalQueryManager {
         );
       }
       return undefined;
+    }
+  }
+
+  @computed
+  get type() {
+    if (this.localQuery && this.localQuery.type) return this.localQuery.type;
+  }
+
+  @computed
+  get preset() {
+    if (this.localQuery && this.localQuery.preset) return this.localQuery.preset;
+  }
+
+  @computed
+  get presetKey() {
+    if (this.localQuery && this.localQuery.preset) {
+      if ("gradientByAge" in this.localQuery.preset) return "gradientByAge";
+      if ("paletteByAuthor" in this.localQuery.preset) return "paletteByAuthor";
+      throw new Error("Encountered unknown preset key in LocalQueryManager.");
+    }
+  }
+
+  @computed
+  get styles() {
+    if (this.localQuery && this.localQuery.styles) return this.localQuery.styles;
+  }
+
+  @computed
+  get colors() {
+    if (this.localQuery && this.localQuery.preset) {
+      if ("gradientByAge" in this.localQuery.preset) return this.localQuery.preset.gradientByAge;
+      if ("paletteByAuthor" in this.localQuery.preset)
+        return this.localQuery.preset.paletteByAuthor;
     }
   }
 }

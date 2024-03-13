@@ -35,7 +35,9 @@ export function checkColorSimilarity(a: string, b: string): number {
 }
 
 export function parseRgbString(rgb: string): [number, number, number, number] {
-  const [r, g, b, a] = rgb.match(/\d+/g)!.map(Number);
+  const match = rgb.match(/\d+/g);
+  if (match === null) return [0, 0, 0, 1];
+  const [r, g, b, a] = match.map(Number);
 
   if (a === undefined) return [r, g, b, 1];
   return [r, g, b, a];

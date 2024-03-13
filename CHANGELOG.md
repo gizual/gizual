@@ -12,6 +12,7 @@
 - **app:frontend:** implement automatic centering of the timeline on changes to query dates
 - **app:frontend:** add color pickers to canvas legend component
 - **app:frontend:** add warning dialog if a repository is open and the user tries to exit the page
+- **app:frontend:** simplify vis-type modal, remove stepper
 
 ### Bug Fixes
 
