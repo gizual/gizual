@@ -18,6 +18,7 @@
 - **app:frontend:** add warning dialog if a repository is open and the user tries to exit the page
 - **app:frontend:** simplify vis-type modal, remove stepper
 - **app:frontend:** implement better visual indication for busy workers in footer
+- **app:frontend:** Limit maximum number of lines rendered on the canvas (user-configurable)
 
 ### Bug Fixes
 
