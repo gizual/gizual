@@ -1,0 +1,45 @@
+.Body {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.Card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-primary);
+  background-color: var(--background-secondary);
+  box-shadow: 0 0 10px 0 black;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 1rem;
+  text-align: center;
+  padding-bottom: 3rem;
+  padding-top: 2rem;
+   
+  > p {
+    padding: 1rem 1rem 0 1rem;
+    text-wrap: balance;
+  }
+}
+
+.Heading {
+  font-size: 4em;
+  line-height: 1.2em;
+}
+
+.LogoWrapper {
+  display: block;
+  @media (width < 1000px) {
+    display: none;
+  }
+}

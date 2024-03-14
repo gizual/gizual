@@ -26,49 +26,51 @@ export const SimpleQueryInput = observer(() => {
         <div className={style.Content}>
           <ModuleProvider />
 
-          <DialogProvider
-            title="Advanced Query Builder"
-            trigger={
-              <Tooltip label="Open advanced query builder">
-                <IconButton
-                  aria-label="Advanced Query Builder"
-                  className={style.AdvancedSearchIconButton}
-                >
-                  <IconCommandLine className={style.AdvancedSearchIcon} />
-                </IconButton>
-              </Tooltip>
-            }
-            triggerClassName={style.AdvancedSearchIconTrigger}
-            contentClassName={style.AdvancedSearchDialog}
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            withFooter
-            defaultFooterOpts={{
-              cancelLabel: "Close",
-              okLabel: "Run Query",
-              hasOk: true,
-              hasCancel: true,
-              onOk: () => {
-                const validationResult = queryVm.validatedQuery;
+          {import.meta.env.DEV && (
+            <DialogProvider
+              title="Advanced Query Builder"
+              trigger={
+                <Tooltip label="Open advanced query builder">
+                  <IconButton
+                    aria-label="Advanced Query Builder"
+                    className={style.AdvancedSearchIconButton}
+                  >
+                    <IconCommandLine className={style.AdvancedSearchIcon} />
+                  </IconButton>
+                </Tooltip>
+              }
+              triggerClassName={style.AdvancedSearchIconTrigger}
+              contentClassName={style.AdvancedSearchDialog}
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              withFooter
+              defaultFooterOpts={{
+                cancelLabel: "Close",
+                okLabel: "Run Query",
+                hasOk: true,
+                hasCancel: true,
+                onOk: () => {
+                  const validationResult = queryVm.validatedQuery;
 
-                if (validationResult.isValid) {
-                  setQuery(validationResult.query);
+                  if (validationResult.isValid) {
+                    setQuery(validationResult.query);
+                    setIsOpen(false);
+                  } else {
+                    notifications.show({
+                      title: "Invalid Query",
+                      message: queryVm.validationOutput,
+                      color: "red",
+                    });
+                  }
+                },
+                onCancel: () => {
                   setIsOpen(false);
-                } else {
-                  notifications.show({
-                    title: "Invalid Query",
-                    message: queryVm.validationOutput,
-                    color: "red",
-                  });
-                }
-              },
-              onCancel: () => {
-                setIsOpen(false);
-              },
-            }}
-          >
-            <AdvancedEditor vm={queryVm} />
-          </DialogProvider>
+                },
+              }}
+            >
+              <AdvancedEditor vm={queryVm} />
+            </DialogProvider>
+          )}
         </div>
       </div>
     </div>

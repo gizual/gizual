@@ -51,7 +51,6 @@
   > * {
     padding: 0 1rem;
   }
-  
   > p {
     padding-bottom: 3px;
   }
@@ -66,7 +65,7 @@
   gap: 0.25rem;
   display: flex;
   flex-direction: row;
-  & > span {
+  > span:not(:last-child) {
     padding-right: 0.5rem;
     margin-right: 0.25rem;
     border-right: 1px solid var(--border-primary);
@@ -125,11 +124,13 @@
   & > path {
     fill: unset;
   }
+  padding-bottom: 2px;
 }
 
 .IconRenderer {
   width: 20px;
   height: 20px;
+  padding-bottom: 2px;
 }
 
 .NumJobs {
