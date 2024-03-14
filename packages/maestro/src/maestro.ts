@@ -19,13 +19,46 @@ export type RepoSetupOpts = {
   directoryEntry?: FileSystemDirectoryEntry;
   zipFile?: File;
 };
+import EventEmitter from "eventemitter3";
+
 import { createLogger } from "@giz/logging";
 
 import { downloadRepo } from "./remote-clone";
 
 declare const mainController: MainController;
 
-export class Maestro {
+export type MaestroEvents = {
+  "open:remote-clone": [
+    {
+      url: string;
+      service: string;
+      repoName: string;
+    },
+  ];
+  "open:file-input": [
+    {
+      numFiles: number;
+    },
+  ];
+  "open:drag-drop": [
+    {
+      name: string;
+    },
+  ];
+  "open:zip": [
+    {
+      name: string;
+      size: number;
+    },
+  ];
+  "open:fsa": [
+    {
+      name: string;
+    },
+  ];
+};
+
+export class Maestro extends EventEmitter<MaestroEvents> {
   logger = createLogger("maestro");
   rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
@@ -37,6 +70,7 @@ export class Maestro {
   @observable progressText = "";
 
   constructor() {
+    super();
     this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
     this.logger.log("Maestro constructor");
 
@@ -74,6 +108,8 @@ export class Maestro {
       service = service.replace("www.", "");
       service = service.slice(0, Math.max(0, urlObj.hostname.indexOf(".")));
       const repoName = urlObj.pathname.slice(1);
+
+      this.emit("open:remote-clone", { url, service, repoName });
       await this.openRepoFromUrlUnsafe(service, repoName);
     } catch (error) {
       console.error(error);
@@ -127,10 +163,15 @@ export class Maestro {
     };
 
     if (opts.fileList) {
+      this.emit("open:file-input", {
+        numFiles: opts.fileList.length,
+      });
       opts2.directoryHandle = await importFromFileList(opts.fileList!);
     } else if (opts.directoryEntry) {
+      this.emit("open:drag-drop", { name: opts.directoryEntry.name });
       opts2.directoryHandle = await importDirectoryEntry(opts.directoryEntry!);
     } else if (opts.zipFile) {
+      this.emit("open:zip", { size: opts.zipFile.size, name: opts.zipFile.name });
       if (opts.zipFile.size < 5e7 /* 50 MB */) {
         const zipData = await opts.zipFile!.arrayBuffer();
         const zipDataArray = new Uint8Array(zipData);
@@ -139,6 +180,9 @@ export class Maestro {
         opts2.directoryHandle = await importZipFile(await opts.zipFile.arrayBuffer());
       }
     } else if (opts.directoryHandle) {
+      this.emit("open:fsa", {
+        name: opts.directoryHandle.name,
+      });
       opts2.directoryHandle = opts.directoryHandle;
     }
 

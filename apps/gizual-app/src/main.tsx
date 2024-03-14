@@ -41,3 +41,49 @@ setTimeout(() => {
     maestro.openRepoFromURL(repoUrl);
   }
 }, 10);
+
+declare global {
+  interface Window {
+    plausible?: (event: string, props?: Record<string, any>) => void;
+  }
+}
+
+if (import.meta.env.PROD) {
+  setTimeout(() => {
+    if (!window.plausible) {
+      return;
+    }
+    const url = new URL(window.location.href);
+    // remove query params and hash
+    url.search = "";
+    url.hash = "";
+
+    if (!/app\.gizual\.com/.test(location.hostname)) {
+      return;
+    }
+
+    window.plausible("pageview", {
+      u: url.toString(),
+    });
+
+    maestro.on("open:remote-clone", ({ repoName, service, url }) => {
+      window.plausible!("remote-clone", { props: { repoName, service, url } });
+    });
+
+    maestro.on("open:file-input", ({ numFiles }) => {
+      window.plausible!("file-input", { props: { numFiles } });
+    });
+
+    maestro.on("open:drag-drop", ({ name }) => {
+      window.plausible!("drag-drop", { props: { name } });
+    });
+
+    maestro.on("open:zip", ({ size, name }) => {
+      window.plausible!("zip", { props: { size, name } });
+    });
+
+    maestro.on("open:fsa", ({ name }) => {
+      window.plausible!("fsa", { props: { name } });
+    });
+  }, 100);
+}
