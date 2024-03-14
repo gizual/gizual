@@ -600,16 +600,12 @@ class TimelineViewModel extends ViewModel {
   @computed
   get contextItems(): ContextMenuContent {
     let items: ContextMenuContent = [];
-    items.push({
-      key: "default",
-      title: "Revert to default selection",
-      onClick: () => {
-        this.setIsContextMenuOpen(false);
-        this.mainController.repoController.initializePositionsFromLastCommit();
-      },
-    });
 
     if (this.isHoveringCommitId === -1) return items;
+
+    if (!this.commitsToDraw.at(this.isHoveringCommitId)) {
+      return [];
+    }
 
     const earliestDate = getDateFromTimestamp(
       this.commitsToDraw.at(this.isHoveringCommitId)!.commits.at(-1)!.timestamp,
@@ -626,6 +622,7 @@ class TimelineViewModel extends ViewModel {
         onClick: () => {
           this.setIsContextMenuOpen(false);
           this.setSelectedStartDate(earliestDate);
+          this.propagateUpdate();
         },
       },
       {
@@ -634,6 +631,7 @@ class TimelineViewModel extends ViewModel {
         onClick: () => {
           this.setIsContextMenuOpen(false);
           this.setSelectedEndDate(latestDate);
+          this.propagateUpdate();
         },
       },
       ...items,
