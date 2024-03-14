@@ -16,6 +16,7 @@ const target = ["chrome106", "edge106", "firefox110", "safari16", "es2022"];
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  mode,
   base: "./",
   esbuild: {
     target,

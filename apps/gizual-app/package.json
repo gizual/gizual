@@ -88,11 +88,17 @@
   },
   "please": {
     "dev": {
+      "env": {
+        "NODE_ENV": "development"
+      },
       "dependsOn": [
         "build"
       ]
     },
     "build": {
+      "env": {
+        "NODE_ENV": "production"
+      },
       "dependsOn": [
         "build"
       ]
