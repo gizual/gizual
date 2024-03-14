@@ -1042,7 +1042,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     });
 
     this.updateQueryCacheKey();
-    if (isEqual(oldSettings.style.maxNumLines.value, settings.style.maxNumLines.value)) {
+    if (isEqual(oldSettings?.style?.maxNumLines?.value, settings.style.maxNumLines.value)) {
       this.scheduleAllBlockRenders();
     } else {
       this.safeRefreshBlocks();
