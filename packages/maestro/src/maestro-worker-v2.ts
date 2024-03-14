@@ -864,12 +864,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
     let { requiredDpr } = this;
 
-    let showContent = true;
-
-    if (block.height > 10_000) {
-      requiredDpr = 1;
-      showContent = false;
-    }
+    const showContent = true;
 
     if (!block.inView) {
       requiredDpr = 1;
@@ -1047,8 +1042,11 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     });
 
     this.updateQueryCacheKey();
-    //this.scheduleAllBlockRenders();
-    this.safeRefreshBlocks();
+    if (isEqual(oldSettings.style.maxNumLines.value, settings.style.maxNumLines.value)) {
+      this.scheduleAllBlockRenders();
+    } else {
+      this.safeRefreshBlocks();
+    }
   };
 
   // ---------------------------------------------
