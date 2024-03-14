@@ -1,4 +1,5 @@
 import { useTheme } from "@app/hooks/use-theme";
+import { ErrorPage } from "@app/pages/error/error";
 import { WelcomePage } from "@app/pages/welcome";
 import { Loading } from "@app/primitives/loading";
 import { LocalQueryContext, LocalQueryManager } from "@app/services/local-query";
@@ -54,6 +55,7 @@ function App() {
   const screen = useScreen();
   const theme = useTheme();
   const shouldDisplayLoadingIndicator = mainController.isLoading;
+  const isSecureContext = window.isSecureContext;
 
   return (
     <MantineProvider theme={mantineTheme} defaultColorScheme={theme}>
@@ -61,14 +63,20 @@ function App() {
       <ContextMenuProvider>
         <LocalQueryContext.Provider value={localQueryManager}>
           <div className={style.App}>
-            {shouldDisplayLoadingIndicator && (
-              <Loading progressText={mainController.progressText} />
+            {!isSecureContext && <ErrorPage />}
+
+            {isSecureContext && (
+              <>
+                {shouldDisplayLoadingIndicator && (
+                  <Loading progressText={mainController.progressText} />
+                )}
+                <div className={style.Main}>
+                  {screen === "welcome" && <WelcomePage />}
+                  {screen === "main" && <MainPage />}
+                </div>
+                <Footer />
+              </>
             )}
-            <div className={style.Main}>
-              {screen === "welcome" && <WelcomePage />}
-              {screen === "main" && <MainPage />}
-            </div>
-            <Footer />
           </div>
         </LocalQueryContext.Provider>
       </ContextMenuProvider>

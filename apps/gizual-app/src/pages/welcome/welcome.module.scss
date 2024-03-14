@@ -85,7 +85,9 @@
   border: 2px dashed var(--border-secondary);
   text-align: center;
   margin: 1px;
-  padding: 2px;
+
+  aspect-ratio: 1.7777777778;
+  max-height: 500px;
 
   &.DropZoneActive {
     background-color: gray;
@@ -129,7 +131,7 @@
   grid-template-rows: auto;
 
   @media (width >= 1024px) {
-    grid-template-columns: 1fr 1px 2fr;
+    grid-template-columns: auto 1px 2fr;
   }
 }
 
@@ -139,6 +141,9 @@
   padding: 1rem 0;
   overflow-x: hidden;
   overflow-y: auto;
+  @media (width >= 1024px) {
+    max-width: 500px;
+  }
 }
 
 .DetailColumn {
@@ -378,6 +383,7 @@
   background-color: var(--background-primary);
   height: 100%;
   max-width: 100%;
+  max-height: 500px;
 }
 
 .LoadButton {

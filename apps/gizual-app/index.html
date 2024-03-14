@@ -14,12 +14,62 @@
       html {
         display: none;
       }
+      #not-supported {
+        visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100dvh;
+        background-color: #efefef;
+        color: #000;
+        font-size: 2rem;
+        animation: not-supported 3s forwards;
+      }
+
+      #not-supported h1 {
+        text-align: center;
+        font-size: 1.5em;
+        line-height: 1.2em;
+      }
+
+      #not-supported p {
+        text-align: center;
+        font-size: 0.875em;
+        line-height: 1em;
+      }
+
+      @keyframes not-supported {
+        99% {
+          visibility: hidden;
+        }
+        100% {
+          visibility: visible;
+        }
+      }
     </style>
     <title>Gizual</title>
   </head>
 
   <body style="background-color: #000">
-    <div id="root"></div>
+    <div id="root">
+      <div
+        id="not-supported"
+        style="display: flex; flex-direction: column; gap: 1rem; padding: 2rem"
+      >
+        <p style="font-size: 4em">⚠️</p>
+        <h1 style="font-size: 1.5em; line-height: 1.2em">Browser not supported</h1>
+        <p style="font-size: 0.875em; line-height: 1.1em">
+          Your browser is lacking some features Gizual requires.
+        </p>
+        <p style="font-size: 0.875em; line-height: 1.1em">
+          Check our
+          <a href="https://github.com/gizual/gizual?tab=readme-ov-file#browser-compatibility"
+            >Compatibility Table</a
+          >
+          for details.
+        </p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
