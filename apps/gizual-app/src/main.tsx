@@ -33,3 +33,11 @@ ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
     </MainContext.Provider>
   </MaestroProvider>,
 );
+
+setTimeout(() => {
+  const url = new URL(window.location.href);
+  const repoUrl = url.searchParams.get("source");
+  if (repoUrl) {
+    maestro.openRepoFromURL(repoUrl);
+  }
+}, 10);
