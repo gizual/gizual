@@ -10,13 +10,17 @@ export type RepoRowProps = {
   source: RepoSource;
   repoName: string;
   repoSource: string;
-  metrics: RepoMetrics;
+  metrics?: RepoMetrics;
 };
 
 export function RepoRow({ source, repoName, repoSource, metrics }: RepoRowProps) {
   const { url: urlLoader } = useFileLoaders();
-  const stars = metrics.stars > 1000 ? `${(metrics.stars / 1000).toFixed(1)}k` : metrics.stars;
-  const forks = metrics.forks > 1000 ? `${(metrics.forks / 1000).toFixed(1)}k` : metrics.forks;
+  let stars: string | number = "?";
+  let forks: string | number = "?";
+  if (metrics) {
+    stars = metrics.stars > 1000 ? `${(metrics.stars / 1000).toFixed(1)}k` : metrics.stars;
+    forks = metrics.forks > 1000 ? `${(metrics.forks / 1000).toFixed(1)}k` : metrics.forks;
+  }
 
   return (
     <button className={style.RepoRow} onClick={() => urlLoader.load(repoSource)}>

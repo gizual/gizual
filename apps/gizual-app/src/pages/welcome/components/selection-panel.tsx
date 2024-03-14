@@ -48,31 +48,71 @@ export function SelectionPanel({ selectedSource, setSelectedSource }: LeftPanelP
       <CollapsiblePanel title="Featured Repositories">
         <>
           <RepoRow
-            repoName="diamond"
+            repoName="tugraz-isds/diamond"
             repoSource="https://github.com/tugraz-isds/diamond"
             source="url"
             metrics={{ forks: 6, stars: 2 }}
           />
           <hr />
           <RepoRow
-            repoName="neovim"
+            repoName="ts-rest/ts-rest"
+            repoSource="https://github.com/ts-rest/ts-rest"
+            source="url"
+          />
+          <hr />
+          <RepoRow
+            repoName="pmndrs/zustand"
+            repoSource="https://github.com/pmndrs/zustand"
+            source="url"
+          />
+          <hr />
+          <RepoRow
+            repoName="mobxjs/mobx"
+            repoSource="https://github.com/mobxjs/mobx"
+            source="url"
+          />
+          <hr />
+          <RepoRow
+            repoName="neovim/neovim"
             repoSource="https://github.com/neovim/neovim"
             source="url"
             metrics={{ forks: 5000, stars: 75_000 }}
           />
           <hr />
           <RepoRow
-            repoName="vite"
+            repoName="vitejs/vite"
             repoSource="https://github.com/vitejs/vite"
             source="url"
             metrics={{ forks: 5600, stars: 64_000 }}
           />
           <hr />
           <RepoRow
-            repoName="vscode"
+            repoName="microsoft/vscode"
             repoSource="https://github.com/microsoft/vscode"
             source="url"
             metrics={{ forks: 27_000, stars: 157_000 }}
+          />
+          <hr />
+          <RepoRow
+            repoName="facebook/react"
+            repoSource="https://github.com/facebook/react"
+            source="url"
+          />
+          <hr />
+          <RepoRow repoName="vuejs/vue" repoSource="https://github.com/vuejs/vue" source="url" />
+          <hr />
+          <RepoRow
+            repoName="flutter/flutter"
+            repoSource="https://github.com/flutter/flutter"
+            source="url"
+          />
+          <hr />
+          <RepoRow repoName="golang/go" repoSource="https://github.com/golang/go" source="url" />
+          <hr />
+          <RepoRow
+            repoName="home-assistant/core"
+            repoSource="https://github.com/home-assistant/core"
+            source="url"
           />
         </>
       </CollapsiblePanel>
