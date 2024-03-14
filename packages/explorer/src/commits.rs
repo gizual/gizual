@@ -39,7 +39,6 @@ pub struct CommitMeta {
     pub timestamp: String,
 }
 
-
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCommitsForTimeRangeParams {
@@ -51,7 +50,6 @@ pub struct GetCommitsForTimeRangeParams {
     #[serde(rename = "endSeconds")]
     pub end_seconds: i64,
 }
-
 
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
@@ -76,21 +74,19 @@ pub struct GetCommitParams {
 }
 
 impl Explorer {
-
     pub fn get_commit_metadata(&self, rev: &str) -> Result<CommitMeta, git2::Error> {
         let repo = self.repo.as_ref().unwrap();
 
         let commit_id = self.get_commit_oid_from_rev(rev)?;
 
         let commit = repo.find_commit(commit_id)?;
-       
+
         let author = commit.author();
 
         let author_name = author.name().unwrap_or_default();
         let author_email = author.email().unwrap_or_default();
 
         let aid = get_author_id(&author_name.to_string(), &author_email.to_string());
-        
 
         /*
          let mut message = commit.message().unwrap().to_string();
@@ -135,13 +131,21 @@ impl Explorer {
         for parent in parents {
             let parent_commit = repo.find_commit(parent).unwrap();
             let parent_tree = parent_commit.tree().unwrap();
-            let diff = repo.diff_tree_to_tree(Some(&parent_tree), Some(&commit_tree), None).unwrap();
+            let diff = repo
+                .diff_tree_to_tree(Some(&parent_tree), Some(&commit_tree), None)
+                .unwrap();
             let deltas = diff.deltas();
 
             for delta in deltas {
-                let new_file_path = delta.new_file().path().unwrap().to_str().unwrap().to_string();
+                let new_file_path = delta
+                    .new_file()
+                    .path()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
                 let file_path: String = new_file_path.clone();
-               
+
                 if delta.status() == git2::Delta::Deleted {
                     files.deleted.push(file_path);
                 } else if delta.status() == git2::Delta::Added {
@@ -149,12 +153,16 @@ impl Explorer {
                 } else if delta.status() == git2::Delta::Modified {
                     files.modified.push(file_path);
                 } else if delta.status() == git2::Delta::Renamed {
-                    let old_file_path = delta.old_file().path().unwrap().to_str().unwrap().to_string();
+                    let old_file_path = delta
+                        .old_file()
+                        .path()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
                     let old_file_path: String = old_file_path.clone();
                     files.renamed.push((old_file_path, new_file_path));
-                    
                 }
-
             }
         }
 
@@ -167,30 +175,25 @@ impl Explorer {
         })
     }
 
-   
-
     pub fn get_commit_oid_from_rev(&self, rev: &str) -> Result<Oid, Error> {
         let repo = self.repo.as_ref().unwrap();
-        let oid = repo.revparse_single(rev);
-        if oid.is_err() {
-            return Err(oid.err().unwrap());
-        }
+        let oid = repo.revparse_single(rev)?;
 
-        let oid = oid.unwrap();
         let tag = repo.find_tag(oid.id());
 
-        if tag.is_ok() {
-            let tag = tag.unwrap();
+
+        if let Ok(tag) = tag {
             return Ok(tag.target_id());
         }
 
         let branch = repo.find_branch(rev, git2::BranchType::Local);
 
-        if branch.is_ok() {
-            let branch = branch.unwrap();
+
+        if let Ok(branch) = branch {
             let branch_commit = branch.get().peel_to_commit();
-            if branch_commit.is_ok() {
-                return Ok(branch_commit.unwrap().id());
+
+            if let Ok(commit) = branch_commit {
+                return Ok(commit.id());
             }
         }
 
@@ -205,7 +208,6 @@ impl Explorer {
     }
 
     pub fn cmd_get_commit(&self, params: &GetCommitParams) {
-
         let data = self.get_commit(&params.rev);
 
         if data.is_err() {
@@ -259,7 +261,7 @@ impl Explorer {
             until_commit: until_commit.unwrap(),
         };
 
-        self.send(data,true);
+        self.send(data, true);
     }
 
     pub fn find_commit_ids_for_time_range(
@@ -268,10 +270,11 @@ impl Explorer {
         start_seconds: i64,
         end_seconds: i64,
     ) -> (Option<String>, Option<String>) {
-       
         let repo = self.repo.as_ref().unwrap();
 
-        let commit_id = self.get_commit_oid_from_rev(rev).expect("Failed to find commit");
+        let commit_id = self
+            .get_commit_oid_from_rev(rev)
+            .expect("Failed to find commit");
 
         let mut walk = repo.revwalk().expect("Failed to create revwalk");
 
@@ -312,7 +315,7 @@ impl Explorer {
             start_ref = previous_ref;
         }
 
-        return (start_ref, end_ref);
+        (start_ref, end_ref)
     }
 
     pub fn find_commit_ids_for_refs(
@@ -340,10 +343,10 @@ impl Explorer {
 
         let end_oid = end_commit.id();
 
-        return (
+        (
             Some(to_string_oid(&start_oid)),
             Some(to_string_oid(&end_oid)),
-        );
+        )
     }
 
     pub fn pick_last_commit_by_time(
@@ -414,8 +417,8 @@ impl Explorer {
                 continue;
             }
 
-            let  data = self.get_commit(&oid_str)?;
-            
+            let data = self.get_commit(&oid_str)?;
+
             self.send(data, false);
         }
 

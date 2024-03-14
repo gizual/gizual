@@ -9,10 +9,11 @@ use specta::Type;
 use crate::authors::StreamAuthorsParams;
 use crate::blame::BlameParams;
 use crate::branches::GetCommitsForBranchParams;
-use crate::commits::{self, GetCommitParams, GetCommitsForTimeRangeParams, IsValidRevParams, StreamCommitsParams};
+use crate::commits::{
+    self, GetCommitParams, GetCommitsForTimeRangeParams, IsValidRevParams, StreamCommitsParams,
+};
 use crate::file_content::GetFileContentParams;
 use crate::file_tree::GetFileTreeParams;
-
 
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
@@ -20,11 +21,10 @@ pub struct OpenRepositoryParams {
     pub path: String,
 }
 
-
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct OpenRepositoryResult {
-    pub success: bool
+    pub success: bool,
 }
 
 #[cfg_attr(feature = "bindings", derive(Type))]
@@ -47,7 +47,6 @@ pub struct InitialDataResult {
     pub branches: Vec<String>,
     pub tags: Vec<String>,
 }
-
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "method", content = "params")]
@@ -87,7 +86,7 @@ pub enum Request {
 
     #[serde(rename = "shutdown")]
     Shutdown(NoParams),
-    
+
     #[serde(rename = "get_initial_data")]
     GetInitialData(NoParams),
 
@@ -159,7 +158,7 @@ impl Explorer {
 
         callback(Response::Data(DataResponse {
             data: serde_json::to_value(data).unwrap(),
-            end
+            end,
         }));
     }
 
@@ -197,11 +196,17 @@ impl Explorer {
         let head = repo.head().unwrap();
         let head_commit = head.peel_to_commit().unwrap();
         let head_commit_id = head_commit.id().to_string();
-            
-        let remote_names = repo.remotes().unwrap();
-        let remote_names: Vec<String> = remote_names.iter().map(|r| r.unwrap().to_string()).collect();
 
-        let remotes_raw: Vec<git2::Remote> = remote_names.iter().map(|r| repo.find_remote(r).unwrap() ).collect();
+        let remote_names = repo.remotes().unwrap();
+        let remote_names: Vec<String> = remote_names
+            .iter()
+            .map(|r| r.unwrap().to_string())
+            .collect();
+
+        let remotes_raw: Vec<git2::Remote> = remote_names
+            .iter()
+            .map(|r| repo.find_remote(r).unwrap())
+            .collect();
 
         let tags = repo.tag_names(None).unwrap();
         let tags = tags.iter().map(|t| t.unwrap().to_string()).collect();
@@ -221,7 +226,6 @@ impl Explorer {
             remotes.push(Remote { name, url });
         }
 
-
         let data = InitialDataResult {
             current_branch: head.shorthand().unwrap().to_string(),
             last_commit: self.get_commit(&head_commit_id).unwrap(),
@@ -230,8 +234,7 @@ impl Explorer {
             tags,
         };
 
-        self.send(&data, true);
-
+        self.send(data, true);
     }
 
     pub fn handle(&mut self, request: Request, cb: impl Fn(Response) + Send + Sync + 'static) {
