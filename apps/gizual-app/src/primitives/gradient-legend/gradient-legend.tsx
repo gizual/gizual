@@ -17,12 +17,6 @@ type GradientLegendProps = {
   paddingX?: number;
 
   /**
-   * With this option enabled, the component renders into a pure SVG
-   * element without interactivity through foreign objects.
-   */
-  noForeignObjects?: boolean;
-
-  /**
    * Function that returns a textual description for a given progress value.
    * Called at start and end of the legend.
    *
@@ -44,10 +38,9 @@ function GradientLegend({
   width: desiredWidth,
   height,
   paddingTop = 5,
-  paddingBottom = 5,
-  paddingX = 10,
+  paddingBottom = 9,
+  paddingX = 5,
   descriptionFn,
-  noForeignObjects,
 }: GradientLegendProps) {
   const { query, updateQuery } = useQuery();
   if (height < 50) {
@@ -98,67 +91,56 @@ function GradientLegend({
   const usableWidth = width - startTextWidth / 2 - endTextWidth / 2 - paddingX * 2;
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
-      <defs>
-        <linearGradient id="d-lgradient">
-          <stop offset="0%" style={{ stopColor: startColor }} />
-          <stop offset="100%" style={{ stopColor: endColor }} />
-        </linearGradient>
-      </defs>
+    <div className={style.GradientLegend} style={{ width }}>
+      <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
+        <defs>
+          <linearGradient id="d-lgradient">
+            <stop offset="0%" style={{ stopColor: startColor }} />
+            <stop offset="100%" style={{ stopColor: endColor }} />
+          </linearGradient>
+        </defs>
 
-      <g id="g-legend" style={{ transform: `translate(0px, ${8 + paddingTop}px)` }}>
-        <>
-          <text
-            className={style.GradientTextElement}
-            x={paddingX + startTextWidth / 2}
-            y={0}
-            fontSize={12}
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            {startText}
-          </text>
-
-          <text
-            className={style.GradientTextElement}
-            x={width - endTextWidth / 2 - paddingX}
-            y={0}
-            fontSize={12}
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            {endText}
-          </text>
-        </>
-        {!noForeignObjects && (
-          /* noForeignObjects === false */
+        <g id="g-legend" style={{ transform: `translate(0px, ${8 + paddingTop}px)` }}>
           <>
-            <foreignObject x={paddingX} y={height - 34 - 8 - paddingTop} width={34} height={34}>
-              <ColorPicker hexValue={startColor} onAccept={onAcceptStartColor} />
-            </foreignObject>
-
-            <foreignObject
-              x={width - paddingX - 34}
-              y={height - 34 - 8 - paddingTop}
-              width={34}
-              height={34}
+            <text
+              className={style.GradientTextElement}
+              x={paddingX + startTextWidth / 2}
+              y={0}
+              fontSize={12}
+              textAnchor="middle"
+              dominantBaseline="middle"
             >
-              <ColorPicker hexValue={endColor} onAccept={onAcceptEndColor} />
-            </foreignObject>
-          </>
-        )}
-      </g>
+              {startText}
+            </text>
 
-      <g id="g-gradient">
-        <rect
-          x={startTextWidth / 2 + paddingX}
-          y={paddingTop + 30}
-          width={usableWidth}
-          height={height - paddingTop - paddingBottom - 30}
-          fill="url(#d-lgradient)"
-        />
-      </g>
-    </svg>
+            <text
+              className={style.GradientTextElement}
+              x={width - endTextWidth / 2 - paddingX}
+              y={0}
+              fontSize={12}
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {endText}
+            </text>
+          </>
+        </g>
+
+        <g id="g-gradient">
+          <rect
+            x={startTextWidth / 2 + paddingX}
+            y={paddingTop + 30}
+            width={usableWidth}
+            height={height - paddingTop - paddingBottom - 30}
+            fill="url(#d-lgradient)"
+          />
+        </g>
+      </svg>
+      <div className={style.GradientLegendActions} style={{ width }}>
+        <ColorPicker hexValue={startColor} onAccept={onAcceptStartColor} />
+        <ColorPicker hexValue={endColor} onAccept={onAcceptEndColor} />
+      </div>
+    </div>
   );
 }
 
