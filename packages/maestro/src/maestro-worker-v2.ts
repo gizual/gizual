@@ -435,9 +435,10 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     }
   };
 
-  updateQuery = async (query: Partial<SearchQueryType>) => {
+  updateQuery = async (partialQuery: Partial<SearchQueryType>) => {
     const oldQuery = { ...this.query };
-    this.query = { ...this.query, ...query };
+    const query = { ...this.query, ...partialQuery };
+    this.query = query;
     const hasChanged = !isEqual(oldQuery, this.query);
 
     if (!hasChanged) {
