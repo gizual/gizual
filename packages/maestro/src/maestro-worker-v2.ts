@@ -409,6 +409,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       this.visualizationSettings.colors.old.value,
       this.visualizationSettings.colors.new.value,
       this.visualizationSettings.colors.notLoaded.value,
+      this.visualizationSettings.style.maxNumLines.value.toString(),
     );
 
     this.renderCacheKey = queryCacheParts.join(pairDelimiter);
@@ -835,6 +836,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     return {
       url: block.url,
       isPreview: block.isPreview,
+      isTruncated: block.isTruncated,
     };
   };
 
@@ -905,7 +907,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     const currentCacheKey = renderCacheKey;
     block.upcomingImageCacheKey = currentCacheKey;
 
-    const maxNumLines = this.visualizationSettings.style.maxNumLines.value;
+    const maxNumLines = visualizationSettings.style.maxNumLines.value;
     const parsedLines = parseLines(blame);
     const lines = parsedLines.slice(0, maxNumLines);
 
@@ -985,6 +987,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     block.currentImageCacheKey = currentCacheKey;
     block.upcomingImageCacheKey = undefined;
     block.dpr = requiredDpr;
+    block.isTruncated = parsedLines.length > maxNumLines;
 
     this.emit("block:updated", id, {
       url: result,
@@ -1044,7 +1047,8 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     });
 
     this.updateQueryCacheKey();
-    this.scheduleAllBlockRenders();
+    //this.scheduleAllBlockRenders();
+    this.safeRefreshBlocks();
   };
 
   // ---------------------------------------------
@@ -1151,6 +1155,7 @@ export type BlockImage = {
 type BlockEntry = Block & {
   url?: string;
   isPreview?: boolean;
+  isTruncated?: boolean;
 
   // internal
   currentImageCacheKey?: string;

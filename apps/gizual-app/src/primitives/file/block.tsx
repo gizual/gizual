@@ -3,7 +3,7 @@ import { useMainController, useSettingsController } from "@app/controllers";
 import { useStyle } from "@app/hooks/use-style";
 import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { SvgGroupElement, SvgRectElement, SvgTextElement } from "@app/utils/svg";
-import { Loader, Menu, Skeleton, Tooltip } from "@mantine/core";
+import { Loader, Menu, Skeleton } from "@mantine/core";
 import clsx from "clsx";
 import React from "react";
 
@@ -150,14 +150,20 @@ const FileBlock = ({
     }
   };
 
-  const maxNumLines = settingsController.visualizationSettings.style.maxNumLines.value;
+  const headerHeight = 26;
+  const footerHeight = 22;
+  const footerTextPadding = 8;
+
+  const headerWithContentHeight = height + headerHeight;
+  const totalHeight = headerWithContentHeight + (isTruncated ? footerHeight : 0);
+
   return (
     <svg
       className={style.File}
-      viewBox={`0 0 300 ${height + 26 + (isTruncated ? 22 : 0)}`}
+      viewBox={`0 0 300 ${totalHeight}`}
       style={{
         width: 300,
-        height: height + 26 + (isTruncated ? 22 : 0),
+        height: totalHeight,
         boxSizing: "content-box",
         margin: 0,
       }}
@@ -176,30 +182,23 @@ const FileBlock = ({
       />
 
       {isTruncated && (
-        <Tooltip
-          multiline
-          w={300}
-          label={`Only the first ${maxNumLines} lines are displayed on the canvas.
-          You can change this behavior in the settings.`}
-        >
-          <g>
-            <rect
-              x={0}
-              y={height + 26}
-              width={300}
-              height={22}
-              style={{ fill: useStyleFn("--background-tertiary") }}
-            />
-            <text
-              x={150}
-              y={height + 26 + 22 - 8}
-              textAnchor="middle"
-              style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
-            >
-              Content truncated
-            </text>
-          </g>
-        </Tooltip>
+        <g>
+          <rect
+            x={0}
+            y={headerWithContentHeight}
+            width={300}
+            height={footerHeight}
+            style={{ fill: useStyleFn("--background-tertiary") }}
+          />
+          <text
+            x={150}
+            y={totalHeight - footerTextPadding}
+            textAnchor="middle"
+            style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
+          >
+            Content truncated
+          </text>
+        </g>
       )}
     </svg>
   );

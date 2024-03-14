@@ -6,6 +6,7 @@ import {
   GroupEntry,
   SettingsEntry,
 } from "@app/utils";
+import debounce from "lodash/debounce";
 import { makeAutoObservable, toJS } from "mobx";
 
 import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
@@ -209,10 +210,14 @@ export class SettingsController {
 
   storeSettings() {
     localStorage.setItem(`gizual-app.settings.${version}`, JSON.stringify(toJS(this.settings)));
+    this.debounceNotifyCbs();
+  }
+
+  debounceNotifyCbs = debounce(() => {
     for (const cb of this.eventCallbacks["visualSettings:changed"] ?? []) {
       cb(toJS(this.visualizationSettings));
     }
-  }
+  }, 500).bind(this);
 
   downloadSettingsJSON() {
     const dataStr =
