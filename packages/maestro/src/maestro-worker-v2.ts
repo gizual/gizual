@@ -560,7 +560,15 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       });
 
       const oldFiles = this.availableFiles;
-      this.availableFiles = tree;
+      this.availableFiles = tree
+        .sort((a, b) => {
+          if (a.kind === "folder" && b.kind !== "folder") return -1; // Sort folders before files
+          if (a.kind !== "folder" && b.kind === "folder") return 1; // Sort folders before files
+
+          return a.path.length - b.path.length;
+        })
+        .filter((f) => f.path.length > 0);
+
       this.emit("available-files:updated", {
         oldValue: oldFiles,
         newValue: this.availableFiles,
