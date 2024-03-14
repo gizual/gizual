@@ -42,12 +42,12 @@ export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
           return match(block)
             .with(Pattern.union({ type: "file-lines" }, { type: "file-mosaic" }), (b) => (
               <FileBlock
-                key={b.id}
+                key={`${b.id} ${b.height}`}
                 parentContainer={wrapper}
                 id={b.id}
                 filePath={b.filePath}
                 fileType={b.fileType}
-                height={block.height}
+                height={b.height}
               />
             ))
             .otherwise(() => <></>);

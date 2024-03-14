@@ -47,7 +47,7 @@ const FileBlock = ({
 }: FileBlockProps) => {
   const useStyleFn = useMainController().getStyle;
   const block = useBlockImage(id);
-  const { isPreview, url, setPriority } = block;
+  const { isPreview, url, setPriority, isTruncated } = block;
   const ref = React.useRef<any>(null);
   const settingsController = useSettingsController();
 
@@ -150,11 +150,23 @@ const FileBlock = ({
     }
   };
 
+  const headerHeight = 26;
+  const footerHeight = 22;
+  const footerTextPadding = 8;
+
+  const headerWithContentHeight = height + headerHeight;
+  const totalHeight = headerWithContentHeight + (isTruncated ? footerHeight : 0);
+
   return (
     <svg
       className={style.File}
-      viewBox={`0 0 300 ${height + 26}`}
-      style={{ width: 300, height: height + 26, boxSizing: "content-box", margin: 0 }}
+      viewBox={`0 0 300 ${totalHeight}`}
+      style={{
+        width: 300,
+        height: totalHeight,
+        boxSizing: "content-box",
+        margin: 0,
+      }}
     >
       <FileBlockSvg
         id={id}
@@ -168,6 +180,26 @@ const FileBlock = ({
         onExportRaw={onExportRaw}
         interactive
       />
+
+      {isTruncated && (
+        <g>
+          <rect
+            x={0}
+            y={headerWithContentHeight}
+            width={300}
+            height={footerHeight}
+            style={{ fill: useStyleFn("--background-tertiary") }}
+          />
+          <text
+            x={150}
+            y={totalHeight - footerTextPadding}
+            textAnchor="middle"
+            style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
+          >
+            Content truncated
+          </text>
+        </g>
+      )}
     </svg>
   );
 };

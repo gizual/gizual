@@ -409,6 +409,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       this.visualizationSettings.colors.old.value,
       this.visualizationSettings.colors.new.value,
       this.visualizationSettings.colors.notLoaded.value,
+      this.visualizationSettings.style.maxNumLines.value.toString(),
     );
 
     this.renderCacheKey = queryCacheParts.join(pairDelimiter);
@@ -755,9 +756,11 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
         return this.selectedFiles.map((file, index): Block => {
           const numLines = fileContents[index].split("\n").length;
+          const maxNumLines = this.visualizationSettings.style.maxNumLines.value;
+          const truncatedNumLines = Math.min(numLines, maxNumLines);
           const blockHeight = match(type)
-            .with("file-lines", () => (numLines - 1) * 10)
-            .with("file-mosaic", () => Math.max((Math.floor(numLines / 10) + 1) * 10, 10))
+            .with("file-lines", () => (truncatedNumLines - 1) * 10)
+            .with("file-mosaic", () => Math.max((Math.floor(truncatedNumLines / 10) + 1) * 10, 10))
             .otherwise(() => {
               throw new Error("Unsupported block type (height calculation)");
             });
@@ -833,6 +836,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     return {
       url: block.url,
       isPreview: block.isPreview,
+      isTruncated: block.isTruncated,
     };
   };
 
@@ -860,12 +864,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
     let { requiredDpr } = this;
 
-    let showContent = true;
-
-    if (block.height > 10_000) {
-      requiredDpr = 1;
-      showContent = false;
-    }
+    const showContent = true;
 
     if (!block.inView) {
       requiredDpr = 1;
@@ -903,7 +902,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     const currentCacheKey = renderCacheKey;
     block.upcomingImageCacheKey = currentCacheKey;
 
-    const lines = parseLines(blame);
+    const maxNumLines = visualizationSettings.style.maxNumLines.value;
+    const parsedLines = parseLines(blame);
+    const lines = parsedLines.slice(0, maxNumLines);
 
     const selectedStartDate = this.range.since.date;
     const selectedEndDate = this.range.until.date;
@@ -981,10 +982,12 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     block.currentImageCacheKey = currentCacheKey;
     block.upcomingImageCacheKey = undefined;
     block.dpr = requiredDpr;
+    block.isTruncated = parsedLines.length > maxNumLines;
 
     this.emit("block:updated", id, {
       url: result,
       isPreview: false,
+      isTruncated: parsedLines.length > maxNumLines,
     });
   };
 
@@ -1039,7 +1042,11 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     });
 
     this.updateQueryCacheKey();
-    this.scheduleAllBlockRenders();
+    if (isEqual(oldSettings.style.maxNumLines.value, settings.style.maxNumLines.value)) {
+      this.scheduleAllBlockRenders();
+    } else {
+      this.safeRefreshBlocks();
+    }
   };
 
   // ---------------------------------------------
@@ -1140,11 +1147,13 @@ export type Block = FileLinesBlock | FileMosaicBlock | AuthorMosaicBlock | Autho
 export type BlockImage = {
   url?: string;
   isPreview?: boolean;
+  isTruncated?: boolean;
 };
 
 type BlockEntry = Block & {
   url?: string;
   isPreview?: boolean;
+  isTruncated?: boolean;
 
   // internal
   currentImageCacheKey?: string;

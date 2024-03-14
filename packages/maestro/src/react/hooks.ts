@@ -403,6 +403,7 @@ export function useBlockImage(id: string) {
   const [blockImage, setBlockImage] = React.useState({
     url: "",
     isPreview: false,
+    isTruncated: false,
   });
 
   trpc.blockImages.useSubscription(
@@ -421,6 +422,7 @@ export function useBlockImage(id: string) {
   return {
     url: blockImage.url,
     isPreview: blockImage.isPreview,
+    isTruncated: blockImage.isTruncated,
     setPriority,
   };
 }

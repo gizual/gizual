@@ -6,6 +6,7 @@ import {
   GroupEntry,
   SettingsEntry,
 } from "@app/utils";
+import debounce from "lodash/debounce";
 import { makeAutoObservable, toJS } from "mobx";
 
 import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
@@ -140,7 +141,7 @@ export class SettingsController {
       maxNumLines: createNumberSetting(
         "Maximum Number of Lines",
         "The maximum number of lines to display per file. If set to 0, all lines will be displayed.",
-        200,
+        400,
       ),
     },
   };
@@ -149,7 +150,7 @@ export class SettingsController {
     blockHtmlBase: createSelectSetting(
       "Block HTML Base",
       "The HTML base element to use for block elements.",
-      "div",
+      "svg",
       BLOCK_HTML_BASES.map((b) => {
         return { value: b, label: b };
       }),
@@ -209,10 +210,14 @@ export class SettingsController {
 
   storeSettings() {
     localStorage.setItem(`gizual-app.settings.${version}`, JSON.stringify(toJS(this.settings)));
+    this.debounceNotifyCbs();
+  }
+
+  debounceNotifyCbs = debounce(() => {
     for (const cb of this.eventCallbacks["visualSettings:changed"] ?? []) {
       cb(toJS(this.visualizationSettings));
     }
-  }
+  }, 500).bind(this);
 
   downloadSettingsJSON() {
     const dataStr =
