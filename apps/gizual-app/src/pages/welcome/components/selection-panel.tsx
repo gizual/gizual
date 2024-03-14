@@ -73,30 +73,10 @@ export function SelectionPanel({ selectedSource, setSelectedSource }: LeftPanelP
           />
           <hr />
           <RepoRow
-            repoName="neovim/neovim"
-            repoSource="https://github.com/neovim/neovim"
-            source="url"
-            metrics={{ forks: 5000, stars: 75_000 }}
-          />
-          <hr />
-          <RepoRow
             repoName="vitejs/vite"
             repoSource="https://github.com/vitejs/vite"
             source="url"
             metrics={{ forks: 5600, stars: 64_000 }}
-          />
-          <hr />
-          <RepoRow
-            repoName="microsoft/vscode"
-            repoSource="https://github.com/microsoft/vscode"
-            source="url"
-            metrics={{ forks: 27_000, stars: 157_000 }}
-          />
-          <hr />
-          <RepoRow
-            repoName="facebook/react"
-            repoSource="https://github.com/facebook/react"
-            source="url"
           />
           <hr />
           <RepoRow repoName="vuejs/vue" repoSource="https://github.com/vuejs/vue" source="url" />
@@ -107,12 +87,17 @@ export function SelectionPanel({ selectedSource, setSelectedSource }: LeftPanelP
             source="url"
           />
           <hr />
-          <RepoRow repoName="golang/go" repoSource="https://github.com/golang/go" source="url" />
+          <RepoRow
+            repoName="facebook/react"
+            repoSource="https://github.com/facebook/react"
+            source="url"
+          />
           <hr />
           <RepoRow
-            repoName="home-assistant/core"
-            repoSource="https://github.com/home-assistant/core"
+            repoName="microsoft/vscode"
+            repoSource="https://github.com/microsoft/vscode"
             source="url"
+            metrics={{ forks: 27_000, stars: 157_000 }}
           />
         </>
       </CollapsiblePanel>
