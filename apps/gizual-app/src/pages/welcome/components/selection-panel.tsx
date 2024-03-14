@@ -48,22 +48,36 @@ export function SelectionPanel({ selectedSource, setSelectedSource }: LeftPanelP
       <CollapsiblePanel title="Featured Repositories">
         <>
           <RepoRow
-            repoName="neovim"
-            repoSource="url://github.com/neovim"
+            repoName="diamond"
+            repoSource="https://github.com/tugraz-isds/diamond"
             source="url"
-            metrics={{ forks: 64_000, stars: 20_400 }}
+            metrics={{ forks: 6, stars: 2 }}
           />
           <hr />
           <RepoRow
             repoName="neovim"
-            repoSource="url://github.com/neovim"
+            repoSource="https://github.com/neovim/neovim"
             source="url"
-            metrics={{ forks: 64_000, stars: 20_400 }}
+            metrics={{ forks: 5000, stars: 75_000 }}
+          />
+          <hr />
+          <RepoRow
+            repoName="vite"
+            repoSource="https://github.com/vitejs/vite"
+            source="url"
+            metrics={{ forks: 5600, stars: 64_000 }}
+          />
+          <hr />
+          <RepoRow
+            repoName="vscode"
+            repoSource="https://github.com/microsoft/vscode"
+            source="url"
+            metrics={{ forks: 27_000, stars: 157_000 }}
           />
         </>
       </CollapsiblePanel>
 
-      <CollapsiblePanel title="Recent Repositories">
+      {/*<CollapsiblePanel title="Recent Repositories">
         <>
           <RepoRow
             repoName="gizual"
@@ -79,7 +93,7 @@ export function SelectionPanel({ selectedSource, setSelectedSource }: LeftPanelP
             metrics={{ forks: 64_000, stars: 20_400 }}
           />
         </>
-      </CollapsiblePanel>
+    </CollapsiblePanel>*/}
     </div>
   );
 }
