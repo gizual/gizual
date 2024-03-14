@@ -14,7 +14,7 @@ A live demo can be found at [gizual.com](https://www.gizual.com).
 | Chrome (Android) |  106+   |   Sep. 22    |  🚫  |     🚫      |     🚫     |      👍       |
 
 [1]: FSA - [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API)  
-[2]: Remote Clone - Remote cloning via server proxy from public repos on GitHub, GitLab and Bitbucket.
+[2]: Remote Clone - Remote cloning via server proxy from public repos on GitHub, GitLab and Bitbucket.  
 [3]: Safari (iOS) - Gizual, being memory and CPU intensive, frequently crashes due to system limitations despite technical support.
 
 👍 Works as intended  
