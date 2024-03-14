@@ -3,12 +3,12 @@ import { Remote, transfer, wrap } from "comlink";
 import { makeObservable, observable, runInAction } from "mobx";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
+import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "@giz/opfs";
 import { webWorkerLink } from "@giz/trpc-webworker/link";
 import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "./fileio-utils";
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
 
@@ -20,6 +20,8 @@ export type RepoSetupOpts = {
   zipFile?: File;
 };
 import { createLogger } from "@giz/logging";
+
+import { downloadRepo } from "./remote-clone";
 
 declare const mainController: MainController;
 
@@ -84,53 +86,26 @@ export class Maestro {
   }
 
   async openRepoFromUrlUnsafe(service: string, repoName: string) {
-    const host = import.meta.env.API_HOST ?? "";
+    const handle = await downloadRepo({
+      service,
+      repoName,
+      onProgress: (progress) => {
+        if (progress.type === "clone-complete") {
+          runInAction(() => {
+            this.progressText = `Downloading ...`;
+          });
+          return;
+        }
 
-    const sseResponse = new EventSource(`${host}/on-demand-clone/${service}/${repoName}`);
-
-    let zipFileName = "";
-    const onMessage = (e: MessageEvent) => {
-      const data = JSON.parse(e.data);
-      if (data.type === "snapshot-created") {
-        zipFileName = data.snapshotName;
-        return;
-      }
-      if (data.type === "clone-progress") {
         runInAction(() => {
-          this.progressText = `${data.state}: ${data.numProcessed}/${data.numTotal} (${data.progress}%)`;
+          this.progressText = `${progress.state}: ${progress.numProcessed}/${progress.numTotal} (${progress.progress}%)`;
         });
-      }
-    };
-
-    sseResponse.addEventListener("message", onMessage);
-
-    await new Promise<void>((resolve) => {
-      // wait until the EventSource is closed
-      sseResponse.addEventListener("error", () => {
-        resolve();
-      });
+      },
     });
-
-    sseResponse.removeEventListener("message", onMessage);
-    sseResponse.close();
-
-    runInAction(() => {
-      this.progressText = `Downloading ...`;
-    });
-
-    if (!zipFileName) {
-      throw new Error("Failed to clone repository");
-    }
-
-    const response = await fetch(`${host}/snapshots/${zipFileName}`);
-
-    const data = await response.arrayBuffer();
 
     const opts: PoolControllerOpts = {};
 
-    opts.directoryHandle = await importZipFile(data);
-    opts.directoryHandle = await seekRepo(opts.directoryHandle!);
-    //await printFileTree(opts.directoryHandle!);
+    opts.directoryHandle = handle;
 
     const result = await this.worker.setupPool(opts);
 
@@ -168,7 +143,7 @@ export class Maestro {
     }
 
     if (opts2.directoryHandle) {
-      opts2.directoryHandle = await seekRepo(opts2.directoryHandle!);
+      opts2.directoryHandle = await seekRepo(opts2.directoryHandle);
       //await printFileTree(opts2.directoryHandle!);
     }
 

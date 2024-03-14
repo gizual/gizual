@@ -1,4 +1,5 @@
 import { createLogger } from "@giz/logging";
+import { FSHandle, getNativeDirectoryHandle } from "@giz/opfs";
 import { Fd, FsaFS, WASI, ZipFS } from "@giz/wasi-shim";
 import { WasiRunOpts, WasiRuntimeOpts } from "../common";
 
@@ -12,8 +13,16 @@ export class WasiRuntimeWorker {
     this.folderMappings = {};
   }
 
-  addFolderMapping(path: string, handle: FileSystemDirectoryHandle | Uint8Array) {
-    this.folderMappings[path] = handle;
+  async addFolderMapping(path: string, handle: FSHandle | Uint8Array) {
+    if (handle instanceof Uint8Array) {
+      this.folderMappings[path] = handle;
+      return;
+    }
+    const nativeHandle = await getNativeDirectoryHandle(handle);
+    if (!nativeHandle) {
+      throw new Error("Invalid handle");
+    }
+    this.folderMappings[path] = nativeHandle;
   }
 
   async init(opts: WasiRuntimeOpts, wasmBytes: Uint8Array): Promise<void> {

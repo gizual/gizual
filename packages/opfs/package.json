@@ -1,0 +1,4 @@
+{
+  "name": "@giz/opfs",
+  "main": "./src/opfs.ts"
+}

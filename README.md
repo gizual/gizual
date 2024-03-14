@@ -9,14 +9,16 @@ A live demo can be found at [gizual.com](https://www.gizual.com).
 | Chrome           |  106+   |   Sep. 22    |  👍  |     👍      |     👍     |      👍       |
 | Edge             |  106+   |   Oct. 22    |  👍  |     👍      |     👍     |      👍       |
 | Firefox          |  110+   |   Feb. 23    |  🚫  |     👍      |     👍     |      👍       |
-| Safari           |  16.4+  |   Mar. 23    |  🚫  |     👨‍💻      |     👨‍💻     |      👨‍💻       |
-| Safari (iOS)     |  16.4+  |   Mar. 23    |  🚫  |     🚫      |     🚫     |      👨‍💻       |
+| Safari           |  16.4+  |   Mar. 23    |  🚫  |     👨‍💻      |     👨‍💻     |      👍       |
+| Safari (iOS)     |  16.4+  |   Mar. 23    |  🚫  |     🚫      |     🚫     |      🚧³      |
 | Chrome (Android) |  106+   |   Sep. 22    |  🚫  |     🚫      |     🚫     |      👍       |
 
 [1]: FSA - [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API)  
 [2]: Remote Clone - Remote cloning via server proxy from public repos on GitHub, GitLab and Bitbucket.
+[3]: Safari (iOS) - Gizual, being memory and CPU intensive, frequently crashes due to system limitations despite technical support.
 
 👍 Works as intended  
+🚧 Partial support / unstable
 👨‍💻 Work in progress  
 🚫 Not supported
 

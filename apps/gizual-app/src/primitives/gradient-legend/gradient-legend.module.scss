@@ -1,10 +1,20 @@
 .GradientLegend {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .GradientTextElement {
   font-family: "Iosevka Extended";
   color: var(--foreground-primary);
   fill: var(--foreground-primary);
+}
+
+.GradientLegendActions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
 }

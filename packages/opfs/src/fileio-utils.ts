@@ -1,4 +1,20 @@
 import { UnzipFileInfo, unzipSync } from "fflate";
+import { FSHandle, getNativeDirectoryHandle } from "./opfs";
+
+declare global {
+  class FileSystemSyncAccessHandle {
+    close(): void;
+    flush(): void;
+    getSize(): number;
+    read(buffer: ArrayBuffer | ArrayBufferView, opts?: { at?: number }): number;
+    truncate(newSize: number): void;
+    write(buffer: ArrayBuffer | ArrayBufferView, opts?: { at?: number }): number;
+  }
+
+  interface FileSystemFileHandle {
+    createSyncAccessHandle(): Promise<FileSystemSyncAccessHandle>;
+  }
+}
 
 function isFileSystemDirectoryEntry(entry: any): entry is FileSystemDirectoryEntry {
   return (
@@ -210,9 +226,17 @@ export async function importZipFile(data: ArrayBuffer): Promise<FileSystemDirect
     }
 
     const fileHandle = await currentHandle.getFileHandle(fileName, { create: true });
-    const writable = await fileHandle.createWritable();
-    await writable.write(content);
-    await writable.close();
+
+    // on Safari createWritable is not implemented yet
+    if (fileHandle.createWritable) {
+      const writable = await fileHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+    } else {
+      const syncHandle = await fileHandle.createSyncAccessHandle();
+      syncHandle.write(content);
+      syncHandle.close();
+    }
   }
 
   return directory;
@@ -248,9 +272,15 @@ async function clearDirectory(directoryHandle: FileSystemDirectoryHandle) {
 const MAX_DEPTH = 1;
 
 export async function seekRepo(
-  directoryHandle: FileSystemDirectoryHandle,
+  handle: FSHandle,
   depth = 0,
 ): Promise<FileSystemDirectoryHandle | undefined> {
+  const directoryHandle = await getNativeDirectoryHandle(handle);
+
+  if (!directoryHandle) {
+    return undefined;
+  }
+
   const entries = await directoryHandle.entries();
 
   let count = 0;

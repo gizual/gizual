@@ -1,5 +1,6 @@
 import * as Comlink from "comlink";
 
+import type { FSHandle } from "@giz/opfs";
 import { GizWorker } from "@giz/worker";
 
 import type { PoolMaster, PoolMetrics } from "./pool-master";
@@ -7,7 +8,7 @@ import PoolMasterUrl from "./pool-master?worker&url";
 
 export type PoolControllerOpts = {
   maxConcurrency?: number;
-  directoryHandle?: FileSystemDirectoryHandle;
+  directoryHandle?: FSHandle;
   zipFile?: Uint8Array;
 };
 
