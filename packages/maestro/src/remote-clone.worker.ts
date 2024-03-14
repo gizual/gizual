@@ -2,9 +2,7 @@ import "@giz/logging/worker";
 
 import type * as Events from "@giz/gizual-api/types";
 import { createLogger } from "@giz/logging";
-import { FSHandle, serializeHandle } from "@giz/opfs";
-
-import { importZipFile, seekRepo } from "./fileio-utils";
+import { FSHandle, importZipFile, seekRepo, serializeHandle } from "@giz/opfs";
 
 export type RepoDownloadOpts = {
   service: string;
@@ -73,12 +71,17 @@ async function download(opts: RepoDownloadOpts) {
 
   let directoryHandle: FileSystemDirectoryHandle | undefined = await importZipFile(data);
 
-  directoryHandle = await seekRepo(directoryHandle!);
+  if (!directoryHandle) {
+    throw new Error("Failed to import zip file");
+  }
+
+  directoryHandle = await seekRepo(directoryHandle);
+
   if (!directoryHandle) {
     throw new Error("Failed to find repo in zip");
   }
 
-  const dirPath = await serializeHandle(directoryHandle);
-  logger.debug(`Zip imported, repository found at "${dirPath.path}"`);
-  postMessage({ type: "success", handle: dirPath });
+  const handle = await serializeHandle(directoryHandle);
+  logger.debug(`Zip imported, repository found at`, handle);
+  postMessage({ type: "success", handle });
 }

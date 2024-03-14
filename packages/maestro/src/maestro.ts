@@ -3,12 +3,12 @@ import { Remote, transfer, wrap } from "comlink";
 import { makeObservable, observable, runInAction } from "mobx";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
+import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "@giz/opfs";
 import { webWorkerLink } from "@giz/trpc-webworker/link";
 import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "./fileio-utils";
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
 
@@ -20,6 +20,7 @@ export type RepoSetupOpts = {
   zipFile?: File;
 };
 import { createLogger } from "@giz/logging";
+
 import { downloadRepo } from "./remote-clone";
 
 declare const mainController: MainController;
@@ -142,7 +143,7 @@ export class Maestro {
     }
 
     if (opts2.directoryHandle) {
-      opts2.directoryHandle = await seekRepo(opts2.directoryHandle!);
+      opts2.directoryHandle = await seekRepo(opts2.directoryHandle);
       //await printFileTree(opts2.directoryHandle!);
     }
 

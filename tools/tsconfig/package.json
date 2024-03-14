@@ -1,7 +1,7 @@
 {
   "name": "@giz/tsconfig",
   "dependencies": {
-    "@types/wicg-file-system-access": "2020.9.8",
+    "@types/wicg-file-system-access": "2023.10.5",
     "bun-types": "1.0.3"
   }
 }

@@ -2958,7 +2958,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@giz/tsconfig@workspace:tools/tsconfig"
   dependencies:
-    "@types/wicg-file-system-access": 2020.9.8
+    "@types/wicg-file-system-access": 2023.10.5
     bun-types: 1.0.3
   languageName: unknown
   linkType: soft
@@ -6535,10 +6535,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/wicg-file-system-access@npm:2020.9.8":
-  version: 2020.9.8
-  resolution: "@types/wicg-file-system-access@npm:2020.9.8"
-  checksum: 08ef73d68e9a5596d0d17f0f9651745cb9edf98afdee3f9fe852c44123e7b5254ede38c151ebea5127e4a4a59fcd850ce762e56b1278079afff3aadf53dc0776
+"@types/wicg-file-system-access@npm:2023.10.5":
+  version: 2023.10.5
+  resolution: "@types/wicg-file-system-access@npm:2023.10.5"
+  checksum: 96e7117ab56da6f607c33f5c45ad33e067cf3bc85e66da5ebc72ec623b42f7d3b1472472f2154238474103a18325b50e8a3b1ab733b1b6a6d2768da610ddbef6
   languageName: node
   linkType: hard
 

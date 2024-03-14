@@ -1,10 +1,10 @@
 import { isString } from "lodash";
 
+import { FSHandle } from "@giz/opfs";
 import { WasiRuntime } from "@giz/wasi-runtime";
 import wasmFileUrl from "../../build/explorer-web.wasm?url";
 
 import { DataResponse, ErrorResponse, JobWithOrigin } from "./types";
-import { FSHandle } from "@giz/opfs";
 
 export type PoolNodeOpts = {
   wasmFileUrl?: string;

@@ -1,5 +1,7 @@
 import { createLogger } from "@giz/logging";
 
+export * from "./fileio-utils";
+
 const logger = createLogger("opfs");
 
 export type FSHandle =
@@ -116,8 +118,4 @@ export async function findFileHandle(
 
 export function isValidPath(path: string) {
   return !path.startsWith("/");
-}
-
-export async function getOpfsRoot() {
-  return await navigator.storage.getDirectory();
 }
