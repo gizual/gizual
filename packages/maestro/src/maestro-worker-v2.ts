@@ -755,11 +755,19 @@ export class Maestro extends EventEmitter<Events, Maestro> {
         );
 
         return this.selectedFiles.map((file, index): Block => {
-          const numLines = fileContents[index].split("\n").length;
+          /**
+           * Git blame ignores the last line if it is empty, so we need to adjust the line count accordingly.
+           */
+          const fileContent = fileContents[index];
+          const lines = fileContent.split("\n");
+          let numLines = lines.length;
+          if (lines.length > 0 && lines.at(-1)?.length === 0) {
+            numLines -= 1;
+          }
           const maxNumLines = this.visualizationSettings.style.maxNumLines.value;
           const truncatedNumLines = Math.min(numLines, maxNumLines);
           const blockHeight = match(type)
-            .with("file-lines", () => (truncatedNumLines - 1) * 10)
+            .with("file-lines", () => truncatedNumLines * 10)
             .with("file-mosaic", () => Math.max((Math.floor(truncatedNumLines / 10) + 1) * 10, 10))
             .otherwise(() => {
               throw new Error("Unsupported block type (height calculation)");
@@ -1042,7 +1050,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     });
 
     this.updateQueryCacheKey();
-    if (isEqual(oldSettings.style.maxNumLines.value, settings.style.maxNumLines.value)) {
+    if (isEqual(oldSettings?.style?.maxNumLines?.value, settings.style.maxNumLines.value)) {
       this.scheduleAllBlockRenders();
     } else {
       this.safeRefreshBlocks();

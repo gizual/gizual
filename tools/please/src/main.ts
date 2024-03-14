@@ -55,6 +55,7 @@ async function findNearestPackage(dir: string): Promise<Package> {
 }
 
 export type TaskConfig = {
+  env?: Record<string, string>;
   dependsOn?: string[];
   input?: string | string[];
   output?: string | string[];
@@ -64,6 +65,7 @@ export type Task = {
   id: string;
   pkg: Package;
   taskName: string;
+  env: Record<string, string>;
   dependsOn: string[];
   input?: string[] | undefined;
   output?: string[] | undefined;
@@ -107,6 +109,7 @@ class DependencyGraph {
       id,
       pkg,
       taskName,
+      env: {},
       dependsOn: [],
     };
     this.tasks.push(task);
@@ -121,6 +124,10 @@ class DependencyGraph {
 
     if (infoDTO?.output) {
       task.output = typeof infoDTO.output === "string" ? [infoDTO.output] : infoDTO.output;
+    }
+
+    if (infoDTO?.env) {
+      task.env = infoDTO.env;
     }
 
     const dependencies: Record<string, string> = {
@@ -231,7 +238,7 @@ class DependencyGraph {
 
       ids.push(prettyTaskId);
 
-      const { pkg, taskName } = task;
+      const { pkg, taskName, env } = task;
       const packageJSON: any = pkg.packageJson;
       const script = packageJSON.scripts?.[taskName];
 
@@ -244,6 +251,10 @@ class DependencyGraph {
         name: `${pkg.packageJson.name}#${taskName}`,
         cwd: pkg.dir,
         prefixColor: prefixColor || colors[i],
+        env: {
+          ...process.env,
+          ...env,
+        },
       });
     }
 

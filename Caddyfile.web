@@ -1,0 +1,10 @@
+:8080 {
+	header * {
+		Cross-Origin-Embedder-Policy: require-corp
+		Cross-Origin-Opener-Policy: same-origin
+		Cross-Origin-Resource-Policy: cross-origin
+	}
+
+	root * /srv
+	file_server
+}

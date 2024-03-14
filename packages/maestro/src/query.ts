@@ -185,6 +185,7 @@ function resolveRangeByDate(range: string | string[]): Result<[GizDate, GizDate]
 
   const startDate = new GizDate(range[0]);
   const endDate = new GizDate(range[1]);
+  endDate.setHours(23, 59, 59, 999);
 
   return {
     result: [startDate, endDate],
