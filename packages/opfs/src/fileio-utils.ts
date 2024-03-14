@@ -1,6 +1,5 @@
 import { UnzipFileInfo, unzipSync } from "fflate";
 import { FSHandle, getNativeDirectoryHandle } from "./opfs";
-import "./types";
 
 declare global {
   class FileSystemSyncAccessHandle {
