@@ -18,8 +18,11 @@ function ErrorPage() {
           to run.
         </p>
         <p>
-          Check out our <a href="https://gizual.com/compatibility">Compatibility Page</a> for
-          details.
+          Check out our{" "}
+          <a href="https://github.com/gizual/gizual?tab=readme-ov-file#browser-compatibility">
+            Compatibility Page
+          </a>{" "}
+          for details.
         </p>
       </div>
     </div>
