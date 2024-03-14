@@ -173,11 +173,11 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
         {!vm.isDragging && (
           <>
             <p className={style.DateRangeInfoText} style={{ left: 4 }}>
-              {vm.startDate.toString()}
+              {vm.startDate.toDisplayString()}
             </p>
             <p className={style.DateRangeCenterText}>{vm.dateRangeCenterText}</p>
             <p className={style.DateRangeInfoText} style={{ right: 4 }}>
-              {vm.endDate.toString()}
+              {vm.endDate.toDisplayString()}
             </p>
           </>
         )}

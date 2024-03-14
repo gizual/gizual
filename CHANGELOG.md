@@ -1,4 +1,4 @@
-## Gizual 3.0.0-alpha.XX (XX.XX.2024)
+## Gizual 3.0.0-alpha.17 (14.03.2024)
 
 ### Features
 
@@ -10,22 +10,22 @@
 
 ### Changes
 
-- **app:frontend:** unify date format across all UI components
-- **app:frontend:** disable pagination on author tables with less than `PAGE_SIZE` authors
-- **app:frontend:** implement consistent blur behavior for all input fields
-- **app:frontend:** implement automatic centering of the timeline on changes to query dates
-- **app:frontend:** add color pickers to canvas legend component
-- **app:frontend:** add warning dialog if a repository is open and the user tries to exit the page
-- **app:frontend:** simplify vis-type modal, remove stepper
-- **app:frontend:** implement better visual indication for busy workers in footer
+- **app:frontend:** Unify date format across all UI components
+- **app:frontend:** Disable pagination on author tables with less than `PAGE_SIZE` authors
+- **app:frontend:** Implement consistent blur behavior for all input fields
+- **app:frontend:** Implement automatic centering of the timeline on changes to query dates
+- **app:frontend:** Add color pickers to canvas legend component
+- **app:frontend:** Add warning dialog if a repository is open and the user tries to exit the page
+- **app:frontend:** Simplify vis-type modal, remove stepper
+- **app:frontend:** Implement better visual indication for busy workers in footer
 - **app:frontend:** Limit maximum number of lines rendered on the canvas (user-configurable)
 
 ### Bug Fixes
 
-- **app:general:** re-attach renderer worker metrics to footer
-- **app:backend:** fix unstable directory listing of FSA API in chromium 122 & 123 through caching
-- **app:frontend:** fix an issue that caused color updates triggered through the author panel to not be applied properly
-- **app:backend:** ensure `maestro.updateQuery` only triggers necessary updates
+- **app:general:** Re-attach renderer worker metrics to footer
+- **app:backend:** Fix unstable directory listing of FSA API in chromium 122 & 123 through caching
+- **app:frontend:** Fix an issue that caused color updates triggered through the author panel to not be applied properly
+- **app:backend:** Ensure `maestro.updateQuery` only triggers necessary updates
 
 ---
 
