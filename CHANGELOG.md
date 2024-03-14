@@ -3,6 +3,7 @@
 ### Features
 
 - **app:general:** Implement custom loggers with pretty prefixes, namespaces and custom filtering
+- **app:general:** Allow direct remote cloning via query parameter `source`
 
 ### Changes
 
