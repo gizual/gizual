@@ -35,6 +35,10 @@
     padding: 0 1rem;
     border-right: 1px solid var(--border-primary);
   }
+
+  @media (width < 1024px) {
+    display: none;
+  }
 }
 
 .RightSection {
@@ -43,9 +47,15 @@
   @include text-sm;
   justify-content: flex-end;
   text-align: right;
+  align-items: center;
   > * {
     padding: 0 1rem;
   }
+  
+  > p {
+    padding-bottom: 3px;
+  }
+
   // border-left on all child elements
   > *:not(:first-child) {
     border-left: 1px solid var(--border-primary);
@@ -53,26 +63,87 @@
 }
 
 .Metrics {
+  gap: 0.25rem;
   display: flex;
   flex-direction: row;
-  > * {
-    padding: 0 1rem;
+  & > span {
+    padding-right: 0.5rem;
+    margin-right: 0.25rem;
+    border-right: 1px solid var(--border-primary);
   }
+}
 
-  > *:first-child {
-    padding-left: 0;
+.UtilizationGraph {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  position: relative;
+  max-width: 80px;
+  align-items: center;
+
+  @media (width < 600px) {
+    max-width: 40px !important;
+    & > div {
+      width: 4px !important;
+      height: 4px !important;
+    }
   }
+}
 
-  > *:last-child {
-    padding-right: 0;
+.UtilizationGraphItem {
+  display: inline-block;
+  height: 6px;
+  width: 6px;
+  border: 1px solid var(--border-primary);
+  transition: background-color 0.5s ease-in-out;
+}
+
+.UtilizationGraphItem__Busy {
+  background-color: #ff0000;
+  animation: utilization-busy 2s ease-in-out infinite;
+}
+
+.UtilizationGraphItem__Idle {
+  background-color: #007900;
+}
+
+@keyframes utilization-busy {
+  0% {
+    background-color: #ff0000;
   }
-
-  // border-left on all child elements
-  > *:not(:first-child) {
-    border-left: 1px solid var(--border-primary);
+  50% {
+    background-color: #ba0000;
   }
+  0% {
+    background-color: #ff0000;
+  }
+}
 
-  @media (width < 1024px) {
+.IconExplorer {
+  width: 20px;
+  height: 20px;
+  & > path {
+    fill: unset;
+  }
+}
+
+.IconRenderer {
+  width: 20px;
+  height: 20px;
+}
+
+.NumJobs {
+  display: block;
+
+  @media (width < 600px) {
     display: none;
+  }
+}
+
+.NumJobsShort {
+  display: none;
+
+  @media (width < 600px) {
+    display: block;
   }
 }

@@ -16,7 +16,7 @@
 .GlobalLoadingIndicator--inner {
   @include rounded;
   @include shadow-lg;
-  --_width: 200px;
+  --_width: 300px;
   --_height: 140px;
   font-size: 1.25rem;
   font-weight: bold;
@@ -32,6 +32,9 @@
   width: var(--_width);
   background-color: var(--background-tertiary);
   z-index: 1200;
+  justify-content: center;
+  align-items: center;
+
   span {
     font-size: 1rem;
     font-weight: normal;

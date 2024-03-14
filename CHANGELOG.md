@@ -17,6 +17,7 @@
 - **app:frontend:** add color pickers to canvas legend component
 - **app:frontend:** add warning dialog if a repository is open and the user tries to exit the page
 - **app:frontend:** simplify vis-type modal, remove stepper
+- **app:frontend:** implement better visual indication for busy workers in footer
 
 ### Bug Fixes
 
