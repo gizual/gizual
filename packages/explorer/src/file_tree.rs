@@ -14,7 +14,6 @@ pub struct GetFileTreeParams {
     rev: String,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CustomValue(Value);
 
@@ -108,11 +107,12 @@ impl Explorer {
 
         for (path, subtree) in sub_trees {
             let sub_results = self.traverse_tree(repo, stream, &subtree, path);
-            
-            if !stream && sub_results.is_ok() {
-                result.extend(sub_results.unwrap());
+
+            if !stream {
+                if let Ok(sub_results) = sub_results {
+                    result.extend(sub_results);
+                }
             }
-           
         }
 
         let entry = FileTreeNode {
@@ -143,8 +143,7 @@ impl Explorer {
         let commit = repo.find_commit(commit_id)?;
         let tree = commit.tree()?;
 
-         self.traverse_tree(repo, stream, &tree, Vec::new())
-    
+        self.traverse_tree(repo, stream, &tree, Vec::new())
     }
 
     pub fn stream_file_tree(&self, params: &GetFileTreeParams) {

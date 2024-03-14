@@ -628,14 +628,14 @@ export class Maestro extends EventEmitter<Events, Maestro> {
           return result;
         });
       })
-      .with({ lastEditedBy: Pattern._ }, (f) => {
+      .with({ lastEditedBy: Pattern._ }, (_f) => {
         // select files by last edited by
         throw new Error("Unsupported file selection");
       })
-      .with({ editedBy: Pattern._ }, (f) => {
+      .with({ editedBy: Pattern._ }, (_f) => {
         throw new Error("Unsupported file selection");
       })
-      .with({ createdBy: Pattern._ }, (f) => {
+      .with({ createdBy: Pattern._ }, (_f) => {
         throw new Error("Unsupported file selection");
       })
       .with({ changedInRef: Pattern.string }, async ({ changedInRef }) => {
@@ -645,7 +645,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
           ...commit.files.added,
           ...commit.files.modified,
           ...commit.files.deleted,
-          ...commit.files.renamed.map((f) => f[1]),
+          ...commit.files.renamed.map((file) => file[1]),
         ]);
 
         return this.availableFiles!.filter((node) => {
@@ -656,7 +656,7 @@ export class Maestro extends EventEmitter<Events, Maestro> {
           return result;
         });
       })
-      .with({ contains: Pattern._ }, (f) => {
+      .with({ contains: Pattern._ }, (_f) => {
         throw new Error("Unsupported file selection");
       })
       .otherwise(() => {
