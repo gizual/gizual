@@ -59,6 +59,49 @@ export type ChangeEventArguments<P extends string | number | boolean | any> = [
   },
 ];
 
+const IGNORED_FILE_EXTENSIONS = new Set([
+  "ico",
+  "lock",
+  "ods",
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "tiff",
+  "bmp",
+  "woff",
+  "woff2",
+  "eot",
+  "ttf",
+  "otf",
+  "docx",
+  "xlsx",
+  "pptx",
+  "pdf",
+  "zip",
+  "rar",
+  "7z",
+  "tar",
+  "gz",
+  "bz2",
+  "xz",
+  "mp3",
+  "mp4",
+  "avi",
+  "webm",
+  "wav",
+  "ogg",
+  "mov",
+  "mkv",
+  "flv",
+  "wmv",
+  "m4a",
+  "m4v",
+  "mpg",
+  "mpeg",
+]);
+
 export type Events = {
   "state:updated": ObjectChangeEventArguments<State>;
   "metrics:updated": ObjectChangeEventArguments<Metrics>;
@@ -109,9 +152,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     let dpr = 1;
 
     if (scale > 2.8) {
-      dpr = 3.5;
+      dpr = 3.8;
     } else if (scale > 1.5) {
-      dpr = 2.5;
+      dpr = 2.6;
     } else if (scale > 1) {
       dpr = 2;
     }
@@ -562,13 +605,27 @@ export class Maestro extends EventEmitter<Events, Maestro> {
 
       const oldFiles = this.availableFiles;
       this.availableFiles = tree
+        .filter((f) => {
+          if (f.kind === "folder") {
+            return true;
+          }
+          if (f.path.length <= 0) {
+            return false;
+          }
+          const ext = f.path.at(-1)!.split(".").pop();
+
+          if (!ext) {
+            return true;
+          }
+
+          return !IGNORED_FILE_EXTENSIONS.has(ext);
+        })
         .sort((a, b) => {
           if (a.kind === "folder" && b.kind !== "folder") return -1; // Sort folders before files
           if (a.kind !== "folder" && b.kind === "folder") return 1; // Sort folders before files
 
           return a.path.length - b.path.length;
-        })
-        .filter((f) => f.path.length > 0);
+        });
 
       this.emit("available-files:updated", {
         oldValue: oldFiles,

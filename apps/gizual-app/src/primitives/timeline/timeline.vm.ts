@@ -58,7 +58,7 @@ class TimelineViewModel extends ViewModel {
   resizeBoxStartLeft = 0;
   resizeBoxStartRight = 0;
 
-  viewBox = {
+  @observable viewBox = {
     width: 1000,
     height: 120,
   };
