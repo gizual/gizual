@@ -7,6 +7,7 @@
 - **app:backend:** Implement initial support for safari by executing remote-clone in a web-worker
 - **app:general:** Collect minimal repository metrics on public production builds (`app.gizual.com`)
 - **app:general:** Enable remote cloning of featured repositories
+- **app:backend:** Ignore most common binary files
 
 ### Changes
 
