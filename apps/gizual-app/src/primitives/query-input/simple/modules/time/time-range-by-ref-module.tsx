@@ -61,22 +61,24 @@ const TimeRangeByRefModule = observer(() => {
       highlightItems={["rangeByRef"]}
     >
       <div className={style.SpacedChildren}>
-        From:
-        <Input
-          error={checkErrors(errors).errorField1}
-          onBlur={() => publishLocalQuery()}
-          onChange={(e) => onChangeStartRef(e.currentTarget.value)}
-          value={from}
-          style={{ width: 120 }}
-        />
-        To:
-        <Input
-          error={checkErrors(errors).errorField2}
-          onBlur={() => publishLocalQuery()}
-          onChange={(e) => onChangeEndRef(e.currentTarget.value)}
-          value={to}
-          style={{ width: 120 }}
-        />
+        <div className={style.LabelWithInput}>
+          From:
+          <Input
+            error={checkErrors(errors).errorField1}
+            onBlur={() => publishLocalQuery()}
+            onChange={(e) => onChangeStartRef(e.currentTarget.value)}
+            value={from}
+          />
+        </div>
+        <div className={style.LabelWithInput}>
+          To:
+          <Input
+            error={checkErrors(errors).errorField2}
+            onBlur={() => publishLocalQuery()}
+            onChange={(e) => onChangeEndRef(e.currentTarget.value)}
+            value={to}
+          />
+        </div>
       </div>
     </TimeBaseQueryModule>
   );

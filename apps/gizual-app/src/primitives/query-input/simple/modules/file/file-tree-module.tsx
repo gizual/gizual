@@ -1,5 +1,6 @@
 import { IconFile } from "@app/assets";
 import { useMainController } from "@app/controllers";
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import { Button, DialogProvider, FileTree } from "@app/primitives";
 import { useLocalQuery } from "@app/services/local-query";
 import { observer } from "mobx-react-lite";
@@ -28,6 +29,7 @@ const FileTreeModule = observer(() => {
   const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const values = getTreeEntries(localQuery);
+  const isLargeDevice = useMediaQuery({ max: 1024 });
 
   return (
     <FileBaseQueryModule
@@ -41,7 +43,7 @@ const FileTreeModule = observer(() => {
       <div className={style.SpacedChildren}>
         <DialogProvider
           trigger={
-            <Button variant="filled" size="small">
+            <Button variant="filled" size={isLargeDevice ? "regular" : "small"}>
               {mainController.repoController.selectedFiles.size > 0 ? (
                 <>{mainController.repoController.selectedFiles.size} files selected</>
               ) : (

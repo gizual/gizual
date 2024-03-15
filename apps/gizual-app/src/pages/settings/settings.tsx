@@ -173,12 +173,7 @@ export const RenderedSettingsEntry = observer(
           <div>
             {entry.controlType === "text" && <Input onChange={onInputChange} value={entry.value} />}
             {entry.controlType === "select" && (
-              <Select
-                value={entry.value}
-                style={{ width: 300 }}
-                onChange={onChange}
-                data={entry.availableValues}
-              />
+              <Select value={entry.value} onChange={onChange} data={entry.availableValues} />
             )}
             {entry.controlType === "color" && (
               <ColorPicker

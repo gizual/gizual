@@ -16,6 +16,7 @@ export { default as IconEdit } from "./edit.svg";
 export { default as IconExplorer } from "./explorer.svg";
 export { default as IconFile } from "./file.svg";
 export { default as IconFileTree } from "./file-tree.svg";
+export { default as IconFilter } from "./filter.svg";
 export { default as IconFirefox } from "./firefox.svg";
 export { default as IconFocus } from "./focus.svg";
 export { default as IconFolder } from "./folder.svg";

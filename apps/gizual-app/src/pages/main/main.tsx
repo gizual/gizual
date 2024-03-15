@@ -1,6 +1,7 @@
 import { Container, parseLanguages } from "@app/charts";
 import { LanguageDistributionChart } from "@app/charts/languages/language-distribution";
 import { useMainController } from "@app/controllers";
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import { useWindowSize } from "@app/hooks/use-window-size";
 import { Canvas, MessageBar, TitleBar } from "@app/primitives";
 import { SimpleQueryInput } from "@app/primitives/query-input";
@@ -19,6 +20,8 @@ export type MainPageProps = {
 
 export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
   const mainController = useMainController();
+  const isLargeScreen = useMediaQuery({ min: 1024 });
+  const isQueryInputVisible = isLargeScreen || mainController.isSimpleQueryVisible;
 
   const vm: MainPageViewModel = React.useMemo(() => {
     return externalVm || new MainPageViewModel(mainController);
@@ -28,7 +31,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
     <div className={style.Page}>
       <div className={style.TitleBarContainer}>
         <TitleBar />
-        <SimpleQueryInput />
+        {isQueryInputVisible && <SimpleQueryInput />}
         <MessageBar />
       </div>
 

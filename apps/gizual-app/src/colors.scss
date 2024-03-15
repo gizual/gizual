@@ -25,9 +25,11 @@ $accent-tertiary-fg: #fff;
 :root {
   /* Main colors */
   --color-lightgray: #ececef;
+  --color-lightgray-shaded: #e3e3e3;
   --color-darkgray: #13161a;
   --color-white: #fff;
   --color-black: #000;
+  --color-black-shaded: #0d0d0d;
   --color-zinc: #dedede;
   --color-gunmetal: #2b303a;
   --color-gray: #cecece;
@@ -46,8 +48,10 @@ $accent-tertiary-fg: #fff;
   @media (prefers-color-scheme: light) {
     --background-primary: var(--color-white);
     --background-secondary: var(--color-lightgray);
+    --background-secondary-shaded: var(--color-lightgray-shaded);
     --background-tertiary: var(--color-zinc);
     --background-red: var(--color-peach);
+
     --foreground-primary: var(--color-darkgray);
     --foreground-secondary: var(--color-black);
     --foreground-tertiary: var(--color-gunmetal);
@@ -69,6 +73,7 @@ $accent-tertiary-fg: #fff;
   @media (prefers-color-scheme: dark) {
     --background-primary: var(--color-darkgray);
     --background-secondary: var(--color-black);
+    --background-secondary-shaded: var(--color-black-shaded);
     --background-tertiary: var(--color-gunmetal);
     --background-red: var(--color-darkred);
     --foreground-primary: var(--color-lightgray);

@@ -1,5 +1,7 @@
 import { IconClock, IconGitBranchLine, IconRuler } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
+import { useMediaQuery } from "@app/hooks/use-media-query";
+import { Button } from "@app/primitives/button";
 import { DatePicker } from "@app/primitives/date-picker";
 import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
@@ -37,6 +39,7 @@ const TimeRangeByDateModule = observer(() => {
   const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const mainController = useMainController();
   const settingsController = useSettingsController();
+  const isSmallDevice = useMediaQuery({ max: 1024 });
 
   const branchValue = getBranchEntry(localQuery);
   const branches = mainController.branchNames.map((b) => {
@@ -80,6 +83,14 @@ const TimeRangeByDateModule = observer(() => {
     publishLocalQuery();
   };
 
+  const onToggleTimeline = () => {
+    runInAction(() => {
+      settingsController.timelineSettings.displayMode.value = isTimelineOpen
+        ? "collapsed"
+        : "visible";
+    });
+  };
+
   return (
     <TimeBaseQueryModule
       containsErrors={checkErrors(errors)}
@@ -93,11 +104,13 @@ const TimeRangeByDateModule = observer(() => {
     >
       <div className={style.SpacedChildren}>
         <DatePicker
+          label="Oldest point in time"
           error={checkErrors(errors)}
           value={startDate.toDate()}
           onChange={onChangeStartDate}
         />
         <DatePicker
+          label="Newest point in time"
           error={checkErrors(errors)}
           value={endDate.toDate()}
           onChange={onChangeEndDate}
@@ -119,32 +132,24 @@ const TimeRangeByDateModule = observer(() => {
           }}
           value={branchValue}
           data={[{ label: "HEAD", value: "HEAD" }, ...branches]}
-          style={{ width: 150 }}
         ></Select>
 
-        <Tooltip label="Toggle timeline visibility" position="top" withArrow>
-          <IconButton style={{ padding: 0 }}>
-            <IconRuler
-              className={clsx(
-                style.IconBase,
-                style.IconLarge,
-                isTimelineOpen ? style.IconToggled : style.IconUnToggled,
-              )}
-              onClick={() => {
-                //notifications.show({
-                //  title: "Info",
-                //  message: "The timeline is disabled in this demo build.",
-                //  role: "alert",
-                //});
-                runInAction(() => {
-                  settingsController.timelineSettings.displayMode.value = isTimelineOpen
-                    ? "collapsed"
-                    : "visible";
-                });
-              }}
-            />
-          </IconButton>
-        </Tooltip>
+        {isSmallDevice ? (
+          <Button onClick={onToggleTimeline}>Toggle timeline visibility</Button>
+        ) : (
+          <Tooltip label="Toggle timeline visibility" position="top" withArrow>
+            <IconButton style={{ padding: 0 }}>
+              <IconRuler
+                className={clsx(
+                  style.IconBase,
+                  style.IconLarge,
+                  isTimelineOpen ? style.IconToggled : style.IconUnToggled,
+                )}
+                onClick={onToggleTimeline}
+              />
+            </IconButton>
+          </Tooltip>
+        )}
       </div>
     </TimeBaseQueryModule>
   );

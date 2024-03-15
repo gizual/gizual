@@ -12,5 +12,8 @@ declare const classNames: {
   readonly InfoText: "InfoText";
   readonly SelectIcon: "SelectIcon";
   readonly Link: "Link";
+  readonly IconButton: "IconButton";
+  readonly IconToggled: "IconToggled";
+  readonly IconUnToggled: "IconUnToggled";
 };
 export = classNames;

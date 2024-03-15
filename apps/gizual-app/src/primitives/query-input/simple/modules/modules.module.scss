@@ -15,6 +15,34 @@
   box-sizing: border-box;
 }
 
+.BaseQueryModuleColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  min-width: 250px;
+  width: 100%;
+  padding: 0.5rem 1rem 1rem 1rem;
+
+  &:not(:first-of-type) {
+    border-top: 1px solid var(--border-primary);
+  }
+
+  background-color: var(--background-secondary);
+
+  &:nth-of-type(even) {
+    background-color: var(--background-secondary-shaded);
+  }
+}
+
+.BaseQueryModuleColumn__Header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 .PlaceholderQueryModule {
   border-style: dashed;
   border-width: 2px;
@@ -111,11 +139,20 @@
 .QueryModuleIcon {
   width: 15px;
   height: 15px;
+
+  @media (width < 1024px) {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .QueryModuleTitle {
   @include text-base;
   text-align: left;
+
+  @media (width < 1024px) {
+    @include text-lg;
+  }
 }
 
 .QueryModuleIconWithText {
@@ -123,6 +160,11 @@
   flex-direction: row;
   gap: 0.25rem;
   align-items: center;
+
+  @media (width < 1024px) {
+    border: none !important;
+    padding-left: 0 !important;
+  }
 }
 
 .SpacedChildren {
@@ -131,6 +173,30 @@
   gap: 0.5rem;
   margin: 0.125rem 0;
   align-items: center;
+
+  @media (width < 1024px) {
+    align-items: flex-start;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+    > div {
+      width: 100%;
+    }
+  }
+}
+
+.LabelWithInput {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  align-items: center;
+
+  @media (width < 1024px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
 }
 
 .SpacedSmall {

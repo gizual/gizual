@@ -44,7 +44,6 @@ const FileChangedInRefModule = observer(() => {
             updateLocalQuery({ files: { changedInRef: e.currentTarget.value ?? "" } })
           }
           value={value}
-          style={{ width: 150 }}
         />
       </div>
     </FileBaseQueryModule>

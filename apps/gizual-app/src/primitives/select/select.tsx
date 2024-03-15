@@ -1,3 +1,4 @@
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import { Select as MantineSelect, SelectProps as MantineSelectProps } from "@mantine/core";
 
 import style from "./select.module.scss";
@@ -10,6 +11,7 @@ export type SelectProps<T> = {
 } & Omit<MantineSelectProps, "onChange" | "data">;
 
 export function Select<T = undefined>(props: SelectProps<T>) {
+  const isSmallDevice = useMediaQuery({ max: 1024 });
   const { data, onChange, ...mantineProps } = props;
 
   const onChangeWrapper = (value: string | null) => {
@@ -23,6 +25,8 @@ export function Select<T = undefined>(props: SelectProps<T>) {
     }
   };
 
+  const height = isSmallDevice ? 40 : 30;
+
   return (
     <MantineSelect
       checkIconPosition={undefined}
@@ -33,8 +37,13 @@ export function Select<T = undefined>(props: SelectProps<T>) {
       size="sm"
       styles={{
         input: {
-          height: 30,
-          minHeight: 30,
+          height: height,
+          minHeight: height,
+          minWidth: 150,
+          width: "100%",
+        },
+        root: {
+          width: "100%",
         },
       }}
       allowDeselect={false}

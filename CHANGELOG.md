@@ -5,6 +5,7 @@
 ### Changes
 
 ### Bug Fixes
+- **app:frontend:** Implement functionality for query modules to behave differently on small screens
 
 ---
 

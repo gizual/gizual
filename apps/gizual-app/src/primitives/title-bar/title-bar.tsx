@@ -1,4 +1,4 @@
-import { IconClose } from "@app/assets";
+import { IconClose, IconFilter } from "@app/assets";
 import { Panel, PANELS, useMainController } from "@app/controllers";
 import { useMediaQuery } from "@app/hooks/use-media-query";
 import { Select, SelectOption } from "@app/primitives/select";
@@ -15,7 +15,7 @@ import { Button } from "..";
 import style from "./title-bar.module.scss";
 
 export const TitleBar = observer(() => {
-  const isLargeScreen = useMediaQuery({ min: 768 });
+  const isLargeScreen = useMediaQuery({ min: 1024 });
   const screen = useScreen();
 
   return (
@@ -130,14 +130,24 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
         </div>
       )}
       {screen !== "welcome" && (
-        <Select<Panel>
-          value={selectedPanel}
-          size="md"
-          onChange={(_, panel) => {
-            setSelectedPanel(panel);
-          }}
-          data={panels}
-        />
+        <>
+          <IconButton
+            className={clsx(
+              style.IconButton,
+              mainController.isSimpleQueryVisible ? style.IconToggled : style.IconUnToggled,
+            )}
+            onClick={mainController.toggleSimpleQueryVisible}
+          >
+            <IconFilter />
+          </IconButton>
+          <Select<Panel>
+            value={selectedPanel}
+            onChange={(_, panel) => {
+              setSelectedPanel(panel);
+            }}
+            data={panels}
+          />
+        </>
       )}
     </div>
   );

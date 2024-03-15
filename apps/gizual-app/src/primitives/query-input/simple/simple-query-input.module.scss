@@ -5,16 +5,27 @@
   width: 100%;
   padding: 0 0.5rem;
   background-color: var(--background-secondary);
+  @media (width < 1024px) {
+    padding: 0;
+  }
 }
 
 .Clickable {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   display: flex;
+  width: 100%;
+
+  @media (width < 1024px) {
+    padding: 0;
+  }
 }
 
 .AdvancedSearchIconTrigger {
   align-self: flex-end;
+  @media (width < 1024px) {
+    display: none;
+  }
 }
 
 .AdvancedSearchIconButton {
@@ -36,6 +47,10 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   min-height: 2rem;
+  width: 100%;
+  @media (width < 1024px) {
+    gap: 0;
+  }
 }
 
 .AdvancedSearchDialog {

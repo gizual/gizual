@@ -1,4 +1,6 @@
 import { IconEdit, IconSettingsOutline } from "@app/assets";
+import { useMediaQuery } from "@app/hooks/use-media-query";
+import { Button } from "@app/primitives/button";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { IconButton } from "@app/primitives/icon-button";
 import { observer } from "mobx-react-lite";
@@ -20,6 +22,7 @@ function TypeModuleComponent() {
   const { query } = useQuery();
   const value = getTypeEntry(query);
   const [isOpen, setIsOpen] = React.useState(false);
+  const isSmallDevice = useMediaQuery({ max: 1024 });
 
   return (
     <BaseQueryModule
@@ -29,9 +32,13 @@ function TypeModuleComponent() {
       editButtonComponent={
         <DialogProvider
           trigger={
-            <IconButton>
-              <IconEdit className={style.CloseIcon} />
-            </IconButton>
+            isSmallDevice ? (
+              <Button>Edit Visualization Type</Button>
+            ) : (
+              <IconButton>
+                <IconEdit className={style.CloseIcon} />
+              </IconButton>
+            )
           }
           title="Swap Visualization Type"
           triggerClassName={style.PlaceholderQueryModuleTrigger}

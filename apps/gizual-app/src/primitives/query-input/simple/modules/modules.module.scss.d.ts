@@ -1,5 +1,7 @@
 declare const classNames: {
   readonly BaseQueryModule: "BaseQueryModule";
+  readonly BaseQueryModuleColumn: "BaseQueryModuleColumn";
+  readonly BaseQueryModuleColumn__Header: "BaseQueryModuleColumn__Header";
   readonly PlaceholderQueryModule: "PlaceholderQueryModule";
   readonly PlaceholderQueryModuleTrigger: "PlaceholderQueryModuleTrigger";
   readonly TypeDialog: "TypeDialog";
@@ -14,6 +16,7 @@ declare const classNames: {
   readonly QueryModuleTitle: "QueryModuleTitle";
   readonly QueryModuleIconWithText: "QueryModuleIconWithText";
   readonly SpacedChildren: "SpacedChildren";
+  readonly LabelWithInput: "LabelWithInput";
   readonly SpacedSmall: "SpacedSmall";
   readonly ControlWithLabel: "ControlWithLabel";
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";

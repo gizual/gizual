@@ -77,6 +77,10 @@
   min-width: calc(200px + 1rem);
   position: relative;
   justify-content: space-between;
+
+  @media (width < 1024px) {
+    display: none;
+  }
 }
 
 .Vr {
@@ -84,6 +88,10 @@
   border-left: 1px solid var(--border-primary);
   height: calc(100% + 2rem);
   top: -1rem;
+
+  @media (width < 1024px) {
+    display: none;
+  }
 }
 
 .MinimapContainer {

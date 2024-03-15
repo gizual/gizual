@@ -171,7 +171,12 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             errors && errors.length > 0 && style.ErrorOverlayVisible,
           )}
         >
-          <Alert variant="light" color="red" title="Query invalid">
+          <Alert
+            variant="light"
+            color="red"
+            title="Query invalid"
+            styles={{ message: { color: "white" } }}
+          >
             The query you entered was invalid. TODO: This is where we put a detailed list of errors.
             <pre style={{ marginTop: "1rem" }}>{JSON.stringify(errors, undefined, 2)}</pre>
           </Alert>
