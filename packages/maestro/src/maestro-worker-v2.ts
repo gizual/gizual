@@ -606,11 +606,11 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       const oldFiles = this.availableFiles;
       this.availableFiles = tree
         .filter((f) => {
-          if (f.kind === "folder") {
-            return true;
-          }
           if (f.path.length <= 0) {
             return false;
+          }
+          if (f.kind === "folder") {
+            return true;
           }
           const ext = f.path.at(-1)!.split(".").pop();
 

@@ -281,7 +281,7 @@ export async function seekRepo(
     return undefined;
   }
 
-  const entries = await directoryHandle.entries();
+  let entries = await directoryHandle.entries();
 
   let count = 0;
   for await (const [name, handle] of entries) {
@@ -299,6 +299,9 @@ export async function seekRepo(
     console.warn("more than one entry in directory", directoryHandle);
     return undefined;
   }
+
+  // The iterator is consumed after the first loop, so we need to get a new one
+  entries = await directoryHandle.entries();
 
   for await (const [name, handle] of entries) {
     if (name === "node_modules") {
