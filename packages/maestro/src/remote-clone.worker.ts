@@ -40,7 +40,7 @@ async function download(opts: RepoDownloadOpts) {
       zipFileName = data.snapshotName;
       return;
     }
-    if (data.type === "clone-progress") {
+    if (data.type === "clone-progress" || data.type === "clone-complete") {
       postMessage(data);
     }
   };
