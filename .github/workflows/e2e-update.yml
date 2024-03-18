@@ -42,6 +42,9 @@ jobs:
           cd e2e
           yarn install --immutable
 
+      - name: Build api and app # We should probaby reuse the build artifacts eventually
+        run: yarn build
+
       - name: Update snapshots
         run: |
           cd e2e
