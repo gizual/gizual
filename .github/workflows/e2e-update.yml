@@ -53,6 +53,7 @@ jobs:
       - name: Commit and push the changes
         run: |
           git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add e2e/**/*.png
           git commit -m "ci: update snapshots"
           git push
