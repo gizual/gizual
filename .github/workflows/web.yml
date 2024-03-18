@@ -45,6 +45,50 @@ jobs:
           path: apps/gizual-app/dist/
           retention-days: 1
 
+  e2e:
+    needs: build
+    runs-on: ubuntu-22.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.42.1-jammy
+    steps:
+      - name: Git Lfs install
+        run: |
+          apt-get update -y && apt-get install git-lfs
+          git lfs install
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "yarn"
+
+      - run: yarn --immutable
+
+      - name: Retrieve the build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: web-dist
+          path: apps/gizual-app/dist/
+
+      - name: build api
+        run: yarn build:api
+
+      - name: Setup E2E tests
+        run: cd e2e && yarn --immutable
+
+      - name: Run E2E tests
+        run: cd e2e && yarn e2e
+
+      - name: Store the e2e artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-dist
+          path: e2e/dist/
+          retention-days: 1
+
   push:
     needs: build
     runs-on: ubuntu-22.04

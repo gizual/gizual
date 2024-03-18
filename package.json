@@ -38,7 +38,7 @@
     "build": "concurrently -m 1 \"yarn:build:*\"",
     "build:api": "yarn please @giz/gizual-api#build",
     "build:app": "yarn please @giz/gizual-app#build",
-    "preview": "yarn please  @giz/gizual-api#preview @giz/gizual-app#preview",
+    "preview": "yarn please @giz/gizual-api#preview @giz/gizual-app#preview",
     "playground": "yarn please @giz/wasi-playground-app#dev",
     "lint": "turbo run lint",
     "format": "yarn prettier:fix && turbo run format",
