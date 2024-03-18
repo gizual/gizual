@@ -11,17 +11,10 @@ jobs:
   update-snapshots:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/ci update-snapshots') }}
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.42.1-jammy
     permissions:
       contents: write
       pull-requests: write
     steps:
-      - name: Git Lfs install
-        run: |
-          apt-get update -y && apt-get install git-lfs
-          git lfs install
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -50,6 +43,7 @@ jobs:
         run: |
           cd e2e
           yarn install --immutable
+          yarn playwright install --with-deps firefox chrome
 
       - name: Update snapshots
         run: |
