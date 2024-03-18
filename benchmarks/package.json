@@ -1,0 +1,16 @@
+{
+  "name": "@giz/benchmarks",
+  "packageManager": "yarn@3.5.0",
+  "devDependencies": {
+    "@playwright/test": "1.42.1",
+    "e2e": "file:../e2e",
+    "eslint": "8.45.0",
+    "typescript": "5.0.4",
+    "vite-node": "1.0.2",
+    "wait-port": "1.1.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "run:basic": "vite-node ./basic-benchmark.ts"
+  }
+}
