@@ -41,7 +41,7 @@ export const Footer = observer(() => {
         <DialogProvider
           title="Changelog"
           trigger={
-            <p>
+            <p data-test-id="versionAndBuildHash">
               Gizual {version} - Build #{commitHash}
             </p>
           }
@@ -51,7 +51,7 @@ export const Footer = observer(() => {
       </div>
       <div className={style.RightSection}>
         {mainController.isBusy && <Loader size="sm" />}
-        <p>{metrics.numSelectedFiles} files</p>
+        <p data-test-id="numSelectedFiles">{metrics.numSelectedFiles} files</p>
         {explorer.totalWorkers && renderer.totalWorkers && (
           <div className={style.Metrics}>
             <IconExplorer className={style.IconExplorer} />

@@ -1,0 +1,7 @@
+.yarn
+test-results
+node_modules
+playwright-report
+
+*-darwin.png
+*-win*.png
