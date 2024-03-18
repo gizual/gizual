@@ -47,9 +47,6 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     "import.meta.env.COMMIT_HASH": JSON.stringify(commitHash),
-    "import.meta.env.API_HOST": JSON.stringify(
-      mode === "development" ? "/api" : "https://api.gizual.com",
-    ),
     "import.meta.env.VERSION": JSON.stringify(packageJson.version),
   },
   resolve: {

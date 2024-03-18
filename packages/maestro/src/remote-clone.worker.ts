@@ -25,9 +25,17 @@ addEventListener("message", (e) => {
   });
 });
 
+/**
+ * We use our own host if this is running as our deployed app.
+ * Otherwise, we relay on a proxy to the API server hosted at /api
+ */
+let host = "https://api.gizual.com/";
+if (!/app\.gizual\.com/.test(location.hostname)) {
+  host = "/api";
+}
+
 async function download(opts: RepoDownloadOpts) {
   const { service, repoName } = opts;
-  const host = import.meta.env.API_HOST ?? "";
   logger.debug("Cloning repository", { service, repoName });
   const sseResponse = new EventSource(`${host}/on-demand-clone/${service}/${repoName}`);
 
