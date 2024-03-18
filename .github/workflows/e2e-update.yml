@@ -1,0 +1,59 @@
+name: Update Playwright Snapshots
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  update-snapshots:
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/ci update-snapshots') }}
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.42.1-jammy
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: React to the triggering comment
+        run: |
+          gh api repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions --raw-field 'content=+1'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout the branch from the PR that triggered the job
+        run: |
+          # PR branch remote must be checked out using https URL
+          git config --global hub.protocol https
+
+          gh pr checkout ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: yarn --immutable
+
+      - run: yarn build
+
+      - name: Install the packages
+        run: |
+          cd e2e
+          yarn install --immutable
+
+      - name: Update snapshots
+        run: |
+          cd e2e
+          yarn e2e:update
+
+      - name: Commit and push the changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git add e2e/**/*.png
+          git commit -m "ci: update snapshots"
+          git push
