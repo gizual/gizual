@@ -1,4 +1,4 @@
-name: Update Playwright Snapshots
+name: e2e-update
 
 on:
   issue_comment:
@@ -17,6 +17,11 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Git Lfs install
+        run: |
+          apt-get update -y && apt-get install git-lfs
+          git lfs install
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
