@@ -51,6 +51,11 @@ jobs:
     container:
       image: ghcr.io/steschi/playwright:v1.42.1-jammy
     steps:
+      # github-runner is messing up the HOME env variable
+      # as can be seen at https://github.com/actions/runner/issues/863
+      # this is a workaround to fix it
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:

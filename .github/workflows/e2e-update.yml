@@ -17,6 +17,11 @@ jobs:
       contents: write # This is required to push the changes to the PR branch
       pull-requests: write # This is required to react to the triggering comment
     steps:
+      # github-runner is messing up the HOME env variable
+      # as can be seen at https://github.com/actions/runner/issues/863
+      # this is a workaround to fix it
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
