@@ -49,12 +49,8 @@ jobs:
     needs: build
     runs-on: ubuntu-22.04
     container:
-      image: mcr.microsoft.com/playwright:v1.42.1-jammy
+      image: ghcr.io/steschi/playwright:v1.42.1-jammy
     steps:
-      - name: Git Lfs install
-        run: |
-          apt-get update -y && apt-get install git-lfs
-          git lfs install
       - name: Checkout repository
         uses: actions/checkout@v4
         with:

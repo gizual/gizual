@@ -54,7 +54,11 @@ async function main() {
     const profilePath = path.resolve(path.join(".cache", name));
 
     // clear profile folder
-    await fs.rm(profilePath, { recursive: true });
+    try {
+      await fs.rm(profilePath, { recursive: true });
+    } catch {
+      // noop
+    }
 
     const browserContext: BrowserContext = await browser.launchPersistentContext(profilePath, {
       headless: HEADLESS,
