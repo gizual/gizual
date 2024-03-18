@@ -102,7 +102,7 @@ const IGNORED_FILE_EXTENSIONS = new Set([
   "mpeg",
 ]);
 
-export type Events = {
+export type MaestroWorkerEvents = {
   "state:updated": ObjectChangeEventArguments<State>;
   "metrics:updated": ObjectChangeEventArguments<Metrics>;
 
@@ -116,7 +116,15 @@ export type Events = {
   "blocks:updated": [Block[]];
   "block:updated": [id: string, data: BlockImage];
   "block:removed": [id: string];
+  "workers:idle": [];
 };
+
+/**
+ * The events that are shared between the main thread and the worker.
+ * Every event that is emitted by the worker can also be listened to by the main thread.
+ */
+export const SHARED_EVENTS = ["metrics:updated", "workers:idle"] as const;
+export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
 
 export type MaestroOpts = {
   devicePixelRatio: number;
@@ -124,7 +132,7 @@ export type MaestroOpts = {
   explorerPool?: PoolPortal;
 };
 
-export class Maestro extends EventEmitter<Events, Maestro> {
+export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
   private logger = createLogger("maestro");
   private explorerPool!: PoolPortal;
   private explorerPoolController!: PoolController;
@@ -298,6 +306,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     numRendererJobs: 0,
   };
 
+  idle?: boolean = true;
+  idleTimer?: number;
+
   updateMetrics = (metrics: Partial<Metrics>) => {
     const oldMetrics = { ...this.metrics };
     this.metrics = { ...this.metrics, ...metrics };
@@ -306,6 +317,34 @@ export class Maestro extends EventEmitter<Events, Maestro> {
       oldValue: oldMetrics,
       newValue: this.metrics,
     });
+
+    const { numExplorerWorkersBusy, numRendererWorkersBusy } = this.metrics;
+
+    if (numExplorerWorkersBusy > 0 || numRendererWorkersBusy > 0) {
+      if (this.idleTimer) {
+        clearTimeout(this.idleTimer);
+        this.idleTimer = undefined;
+      }
+      this.setIdle(false);
+    }
+
+    if (numExplorerWorkersBusy === 0 && numRendererWorkersBusy === 0) {
+      if (this.idleTimer) {
+        clearTimeout(this.idleTimer);
+        this.idleTimer = undefined;
+      }
+
+      this.idleTimer = self.setTimeout(() => {
+        this.setIdle(true);
+      }, 1000);
+    }
+  };
+
+  setIdle = (idle: boolean) => {
+    this.idle = idle;
+    if (idle) {
+      this.emit("workers:idle");
+    }
   };
 
   // ---------------------------------------------
@@ -1168,9 +1207,9 @@ export class Maestro extends EventEmitter<Events, Maestro> {
     console.log("Blocks", this.blocks);
   }
 
-  emit<T extends keyof Events>(
+  emit<T extends keyof MaestroWorkerEvents>(
     event: T,
-    ...args: EventEmitter.ArgumentMap<Events>[Extract<T, keyof Events>]
+    ...args: EventEmitter.ArgumentMap<MaestroWorkerEvents>[Extract<T, keyof MaestroWorkerEvents>]
   ): boolean {
     this.logger.log("emit", event, ...args);
     return super.emit(event, ...args);

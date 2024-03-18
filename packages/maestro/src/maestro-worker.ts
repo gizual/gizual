@@ -10,7 +10,14 @@ import { PoolControllerOpts } from "@giz/explorer-web";
 import { createLogger } from "@giz/logging";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
-import { Block, BlockImage, Events, Maestro, State } from "./maestro-worker-v2";
+import {
+  Block,
+  BlockImage,
+  Maestro,
+  MaestroWorkerEvents,
+  SHARED_EVENTS,
+  State,
+} from "./maestro-worker-v2";
 import { QueryWithErrors } from "./query";
 import { t } from "./trpc-worker";
 
@@ -29,7 +36,7 @@ let maestro: Maestro = undefined as any;
 const router = t.router({
   metrics: t.procedure.subscription(() => {
     return observable<Maestro["metrics"]>((emit) => {
-      const onUpdate = (data: Events["metrics:updated"][0]) => {
+      const onUpdate = (data: MaestroWorkerEvents["metrics:updated"][0]) => {
         emit.next(data.newValue);
       };
       maestro.on("metrics:updated", onUpdate);
@@ -43,7 +50,7 @@ const router = t.router({
   }),
   globalState: t.procedure.subscription(() => {
     return observable<State>((emit) => {
-      const onStateUpdate = (data: Events["state:updated"][0]) => {
+      const onStateUpdate = (data: MaestroWorkerEvents["state:updated"][0]) => {
         emit.next(data.newValue);
       };
       maestro.on("state:updated", onStateUpdate);
@@ -57,7 +64,7 @@ const router = t.router({
   }),
   query: t.procedure.subscription(() => {
     return observable<QueryWithErrors>((emit) => {
-      const onUpdate = (data: Events["query:updated"][0]) => {
+      const onUpdate = (data: MaestroWorkerEvents["query:updated"][0]) => {
         emit.next(data);
       };
       maestro.on("query:updated", onUpdate);
@@ -103,7 +110,7 @@ const router = t.router({
     }),
   availableFiles: t.procedure.subscription(() => {
     return observable<FileTreeNode[]>((emit) => {
-      const onUpdate = ({ newValue }: Events["available-files:updated"][0]) => {
+      const onUpdate = ({ newValue }: MaestroWorkerEvents["available-files:updated"][0]) => {
         emit.next(newValue);
       };
       maestro.on("available-files:updated", onUpdate);
@@ -117,7 +124,7 @@ const router = t.router({
   selectedFiles: t.procedure.subscription(() => {
     //TODO maybe wrong args
     return observable<FileTreeNode[]>((emit) => {
-      const onUpdate = ({ newValue }: Events["selected-files:updated"][0]) => {
+      const onUpdate = ({ newValue }: MaestroWorkerEvents["selected-files:updated"][0]) => {
         emit.next(newValue);
       };
       maestro.on("selected-files:updated", onUpdate);
@@ -130,7 +137,7 @@ const router = t.router({
   }),
   blocks: t.procedure.subscription(() => {
     return observable<Block[]>((emit) => {
-      const onUpdate = (data: Events["blocks:updated"][0]) => {
+      const onUpdate = (data: MaestroWorkerEvents["blocks:updated"][0]) => {
         emit.next(data);
       };
       maestro.on("blocks:updated", onUpdate);
@@ -204,12 +211,24 @@ const router = t.router({
 // NOT the router itself.
 export type AppRouter = typeof router;
 
-async function setup(vars: WindowVariables): Promise<{
+async function setup(
+  vars: WindowVariables,
+  sharedEventsPort: MessagePort,
+): Promise<{
   trpcPort: MessagePort;
 }> {
   maestro = new Maestro({
     devicePixelRatio: vars.devicePixelRatio,
   });
+  for (const event of SHARED_EVENTS) {
+    maestro.on(event, (...data) => {
+      sharedEventsPort.postMessage({
+        type: event,
+        payload: data,
+      });
+    });
+  }
+
   const { port1, port2 } = new MessageChannel();
 
   const _ = applyWebWorkerHandler({
