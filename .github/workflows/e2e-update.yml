@@ -11,9 +11,11 @@ jobs:
   update-snapshots:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/ci update-snapshots') }}
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/steschi/playwright:v1.42.1-jammy
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # This is required to push the changes to the PR branch
+      pull-requests: write # This is required to react to the triggering comment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,15 +37,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: yarn --immutable
-
-      - run: yarn build
-
       - name: Install the packages
         run: |
           cd e2e
           yarn install --immutable
-          yarn playwright install
 
       - name: Update snapshots
         run: |
@@ -51,9 +48,8 @@ jobs:
           yarn e2e:update
 
       - name: Commit and push the changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add e2e/**/*.png
-          git commit -m "ci: update snapshots"
-          git push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "ci: update snapshots"
+          file_pattern: "e2e/**/*.png"
+          disable_globbing: true
