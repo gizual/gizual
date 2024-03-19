@@ -34,3 +34,6 @@ dist-ssr
 target
 .turbo
 pkg
+
+# https://github.com/vitejs/vite/issues/13267
+vite.config.*.timestamp-*

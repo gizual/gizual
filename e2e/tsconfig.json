@@ -1,0 +1,7 @@
+{
+  "extends": "@giz/tsconfig/tsconfig.web.json",
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "noEmit": true
+  }
+}

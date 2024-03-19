@@ -45,7 +45,52 @@ jobs:
           path: apps/gizual-app/dist/
           retention-days: 1
 
-  push:
+  e2e:
+    needs: build
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/steschi/playwright:v1.42.1-jammy
+    steps:
+      # github-runner is messing up the HOME env variable
+      # as can be seen at https://github.com/actions/runner/issues/863
+      # this is a workaround to fix it
+      - run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "yarn"
+
+      - run: yarn --immutable
+
+      - name: Retrieve the build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: web-dist
+          path: apps/gizual-app/dist/
+
+      - name: build api
+        run: yarn build:api
+
+      - name: Setup E2E tests
+        run: cd e2e && yarn --immutable
+
+      - name: Run E2E tests
+        run: cd e2e && yarn e2e
+
+      - name: Store the e2e artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-dist
+          path: e2e/dist/
+          retention-days: 1
+
+  build-image:
     needs: build
     runs-on: ubuntu-22.04
     steps:
@@ -76,13 +121,13 @@ jobs:
         with:
           file: Dockerfile.web
           context: .
-          push: true
+          push: ${{ startsWith(github.ref, 'refs/tags/') }} # Only push the image if the event was a tag
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: push
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build-image
     runs-on: ubuntu-22.04
     steps:
       - name: Call Webhook

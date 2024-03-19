@@ -42,7 +42,7 @@ jobs:
           path: apps/gizual-api/dist/
           retention-days: 1
 
-  push:
+  build-image:
     needs: build
     runs-on: ubuntu-22.04
     steps:
@@ -73,13 +73,13 @@ jobs:
         with:
           file: Dockerfile.api
           context: .
-          push: true
+          push: ${{ startsWith(github.ref, 'refs/tags/') }} # Only push the image if the event was a tag
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: push
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build-image
     runs-on: ubuntu-22.04
     steps:
       - name: Call Webhook

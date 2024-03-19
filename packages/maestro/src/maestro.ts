@@ -11,6 +11,7 @@ import type { MainController } from "../../../apps/gizual-app/src/controllers/ma
 
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
+import type { MaestroWorkerEvents, SHARED_EVENTS } from "./maestro-worker-v2";
 
 export type RepoSetupOpts = {
   maxConcurrency?: number;
@@ -56,7 +57,7 @@ export type MaestroEvents = {
       name: string;
     },
   ];
-};
+} & Pick<MaestroWorkerEvents, SHARED_EVENTS>;
 
 export class Maestro extends EventEmitter<MaestroEvents> {
   logger = createLogger("maestro");
@@ -89,9 +90,21 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   }
 
   async setup() {
-    const { trpcPort } = await this.worker.setup({
-      devicePixelRatio: window.devicePixelRatio,
+    const { port1, port2 } = new MessageChannel();
+    const { trpcPort } = await this.worker.setup(
+      {
+        devicePixelRatio: window.devicePixelRatio,
+      },
+      transfer(port2, [port2]),
+    );
+
+    port1.addEventListener("message", (event) => {
+      if (event.data.type) {
+        this.emit(event.data.type, ...event.data.payload);
+      }
     });
+
+    port1.start();
 
     const [link, dispose] = webWorkerLink({ port: trpcPort });
 

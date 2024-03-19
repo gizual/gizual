@@ -1,3 +1,13 @@
+## Gizual 3.0.0-alpha.XX (XX.XX.2024)
+
+### Features
+
+### Changes
+
+### Bug Fixes
+
+---
+
 ## Gizual 3.0.0-alpha.17 (14.03.2024)
 
 ### Features
