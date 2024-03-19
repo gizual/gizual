@@ -7,7 +7,7 @@ import { SearchQueryType } from "@giz/query";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
 import { Block, Metrics, State, TimeMode } from "../maestro-worker-v2";
-import { QueryError, QueryWithErrors } from "../query";
+import { QueryError, QueryWithErrors } from "../query-utils";
 
 import { MaestroContext, TrpcContext } from "./providers";
 

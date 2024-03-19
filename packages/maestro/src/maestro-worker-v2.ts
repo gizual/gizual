@@ -22,7 +22,7 @@ import { createLogger } from "@giz/logging";
 import { SearchQueryType } from "@giz/query";
 import { getStringDate, GizDate } from "@giz/utils/gizdate";
 
-import { EvaluatedRange, evaluateTimeRange, QueryError, QueryWithErrors } from "./query";
+import { EvaluatedRange, evaluateTimeRange, QueryError, QueryWithErrors } from "./query-utils";
 
 export type Metrics = typeof Maestro.prototype.metrics;
 export type State = typeof Maestro.prototype.state;

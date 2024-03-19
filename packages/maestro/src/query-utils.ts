@@ -28,7 +28,7 @@ export type QueryWithErrors = {
   errors?: QueryError[];
 };
 
-const QueryPattern = {
+export const QueryPattern = {
   time: {
     rangeByDate: {
       rangeByDate: Pattern.union(Pattern.array(Pattern.string), Pattern.string),
@@ -40,6 +40,26 @@ const QueryPattern = {
 
     sinceFirstCommitBy: {
       sinceFirstCommitBy: Pattern.string,
+    },
+  },
+
+  preset: {
+    gradientByAge: {
+      gradientByAge: Pattern.array(Pattern.string),
+    },
+
+    paletteByAuthor: {
+      paletteByAuthor: Pattern.array(Pattern.array(Pattern.string)),
+    },
+  },
+
+  files: {
+    path: {
+      path: Pattern.union(Pattern.array(Pattern.string), Pattern.string),
+    },
+
+    changedInRef: {
+      changedInRef: Pattern.string,
     },
   },
 };

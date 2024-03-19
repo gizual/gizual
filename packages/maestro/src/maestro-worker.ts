@@ -18,7 +18,7 @@ import {
   SHARED_EVENTS,
   State,
 } from "./maestro-worker-v2";
-import { QueryWithErrors } from "./query";
+import { QueryWithErrors } from "./query-utils";
 import { t } from "./trpc-worker";
 
 const logger = createLogger("trpc");
