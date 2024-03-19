@@ -14,6 +14,13 @@ import "./icons/fonts.css";
 import "./icons/icons.css";
 import "./icons/colors.css";
 
+try {
+  await navigator.storage.getDirectory();
+} catch (error) {
+  console.error(error);
+  throw new Error("navigator.storage.getDirectory() is not supported in this browser");
+}
+
 const maestro = new Maestro();
 
 (window as any).maestro = maestro;
