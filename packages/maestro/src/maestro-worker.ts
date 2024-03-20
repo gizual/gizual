@@ -5,7 +5,6 @@ import { observable } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
 import { z } from "zod";
 
-import { FileTreeNode } from "@giz/explorer";
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { createLogger } from "@giz/logging";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
@@ -16,9 +15,8 @@ import {
   Maestro,
   MaestroWorkerEvents,
   SHARED_EVENTS,
-  State,
 } from "./maestro-worker-v2";
-import { QueryWithErrors } from "./query-utils";
+import { Query } from "./query-utils";
 import { t } from "./trpc-worker";
 
 const logger = createLogger("trpc");
@@ -34,72 +32,6 @@ type WindowVariables = {
 let maestro: Maestro = undefined as any;
 
 const router = t.router({
-  metrics: t.procedure.subscription(() => {
-    return observable<Maestro["metrics"]>((emit) => {
-      const onUpdate = (data: MaestroWorkerEvents["metrics:updated"][0]) => {
-        emit.next(data.newValue);
-      };
-      maestro.on("metrics:updated", onUpdate);
-
-      emit.next(maestro.metrics);
-
-      return () => {
-        maestro.off("metrics:updated", onUpdate);
-      };
-    });
-  }),
-  globalState: t.procedure.subscription(() => {
-    return observable<State>((emit) => {
-      const onStateUpdate = (data: MaestroWorkerEvents["state:updated"][0]) => {
-        emit.next(data.newValue);
-      };
-      maestro.on("state:updated", onStateUpdate);
-
-      emit.next(maestro.state);
-
-      return () => {
-        maestro.off("state:updated", onStateUpdate);
-      };
-    });
-  }),
-  query: t.procedure.subscription(() => {
-    return observable<QueryWithErrors>((emit) => {
-      const onUpdate = (data: MaestroWorkerEvents["query:updated"][0]) => {
-        emit.next(data);
-      };
-      maestro.on("query:updated", onUpdate);
-
-      emit.next({
-        query: maestro.query,
-        errors: maestro.queryErrors,
-      });
-
-      return () => {
-        maestro.off("query:updated", onUpdate);
-      };
-    });
-  }),
-  setQuery: t.procedure
-    .input(
-      z.object({
-        input: z.any(), // TODO: make type safe
-      }),
-    )
-    .mutation(({ input }) => {
-      maestro.updateQuery(input.input);
-    }),
-  updateQuery: t.procedure
-    .input(
-      z.object({
-        input: z.any(), // TODO: make type safe
-      }),
-    )
-    .mutation(({ input }) => {
-      maestro.updateQuery(input.input);
-    }),
-  setTimeMode: t.procedure.input(z.object({ mode: z.string() })).mutation(({ input }) => {
-    maestro.setTimeMode(input.mode);
-  }),
   setScale: t.procedure.input(z.object({ scale: z.number() })).mutation(({ input }) => {
     maestro.setScale(input.scale);
   }),
@@ -108,33 +40,7 @@ const router = t.router({
     .mutation(async ({ input }) => {
       maestro.setBlockInView(input.id, input.inView);
     }),
-  availableFiles: t.procedure.subscription(() => {
-    return observable<FileTreeNode[]>((emit) => {
-      const onUpdate = ({ newValue }: MaestroWorkerEvents["available-files:updated"][0]) => {
-        emit.next(newValue);
-      };
-      maestro.on("available-files:updated", onUpdate);
-      emit.next(maestro.availableFiles ?? []);
 
-      return () => {
-        maestro.off("available-files:updated", onUpdate);
-      };
-    });
-  }),
-  selectedFiles: t.procedure.subscription(() => {
-    //TODO maybe wrong args
-    return observable<FileTreeNode[]>((emit) => {
-      const onUpdate = ({ newValue }: MaestroWorkerEvents["selected-files:updated"][0]) => {
-        emit.next(newValue);
-      };
-      maestro.on("selected-files:updated", onUpdate);
-      emit.next(maestro.selectedFiles);
-
-      return () => {
-        maestro.off("selected-files:updated", onUpdate);
-      };
-    });
-  }),
   blocks: t.procedure.subscription(() => {
     return observable<Block[]>((emit) => {
       const onUpdate = (data: MaestroWorkerEvents["blocks:updated"][0]) => {
@@ -277,6 +183,15 @@ const exports = {
   debugPrint,
   setVisualizationSettings,
   setDevicePixelRatio,
+  updateQuery: (newQuery: Partial<Query>) => {
+    maestro.updateQuery(newQuery);
+  },
+  setQuery: (newQuery: Query) => {
+    maestro.updateQuery(newQuery);
+  },
+  setTimeMode: (mode: "rangeByDate" | "rangeByRef" | "sinceFirstCommitBy") => {
+    maestro.setTimeMode(mode);
+  },
 };
 
 export type MaestroWorker = typeof exports;

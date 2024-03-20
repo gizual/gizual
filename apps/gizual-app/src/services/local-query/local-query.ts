@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import { action, computed, makeObservable, observable, toJS } from "mobx";
+import { action, computed, makeObservable, observable, reaction, toJS } from "mobx";
 
-import { QueryError } from "@giz/maestro";
+import { Maestro } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
 import { DATE_FORMAT, GizDate } from "@giz/utils/gizdate";
 
@@ -14,21 +14,25 @@ import { DATE_FORMAT, GizDate } from "@giz/utils/gizdate";
  */
 class LocalQueryManager {
   @observable _localQuery!: SearchQueryType;
-  @observable _errors: QueryError[] | undefined;
-  @observable _setQueryFn: (query: SearchQueryType) => void;
 
   _initialQuery!: SearchQueryType;
 
-  constructor(
-    query: SearchQueryType,
-    setQueryFn: (query: SearchQueryType) => void,
-    errors?: QueryError[],
-  ) {
-    this.loadQuery(query);
-    this._setQueryFn = setQueryFn;
-    this._errors = errors;
+  dispose?: () => void;
 
+  constructor(private maestro: Maestro) {
+    this._localQuery = { ...maestro.query.get() };
+    this._initialQuery = { ...this._localQuery };
     makeObservable(this, undefined, { autoBind: true });
+
+    this.dispose = reaction(
+      () => maestro.query.get(),
+      (query) => {
+        this.loadQuery(query);
+      },
+      {
+        name: "keep-local-query-updated-with-maestro-query",
+      },
+    );
   }
 
   /** Replaces the current state of `localQuery` with the specified `query`. */
@@ -50,11 +54,11 @@ class LocalQueryManager {
 
   @action.bound
   publishLocalQuery() {
-    this._setQueryFn(toJS(this._localQuery));
+    this.maestro.setQuery(toJS(this._localQuery));
   }
 
   get errors() {
-    return this._errors;
+    return this.maestro.queryErrors.get();
   }
 
   get localQuery() {

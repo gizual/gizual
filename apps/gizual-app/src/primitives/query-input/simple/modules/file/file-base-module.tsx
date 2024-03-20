@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
@@ -12,7 +13,7 @@ export type FileBaseQueryModuleProps = {
   highlightItems?: string[];
 } & BaseQueryModuleProps;
 
-export const FileBaseQueryModule = React.memo(
+export const FileBaseQueryModule = observer(
   ({
     hasHelpTooltip,
     helpContent,

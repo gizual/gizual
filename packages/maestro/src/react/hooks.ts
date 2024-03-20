@@ -6,8 +6,8 @@ import { CommitInfo, FileTreeNode } from "@giz/explorer";
 import { SearchQueryType } from "@giz/query";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
-import { Block, Metrics, State, TimeMode } from "../maestro-worker-v2";
-import { QueryError, QueryWithErrors } from "../query-utils";
+import type { Block, Metrics, State, TimeMode } from "../maestro-worker-v2";
+import type { QueryError } from "../query-utils";
 
 import { MaestroContext, TrpcContext } from "./providers";
 
@@ -182,49 +182,19 @@ export type UseQueryResult = {
   errors?: QueryError[];
   updateQuery: (input: Partial<SearchQueryType>) => void;
   setQuery: (input: SearchQueryType) => void;
-  setTimeMode: (mode: "rangeByDate" | "rangeByRef" | "sinceFirstCommitBy") => void;
+  setTimeMode: (mode: TimeMode) => void;
 };
 
 export function useQuery(): UseQueryResult {
-  const trpc = useTrpc();
+  const maestro = useMaestro();
+  const query = maestro.query.get();
+  const errors = maestro.queryErrors.get();
 
-  const [cache, setQueryCache] = React.useState<QueryWithErrors>({} as any);
+  const setQuery = maestro.setQuery;
+  const updateQuery = maestro.updateQuery;
+  const setTimeMode = maestro.setTimeMode;
 
-  trpc.query.useSubscription(undefined, {
-    onData: (data: QueryWithErrors) => {
-      setQueryCache(data);
-    },
-    onError: (err) => {
-      console.error(err);
-    },
-  });
-
-  const setMutation = trpc.setQuery.useMutation();
-  const updateMutation = trpc.updateQuery.useMutation();
-  const setTimeModeMutation = trpc.setTimeMode.useMutation();
-
-  const updateQuery = React.useCallback(
-    (input: Partial<SearchQueryType>) => {
-      updateMutation.mutate({ input });
-    },
-    [updateMutation.mutate],
-  );
-
-  const setQuery = React.useCallback(
-    (input: SearchQueryType) => {
-      setMutation.mutate({ input });
-    },
-    [setMutation.mutate],
-  );
-
-  const setTimeMode = React.useCallback(
-    (mode: TimeMode) => {
-      setTimeModeMutation.mutate({ mode });
-    },
-    [setTimeModeMutation.mutate],
-  );
-
-  return { query: cache.query ?? {}, errors: cache.errors, updateQuery, setQuery, setTimeMode };
+  return { query, errors, updateQuery, setQuery, setTimeMode };
 }
 
 export function useSetScale(): (scale: number) => void {
@@ -260,104 +230,19 @@ export type GlobalState = State;
 export function useScreen(): Screen {
   const globalState = useGlobalState();
 
-  const memoizedScreen = React.useMemo(() => {
-    return globalState.screen;
-  }, [globalState.screen]);
-
-  return memoizedScreen;
+  return globalState.screen;
 }
 
 export function useGlobalState(): GlobalState {
-  const [globalState, setGlobalState] = React.useState<GlobalState>({
-    queryValid: true,
-    screen: "welcome",
-    repoLoaded: false,
-    authorsLoaded: false,
-    commitsIndexed: false,
-    filesIndexed: false,
-    error: undefined,
-    branches: [],
-    remotes: [],
-    tags: [],
-  } as any);
-
-  const trpc = useTrpc();
-
-  trpc.globalState.useSubscription(undefined, {
-    onData: (data) => {
-      setGlobalState(data as any);
-    },
-    onError: (err) => {
-      console.error(err);
-    },
-  });
-
-  return globalState;
+  return useMaestro().globalState.get();
 }
 
 export function useMetrics(): Metrics {
-  const [metrics, setMetrics] = React.useState<Metrics>({
-    numSelectedFiles: 0,
-    numExplorerWorkersTotal: 0,
-    numExplorerWorkersBusy: 0,
-    numExplorerJobs: 0,
-
-    numRendererWorkers: 0,
-    numRendererWorkersBusy: 0,
-    numRendererJobs: 0,
-  });
-
-  const trpc = useTrpc();
-
-  trpc.metrics.useSubscription(undefined, {
-    onData: (data) => {
-      setMetrics(data);
-    },
-    onError: (err) => {
-      console.error(err);
-    },
-  });
-
-  return metrics;
+  return useMaestro().metrics.get();
 }
-
-/*
-useSetCanvasScale() => { setScale: (scale: number) => void }
-useRenderImage(id, scale) => { url: string, width: number, height: number, setViewIntersectionPercentage: (inter: number) => void }
-*/
 
 export function useAvailableFiles(): FileTreeNode[] {
-  const trpc = useTrpc();
-
-  const [availableFiles, setAvailableFiles] = React.useState<FileTreeNode[]>([]);
-
-  trpc.availableFiles.useSubscription(undefined, {
-    onData: (data) => {
-      setAvailableFiles(data);
-    },
-    onError: (err) => {
-      console.error(err);
-    },
-  });
-
-  return availableFiles;
-}
-
-export function useSelectedFiles(): FileTreeNode[] {
-  const trpc = useTrpc();
-
-  const [selectedFiles, setSelectedFiles] = React.useState<FileTreeNode[]>([]);
-
-  trpc.selectedFiles.useSubscription(undefined, {
-    onData: (data) => {
-      setSelectedFiles(data);
-    },
-    onError: (err) => {
-      console.error(err);
-    },
-  });
-
-  return selectedFiles;
+  return useMaestro().availableFiles.get();
 }
 
 export function useBlocks(): Block[] {

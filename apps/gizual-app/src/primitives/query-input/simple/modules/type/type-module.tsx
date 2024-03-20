@@ -1,6 +1,7 @@
 import { IconEdit, IconSettingsOutline } from "@app/assets";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { IconButton } from "@app/primitives/icon-button";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
@@ -15,7 +16,7 @@ function getTypeEntry(query: SearchQueryType) {
   return "";
 }
 
-export function TypeModuleComponent() {
+function TypeModuleComponent() {
   const { query } = useQuery();
   const value = getTypeEntry(query);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -46,3 +47,7 @@ export function TypeModuleComponent() {
     </BaseQueryModule>
   );
 }
+
+const ObserverTypeModuleComponent = observer(TypeModuleComponent);
+
+export { ObserverTypeModuleComponent as TypeModuleComponent };

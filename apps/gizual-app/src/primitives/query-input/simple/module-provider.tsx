@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import { match, P } from "ts-pattern";
 
 import { useQuery } from "@giz/maestro/react";
@@ -16,7 +17,7 @@ import { TimePlaceholderModule, TimeRangeByDateModule, TimeRangeByRefModule } fr
 import { TimeSinceFirstCommitByModule } from "./modules/time/time-since-first-commit-by-module";
 import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
 
-export function ModuleProvider() {
+function ModuleProvider() {
   const { query } = useQuery();
 
   const presetMatch = match(query)
@@ -91,3 +92,7 @@ export function ModuleProvider() {
 
   return <>{[presetMatch, timeMatch, fileMatch]}</>;
 }
+
+const ObserverModuleProvider = observer(ModuleProvider);
+
+export { ObserverModuleProvider as ModuleProvider };

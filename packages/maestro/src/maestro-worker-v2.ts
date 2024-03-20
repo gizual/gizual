@@ -123,7 +123,15 @@ export type MaestroWorkerEvents = {
  * The events that are shared between the main thread and the worker.
  * Every event that is emitted by the worker can also be listened to by the main thread.
  */
-export const SHARED_EVENTS = ["metrics:updated", "workers:idle"] as const;
+export const SHARED_EVENTS = [
+  "metrics:updated",
+  "workers:idle",
+  "available-files:updated",
+  "selected-files:updated",
+  "state:updated",
+  "query:updated",
+] as const;
+
 export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
 
 export type MaestroOpts = {

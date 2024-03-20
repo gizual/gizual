@@ -1,10 +1,6 @@
 {
   "extends": "@giz/tsconfig/tsconfig.web.json",
   "include": ["src/**/*.ts", "src/react/providers.tsx"],
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-  },
   "references": [
     {
       "path": "./tsconfig.bun.json"
