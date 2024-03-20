@@ -107,7 +107,15 @@ const InteractiveCanvas = observer<any, HTMLDivElement>(
       [vm, showModal],
     );
 
-    return <InnerCanvas vm={vm} ref={ref} onContextMenu={showContextMenu(contextMenu)} />;
+    return (
+      <InnerCanvas
+        vm={vm}
+        ref={ref}
+        onContextMenu={showContextMenu(contextMenu, {
+          styles: { item: { backgroundColor: "var(--background-secondary)" } },
+        })}
+      />
+    );
   },
   { forwardRef: true },
 );
@@ -115,8 +123,6 @@ const InteractiveCanvas = observer<any, HTMLDivElement>(
 type InnerCanvasProps = {
   vm: CanvasViewModel;
 } & React.HTMLAttributes<HTMLDivElement>;
-
-const CANVAS_PADDING = 16;
 
 const InnerCanvas = observer<any, HTMLDivElement>(
   ({ vm, ...defaultProps }: InnerCanvasProps, ref) => {
@@ -156,7 +162,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     }, [vm.initialScale]);
 
     return (
-      <div ref={ref} className={style.Canvas} {...defaultProps} style={{ padding: CANVAS_PADDING }}>
+      <div ref={ref} className={style.Canvas} {...defaultProps}>
         {debugLayout && (
           <div className={style.DebugOverlay}>
             <p className={sharedStyle["Text-Bold"]}>Canvas Debug Panel</p>
@@ -165,76 +171,77 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             <code>{`css transform: scale=${state.scale}, positionX=${state.positionX}px, positionY=${state.positionY}`}</code>
           </div>
         )}
-        <div
-          className={clsx(
-            style.ErrorOverlay,
-            errors && errors.length > 0 && style.ErrorOverlayVisible,
-          )}
-        >
-          <Alert
-            variant="light"
-            color="red"
-            title="Query invalid"
-            styles={{ message: { color: "white" } }}
+        <div className={style.CanvasPaddingWrapper}>
+          <div
+            className={clsx(
+              style.ErrorOverlay,
+              errors && errors.length > 0 && style.ErrorOverlayVisible,
+            )}
           >
-            The query you entered was invalid. TODO: This is where we put a detailed list of errors.
-            <pre style={{ marginTop: "1rem" }}>{JSON.stringify(errors, undefined, 2)}</pre>
-          </Alert>
+            <Alert
+              variant="light"
+              color="red"
+              title="Query invalid"
+              styles={{ message: { color: "white" } }}
+            >
+              The query you entered was invalid. TODO: This is where we put a detailed list of
+              errors.
+              <pre style={{ marginTop: "1rem" }}>{JSON.stringify(errors, undefined, 2)}</pre>
+            </Alert>
+          </div>
+          <TransformWrapper
+            initialScale={vm.initialScale ?? 1}
+            minScale={CanvasScale.min}
+            maxScale={CanvasScale.max}
+            initialPositionX={0}
+            initialPositionY={0}
+            wheel={{ smoothStep: 0.005 }}
+            limitToBounds={true}
+            centerZoomedOut={true}
+            disablePadding={false}
+            panning={{ velocityDisabled: false }}
+            ref={rzppRef}
+            onPanningStart={() => {
+              setIsPanning(true);
+            }}
+            onPanningStop={() => {
+              setIsPanning(false);
+            }}
+            smooth
+            onTransformed={(
+              _ref: ReactZoomPanPinchRef,
+              state: {
+                scale: number;
+                positionX: number;
+                positionY: number;
+              },
+            ) => {
+              maestroSetScale(state.scale);
+              setState(state);
+            }}
+          >
+            <TransformComponent
+              wrapperStyle={{
+                width: "100%",
+                height: "100%",
+                cursor: isPanning ? "grabbing" : "grab",
+                boxSizing: "inherit",
+              }}
+              contentStyle={{
+                flexFlow: "row wrap",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                gap: "1rem",
+                boxSizing: "inherit",
+                border: debugLayout ? "2px dashed pink" : undefined,
+                width: vm.requiredWidth,
+              }}
+              contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
+            >
+              <MasonryCanvas vm={vm} wrapper={wrapperComponent} />
+            </TransformComponent>
+          </TransformWrapper>
         </div>
-        <TransformWrapper
-          initialScale={vm.initialScale ?? 1}
-          minScale={CanvasScale.min}
-          maxScale={CanvasScale.max}
-          initialPositionX={0}
-          initialPositionY={0}
-          wheel={{ smoothStep: 0.001 }}
-          limitToBounds={true}
-          centerZoomedOut={true}
-          disablePadding={false}
-          panning={{ velocityDisabled: false }}
-          ref={rzppRef}
-          onPanningStart={() => {
-            setIsPanning(true);
-          }}
-          onPanningStop={() => {
-            setIsPanning(false);
-          }}
-          smooth
-          onTransformed={(
-            _ref: ReactZoomPanPinchRef,
-            state: {
-              scale: number;
-              positionX: number;
-              positionY: number;
-            },
-          ) => {
-            maestroSetScale(state.scale);
-            setState(state);
-          }}
-        >
-          <TransformComponent
-            wrapperStyle={{
-              width: "100%",
-              height: "100%",
-              cursor: isPanning ? "grabbing" : "grab",
-              boxSizing: "inherit",
-            }}
-            contentStyle={{
-              flexFlow: "row wrap",
-              alignItems: "flex-start",
-              justifyContent: "flex-start",
-              gap: "1rem",
-              boxSizing: "inherit",
-              border: debugLayout ? "2px dashed pink" : undefined,
-              width: vm.requiredWidth,
-            }}
-            contentClass={isPanning ? sharedStyle.CursorDragging : sharedStyle.CursorCanDrag}
-          >
-            <MasonryCanvas vm={vm} wrapper={wrapperComponent} />
-          </TransformComponent>
-        </TransformWrapper>
-
-        <div className={style.Vr} />
 
         <div className={style.SidePanel}>
           <div className={style.MinimapContainer}>

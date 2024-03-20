@@ -36,6 +36,9 @@ export default {
       },
       fontFamily: {
         branding: ["FiraGO", "sans-serif"],
+        sans: ["Figtree", "ui-sans-serif"],
+        serif: ["Figtree", "ui-serif"],
+        mono: ["Iosevka Extended", "ui-monospace"],
       },
       animation: {
         "text-slide-2": "text-slide-2 5s cubic-bezier(0.83, 0, 0.17, 1) infinite",

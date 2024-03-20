@@ -138,13 +138,15 @@ const TimeRangeByDateModule = observer(() => {
           <Button onClick={onToggleTimeline}>Toggle timeline visibility</Button>
         ) : (
           <Tooltip label="Toggle timeline visibility" position="top" withArrow>
-            <IconButton style={{ padding: 0 }}>
+            <IconButton
+              className={clsx(
+                style.ToggleButton,
+                isTimelineOpen ? style.IconToggled : style.IconUnToggled,
+              )}
+              style={{ padding: 0, width: 30, height: 30 }}
+            >
               <IconRuler
-                className={clsx(
-                  style.IconBase,
-                  style.IconLarge,
-                  isTimelineOpen ? style.IconToggled : style.IconUnToggled,
-                )}
+                className={clsx(style.IconBase, style.IconLarge)}
                 onClick={onToggleTimeline}
               />
             </IconButton>

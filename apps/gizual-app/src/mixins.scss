@@ -1,6 +1,6 @@
 @mixin rounded {
   border: 1px solid var(--border-primary);
-  border-radius: 0.25rem;
+  border-radius: 2px;
 }
 
 @mixin rounded-left {
@@ -32,7 +32,7 @@
 }
 
 @mixin font-base {
-  font-family: "FiraGO";
+  font-family: "Figtree";
 }
 
 @mixin shadow-sm {

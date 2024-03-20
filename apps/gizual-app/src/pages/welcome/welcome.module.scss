@@ -4,7 +4,7 @@
 .EmphasizedContainer {
   background-color: var(--background-red);
   color: var(--foreground-primary);
-  font-weight: medium;
+  font-weight: 600;
   padding: 1rem;
   text-wrap: balance;
   width: 100%;
@@ -207,7 +207,7 @@
 
 .CollapsibleHeaderText {
   @include text-2xl;
-  font-weight: 500;
+  font-weight: 600;
   flex-grow: 1;
   flex-shrink: 0;
   text-align: left;
@@ -251,7 +251,6 @@
 
 .OpenRowTitle {
   @include text-base;
-  font-weight: 300;
   flex-grow: 1;
   flex-shrink: 0;
   text-align: left;
@@ -344,7 +343,6 @@
 
 .DetailDescription {
   @include text-base;
-  font-weight: 300;
   text-align: left;
   color: var(--foreground-primary);
 }
@@ -362,7 +360,6 @@
 
 .NotSupportedText {
   @include text-sm;
-  font-weight: 300;
   text-align: left;
   color: var(--color-tomato);
   font-style: italic;

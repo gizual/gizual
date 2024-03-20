@@ -3,7 +3,7 @@ import { ErrorPage } from "@app/pages/error/error";
 import { WelcomePage } from "@app/pages/welcome";
 import { Loading } from "@app/primitives/loading";
 import { LocalQueryContext, LocalQueryManager } from "@app/services/local-query";
-import { createTheme, MantineProvider } from "@mantine/core";
+import { createTheme, MantineProvider, Menu, Popover } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { ContextMenuProvider } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
@@ -49,8 +49,27 @@ function App() {
       ],
     },
     primaryColor: "accentMain",
-    fontFamily: "FiraGO",
+    fontFamily: "Figtree",
     fontFamilyMonospace: "Iosevka Extended",
+    components: {
+      Popover: Popover.extend({
+        styles: {
+          dropdown: {
+            backgroundColor: "var(--background-secondary)",
+            borderColor: "var(--border-primary)",
+          },
+          arrow: { borderColor: "var(--border-primary)" },
+        },
+      }),
+      Menu: Menu.extend({
+        styles: {
+          dropdown: {
+            backgroundColor: "var(--background-secondary)",
+            borderColor: "var(--border-primary)",
+          },
+        },
+      }),
+    },
   });
 
   const screen = useScreen();

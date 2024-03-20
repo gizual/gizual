@@ -56,7 +56,7 @@ const TimelineGraph = observer(({ vm, height }: TimelineGraphProps) => {
         x2={vm.viewBox.width}
         y1={height / 2}
         y2={height / 2}
-        stroke={"white"}
+        stroke={"var(--foreground-primary)"}
         strokeWidth={4}
       />
     </Translate>
@@ -108,7 +108,9 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
 
   return (
     <div
-      onContextMenu={showContextMenu(vm.contextItems)}
+      onContextMenu={showContextMenu(vm.contextItems, {
+        styles: { item: { backgroundColor: "var(--background-secondary)" } },
+      })}
       className={clsx(
         vm.isDragging && style["InteractionLayer--isDragging"],
         vm.isSelecting && style["InteractionLayer--isSelecting"],
@@ -132,7 +134,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
                 left: startPosX,
                 top: `0px`,
                 width,
-                height: `${vm.viewBox.height - 2}px`, // Subtract the 2px border
+                height: `${vm.viewBox.height}px`,
               }}
               className={style.SelectionBox}
             >
@@ -163,7 +165,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
               style={{
                 left: startPosX,
                 top: `${vm.rowHeight}px`,
-                height: `${(8 / vm.viewBox.height) * 100}%`,
+                height: 10,
                 width: `${Math.abs(vm.selectStartX - vm.selectEndX) + 1}px`,
               }}
               className={style.SelectionBoxLine}

@@ -14,6 +14,10 @@
   color: var(--foreground-primary);
   padding: 0 0.75rem;
   border-top: 1px solid var(--border-primary);
+
+  @media (width < 1024px) {
+    justify-content: center;
+  }
 }
 
 @mixin footer-container {
@@ -65,10 +69,18 @@
   gap: 0.25rem;
   display: flex;
   flex-direction: row;
-  > span:not(:last-child) {
+
+  > span {
     padding-right: 0.5rem;
     margin-right: 0.25rem;
     border-right: 1px solid var(--border-primary);
+  }
+
+  > span:nth-last-child(2),
+  span:nth-last-child(1) {
+    padding-right: unset;
+    margin-right: unset;
+    border-right: none;
   }
 }
 

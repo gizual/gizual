@@ -3,6 +3,8 @@ import { DatePickerInput } from "@mantine/dates";
 
 import { DATE_DISPLAY_FORMAT } from "@giz/utils/gizdate";
 
+import style from "./date-picker.module.scss";
+
 type DatePickerProps = {} & React.ComponentProps<typeof DatePickerInput>;
 
 /**
@@ -11,9 +13,10 @@ type DatePickerProps = {} & React.ComponentProps<typeof DatePickerInput>;
  */
 function DatePicker({ styles, ...props }: DatePickerProps) {
   const isSmallDevice = useMediaQuery({ max: 1024 });
-  const height = isSmallDevice ? 40 : 30;
+  const height = 30;
   return (
     <DatePickerInput
+      className={style.DatePicker}
       styles={{
         input: {
           height: height,

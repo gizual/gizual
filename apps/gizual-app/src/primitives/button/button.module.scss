@@ -3,13 +3,15 @@
 
 .Button {
   @include transition-all;
-  @include shadow-lg;
-  border-radius: 0.25rem;
-  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  padding: 0.25rem 1rem;
   display: block;
   border: none;
   text-align: center;
+  font-weight: 500;
+  border: 1px solid var(--border-tertiary);
   &:disabled {
+    border-color: none;
     background-color: var(--background-tertiary) !important;
     cursor: not-allowed !important;
   }
@@ -18,9 +20,22 @@
 .ButtonFilled {
   background-color: colors.$accent-main;
   color: var(--accent-main-fg);
+  border-color: colors.$accent-main;
   &:hover {
-    background-color: colors.lighten(colors.$accent-main, 20%);
+    background-color: colors.darken(colors.$accent-main, 15%);
+    border-color: colors.darken(colors.$accent-main, 15%);
     color: var(--accent-main-fg);
+    cursor: pointer;
+  }
+}
+
+.ButtonDangerous {
+  background-color: colors.$color-tomato;
+  color: white;
+  border-color: colors.$color-tomato;
+  &:hover {
+    background-color: colors.darken(colors.$color-tomato, 15%);
+    border-color: colors.darken(colors.$color-tomato, 15%);
     cursor: pointer;
   }
 }
@@ -29,8 +44,8 @@
   background-color: var(--background-tertiary);
   color: var(--foreground-secondary);
   &:hover {
-    background-color: var(--accent-secondary);
-    color: var(--accent-secondary-fg);
+    border-color: var(--border-primary);
+    background-color: var(--background-secondary);
     cursor: pointer;
   }
 }
@@ -48,10 +63,10 @@
 
 .ButtonRegular {
   @include text-base;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 1rem;
 }
 
 .ButtonLarge {
   @include text-lg;
-  padding: 0.5 1rem;
+  padding: 0.5rem 1rem;
 }

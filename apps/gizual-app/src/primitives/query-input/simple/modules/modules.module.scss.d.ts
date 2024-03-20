@@ -1,5 +1,6 @@
 declare const classNames: {
   readonly BaseQueryModule: "BaseQueryModule";
+  readonly SwapButton: "SwapButton";
   readonly BaseQueryModuleColumn: "BaseQueryModuleColumn";
   readonly BaseQueryModuleColumn__Header: "BaseQueryModuleColumn__Header";
   readonly PlaceholderQueryModule: "PlaceholderQueryModule";
@@ -10,8 +11,8 @@ declare const classNames: {
   readonly VerticalRuler: "VerticalRuler";
   readonly TypeDialog__Right: "TypeDialog__Right";
   readonly TypeDialog__Section: "TypeDialog__Section";
-  readonly TypeDialogActionButtons: "TypeDialogActionButtons";
   readonly TypeDialogGridItemImage: "TypeDialogGridItemImage";
+  readonly TypeDialogActionButtons: "TypeDialogActionButtons";
   readonly QueryModuleIcon: "QueryModuleIcon";
   readonly QueryModuleTitle: "QueryModuleTitle";
   readonly QueryModuleIconWithText: "QueryModuleIconWithText";
@@ -22,6 +23,7 @@ declare const classNames: {
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";
   readonly IconBase: "IconBase";
   readonly IconLarge: "IconLarge";
+  readonly ToggleButton: "ToggleButton";
   readonly IconToggled: "IconToggled";
   readonly IconUnToggled: "IconUnToggled";
   readonly FileTreeWrapper: "FileTreeWrapper";
@@ -30,5 +32,6 @@ declare const classNames: {
   readonly GradientColorCustomization: "GradientColorCustomization";
   readonly GradientColorCustomizationRow: "GradientColorCustomizationRow";
   readonly GradientColorTitle: "GradientColorTitle";
+  readonly TypeIconButton: "TypeIconButton";
 };
 export = classNames;

@@ -7,6 +7,10 @@
 ### Bug Fixes
 - **app:frontend:** Implement functionality for query modules to behave differently on small screens
 
+### Changes
+
+- **app:frontend:** UI refactor, apply consistent styling across all UI elements
+
 ---
 
 ## Gizual 3.0.0-alpha.17 (14.03.2024)

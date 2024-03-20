@@ -23,7 +23,6 @@
   @include text-xs;
   text-align: left;
   font-family: "Iosevka Extended", monospace;
-  font-weight: 300;
   margin: 0.75rem 0 0 0;
   flex-grow: 1;
   overflow: hidden;
@@ -87,7 +86,7 @@
 }
 
 @mixin section-head {
-  background-color: var(--background-tertiary);
+  background-color: var(--background-secondary);
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-primary);
   display: flex;
@@ -198,6 +197,16 @@
   top: 0;
   left: 0;
   background-color: #00000080;
+
+  animation: overlayShow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  @keyframes overlayShow {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 .PopoverMax {
@@ -208,10 +217,18 @@
   .CloseButton {
     width: 24px;
     height: 24px;
+    & path {
+      fill: var(--foreground-primary);
+      transition: fill 0.2s;
+    }
   }
 
   .CloseButton:hover {
     background-color: var(--color-tomato);
+    border-color: var(--color-tomato);
+    & path {
+      fill: white;
+    }
   }
 }
 
@@ -303,15 +320,15 @@
 }
 
 .Text-Bold {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .Text-Medium {
-  font-weight: medium;
+  font-weight: 600;
 }
 
 .Text-Normal {
-  font-weight: normal;
+  font-weight: 400;
 }
 
 .Text-Accent {

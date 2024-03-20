@@ -11,8 +11,7 @@
 }
 
 .Clickable {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding: 0.375rem 0;
   display: flex;
   width: 100%;
 
@@ -22,15 +21,16 @@
 }
 
 .AdvancedSearchIconTrigger {
-  align-self: flex-end;
+  align-self: center;
   @media (width < 1024px) {
     display: none;
   }
 }
 
 .AdvancedSearchIconButton {
-  height: 36px;
-  width: 36px;
+  height: 40px;
+  width: 40px;
+  border-color: var(--border-primary);
   cursor: pointer;
 }
 
@@ -57,4 +57,5 @@
   min-height: 40dvh;
   min-width: 0;
   overflow: hidden;
+  padding: 0;
 }

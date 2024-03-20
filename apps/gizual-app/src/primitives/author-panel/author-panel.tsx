@@ -200,41 +200,44 @@ function getAuthorColumns(
       accessor: "email",
       render: ({ id, name, email }: AuthorType) => (
         <div
-          onContextMenu={showContextMenu([
-            {
-              key: "copyId",
-              title: "Copy author ID to clipboard",
-              onClick: () => {
-                navigator.clipboard.writeText(id);
-                notifications.show({
-                  title: "ID copied to clipboard",
-                  message: id,
-                });
+          onContextMenu={showContextMenu(
+            [
+              {
+                key: "copyId",
+                title: "Copy author ID to clipboard",
+                onClick: () => {
+                  navigator.clipboard.writeText(id);
+                  notifications.show({
+                    title: "ID copied to clipboard",
+                    message: id,
+                  });
+                },
               },
-            },
-            {
-              key: "copyName",
-              title: "Copy name to clipboard",
-              onClick: () => {
-                navigator.clipboard.writeText(name);
-                notifications.show({
-                  title: "Name copied to clipboard",
-                  message: name,
-                });
+              {
+                key: "copyName",
+                title: "Copy name to clipboard",
+                onClick: () => {
+                  navigator.clipboard.writeText(name);
+                  notifications.show({
+                    title: "Name copied to clipboard",
+                    message: name,
+                  });
+                },
               },
-            },
-            {
-              key: "copyEmail",
-              title: "Copy email to clipboard",
-              onClick: () => {
-                navigator.clipboard.writeText(email);
-                notifications.show({
-                  title: "E-Mail copied to clipboard",
-                  message: email,
-                });
+              {
+                key: "copyEmail",
+                title: "Copy email to clipboard",
+                onClick: () => {
+                  navigator.clipboard.writeText(email);
+                  notifications.show({
+                    title: "E-Mail copied to clipboard",
+                    message: email,
+                  });
+                },
               },
-            },
-          ])}
+            ],
+            { styles: { item: { backgroundColor: "var(--background-secondary)" } } },
+          )}
         >
           <p
             style={{

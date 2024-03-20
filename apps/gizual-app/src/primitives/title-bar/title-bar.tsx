@@ -22,7 +22,7 @@ export const TitleBar = observer(() => {
     <div className={style.TitleBar}>
       <a href="/" className={clsx(style.Link, style.Branding)}>
         <img className={style.Logo} src="./giz-icon.svg" alt="Gizual Logo" />
-        <h1 className={style.Title}>gizual</h1>
+        <h1 className={style.Title}>Gizual</h1>
       </a>
       <div className={style.Menu}>
         {isLargeScreen ? <DesktopTitleBar screen={screen} /> : <MobileTitleBar screen={screen} />}
@@ -96,13 +96,13 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
           <Modal opened={opened} onClose={close} centered title="Close repository">
             <Stack gap="md">
               Do you wish to close the repository?
-              <Button onClick={() => mainController.closeRepository()} variant="filled">
+              <Button onClick={() => mainController.closeRepository()} variant="dangerous">
                 Close repository
               </Button>
             </Stack>
           </Modal>
           <Tooltip label="Close repository">
-            <IconButton className={sharedStyle.CloseButton} onClick={open}>
+            <IconButton className={clsx(sharedStyle.CloseButton, style.IconClose)} onClick={open}>
               <IconClose />
             </IconButton>
           </Tooltip>
@@ -131,6 +131,15 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
       )}
       {screen !== "welcome" && (
         <>
+          <Select<Panel>
+            value={selectedPanel}
+            onChange={(_, panel) => {
+              setSelectedPanel(panel);
+            }}
+            data={panels}
+            style={{ maxWidth: 200 }}
+          />
+
           <IconButton
             className={clsx(
               style.IconButton,
@@ -140,13 +149,6 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
           >
             <IconFilter />
           </IconButton>
-          <Select<Panel>
-            value={selectedPanel}
-            onChange={(_, panel) => {
-              setSelectedPanel(panel);
-            }}
-            data={panels}
-          />
         </>
       )}
     </div>

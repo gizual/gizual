@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  /*
   @font-face {
     font-family: "FiraGO";
     src: url("@giz/fonts/FiraGO-Regular.woff2") format("woff2");
@@ -56,6 +57,21 @@
     font-family: "FiraGO";
     src: url("@giz/fonts/FiraGO-SemiBoldItalic.woff2") format("woff2");
     font-weight: 600;
+    font-style: italic;
+  }*/
+
+  @font-face {
+    font-family: "Figtree";
+    src: url("@giz/fonts/Figtree-Variable.woff2") format("woff2-variations");
+    src: url("@giz/fonts/Figtree-Variable.woff2") format("woff2") tech("variations");
+    font-weight: 100 1000;
+  }
+
+  @font-face {
+    font-family: "Figtree";
+    src: url("@giz/fonts/Figtree-Italic-Variable.woff2") format("woff2-variations");
+    src: url("@giz/fonts/Figtree-Italic-Variable.woff2") format("woff2") tech("variations");
+    font-weight: 100 1000;
     font-style: italic;
   }
 

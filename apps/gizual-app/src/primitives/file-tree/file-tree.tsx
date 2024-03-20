@@ -138,19 +138,22 @@ const FileTreeItem = observer(
             className={style.FileTreeItem__Name}
             onClick={onClickItem}
             title={item.path.join("/")}
-            onContextMenu={showContextMenu([
-              {
-                key: "copyPath",
-                title: "Copy file path to clipboard",
-                onClick: () => {
-                  navigator.clipboard.writeText(item.path.join("/"));
-                  notifications.show({
-                    title: "Copied to clipboard",
-                    message: "'" + item.path.join("/") + "'",
-                  });
+            onContextMenu={showContextMenu(
+              [
+                {
+                  key: "copyPath",
+                  title: "Copy file path to clipboard",
+                  onClick: () => {
+                    navigator.clipboard.writeText(item.path.join("/"));
+                    notifications.show({
+                      title: "Copied to clipboard",
+                      message: "'" + item.path.join("/") + "'",
+                    });
+                  },
                 },
-              },
-            ])}
+              ],
+              { styles: { item: { backgroundColor: "var(--background-secondary)" } } },
+            )}
           >
             {customDisplayName ?? item.path.slice(-1, undefined)}
           </p>

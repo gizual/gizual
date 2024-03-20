@@ -1,10 +1,12 @@
 import { IconDownload, IconOpen } from "@app/assets";
 import { useMainController } from "@app/controllers";
+import { Checkbox } from "@app/primitives/checkbox";
 import { ColorPicker } from "@app/primitives/color-picker";
 import { IconButton } from "@app/primitives/icon-button";
+import { Input } from "@app/primitives/input";
 import { Select } from "@app/primitives/select";
 import { isGroupEntry, isSettingsEntry, SettingsEntry } from "@app/utils";
-import { Checkbox, Input, Tooltip } from "@mantine/core";
+import { Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import _ from "lodash";
 import { useContextMenu } from "mantine-contextmenu";
@@ -156,13 +158,16 @@ export const RenderedSettingsEntry = observer(
       <>
         <div
           className={style.SettingsEntry}
-          onContextMenu={showContextMenu([
-            {
-              key: "resetToDefault",
-              title: "Reset to default",
-              onClick: () => onResetToDefault?.(),
-            },
-          ])}
+          onContextMenu={showContextMenu(
+            [
+              {
+                key: "resetToDefault",
+                title: "Reset to default",
+                onClick: () => onResetToDefault?.(),
+              },
+            ],
+            { styles: { item: { backgroundColor: "var(--background-secondary)" } } },
+          )}
         >
           <span className={style.SettingsEntryLabel}>
             {namePrefix}
@@ -187,7 +192,16 @@ export const RenderedSettingsEntry = observer(
               <Input value={entry.value} onChange={onInputChange} type="number" />
             )}
             {entry.controlType === "checkbox" && (
-              <Checkbox checked={entry.value} onChange={onCheckChange} />
+              <Checkbox
+                checked={entry.value}
+                onChange={onCheckChange}
+                styles={{
+                  input: {
+                    backgroundColor: "var(--background-tertiary)",
+                    borderColor: "var(--border-primary)",
+                  },
+                }}
+              />
             )}
           </div>
         </div>

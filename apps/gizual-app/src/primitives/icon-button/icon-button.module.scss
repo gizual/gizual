@@ -16,11 +16,15 @@
     flex-grow: 0;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+    border-color: var(--border-primary);
   }
 
   .IconButton:hover {
-    border-color: var(--accent-main);
+    border-color: var(--accent-main) !important;
+    background-color: var(--background-secondary);
   }
 
   .Wide {

@@ -40,6 +40,10 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
     editButtonComponent,
   } = props;
 
+  const [swapMenuOpen, setSwapMenuOpen] = React.useState(false);
+  const onSwapMenuOpen = () => setSwapMenuOpen(true);
+  const onSwapMenuClose = () => setSwapMenuOpen(false);
+
   const layout = useMediaQuery({ max: 1024 }) ? "vertical" : "horizontal";
   if (layout === "vertical") {
     return (
@@ -64,6 +68,15 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
                 }}
                 withArrow
                 position="bottom"
+                styles={{
+                  dropdown: {
+                    backgroundColor: "var(--background-secondary)",
+                    borderColor: "var(--border-primary)",
+                  },
+                  arrow: {
+                    borderColor: "var(--border-primary)",
+                  },
+                }}
               >
                 <Menu.Target>
                   <IconButton>
@@ -87,7 +100,10 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
   }
 
   return (
-    <div className={clsx(style.BaseQueryModule, containsErrors && style.ContainsErrors)}>
+    <div
+      className={clsx(style.BaseQueryModule, containsErrors && style.ContainsErrors)}
+      aria-expanded={swapMenuOpen}
+    >
       <div className={style.QueryModuleIconWithText}>
         {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
         {title && <div className={style.QueryModuleTitle}>{title}</div>}
@@ -105,11 +121,23 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
           onChange={() => {
             onSwap?.();
           }}
+          opened={swapMenuOpen}
+          onOpen={onSwapMenuOpen}
+          onClose={onSwapMenuClose}
           withArrow
           position="bottom"
+          styles={{
+            dropdown: {
+              backgroundColor: "var(--background-secondary)",
+              borderColor: "var(--border-primary)",
+            },
+            arrow: {
+              borderColor: "var(--border-primary)",
+            },
+          }}
         >
           <Menu.Target>
-            <IconButton>
+            <IconButton className={style.SwapButton} aria-expanded={swapMenuOpen}>
               <IconChevronDown className={style.CloseIcon} />
             </IconButton>
           </Menu.Target>

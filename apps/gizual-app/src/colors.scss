@@ -2,12 +2,14 @@
 
 /* Accent colors */
 $color-gizblue: #007acc;
+$color-gizblue-darker: #015f9b;
 $color-tomato: #e94f37;
 $color-lavender: #d4cdf4;
 $color-plum: #5c29af;
 $color-gold: #ffb800;
 
 $accent-main: $color-gizblue;
+$accent-main-darker: $color-gizblue-darker;
 $accent-main-fg: #fff;
 $accent-secondary: $color-plum;
 $accent-secondary-fg: #fff;
@@ -24,14 +26,14 @@ $accent-tertiary-fg: #fff;
 
 :root {
   /* Main colors */
-  --color-lightgray: #ececef;
+  --color-lightgray: #f2f2f3;
   --color-lightgray-shaded: #e3e3e3;
-  --color-darkgray: #13161a;
-  --color-white: #fff;
+  --color-darkgray: #13131a;
+  --color-white: #ffffff;
   --color-black: #000;
   --color-black-shaded: #0d0d0d;
-  --color-zinc: #dedede;
-  --color-gunmetal: #2b303a;
+  --color-zinc: #f7f7f8;
+  --color-gunmetal: #1a1d23;
   --color-gray: #cecece;
   --color-darkslate: #35404e;
   --color-disabled: #8d8d8d;
@@ -39,6 +41,7 @@ $accent-tertiary-fg: #fff;
   --color-peach: #fbe5eb;
 
   --color-gizblue: #{$color-gizblue};
+  --color-gizblue-darker: #{$color-gizblue-darker};
   --color-tomato: #{$color-tomato};
   --color-lavender: #{$color-lavender};
   --color-plum: #{$color-plum};
@@ -59,7 +62,7 @@ $accent-tertiary-fg: #fff;
     --foreground-link: #0069c2;
 
     --accent-main: var(--color-gizblue);
-    --accent-main-dark: var(--color-gizblue-dark);
+    --accent-main-dark: var(--color-gizblue-darker);
     --accent-main-fg: var(--color-white);
     --accent-secondary: var(--color-lavender);
     --accent-secondary-fg: var(--color-black);
@@ -67,7 +70,10 @@ $accent-tertiary-fg: #fff;
     --accent-tertiary-fg: var(--color-white);
 
     --border-primary: var(--color-gray);
+    --border-primary-shaded: hsl(from var(--border-primary) h s calc(l + 10%));
+
     --border-secondary: var(--color-darkslate);
+    --border-tertiary: #e4e4e7;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -83,7 +89,7 @@ $accent-tertiary-fg: #fff;
     --foreground-link: #8cb4ff;
 
     --accent-main: var(--color-gizblue);
-    --accent-main-dark: var(--color-gizblue-dark);
+    --accent-main-dark: var(--color-gizblue-darker);
     --accent-main-fg: var(--color-white);
     --accent-secondary: var(--color-plum);
     --accent-secondary-fg: var(--color-white);
@@ -91,6 +97,9 @@ $accent-tertiary-fg: #fff;
     --accent-tertiary-fg: var(--color-white);
 
     --border-primary: var(--color-darkslate);
+    --border-primary-shaded: hsl(from var(--border-primary) h s calc(l - 10%));
+
     --border-secondary: var(--color-gray);
+    --border-tertiary: #2f333d;
   }
 }

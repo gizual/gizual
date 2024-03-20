@@ -68,6 +68,8 @@ const TimeRangeByRefModule = observer(() => {
             onBlur={() => publishLocalQuery()}
             onChange={(e) => onChangeStartRef(e.currentTarget.value)}
             value={from}
+            style={{ minWidth: 370 }}
+            monospaced
           />
         </div>
         <div className={style.LabelWithInput}>
@@ -77,6 +79,8 @@ const TimeRangeByRefModule = observer(() => {
             onBlur={() => publishLocalQuery()}
             onChange={(e) => onChangeEndRef(e.currentTarget.value)}
             value={to}
+            style={{ minWidth: 370 }}
+            monospaced
           />
         </div>
       </div>

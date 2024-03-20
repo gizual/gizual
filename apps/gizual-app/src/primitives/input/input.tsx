@@ -1,18 +1,16 @@
-import { useMediaQuery } from "@app/hooks/use-media-query";
 import { TextInput as MantineTextInput, TextInputProps } from "@mantine/core";
 
 import style from "./input.module.scss";
 
-export type InputProps = {} & TextInputProps;
+export type InputProps = { monospaced?: boolean } & TextInputProps;
 
 /**
  * Custom wrapper around Mantine's TextInput.
  * Attaches an `onBlur` event to the Enter key and applies default styling.
  */
-export function Input(props: InputProps) {
-  const isSmallDevice = useMediaQuery({ max: 1024 });
+export function Input({ monospaced, ...props }: InputProps) {
   const { styles, onBlur, onKeyDown, ...mantineProps } = props;
-  const height = isSmallDevice ? 40 : 30;
+  const height = 30;
 
   return (
     <MantineTextInput
@@ -24,6 +22,7 @@ export function Input(props: InputProps) {
           minHeight: height,
           minWidth: 150,
           width: "100%",
+          fontFamily: monospaced ? "Iosevka Extended" : "Figtree",
         },
         root: {
           width: "100%",

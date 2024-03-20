@@ -16,49 +16,6 @@
   }
 }
 
-.DialogContent {
-  @include z-index-max;
-  border-radius: 4px;
-  background-color: var(--background-primary);
-  box-shadow:
-    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
-    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
-  animation-duration: 400ms;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, opacity;
-  margin: auto auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  //calc(var(--radix-popover-content-available-width));
-  max-height: var(--radix-popover-content-available-height);
-  padding: 1rem;
-}
-.DialogContent:focus {
-  box-shadow:
-    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
-    hsl(206 22% 7% / 20%) 0px 10px 20px -15px,
-    0 0 0 2px var(--violet7);
-}
-.DialogContent[data-state="open"][data-side="top"] {
-  animation-name: slideDownAndFade;
-}
-.DialogContent[data-state="open"][data-side="right"] {
-  animation-name: slideLeftAndFade;
-}
-.DialogContent[data-state="open"][data-side="bottom"] {
-  animation-name: slideUpAndFade;
-}
-.DialogContent[data-state="open"][data-side="left"] {
-  animation-name: slideRightAndFade;
-}
-
-.DialogArrow {
-  fill: var(--background-primary);
-}
-
 .DialogClose {
   font-family: inherit;
   border-radius: 100%;
@@ -100,6 +57,18 @@
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr;
   box-shadow: 0 0 20px #00000050;
+
+  animation: contentShow 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  @keyframes contentShow {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
 }
 
 .DialogWithFooter {
@@ -115,6 +84,8 @@
   padding: 0.5rem 1rem 0.5rem 1rem;
   border-bottom: 1px solid var(--border-primary);
   background-color: var(--background-secondary);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
 }
 
 .DialogBody {
@@ -143,5 +114,5 @@
 }
 
 .CloseButton {
-  width: 48px;
+  width: auto;
 }

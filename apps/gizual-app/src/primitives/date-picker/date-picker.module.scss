@@ -1,9 +1,5 @@
-@use "@/mixins" as *;
-
-.SelectBox {
-  border-radius: 4px;
-
-  & input {
+.DatePicker {
+  & button {
     background-color: var(--background-tertiary);
     border-color: var(--border-tertiary);
     transition:
@@ -15,6 +11,10 @@
     }
 
     &:focus {
+      border-color: var(--accent-main);
+    }
+
+    &[aria-expanded="true"] {
       background-color: var(--background-secondary);
       border-color: var(--accent-main);
     }

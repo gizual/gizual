@@ -1,5 +1,6 @@
 declare const classNames: {
   readonly Canvas: "Canvas";
+  readonly CanvasPaddingWrapper: "CanvasPaddingWrapper";
   readonly CanvasWrapper: "CanvasWrapper";
   readonly Stage: "Stage";
   readonly StageRow: "StageRow";

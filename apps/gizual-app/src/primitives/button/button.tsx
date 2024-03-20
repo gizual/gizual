@@ -3,11 +3,12 @@ import React from "react";
 
 import style from "./button.module.scss";
 
-type ButtonVariant = "filled" | "outline" | "gray";
+type ButtonVariant = "filled" | "outline" | "gray" | "dangerous";
 type ButtonSize = "small" | "regular" | "large";
 
 const buttonVariantCSSMapping: Record<ButtonVariant, string> = {
   filled: style.ButtonFilled,
+  dangerous: style.ButtonDangerous,
   outline: style.ButtonOutline,
   gray: style.ButtonGray,
 };

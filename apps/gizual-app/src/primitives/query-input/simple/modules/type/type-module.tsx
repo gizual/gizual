@@ -35,7 +35,7 @@ function TypeModuleComponent() {
             isSmallDevice ? (
               <Button>Edit Visualization Type</Button>
             ) : (
-              <IconButton>
+              <IconButton className={style.TypeIconButton}>
                 <IconEdit className={style.CloseIcon} />
               </IconButton>
             )

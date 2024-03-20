@@ -22,19 +22,18 @@
   flex-direction: column;
   border: 1px solid var(--border-primary);
   background-color: var(--background-primary);
-  transition: background-color 0.25s;
+  transition: background-color 0.25s border-color 0.25s;
   cursor: pointer;
+
+  &:hover {
+    background-color: var(--background-tertiary);
+    border-color: var(--accent-main-dark);
+  }
 
   &[data-disabled="true"] {
     background-color: var(--background-secondary);
+    border-color: var(--border-primary);
     cursor: not-allowed;
-  }
-
-  &:hover {
-    &[data-disabled="false"] {
-      background-color: var(--background-tertiary) !important;
-      border-color: var(--accent-main);
-    }
   }
 }
 
@@ -88,7 +87,7 @@
 
 .GridItemTitle {
   @include text-base;
-  font-weight: medium;
+  font-weight: 600;
   text-align: left;
 }
 

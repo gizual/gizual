@@ -20,6 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-bottom: 8rem;
 }
 
 .SettingsActionBar {
@@ -58,7 +59,7 @@
   transition: all 0.2s;
 
   &:hover {
-    background-color: var(--background-secondary);
+    background-color: var(--background-tertiary);
   }
 }
 
@@ -72,8 +73,8 @@
 
 .SettingsEntryDescription {
   @include text-sm;
-  font-weight: 300;
   color: var(--foreground-secondary);
+  margin-bottom: 0.25rem;
 }
 
 .SettingsEntryDefault {
