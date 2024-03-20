@@ -117,6 +117,7 @@ export type MaestroWorkerEvents = {
   "block:updated": [id: string, data: BlockImage];
   "block:removed": [id: string];
   "workers:idle": [];
+  "author-list:need-refresh": [];
 };
 
 /**
@@ -130,6 +131,7 @@ export const SHARED_EVENTS = [
   "selected-files:updated",
   "state:updated",
   "query:updated",
+  "author-list:need-refresh",
 ] as const;
 
 export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
@@ -1114,14 +1116,18 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
     return await this.db.countAuthors();
   }
 
-  async getAuthors(offset: number, limit?: number): Promise<(Author & { color: string })[]> {
+  async getAuthors(
+    offset: number,
+    limit?: number,
+    search?: string,
+  ): Promise<(Author & { color: string })[]> {
     await this.untilState("authorsLoaded", true);
 
     if (!limit) {
       limit = this.cachedAuthors.length;
     }
 
-    const authors = await this.db.queryAuthors(offset, limit);
+    const authors = await this.db.queryAuthors(offset, limit, search);
     return authors.map((a) => {
       const color = this.colorManager.getBandColor(a.id);
       return { ...a, color };

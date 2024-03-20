@@ -150,6 +150,14 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     this.worker.setTimeMode(mode);
   }
 
+  getAuthorList = (limit: number, offset: number, search: string) => {
+    return this.worker.getAuthorList({
+      limit,
+      offset,
+      search,
+    });
+  };
+
   setupEventListeners() {
     this.setupDevicePixelRatioListener();
 

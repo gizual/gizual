@@ -22,7 +22,10 @@ export class Database {
     return await this.worker.selectMatchingFiles({ path, editedBy }, commitId);
   }
 
-  async queryAuthors(offset: number, limit: number) {
+  async queryAuthors(offset: number, limit: number, search?: string) {
+    if (search) {
+      throw new Error("search is not implemented");
+    }
     return await this.worker.queryAuthors(offset, limit);
   }
 

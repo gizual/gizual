@@ -80,26 +80,6 @@ const router = t.router({
       };
     });
   }),
-  authorList: t.procedure
-    .input(
-      z.object({
-        limit: z.number().int().positive().default(10),
-        offset: z.number().int().default(0),
-      }),
-    )
-    .query(async (opts) => {
-      await maestro.untilState("authorsLoaded", true);
-
-      const { limit, offset } = opts.input;
-
-      const authors = await maestro.getAuthors(offset, limit);
-      const total = await maestro.getAuthorCount();
-
-      return {
-        authors,
-        total,
-      };
-    }),
   fileContent: t.procedure
     .input(
       z.object({
@@ -191,6 +171,16 @@ const exports = {
   },
   setTimeMode: (mode: "rangeByDate" | "rangeByRef" | "sinceFirstCommitBy") => {
     maestro.setTimeMode(mode);
+  },
+  async getAuthorList(opts: { limit: number; offset: number; search: string }) {
+    const { limit, offset, search } = opts;
+    const authors = await maestro.getAuthors(offset, limit, search);
+    const total = await maestro.getAuthorCount();
+
+    return {
+      authors,
+      total,
+    };
   },
 };
 

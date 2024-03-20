@@ -4,6 +4,7 @@ import React from "react";
 
 import { CommitInfo, FileTreeNode } from "@giz/explorer";
 import { SearchQueryType } from "@giz/query";
+import { AuthorListObserver } from "../author-list-observer";
 import type { Maestro } from "../maestro";
 import type { AppRouter } from "../maestro-worker";
 import type { Block, Metrics, State, TimeMode } from "../maestro-worker-v2";
@@ -29,10 +30,25 @@ export function useMaestro(): Maestro {
   return React.useContext(MaestroContext);
 }
 
-export function useAuthorList(limit?: number, offset?: number) {
-  const trpc = useTrpc();
+export function useAuthorList(limit = 10, offset = 0, search = "") {
+  const maestro = useMaestro();
 
-  return trpc.authorList.useQuery({ limit, offset });
+  const ref = React.useRef<AuthorListObserver | undefined>(undefined);
+
+  React.useEffect(() => {
+    ref.current = new AuthorListObserver(maestro);
+    return () => ref.current?.dispose();
+  }, [maestro]);
+
+  React.useEffect(() => {
+    ref.current?.update(limit, offset, search);
+  }, [limit, offset, search]);
+
+  const isPlaceholderData = !ref.current?.data;
+  const data = ref.current?.data;
+  const isLoading = ref.current?.loading ?? false;
+  const error = ref.current?.error ?? undefined;
+  return { data, isLoading, isPlaceholderData, error };
 }
 
 export function useFileContent(path: string) {
