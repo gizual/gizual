@@ -5,13 +5,11 @@ import { expose, transfer } from "comlink";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { createLogger } from "@giz/logging";
-import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
 import { Maestro, SHARED_EVENTS } from "./maestro-worker-v2";
 import { Query } from "./query-utils";
-import { t } from "./trpc-worker";
 
-const logger = createLogger("trpc");
+const logger = createLogger("transport");
 
 if (typeof window !== "undefined") {
   throw new TypeError("Must be run in a worker");
@@ -23,18 +21,7 @@ type WindowVariables = {
 
 let maestro: Maestro = undefined as any;
 
-const router = t.router({});
-
-// Export type router type signature,
-// NOT the router itself.
-export type AppRouter = typeof router;
-
-async function setup(
-  vars: WindowVariables,
-  sharedEventsPort: MessagePort,
-): Promise<{
-  trpcPort: MessagePort;
-}> {
+async function setup(vars: WindowVariables, sharedEventsPort: MessagePort) {
   maestro = new Maestro({
     devicePixelRatio: vars.devicePixelRatio,
   });
@@ -46,19 +33,6 @@ async function setup(
       });
     });
   }
-
-  const { port1, port2 } = new MessageChannel();
-
-  const _ = applyWebWorkerHandler({
-    router,
-    port: port2,
-  });
-  return transfer(
-    {
-      trpcPort: port1,
-    },
-    [port1],
-  );
 }
 
 async function setupPool(opts: PoolControllerOpts) {

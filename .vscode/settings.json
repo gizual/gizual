@@ -7,9 +7,7 @@
     "keymap",
     "lezer",
     "mantine",
-    "rzpp",
-    "tanstack",
-    "trpc"
+    "rzpp"
   ],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

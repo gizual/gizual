@@ -1,4 +1,3 @@
-import { CreateTRPCReact } from "@trpc/react-query";
 import React from "react";
 
 import { CommitInfo, FileTreeNode } from "@giz/explorer";
@@ -6,11 +5,10 @@ import { PromiseObserver } from "@giz/explorer-web/ts-src/promise-observer";
 import { SearchQueryType } from "@giz/query";
 import { AuthorListObserver } from "../author-list-observer";
 import type { Maestro } from "../maestro";
-import type { AppRouter } from "../maestro-worker";
 import type { Block, Metrics, State, TimeMode } from "../maestro-worker-v2";
 import type { QueryError } from "../query-utils";
 
-import { MaestroContext, TrpcContext } from "./providers";
+import { MaestroContext } from "./providers";
 
 function hasFileSystemAccessAPI() {
   return "showDirectoryPicker" in window;
@@ -20,10 +18,6 @@ function canWriteOpfsMainThread() {
   return (
     typeof FileSystemFileHandle !== "undefined" && !!FileSystemFileHandle.prototype.createWritable
   );
-}
-
-export function useTrpc(): CreateTRPCReact<AppRouter, unknown, ""> {
-  return React.useContext(TrpcContext);
 }
 
 export function useMaestro(): Maestro {

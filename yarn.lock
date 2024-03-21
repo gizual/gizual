@@ -2894,10 +2894,6 @@ __metadata:
   dependencies:
     "@giz/database": "workspace:*"
     "@giz/explorer-web": "workspace:*"
-    "@tanstack/react-query": 5.7.2
-    "@trpc/client": next
-    "@trpc/react-query": next
-    "@trpc/server": next
     comlink: 4.4.1
     eslint: 8.45.0
     eventemitter3: 5.0.1
@@ -2942,15 +2938,6 @@ __metadata:
     ajv-formats: ^2.1.1
     eslint: 8.45.0
     typescript: 5.0.4
-  languageName: unknown
-  linkType: soft
-
-"@giz/trpc-webworker@workspace:packages/trpc-webworker":
-  version: 0.0.0-use.local
-  resolution: "@giz/trpc-webworker@workspace:packages/trpc-webworker"
-  dependencies:
-    "@trpc/client": next
-    "@trpc/server": next
   languageName: unknown
   linkType: soft
 
@@ -5684,31 +5671,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.7.2":
-  version: 5.7.2
-  resolution: "@tanstack/query-core@npm:5.7.2"
-  checksum: a0c5ad7e7297db6ef9b99f8fb3d74bd748efef8c583257c87339a376cab4d13ad00f61adf38090b8ed4863e7ac48b3a3b6f50717ba99a015e0dc85b8c5e66329
-  languageName: node
-  linkType: hard
-
-"@tanstack/react-query@npm:5.7.2":
-  version: 5.7.2
-  resolution: "@tanstack/react-query@npm:5.7.2"
-  dependencies:
-    "@tanstack/query-core": 5.7.2
-  peerDependencies:
-    react: ^18.0.0
-    react-dom: ^18.0.0
-    react-native: "*"
-  peerDependenciesMeta:
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-  checksum: 99f99e89a82796b1a50696bdaec1b5880d446b497b336237a93ed89ccafa02df86c3f99de71f74ff44f8d0218ed79567fed39cf4fe709a095306f108afc10be1
-  languageName: node
-  linkType: hard
-
 "@testing-library/dom@npm:^9.0.0":
   version: 9.3.3
   resolution: "@testing-library/dom@npm:9.3.3"
@@ -5757,35 +5719,6 @@ __metadata:
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
   checksum: ad87447820dd3f24825d2d947ebc03072b20a42bfc96cbafec16bff8bbda6c1a81fcb0be56d5b21968560c5359a0af4038a68ba150c3e1694fe4c109a063bed8
-  languageName: node
-  linkType: hard
-
-"@trpc/client@npm:next":
-  version: 11.0.0-alpha-next-2023-11-03-11-28-35.97
-  resolution: "@trpc/client@npm:11.0.0-alpha-next-2023-11-03-11-28-35.97"
-  peerDependencies:
-    "@trpc/server": 11.0.0-alpha-next-2023-11-03-11-28-35.97+be31c75e4
-  checksum: c54f03594f598ceefeaa3d0f62f322bd41bab8e2ad249d9ca9ac2e849b3e87953c4e031d5ffa1acfa8358863d02a80f6157b1af69c6a4e862c46fe984c587454
-  languageName: node
-  linkType: hard
-
-"@trpc/react-query@npm:next":
-  version: 11.0.0-alpha-next-2023-11-03-11-28-35.97
-  resolution: "@trpc/react-query@npm:11.0.0-alpha-next-2023-11-03-11-28-35.97"
-  peerDependencies:
-    "@tanstack/react-query": ^5.0.0
-    "@trpc/client": 11.0.0-alpha-next-2023-11-03-11-28-35.97+be31c75e4
-    "@trpc/server": 11.0.0-alpha-next-2023-11-03-11-28-35.97+be31c75e4
-    react: ">=16.8.0"
-    react-dom: ">=16.8.0"
-  checksum: d54b8ffae2fb5f5b8095db3cbb5cd98a796eb6e42a062caf7349a064919be0c385b2b04d0202f7dd2bd09f65afb15eb625dd2272c4849330167473eae6ccb41e
-  languageName: node
-  linkType: hard
-
-"@trpc/server@npm:next":
-  version: 11.0.0-alpha-next-2023-11-03-11-28-35.97
-  resolution: "@trpc/server@npm:11.0.0-alpha-next-2023-11-03-11-28-35.97"
-  checksum: f8b5d09d9db2315052e87aa0d0074d4ac1d2ba363d64b4cf06aa3cb2541d56869df06fd6a24e0f24e4a7e2ea7e1a47775ec2bbc075cccef924bddbab3f088a03
   languageName: node
   linkType: hard
 

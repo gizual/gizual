@@ -4,7 +4,6 @@ import { action, computed, makeObservable, observable, runInAction } from "mobx"
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "@giz/opfs";
-import { webWorkerLink } from "@giz/trpc-webworker/link";
 import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
@@ -73,13 +72,10 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   logger = createLogger("maestro");
   rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
-  link!: ReturnType<typeof webWorkerLink>[0];
   disposers: Array<() => void> = [];
 
   @observable state: "init" | "ready" | "loading" = "init";
   @observable progressText = "";
-
-  @observable msgCounter = 0;
 
   constructor() {
     super();
@@ -258,7 +254,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
   async setup() {
     const { port1, port2 } = new MessageChannel();
-    const { trpcPort } = await this.worker.setup(
+    await this.worker.setup(
       {
         devicePixelRatio: window.devicePixelRatio,
       },
@@ -267,17 +263,11 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
     port1.addEventListener("message", (event) => {
       if (event.data.type) {
-        this.msgCounter++;
         this.emit(event.data.type, ...event.data.payload);
       }
     });
 
     port1.start();
-
-    const [link, dispose] = webWorkerLink({ port: trpcPort });
-
-    this.link = link;
-    this.disposers.push(dispose);
   }
 
   async openRepoFromURL(url: string) {
