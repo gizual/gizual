@@ -1,5 +1,4 @@
 import { CreateTRPCReact } from "@trpc/react-query";
-import { debounce } from "lodash";
 import React from "react";
 
 import { CommitInfo, FileTreeNode } from "@giz/explorer";
@@ -244,7 +243,7 @@ export function useAvailableFiles(): FileTreeNode[] {
 }
 
 export function useBlocks(): Block[] {
-  return useMaestro().blocks.get();
+  return useMaestro().blocksArray;
 }
 
 export type UseBlockImageResult = {
@@ -254,9 +253,8 @@ export type UseBlockImageResult = {
 };
 
 export function useBlockImage(id: string) {
-  const trpc = useTrpc();
+  const maestro = useMaestro();
 
-  const setBlockInViewMutation = trpc.setBlockInViewMutation.useMutation();
   const ref = React.useRef<boolean>(false);
 
   const setPriority = React.useCallback(
@@ -265,34 +263,26 @@ export function useBlockImage(id: string) {
       const changed = ref.current !== inView;
       if (!changed) return;
       ref.current = inView;
-      setBlockInViewMutation.mutate({ id, inView });
+      maestro.setBlockInView(id, inView);
     },
-    [setBlockInViewMutation.mutate],
+    [maestro],
   );
 
-  const [blockImage, setBlockImage] = React.useState({
-    url: "",
-    isPreview: false,
-    isTruncated: false,
-  });
+  const block = maestro.blocks.get(id);
 
-  trpc.blockImages.useSubscription(
-    { id },
-    {
-      onData: (data) => {
-        setBlockImage(data);
-      },
-
-      onError: (err) => {
-        console.error(err);
-      },
-    },
-  );
+  if (!block) {
+    console.warn("Block image not found", id);
+    return {
+      url: "",
+      isPreview: false,
+      setPriority,
+    };
+  }
 
   return {
-    url: blockImage.url,
-    isPreview: blockImage.isPreview,
-    isTruncated: blockImage.isTruncated,
+    url: block.url,
+    isPreview: block.isPreview,
+    isTruncated: block.isTruncated,
     setPriority,
   };
 }

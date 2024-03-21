@@ -114,8 +114,7 @@ export type MaestroWorkerEvents = {
   "selected-files:updated": ChangeEventArguments<FileTreeNode[]>;
   "available-files:updated": ChangeEventArguments<FileTreeNode[]>;
   "blocks:updated": [Block[]];
-  "block:updated": [id: string, data: BlockImage];
-  "block:removed": [id: string];
+  "block:updated": [id: string, data: Partial<Block>];
   "workers:idle": [];
   "author-list:need-refresh": [];
 };
@@ -133,6 +132,7 @@ export const SHARED_EVENTS = [
   "query:updated",
   "author-list:need-refresh",
   "blocks:updated",
+  "block:updated",
 ] as const;
 
 export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
@@ -829,7 +829,6 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
       block.blameJobRef.cancel();
       block.blameJobRef = undefined;
     }
-    this.emit("block:removed", block.id);
 
     this.blocks = this.blocks.splice(blockIndex, 1);
   };
@@ -883,8 +882,10 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
           return {
             id: `${t}:${file.path.join("/")}`,
             type: t,
-            filePath: file.path.join("/"),
-            fileType: isNumber(file.kind) ? getFileIcon(file.kind) : undefined,
+            meta: {
+              filePath: file.path.join("/"),
+              fileType: isNumber(file.kind) ? getFileIcon(file.kind) : undefined,
+            },
             height: blockHeight,
           };
         });
@@ -994,6 +995,10 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
       return;
     }
 
+    if (block.type !== "file-lines" && block.type !== "file-mosaic") {
+      throw new Error("Unsupported block type");
+    }
+
     match(block.type)
       .with(Pattern.union("file-lines", "file-mosaic"), () => {})
       .otherwise(() => {
@@ -1004,7 +1009,7 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
       block.blameJobRef = explorerPool!.getBlame(
         {
           rev: range.until.commit.oid,
-          path: block.filePath,
+          path: block.meta.filePath,
           preview: false,
           sinceRev: range.since.commit.oid,
         },
@@ -1238,31 +1243,49 @@ export type BaseBlock = {
 
 export type FileLinesBlock = BaseBlock & {
   type: "file-lines";
-  filePath: string;
-  fileType?: FileIcon | undefined;
+  meta: {
+    filePath: string;
+    fileType?: FileIcon | undefined;
+  };
 };
 
 export type FileMosaicBlock = BaseBlock & {
   type: "file-mosaic";
-  filePath: string;
-  fileType?: FileIcon | undefined;
+  meta: {
+    filePath: string;
+    fileType?: FileIcon | undefined;
+  };
 };
 
 export type AuthorMosaicBlock = BaseBlock & {
   type: "author-mosaic";
-  authorName: string;
-  authorEmail: string;
-  authorGravatarHash: string;
+  meta: {
+    authorName: string;
+    authorEmail: string;
+    authorGravatarHash: string;
+  };
 };
 
 export type AuthorContributionsBlock = BaseBlock & {
   type: "author-contributions";
-  authorName: string;
-  authorEmail: string;
-  authorGravatarHash: string;
+  meta: {
+    authorName: string;
+    authorEmail: string;
+    authorGravatarHash: string;
+  };
 };
 
-export type Block = FileLinesBlock | FileMosaicBlock | AuthorMosaicBlock | AuthorContributionsBlock;
+export type Block = (
+  | FileLinesBlock
+  | FileMosaicBlock
+  | AuthorMosaicBlock
+  | AuthorContributionsBlock
+) & {
+  url?: string;
+  isPreview?: boolean;
+  isTruncated?: boolean;
+};
+
 export type BlockImage = {
   url?: string;
   isPreview?: boolean;

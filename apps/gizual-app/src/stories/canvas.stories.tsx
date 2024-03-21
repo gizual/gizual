@@ -9,8 +9,10 @@ const mockBlocks = Array.from({ length: 100 }, (_, index) => ({
   height: Math.random() * 1000,
   id: index.toString(),
   type: "file-lines" as const,
-  filePath: "foo",
-  fileType: { icon: "foo", color: ["red", "blue"] as [string, string] },
+  meta: {
+    filePath: "foo",
+    fileType: { icon: "foo", color: ["red", "blue"] as [string, string] },
+  },
 }));
 
 const meta = {

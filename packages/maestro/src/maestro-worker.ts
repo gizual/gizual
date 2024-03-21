@@ -1,7 +1,6 @@
 import "@giz/logging/worker";
 
 import type { VisualizationSettings } from "@app/controllers";
-import { observable } from "@trpc/server/observable";
 import { expose, transfer } from "comlink";
 import { z } from "zod";
 
@@ -9,13 +8,7 @@ import { PoolControllerOpts } from "@giz/explorer-web";
 import { createLogger } from "@giz/logging";
 import { applyWebWorkerHandler } from "@giz/trpc-webworker/adapter";
 
-import {
-  Block,
-  BlockImage,
-  Maestro,
-  MaestroWorkerEvents,
-  SHARED_EVENTS,
-} from "./maestro-worker-v2";
+import { Maestro, SHARED_EVENTS } from "./maestro-worker-v2";
 import { Query } from "./query-utils";
 import { t } from "./trpc-worker";
 
@@ -32,31 +25,6 @@ type WindowVariables = {
 let maestro: Maestro = undefined as any;
 
 const router = t.router({
-  blockImages: t.procedure.input(z.object({ id: z.string() })).subscription(({ input }) => {
-    return observable<BlockImage>((emit) => {
-      const onUpdate = (id: string, data: BlockImage) => {
-        if (id === input.id) {
-          emit.next(data);
-        }
-      };
-
-      const onRemove = (id: string) => {
-        if (id === input.id) {
-          emit.complete();
-        }
-      };
-
-      maestro.on("block:updated", onUpdate);
-      maestro.on("block:removed", onRemove);
-
-      emit.next(maestro.getBlockImage(input.id));
-
-      return () => {
-        maestro.off("block:updated", onUpdate);
-        maestro.off("block:removed", onRemove);
-      };
-    });
-  }),
   fileContent: t.procedure
     .input(
       z.object({
@@ -140,6 +108,12 @@ const exports = {
   debugPrint,
   setVisualizationSettings,
   setDevicePixelRatio,
+  setBlockInView: (id: string, inView: boolean) => {
+    maestro.setBlockInView(id, inView);
+  },
+  setScale: (scale: number) => {
+    maestro.setScale(scale);
+  },
   updateQuery: (newQuery: Partial<Query>) => {
     maestro.updateQuery(newQuery);
   },

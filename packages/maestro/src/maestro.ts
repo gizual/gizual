@@ -1,6 +1,6 @@
 import type { VisualizationSettings } from "@app/controllers";
 import { Remote, transfer, wrap } from "comlink";
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "@giz/opfs";
@@ -79,6 +79,8 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   @observable state: "init" | "ready" | "loading" = "init";
   @observable progressText = "";
 
+  @observable msgCounter = 0;
+
   constructor() {
     super();
     this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
@@ -101,7 +103,24 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   availableFiles = observable.box<FileTreeNode[]>([], { deep: false });
   selectedFiles = observable.box<FileTreeNode[]>([], { deep: false });
 
-  blocks = observable.box<Block[]>([], { deep: false });
+  blocks = observable.map<string, Block>([], { deep: true });
+
+  @computed
+  get blocksArray() {
+    const blocks: Block[] = [];
+
+    for (const [_, value] of this.blocks) {
+      blocks.push({
+        id: value.id,
+        height: value.height,
+        type: value.type,
+        meta: value.meta,
+      } as Block);
+    }
+
+    return blocks;
+  }
+
   globalState = observable.box<State>(
     {
       screen: "welcome" as "welcome" | "initial-load" | "main",
@@ -164,8 +183,8 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     },
   );
 
-  setBlockInViewMutation(id: string, inView: boolean) {
-    this.worker.setBlockInViewMutation(id, inView);
+  setBlockInView(id: string, inView: boolean) {
+    this.worker.setBlockInView(id, inView);
   }
 
   getAuthorList = (limit: number, offset: number, search: string) => {
@@ -212,7 +231,23 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
     this.on("blocks:updated", (newValue) => {
       runInAction(() => {
-        this.blocks.set(newValue);
+        const newMap = new Map<string, Block>();
+        for (const block of newValue) {
+          newMap.set(block.id, block);
+        }
+        this.blocks.replace(newMap);
+      });
+    });
+
+    this.on("block:updated", (id, value) => {
+      runInAction(() => {
+        const block = this.blocks.get(id);
+        if (!block) {
+          this.logger.warn("Block not found", id);
+          return;
+        }
+        Object.assign(block, value);
+        console.log("block-updated", id, value, block);
       });
     });
   }
@@ -228,6 +263,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
     port1.addEventListener("message", (event) => {
       if (event.data.type) {
+        this.msgCounter++;
         this.emit(event.data.type, ...event.data.payload);
       }
     });
