@@ -282,7 +282,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
   getDefaultRangeByRef = async () => {
     if (this.range) {
-      return [this.range.since.commit.oid, this.range.until.commit.oid];
+      return [this.range.since.commit!.oid, this.range.until.commit.oid];
     }
 
     return ["", ""];
@@ -658,7 +658,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     try {
       await this.refreshAvailableFiles(oldQuery);
     } catch (error) {
-      console.error("Error while refreshing available files", error);
+      this.logger.error("Error while refreshing available files", error);
       this.setError(error);
     }
     this.safeRefreshSelectedFiles();
@@ -723,7 +723,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     try {
       await this.refreshSelectedFiles();
     } catch (error) {
-      console.error("Error while refreshing selected files", error);
+      this.logger.error("Error while refreshing selected files", error);
       this.setError(error);
     }
 
@@ -866,7 +866,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     try {
       await this.refreshBlocks();
     } catch (error) {
-      console.error("Error while refreshing blocks", error);
+      this.logger.error("Error while refreshing blocks", error);
       this.setError(error);
     }
     this.checkNeedsRerender();
@@ -1040,7 +1040,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           rev: range.until.commit.oid,
           path: block.meta.filePath,
           preview: false,
-          sinceRev: range.since.commit.oid,
+          sinceRev: range.since.commit?.oid,
         },
         10,
       ) as any;
@@ -1255,16 +1255,16 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       this.explorerPoolController.debugPrint();
     }
 
-    console.log("Maestro", this);
+    this.logger.log("Maestro", this);
 
-    console.log("Metrics", this.metrics);
-    console.log("State", this.state);
+    this.logger.log("Metrics", this.metrics);
+    this.logger.log("State", this.state);
 
-    console.log("Query", this.query);
-    console.log("Available Files", this.availableFiles);
-    console.log("Selected Files", this.selectedFiles);
+    this.logger.log("Query", this.query);
+    this.logger.log("Available Files", this.availableFiles);
+    this.logger.log("Selected Files", this.selectedFiles);
 
-    console.log("Blocks", this.blocks);
+    this.logger.log("Blocks", this.blocks);
   }
 
   emit<T extends keyof MaestroWorkerEvents>(

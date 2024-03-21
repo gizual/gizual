@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { PoolNode } from "@giz/explorer/src/pool/pool-node";
 import wasmFileUrl from "@giz/explorer-libgit2/dist/explorer-libgit2.wasm?url";
 

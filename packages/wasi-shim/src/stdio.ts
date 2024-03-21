@@ -1,10 +1,14 @@
+import { createLogger, Logger } from "@giz/logging";
+
 import { Fd, RetVal_nread, RetVal_nwritten } from "./file-descriptor";
 import { Iovec } from "./wasi-defs";
 
 export class ConsolePipe extends Fd {
+  logger: Logger;
   cache = "";
   constructor(public prefix: string = "") {
     super();
+    this.logger = createLogger(prefix);
   }
 
   fd_write(view8: Uint8Array, iovs: Iovec[]): RetVal_nwritten {
@@ -21,7 +25,7 @@ export class ConsolePipe extends Fd {
     if (this.cache.endsWith("\n")) {
       output = this.cache.slice(0, -1);
       this.cache = "";
-      console.log(`${this.prefix}:` + output);
+      this.logger.log(`${this.prefix}:` + output);
     }
 
     return { ret: 0, nwritten };

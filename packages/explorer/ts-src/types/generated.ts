@@ -20,7 +20,7 @@ export type CommitInfo = { commitId: string; authorId: string; timestamp: string
 
 export type CommitMeta = { oid: string; aid: string; message: string; timestamp: string }
 
-export type CommitRange = { sinceCommit: Commit; untilCommit: Commit }
+export type CommitRange = { sinceCommit: Commit | null; untilCommit: Commit | null }
 
 export type CommitTree = { graph: HistoryGraph; dot: string }
 

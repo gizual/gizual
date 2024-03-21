@@ -1,6 +1,7 @@
 import * as Comlink from "comlink";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
+import { createLogger } from "@giz/logging";
 import { GizWorker } from "@giz/worker";
 
 import type { FileRendererWorker as FileRendererWorkerI } from "./file-renderer-worker";
@@ -60,6 +61,7 @@ export class FileRendererNode {
 }
 
 export class FileRendererPool {
+  logger = createLogger("file-renderer-pool");
   counter = 0;
   poolSize = navigator.hardwareConcurrency ?? 4;
 
@@ -111,7 +113,7 @@ export class FileRendererPool {
 
         worker.runJob(job);
       } catch (error) {
-        console.error("Error during render schedule", error);
+        this.logger.error("Error during render schedule", error);
       }
     } while (performance.now() - startTime < MAX_SCHEDULE_DURATION);
 

@@ -34,6 +34,7 @@ export function parseEjsTemplate(ctx: RendererContext) {
   ejsContext = { _: { ...ejsContext } };
 
   const ejsResult = ejs.render(template, ejsContext);
+  // eslint-disable-next-line no-console
   console.log(
     "`parseEjsTemplate` (template, ctx, result)",
     template,
