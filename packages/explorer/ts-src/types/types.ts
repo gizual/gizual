@@ -13,7 +13,6 @@ export type ParameterPayloadMap = {
   get_commits_for_branch: gen.GetCommitsForBranchParams;
   stream_commits: gen.StreamCommitsParams;
   get_commits_for_time_range: gen.GetCommitsForTimeRangeParams;
-  get_commit_ids_for_refs: gen.GetCommitIdsForRefsParams;
   shutdown: gen.NoParams;
   get_initial_data: gen.NoParams;
   is_valid_rev: gen.IsValidRevParams;
@@ -47,10 +46,7 @@ type FinalCallbackPayloadMap = {
   is_valid_rev: boolean;
   get_commit: gen.Commit;
   shutdown: void;
-  get_commits_for_time_range: {
-    sinceCommit: gen.Commit;
-    untilCommit: gen.Commit;
-  };
+  get_commits_for_time_range: gen.CommitRange;
 };
 
 export type FinalPayload<M extends Methods> = M extends keyof FinalCallbackPayloadMap

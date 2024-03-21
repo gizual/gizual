@@ -282,7 +282,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
   getDefaultRangeByRef = async () => {
     if (this.range) {
-      return [this.range.since.commit.oid, this.range.until.commit.oid];
+      return [this.range.since.commit!.oid, this.range.until.commit.oid];
     }
 
     return ["", ""];
@@ -583,7 +583,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         this.explorerPool,
         this.query.branch,
       );
-
+      console.log("evaluated time range", result, errors);
       if (errors) {
         this.queryErrors.push(...errors);
       } else {
@@ -1040,7 +1040,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           rev: range.until.commit.oid,
           path: block.meta.filePath,
           preview: false,
-          sinceRev: range.since.commit.oid,
+          sinceRev: range.since.commit?.oid,
         },
         10,
       ) as any;

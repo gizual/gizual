@@ -55,10 +55,10 @@ pub struct GetCommitsForTimeRangeParams {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CommitRange {
     #[serde(rename = "sinceCommit")]
-    pub since_commit: Commit,
+    pub since_commit: Option<Commit>,
 
     #[serde(rename = "untilCommit")]
-    pub until_commit: Commit,
+    pub until_commit: Option<Commit>,
 }
 
 #[cfg_attr(feature = "bindings", derive(Type))]
@@ -181,13 +181,11 @@ impl Explorer {
 
         let tag = repo.find_tag(oid.id());
 
-
         if let Ok(tag) = tag {
             return Ok(tag.target_id());
         }
 
         let branch = repo.find_branch(rev, git2::BranchType::Local);
-
 
         if let Ok(branch) = branch {
             let branch_commit = branch.get().peel_to_commit();
@@ -237,28 +235,31 @@ impl Explorer {
             params.end_seconds,
         );
 
-        if start_id.is_none() || end_id.is_none() {
-            self.send_error("Failed to find commit ids for time range".to_string());
-            return;
-        }
+        let until_commit = if let Some(end_id) = end_id {
+            let commit = self.get_commit(&end_id);
+            if commit.is_err() {
+                self.send_error(commit.err().unwrap().message().to_string());
+                return;
+            }
+            Some(commit.unwrap())
+        } else {
+            None
+        };
 
-        let since_commit = self.get_commit(&start_id.unwrap());
-
-        if since_commit.is_err() {
-            self.send_error(since_commit.err().unwrap().message().to_string());
-            return;
-        }
-
-        let until_commit = self.get_commit(&end_id.unwrap());
-
-        if until_commit.is_err() {
-            self.send_error(until_commit.err().unwrap().message().to_string());
-            return;
-        }
+        let since_commit = if let Some(start_id) = start_id {
+            let commit = self.get_commit(&start_id);
+            if commit.is_err() {
+                self.send_error(commit.err().unwrap().message().to_string());
+                return;
+            }
+            Some(commit.unwrap())
+        } else {
+            None
+        };
 
         let data = CommitRange {
-            since_commit: since_commit.unwrap(),
-            until_commit: until_commit.unwrap(),
+            since_commit,
+            until_commit,
         };
 
         self.send(data, true);
@@ -285,7 +286,13 @@ impl Explorer {
 
         let mut start_ref: Option<String> = None;
         let mut end_ref: Option<String> = None;
-        let mut previous_ref: Option<String> = None;
+
+        let branch_commit = repo.find_commit(commit_id).expect("Failed to find commit");
+        let branch_timestamp = branch_commit.time().seconds();
+
+        if branch_timestamp >= start_seconds && branch_timestamp <= end_seconds {
+            end_ref = Some(to_string_oid(&commit_id));
+        }
 
         for _oid in walk {
             if _oid.is_err() {
@@ -296,23 +303,19 @@ impl Explorer {
             let commit = repo.find_commit(oid).expect("Failed to find commit");
             let timestamp = commit.time().seconds();
 
-            if end_ref.is_none() && timestamp <= end_seconds {
+            if end_ref.is_none() && timestamp <= end_seconds && timestamp >= start_seconds {
                 end_ref = Some(to_string_oid(&oid));
             }
 
+            // we purposely use the first commit before the start time
+            // to ensure proper blame info is displayed
             if start_ref.is_none() && timestamp <= start_seconds {
-                start_ref = previous_ref;
+                start_ref = Some(to_string_oid(&oid));
             }
-
-            previous_ref = Some(to_string_oid(&oid));
 
             if start_ref.is_some() && end_ref.is_some() {
                 return (start_ref, end_ref);
             }
-        }
-
-        if start_ref.is_none() {
-            start_ref = previous_ref;
         }
 
         (start_ref, end_ref)

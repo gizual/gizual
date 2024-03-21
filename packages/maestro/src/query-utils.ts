@@ -13,13 +13,18 @@ export type QueryError = {
   message: string;
 };
 
+export type OptionalPointInTime = {
+  date: GizDate;
+  commit?: Commit;
+};
+
 export type PointInTime = {
   date: GizDate;
   commit: Commit;
 };
 
 export type EvaluatedRange = {
-  since: PointInTime;
+  since: OptionalPointInTime;
   until: PointInTime;
 };
 
@@ -104,9 +109,15 @@ export async function evaluateTimeRange(
         endSeconds: toSeconds(endDate),
       });
 
+      if (!untilCommit) {
+        return {
+          errors: [{ selector: "time.rangeByDate", message: "No commits found in time range" }],
+        };
+      }
+
       return {
         result: {
-          since: { date: startDate, commit: sinceCommit },
+          since: { date: startDate, commit: sinceCommit ?? undefined },
           until: { date: endDate, commit: untilCommit },
         },
       };

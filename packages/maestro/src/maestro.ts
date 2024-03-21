@@ -247,7 +247,6 @@ export class Maestro extends EventEmitter<MaestroEvents> {
           return;
         }
         Object.assign(block, value);
-        console.log("block-updated", id, value, block);
       });
     });
   }
