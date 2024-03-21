@@ -8,6 +8,12 @@ export interface PromiseObserverOptions<T> {
   initialValue?: T;
 
   /**
+   * If true, the `loading` state is initially true.
+   * @default false
+   */
+  initiallyLoading?: boolean;
+
+  /**
    * If provided, the promise will be executed immediately with the provided
    * arguments.
    */
@@ -75,9 +81,15 @@ export class PromiseObserver<T> {
   private fulfilled?: ExecutedPromise<T>;
 
   constructor(options: PromiseObserverOptions<T> = {}) {
-    const { initialValue, cache = true, name = "unnamed", initialPromise } = options;
+    const {
+      initialValue,
+      initiallyLoading,
+      cache = true,
+      name = "unnamed",
+      initialPromise,
+    } = options;
     this.status = "initial";
-    this.loading = false;
+    this.loading = initiallyLoading ?? false;
     this.value = initialValue;
     this.error = undefined;
     this.cache = cache;

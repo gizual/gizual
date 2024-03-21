@@ -195,6 +195,10 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     });
   };
 
+  getFileContent = (path: string) => {
+    return this.worker.getFileContent(path);
+  };
+
   setupEventListeners() {
     this.setupDevicePixelRatioListener();
 

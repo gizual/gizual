@@ -2,6 +2,7 @@ import { CreateTRPCReact } from "@trpc/react-query";
 import React from "react";
 
 import { CommitInfo, FileTreeNode } from "@giz/explorer";
+import { PromiseObserver } from "@giz/explorer-web/ts-src/promise-observer";
 import { SearchQueryType } from "@giz/query";
 import { AuthorListObserver } from "../author-list-observer";
 import type { Maestro } from "../maestro";
@@ -51,9 +52,30 @@ export function useAuthorList(limit = 10, offset = 0, search = "") {
 }
 
 export function useFileContent(path: string) {
-  const trpc = useTrpc();
+  const maestro = useMaestro();
 
-  return trpc.fileContent.useQuery({ path });
+  const promise = React.useMemo(() => {
+    return new PromiseObserver<string>({
+      name: "file-content",
+      cache: false,
+      initialValue: undefined,
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!path) {
+      // This is a special case since the view assumes an empty string
+      // leads to not loading anything.
+      return;
+    }
+    promise.update(maestro.getFileContent, path);
+  }, [path, maestro]);
+
+  return {
+    isLoading: promise.loading,
+    data: promise.value,
+    error: promise.error,
+  };
 }
 
 export type FileLoaderDragAndDrop = {

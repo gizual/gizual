@@ -466,11 +466,11 @@ function BlockHeaderSvg({
   );
 }
 
-function BlockEditor({ path }: { path: string }) {
+const BlockEditor = observer(({ path }: { path: string }) => {
   const { data, isLoading } = useFileContent(path);
 
   return <Editor fileContent={data} isLoading={isLoading} />;
-}
+});
 
 const ObservedFileBlock = observer(FileBlock);
 

@@ -2,7 +2,6 @@ import "@giz/logging/worker";
 
 import type { VisualizationSettings } from "@app/controllers";
 import { expose, transfer } from "comlink";
-import { z } from "zod";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { createLogger } from "@giz/logging";
@@ -24,19 +23,7 @@ type WindowVariables = {
 
 let maestro: Maestro = undefined as any;
 
-const router = t.router({
-  fileContent: t.procedure
-    .input(
-      z.object({
-        path: z.string(),
-      }),
-    )
-    .query(async (opts) => {
-      const { path } = opts.input;
-
-      return maestro.getFileContent(path);
-    }),
-});
+const router = t.router({});
 
 // Export type router type signature,
 // NOT the router itself.
@@ -108,6 +95,9 @@ const exports = {
   debugPrint,
   setVisualizationSettings,
   setDevicePixelRatio,
+  getFileContent: (path: string) => {
+    return maestro.getFileContent(path);
+  },
   setBlockInView: (id: string, inView: boolean) => {
     maestro.setBlockInView(id, inView);
   },
