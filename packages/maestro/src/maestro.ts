@@ -8,7 +8,7 @@ import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import type { MaestroWorker } from "./maestro-worker-v2";
+import type { MaestroWorker } from "./maestro-worker";
 import type {
   Block,
   MaestroWorkerEvents,
@@ -16,8 +16,8 @@ import type {
   SHARED_EVENTS,
   State,
   TimeMode,
-} from "./maestro-worker-v2";
-import MaestroWorkerURL from "./maestro-worker-v2?worker&url";
+} from "./maestro-worker";
+import MaestroWorkerURL from "./maestro-worker?worker&url";
 
 export type RepoSetupOpts = {
   maxConcurrency?: number;

@@ -4,7 +4,7 @@ import { Author } from "@giz/explorer";
 import { PromiseObserver } from "@giz/explorer-web/ts-src/promise-observer";
 
 import { Maestro } from "./maestro";
-import { MaestroWorker } from "./maestro-worker-v2";
+import { MaestroWorker } from "./maestro-worker";
 
 export class AuthorListObserver {
   @observable search: string;

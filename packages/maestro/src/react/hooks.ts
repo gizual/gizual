@@ -5,7 +5,7 @@ import { PromiseObserver } from "@giz/explorer-web/ts-src/promise-observer";
 import { SearchQueryType } from "@giz/query";
 import { AuthorListObserver } from "../author-list-observer";
 import type { Maestro } from "../maestro";
-import type { Block, Metrics, State, TimeMode } from "../maestro-worker-v2";
+import type { Block, Metrics, State, TimeMode } from "../maestro-worker";
 import type { QueryError } from "../query-utils";
 
 import { MaestroContext } from "./providers";
