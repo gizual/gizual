@@ -1,5 +1,8 @@
+import "@giz/logging/worker";
+
 import { VisualizationSettings } from "@app/controllers";
 import { VisualizationConfig } from "@app/types";
+import { expose, transfer } from "comlink";
 import EventEmitter from "eventemitter3";
 import { differenceBy, isEqual, isNumber, omit, result } from "lodash";
 import { minimatch } from "minimatch";
@@ -24,8 +27,8 @@ import { getStringDate, GizDate } from "@giz/utils/gizdate";
 
 import { EvaluatedRange, evaluateTimeRange, QueryError, QueryWithErrors } from "./query-utils";
 
-export type Metrics = typeof Maestro.prototype.metrics;
-export type State = typeof Maestro.prototype.state;
+export type Metrics = typeof MaestroWorker.prototype.metrics;
+export type State = typeof MaestroWorker.prototype.state;
 
 export type TimeMode = "rangeByDate" | "rangeByRef" | "sinceFirstCommitBy";
 
@@ -137,24 +140,27 @@ export const SHARED_EVENTS = [
 
 export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
 
-export type MaestroOpts = {
+export type MaestroWorkerOpts = {
   devicePixelRatio: number;
   visualizationSettings?: VisualizationSettings;
   explorerPool?: PoolPortal;
 };
 
-export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
+export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWorker> {
   private logger = createLogger("maestro");
   private explorerPool!: PoolPortal;
   private explorerPoolController!: PoolController;
-  private renderPool: FileRendererPool;
-  private db: Database;
+  private renderPool!: FileRendererPool;
+  private db!: Database;
 
   private needsRerender = false;
   private requiredDpr = 1;
 
-  constructor(opts: MaestroOpts) {
+  constructor() {
     super();
+  }
+
+  async init(opts: MaestroWorkerOpts, sharedEventsPort: MessagePort) {
     this.renderPool = new FileRendererPool();
     if (opts.explorerPool) {
       this.explorerPool = opts.explorerPool;
@@ -165,6 +171,29 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
       this.visualizationSettings = opts.visualizationSettings;
     }
     this.db = new Database();
+
+    for (const event of SHARED_EVENTS) {
+      this.on(event, (...data) => {
+        sharedEventsPort.postMessage({
+          type: event,
+          payload: data,
+        });
+      });
+    }
+  }
+
+  async setupPool(opts: PoolControllerOpts) {
+    const controller = await this.setup(opts);
+
+    // TODO: this port is just for legacy reasons to support the old architecture within the main thread
+    const legacy_explorerPort3 = await controller.createPort();
+
+    return transfer(
+      {
+        legacy_explorerPort: legacy_explorerPort3,
+      },
+      [legacy_explorerPort3],
+    );
   }
 
   setScale = (scale: number) => {
@@ -1140,6 +1169,17 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
     });
   }
 
+  async getAuthorList(opts: { limit: number; offset: number; search: string }) {
+    const { limit, offset, search } = opts;
+    const authors = await this.getAuthors(offset, limit, search);
+    const total = await this.getAuthorCount();
+
+    return {
+      authors,
+      total,
+    };
+  }
+
   // ---------------------------------------------
   // -------------- File Content -----------------
   // ---------------------------------------------
@@ -1157,7 +1197,7 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
 
   visualizationSettings: VisualizationSettings = {} as any;
 
-  updateVisualizationSettings = (settings: VisualizationSettings) => {
+  setVisualizationSettings = (settings: VisualizationSettings) => {
     const oldSettings = this.visualizationSettings;
     this.visualizationSettings = settings;
     this.emit("visualization-settings:updated", {
@@ -1191,7 +1231,7 @@ export class Maestro extends EventEmitter<MaestroWorkerEvents, Maestro> {
    */
   devicePixelRatio = 1;
 
-  updateDevicePixelRatio = (devicePixelRatio: number) => {
+  setDevicePixelRatio = (devicePixelRatio: number) => {
     const oldDevicePixelRatio = this.devicePixelRatio;
     this.devicePixelRatio = devicePixelRatio;
     this.emit("device-pixel-ratio:updated", {
@@ -1351,3 +1391,5 @@ function simpleHash(input: string): string {
   }
   return (hash >>> 0).toString(36);
 }
+
+expose(new MaestroWorker());

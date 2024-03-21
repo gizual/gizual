@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { observer } from "mobx-react-lite";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ReactZoomPanPinchContext, ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
@@ -352,4 +353,6 @@ const MiniMap: React.FC<MiniMapProps> = ({
   );
 };
 
-export { MiniMap, MiniMapContent, MiniMapWrapper };
+const ObservedMiniMapContent = observer(MiniMapContent);
+
+export { MiniMap, ObservedMiniMapContent as MiniMapContent, MiniMapWrapper };

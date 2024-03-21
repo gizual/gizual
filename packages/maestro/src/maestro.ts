@@ -8,8 +8,7 @@ import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import type { MaestroWorker } from "./maestro-worker";
-import MaestroWorkerURL from "./maestro-worker?worker&url";
+import type { MaestroWorker } from "./maestro-worker-v2";
 import type {
   Block,
   MaestroWorkerEvents,
@@ -18,6 +17,7 @@ import type {
   State,
   TimeMode,
 } from "./maestro-worker-v2";
+import MaestroWorkerURL from "./maestro-worker-v2?worker&url";
 
 export type RepoSetupOpts = {
   maxConcurrency?: number;
@@ -155,7 +155,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
   @action.bound
   setQuery(query: Query) {
-    this.worker.setQuery(query);
+    this.worker.updateQuery(query);
   }
 
   @action.bound
@@ -254,7 +254,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
   async setup() {
     const { port1, port2 } = new MessageChannel();
-    await this.worker.setup(
+    await this.worker.init(
       {
         devicePixelRatio: window.devicePixelRatio,
       },
