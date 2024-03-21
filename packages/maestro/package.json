@@ -8,10 +8,6 @@
   "dependencies": {
     "@giz/database": "workspace:*",
     "@giz/explorer-web": "workspace:*",
-    "@tanstack/react-query": "5.7.2",
-    "@trpc/client": "next",
-    "@trpc/react-query": "next",
-    "@trpc/server": "next",
     "comlink": "4.4.1",
     "eventemitter3": "5.0.1",
     "lodash": "4.17.21",

@@ -1,17 +1,23 @@
 import type { VisualizationSettings } from "@app/controllers";
 import { Remote, transfer, wrap } from "comlink";
-import { makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "@giz/opfs";
-import { webWorkerLink } from "@giz/trpc-webworker/link";
 import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
 import type { MaestroWorker } from "./maestro-worker";
+import type {
+  Block,
+  MaestroWorkerEvents,
+  Metrics,
+  SHARED_EVENTS,
+  State,
+  TimeMode,
+} from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
-import type { MaestroWorkerEvents, SHARED_EVENTS } from "./maestro-worker-v2";
 
 export type RepoSetupOpts = {
   maxConcurrency?: number;
@@ -21,9 +27,12 @@ export type RepoSetupOpts = {
   zipFile?: File;
 };
 import EventEmitter from "eventemitter3";
+import _debounce from "lodash/debounce";
 
+import { FileTreeNode } from "@giz/explorer";
 import { createLogger } from "@giz/logging";
 
+import { Query, QueryError } from "./query-utils";
 import { downloadRepo } from "./remote-clone";
 
 declare const mainController: MainController;
@@ -63,10 +72,8 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   logger = createLogger("maestro");
   rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
-  link!: ReturnType<typeof webWorkerLink>[0];
-  dispose!: () => void;
+  disposers: Array<() => void> = [];
 
-  // TODO: remove observability
   @observable state: "init" | "ready" | "loading" = "init";
   @observable progressText = "";
 
@@ -86,12 +93,168 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
     makeObservable(this, undefined, { autoBind: true });
 
+    this.setupEventListeners();
+  }
+
+  availableFiles = observable.box<FileTreeNode[]>([], { deep: false });
+  selectedFiles = observable.box<FileTreeNode[]>([], { deep: false });
+
+  blocks = observable.map<string, Block>([], { deep: true });
+
+  @computed
+  get blocksArray() {
+    const blocks: Block[] = [];
+
+    for (const [_, value] of this.blocks) {
+      blocks.push({
+        id: value.id,
+        height: value.height,
+        type: value.type,
+        meta: value.meta,
+      } as Block);
+    }
+
+    return blocks;
+  }
+
+  globalState = observable.box<State>(
+    {
+      screen: "welcome" as "welcome" | "initial-load" | "main",
+      queryValid: false,
+      repoLoaded: false,
+      authorsLoaded: false,
+      commitsIndexed: false,
+      filesIndexed: false,
+      error: undefined,
+      lastCommitTimestamp: 0,
+      lastCommitAuthorId: "",
+      currentBranch: "",
+      tags: [],
+      branches: [],
+      remotes: [],
+    },
+    { deep: false },
+  );
+
+  metrics = observable.box<Metrics>(
+    {
+      numExplorerJobs: 0,
+      numExplorerWorkersBusy: 0,
+      numExplorerWorkersTotal: 0,
+      numRendererJobs: 0,
+      numRendererWorkersBusy: 0,
+      numRendererWorkers: 0,
+      numSelectedFiles: 0,
+    },
+    { deep: false },
+  );
+
+  query = observable.box<Query>({ branch: "", type: "file-lines" }, { deep: false });
+
+  queryErrors = observable.box<QueryError[] | undefined>(undefined, { deep: false });
+
+  @action.bound
+  setQuery(query: Query) {
+    this.worker.updateQuery(query);
+  }
+
+  @action.bound
+  updateQuery(query: Partial<Query>) {
+    this.worker.updateQuery(query);
+  }
+
+  @action.bound
+  setTimeMode(mode: TimeMode) {
+    this.worker.setTimeMode(mode);
+  }
+
+  setScale = _debounce(
+    (scale: number) => {
+      this.worker.setScale(scale);
+    },
+    400,
+    {
+      leading: false,
+      trailing: true,
+    },
+  );
+
+  setBlockInView(id: string, inView: boolean) {
+    this.worker.setBlockInView(id, inView);
+  }
+
+  getAuthorList = (limit: number, offset: number, search: string) => {
+    return this.worker.getAuthorList({
+      limit,
+      offset,
+      search,
+    });
+  };
+
+  getFileContent = (path: string) => {
+    return this.worker.getFileContent(path);
+  };
+
+  setupEventListeners() {
     this.setupDevicePixelRatioListener();
+
+    this.on("available-files:updated", ({ newValue }) => {
+      runInAction(() => {
+        this.availableFiles.set(newValue);
+      });
+    });
+
+    this.on("selected-files:updated", ({ newValue }) => {
+      runInAction(() => {
+        this.selectedFiles.set(newValue);
+      });
+    });
+
+    this.on("metrics:updated", ({ newValue }) => {
+      runInAction(() => {
+        this.metrics.set(newValue);
+      });
+    });
+
+    this.on("state:updated", ({ newValue }) => {
+      runInAction(() => {
+        this.globalState.set(newValue);
+      });
+    });
+
+    this.on("query:updated", (data) => {
+      runInAction(() => {
+        this.query.set(data.query);
+        this.queryErrors.set(data.errors);
+      });
+    });
+
+    this.on("blocks:updated", (newValue) => {
+      runInAction(() => {
+        const newMap = new Map<string, Block>();
+        for (const block of newValue) {
+          newMap.set(block.id, block);
+        }
+        this.blocks.replace(newMap);
+      });
+    });
+
+    this.on("block:updated", (id, value) => {
+      runInAction(() => {
+        const block = this.blocks.get(id);
+        if (!block) {
+          this.logger.warn("Block not found", id);
+          return;
+        }
+        Object.assign(block, value);
+        console.log("block-updated", id, value, block);
+      });
+    });
   }
 
   async setup() {
     const { port1, port2 } = new MessageChannel();
-    const { trpcPort } = await this.worker.setup(
+    await this.worker.init(
       {
         devicePixelRatio: window.devicePixelRatio,
       },
@@ -105,11 +268,6 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     });
 
     port1.start();
-
-    const [link, dispose] = webWorkerLink({ port: trpcPort });
-
-    this.link = link;
-    this.dispose = dispose;
   }
 
   async openRepoFromURL(url: string) {
@@ -246,5 +404,10 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
   setVisualizationSettings(settings: VisualizationSettings) {
     this.worker.setVisualizationSettings(JSON.parse(JSON.stringify(settings)));
+  }
+
+  dispose() {
+    for (const dispose of this.disposers) dispose();
+    this.disposers = [];
   }
 }

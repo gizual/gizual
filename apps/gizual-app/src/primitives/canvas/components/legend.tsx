@@ -1,4 +1,5 @@
 import { GradientLegend } from "@app/primitives/gradient-legend";
+import { observer } from "mobx-react-lite";
 import React from "react";
 import { match } from "ts-pattern";
 
@@ -13,7 +14,7 @@ type LegendProps = {
   showLegend?: boolean;
 };
 
-const LegendComponent = React.memo(
+const LegendComponent = observer(
   ({ showLegend = true, legendWidth, legendHeight }: LegendProps) => {
     const { query } = useQuery();
 

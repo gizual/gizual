@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
@@ -144,5 +145,5 @@ function GradientLegend({
   );
 }
 
-const MemoizedGradientLegend = React.memo(GradientLegend);
+const MemoizedGradientLegend = observer(GradientLegend);
 export { MemoizedGradientLegend as GradientLegend };

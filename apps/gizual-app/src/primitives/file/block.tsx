@@ -5,6 +5,7 @@ import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { SvgGroupElement, SvgRectElement, SvgTextElement } from "@app/utils/svg";
 import { Loader, Menu, Skeleton } from "@mantine/core";
 import clsx from "clsx";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { FileIcon } from "@giz/explorer-web";
@@ -112,7 +113,7 @@ const FileBlock = ({
     const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id });
 
     // Fetch the image as a Blob
-    const response = await fetch(url);
+    const response = await fetch(url ?? "");
     const blob = await response.blob();
 
     // Convert the Blob to a Data URL
@@ -171,7 +172,7 @@ const FileBlock = ({
       <FileBlockSvg
         id={id}
         height={height}
-        url={url}
+        url={url ?? ""}
         blockRef={ref}
         isPreview={isPreview}
         filePath={filePath}
@@ -465,10 +466,12 @@ function BlockHeaderSvg({
   );
 }
 
-function BlockEditor({ path }: { path: string }) {
+const BlockEditor = observer(({ path }: { path: string }) => {
   const { data, isLoading } = useFileContent(path);
 
   return <Editor fileContent={data} isLoading={isLoading} />;
-}
+});
 
-export { FileBlock, FileBlockSvg, generateBlockHeader };
+const ObservedFileBlock = observer(FileBlock);
+
+export { ObservedFileBlock as FileBlock, FileBlockSvg, generateBlockHeader };

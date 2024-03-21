@@ -101,5 +101,7 @@ module.exports = {
     "unicorn/prefer-ternary": OFF,
 
     "unicorn/no-useless-undefined": OFF,
+
+    "unicorn/consistent-function-scoping": OFF,
   },
 };

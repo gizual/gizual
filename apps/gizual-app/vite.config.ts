@@ -37,13 +37,7 @@ export default defineConfig(({ mode }) => ({
       "fflate/browser",
       "ejs",
     ],
-    exclude: [
-      "@sqlite.org/sqlite-wasm",
-      "@tanstack/react-query",
-      "@trpc/react-query",
-      "@trpc/client",
-      "@trpc/server",
-    ],
+    exclude: ["@sqlite.org/sqlite-wasm"],
   },
   define: {
     "import.meta.env.COMMIT_HASH": JSON.stringify(commitHash),

@@ -1,5 +1,6 @@
 import { Popover } from "@mantine/core";
 import { useClickOutside } from "@mantine/hooks";
+import { observer } from "mobx-react-lite";
 import React from "react";
 import { HexAlphaColorPicker } from "react-colorful";
 
@@ -48,7 +49,7 @@ function useColor(hexValue: string) {
   return [color, setColor] as const;
 }
 
-export const ColorPicker = React.memo(({ hexValue, onChange, onAccept }: ColorPickerProps) => {
+export const ColorPicker = observer(({ hexValue, onChange, onAccept }: ColorPickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [color, setColor] = useColor(hexValue);
   const [initialColor] = useColor(hexValue);

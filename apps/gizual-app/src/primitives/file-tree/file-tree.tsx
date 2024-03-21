@@ -34,6 +34,7 @@ export const FileTree = observer(({ files, checked, onChange }: FileTreeProps) =
   const availableFiles = files ?? useAvailableFiles();
   if (!availableFiles) return <>Empty set of files.</>;
 
+  // TODO: use availableFiles directly via maestro & mobx
   const vm = React.useMemo(() => {
     return new FileTreeViewModel(availableFiles, checked);
   }, [availableFiles]);

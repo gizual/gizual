@@ -9,7 +9,7 @@ import { ContextMenuProvider } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { useQuery, useScreen } from "@giz/maestro/react";
+import { useMaestro, useScreen } from "@giz/maestro/react";
 
 import style from "./app.module.scss";
 import { useMainController } from "./controllers";
@@ -24,13 +24,14 @@ import "@mantine/notifications/styles.css";
 
 function App() {
   const mainController = useMainController();
-  const { query, setQuery, errors } = useQuery();
+  const maestro = useMaestro();
 
+  // TODO: maybe we can move this into mainController?
   const localQueryManager = React.useMemo(() => {
-    const lqm = new LocalQueryManager(query, setQuery, errors);
+    const lqm = new LocalQueryManager(maestro);
     mainController.setLocalQueryManager(lqm);
     return lqm;
-  }, [query, setQuery, errors]);
+  }, [maestro]);
 
   const mantineTheme = createTheme({
     colors: {
