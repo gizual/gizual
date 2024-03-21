@@ -12,6 +12,7 @@ import type { MainController } from "../../../apps/gizual-app/src/controllers/ma
 import type { MaestroWorker } from "./maestro-worker";
 import MaestroWorkerURL from "./maestro-worker?worker&url";
 import type {
+  Block,
   MaestroWorkerEvents,
   Metrics,
   SHARED_EVENTS,
@@ -27,6 +28,7 @@ export type RepoSetupOpts = {
   zipFile?: File;
 };
 import EventEmitter from "eventemitter3";
+import _debounce from "lodash/debounce";
 
 import { FileTreeNode } from "@giz/explorer";
 import { createLogger } from "@giz/logging";
@@ -99,6 +101,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   availableFiles = observable.box<FileTreeNode[]>([], { deep: false });
   selectedFiles = observable.box<FileTreeNode[]>([], { deep: false });
 
+  blocks = observable.box<Block[]>([], { deep: false });
   globalState = observable.box<State>(
     {
       screen: "welcome" as "welcome" | "initial-load" | "main",
@@ -150,6 +153,21 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     this.worker.setTimeMode(mode);
   }
 
+  setScale = _debounce(
+    (scale: number) => {
+      this.worker.setScale(scale);
+    },
+    400,
+    {
+      leading: false,
+      trailing: true,
+    },
+  );
+
+  setBlockInViewMutation(id: string, inView: boolean) {
+    this.worker.setBlockInViewMutation(id, inView);
+  }
+
   getAuthorList = (limit: number, offset: number, search: string) => {
     return this.worker.getAuthorList({
       limit,
@@ -189,6 +207,12 @@ export class Maestro extends EventEmitter<MaestroEvents> {
       runInAction(() => {
         this.query.set(data.query);
         this.queryErrors.set(data.errors);
+      });
+    });
+
+    this.on("blocks:updated", (newValue) => {
+      runInAction(() => {
+        this.blocks.set(newValue);
       });
     });
   }

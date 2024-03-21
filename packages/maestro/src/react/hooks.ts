@@ -214,25 +214,7 @@ export function useQuery(): UseQueryResult {
 }
 
 export function useSetScale(): (scale: number) => void {
-  const trpc = useTrpc();
-
-  const setScaleMutation = trpc.setScale.useMutation();
-
-  const setScale = React.useCallback(
-    debounce(
-      (scale: number) => {
-        setScaleMutation.mutate({ scale });
-      },
-      400,
-      {
-        leading: false,
-        trailing: true,
-      },
-    ),
-    [setScaleMutation.mutate],
-  );
-
-  return setScale;
+  return useMaestro().setScale;
 }
 
 export function useQueryIsValid(): boolean {
@@ -262,20 +244,7 @@ export function useAvailableFiles(): FileTreeNode[] {
 }
 
 export function useBlocks(): Block[] {
-  const trpc = useTrpc();
-
-  const [blocks, setBlocks] = React.useState<Block[]>([]);
-
-  trpc.blocks.useSubscription(undefined, {
-    onData: (data) => {
-      setBlocks(data);
-    },
-    onError: (err) => {
-      console.error(err);
-    },
-  });
-
-  return blocks;
+  return useMaestro().blocks.get();
 }
 
 export type UseBlockImageResult = {

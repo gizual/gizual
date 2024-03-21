@@ -132,6 +132,7 @@ export const SHARED_EVENTS = [
   "state:updated",
   "query:updated",
   "author-list:need-refresh",
+  "blocks:updated",
 ] as const;
 
 export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];

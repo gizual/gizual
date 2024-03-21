@@ -32,29 +32,6 @@ type WindowVariables = {
 let maestro: Maestro = undefined as any;
 
 const router = t.router({
-  setScale: t.procedure.input(z.object({ scale: z.number() })).mutation(({ input }) => {
-    maestro.setScale(input.scale);
-  }),
-  setBlockInViewMutation: t.procedure
-    .input(z.object({ id: z.string(), inView: z.boolean() }))
-    .mutation(async ({ input }) => {
-      maestro.setBlockInView(input.id, input.inView);
-    }),
-
-  blocks: t.procedure.subscription(() => {
-    return observable<Block[]>((emit) => {
-      const onUpdate = (data: MaestroWorkerEvents["blocks:updated"][0]) => {
-        emit.next(data);
-      };
-      maestro.on("blocks:updated", onUpdate);
-
-      emit.next(maestro.serializableBlocks);
-
-      return () => {
-        maestro.off("blocks:updated", onUpdate);
-      };
-    });
-  }),
   blockImages: t.procedure.input(z.object({ id: z.string() })).subscription(({ input }) => {
     return observable<BlockImage>((emit) => {
       const onUpdate = (id: string, data: BlockImage) => {
