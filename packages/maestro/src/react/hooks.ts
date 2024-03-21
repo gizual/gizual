@@ -287,7 +287,7 @@ export function useBlockImage(id: string) {
   const block = maestro.blocks.get(id);
 
   if (!block) {
-    console.warn("Block image not found", id);
+    maestro.logger.warn("Block image not found", id);
     return {
       url: "",
       isPreview: false,

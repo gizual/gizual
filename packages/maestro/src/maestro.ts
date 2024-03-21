@@ -282,7 +282,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
       this.emit("open:remote-clone", { url, service, repoName });
       await this.openRepoFromUrlUnsafe(service, repoName);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       alert(`Error opening repo: ${error}`);
       runInAction(() => {
         this.state = "ready";
