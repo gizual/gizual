@@ -1,7 +1,0 @@
-FROM caddy:2.4.6-alpine
-
-COPY Caddyfile.web /etc/caddy/Caddyfile
-
-COPY apps/gizual-app/dist /srv
-
-EXPOSE 8080

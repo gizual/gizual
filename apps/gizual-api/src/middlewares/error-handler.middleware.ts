@@ -22,7 +22,6 @@ export function ErrorHandlerMiddleware(
   res: express.Response,
   next: express.NextFunction,
 ) {
-  console.log("HERE");
   if (res.headersSent) {
     return next(err);
   }
