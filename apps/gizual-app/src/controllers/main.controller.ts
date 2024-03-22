@@ -35,8 +35,6 @@ export class MainController {
 
   @observable private _pendingTransition = false;
 
-  @observable private _isSimpleQueryVisible = false;
-
   constructor(maestro: Maestro) {
     makeObservable(this, undefined, { autoBind: true });
 
@@ -284,19 +282,5 @@ export class MainController {
 
   get localQueryManager() {
     return this._localQueryManager;
-  }
-
-  get isSimpleQueryVisible() {
-    return this._isSimpleQueryVisible;
-  }
-
-  @action.bound
-  setSimpleQueryVisible(visible: boolean) {
-    this._isSimpleQueryVisible = visible;
-  }
-
-  @action.bound
-  toggleSimpleQueryVisible() {
-    this._isSimpleQueryVisible = !this._isSimpleQueryVisible;
   }
 }

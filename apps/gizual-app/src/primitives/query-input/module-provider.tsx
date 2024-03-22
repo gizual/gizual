@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import React from "react";
 import { match, P } from "ts-pattern";
 
 import { useQuery } from "@giz/maestro/react";
@@ -16,19 +17,24 @@ import {
 import { TimePlaceholderModule, TimeRangeByDateModule, TimeRangeByRefModule } from "./modules/time";
 import { TimeSinceFirstCommitByModule } from "./modules/time/time-since-first-commit-by-module";
 import { TypeModuleComponent, TypePlaceholderModule } from "./modules/type";
+import { ViewMode } from "./shared";
 
-function ModuleProvider() {
+type ModuleProviderProps = {
+  viewMode: ViewMode;
+};
+
+const ModuleProvider = observer(({ viewMode }: ModuleProviderProps) => {
+  return (
+    <>
+      <TimeModuleProvider viewMode={viewMode} />
+      <FilesModuleProvider viewMode={viewMode} />
+      <PresetModuleProvider viewMode={viewMode} />
+    </>
+  );
+});
+
+const TimeModuleProvider = observer(({ viewMode }: ModuleProviderProps) => {
   const { query } = useQuery();
-
-  const presetMatch = match(query)
-    .with({ type: P.select() }, (type) => {
-      if (type) return <TypeModuleComponent key="type-module" />;
-      return <TypePlaceholderModule key="type-placeholder-module" />;
-    })
-    .otherwise(() => {
-      return <TypePlaceholderModule key="type-placeholder-module" />;
-    });
-
   const timeMatch = match(query)
     .with({ time: P.select() }, (time) => {
       return match(time)
@@ -49,6 +55,11 @@ function ModuleProvider() {
       return <TimePlaceholderModule key="time-placeholder-module" />;
     });
 
+  return React.cloneElement(timeMatch, { viewMode });
+});
+
+const FilesModuleProvider = observer(({ viewMode }: ModuleProviderProps) => {
+  const { query } = useQuery();
   const fileMatch = match(query)
     .with({ files: P.select() }, (files) => {
       return match(files)
@@ -84,15 +95,22 @@ function ModuleProvider() {
       return <FilePlaceholderModule key="file-placeholder-module" />;
     });
 
-  //const stylesMatch = match(query).with({ styles: P.select() }, (styles) => {
-  //  match(styles).with(P.array(), () => {
-  //    return <></>;
-  //  });
-  //});
+  return React.cloneElement(fileMatch, { viewMode });
+});
 
-  return <>{[timeMatch, fileMatch, presetMatch]}</>;
-}
+const PresetModuleProvider = observer(({ viewMode }: ModuleProviderProps) => {
+  const { query } = useQuery();
 
-const ObserverModuleProvider = observer(ModuleProvider);
+  const presetMatch = match(query)
+    .with({ type: P.select() }, (type) => {
+      if (type) return <TypeModuleComponent key="type-module" />;
+      return <TypePlaceholderModule key="type-placeholder-module" />;
+    })
+    .otherwise(() => {
+      return <TypePlaceholderModule key="type-placeholder-module" />;
+    });
 
-export { ObserverModuleProvider as ModuleProvider };
+  return React.cloneElement(presetMatch, { viewMode });
+});
+
+export { FilesModuleProvider, ModuleProvider, PresetModuleProvider, TimeModuleProvider };

@@ -3,6 +3,7 @@ import "@giz/logging/browser";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 
+import { createLogger } from "@giz/logging";
 import { Maestro } from "@giz/maestro";
 import { MaestroProvider } from "@giz/maestro/react";
 
@@ -14,10 +15,12 @@ import "./icons/fonts.css";
 import "./icons/icons.css";
 import "./icons/colors.css";
 
+const logger = createLogger("Main");
+
 try {
   await navigator.storage.getDirectory();
 } catch (error) {
-  console.error(error);
+  logger.error(error);
   throw new Error("navigator.storage.getDirectory() is not supported in this browser");
 }
 

@@ -11,6 +11,7 @@ import {
   when,
 } from "mobx";
 
+import { createLogger, Logger } from "@giz/logging";
 import { getDateFromTimestamp, getStringDate, GizDate } from "@giz/utils/gizdate";
 
 import type { MainController } from "./main.controller";
@@ -34,6 +35,8 @@ export class RepoController {
   @observable private _defaultEndDate?: GizDate;
 
   @observable private _disposers: IReactionDisposer[] = [];
+
+  logger: Logger = createLogger("RepoController");
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
@@ -141,7 +144,7 @@ export class RepoController {
     const originIndex = this.commitIndices.get(origin);
 
     if (originIndex === undefined) {
-      console.log(
+      this.logger.warn(
         "Aborting, cannot find origin in indices, origin:",
         origin,
         "indices:",

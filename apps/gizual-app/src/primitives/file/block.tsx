@@ -439,10 +439,7 @@ function BlockHeaderSvg({
                 }}
               >
                 <Menu.Target>
-                  <IconButton
-                    onClick={() => console.log("hi there")}
-                    style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}
-                  >
+                  <IconButton style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}>
                     <IconDownload className={clsx(sharedStyle.Pointer, style.FileIcon)} />
                   </IconButton>
                 </Menu.Target>
@@ -456,10 +453,7 @@ function BlockHeaderSvg({
               </Menu>
               <DialogProvider
                 trigger={
-                  <IconButton
-                    onClick={() => console.log("hi there")}
-                    style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}
-                  >
+                  <IconButton style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}>
                     <IconSource className={style.FileIcon} />
                   </IconButton>
                 }

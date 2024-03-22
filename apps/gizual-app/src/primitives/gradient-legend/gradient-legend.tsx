@@ -48,7 +48,7 @@ function GradientLegend({
 }: GradientLegendProps) {
   const { query, updateQuery } = useQuery();
   if (height < 50) {
-    console.error("Cannot construct gradient legend with height < 50px");
+    logger.error("Cannot construct gradient legend with height < 50px");
     return <></>;
   }
 

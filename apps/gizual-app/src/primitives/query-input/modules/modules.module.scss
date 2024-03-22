@@ -306,6 +306,22 @@
   border-color: var(--border-primary);
   &:hover {
     border-color: var(--accent-main-dark);
-  }  
+  }
 }
 
+.Module__Column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+
+  animation: slot-in 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.Module__SpaceBetween {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}

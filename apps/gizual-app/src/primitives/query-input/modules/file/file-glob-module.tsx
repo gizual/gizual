@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
+import { ViewMode } from "../../shared";
 import style from "../modules.module.scss";
 
 import { FileBaseQueryModule } from "./file-base-module";
@@ -21,9 +22,28 @@ function checkErrors(errors: QueryError[] | undefined) {
   return errors?.some((e) => e.selector === QUERY_ID);
 }
 
-const FileGlobModule = observer(() => {
+type FileGlobModuleProps = {
+  viewMode?: ViewMode;
+};
+
+const FileGlobModule = observer(({ viewMode = "bar" }: FileGlobModuleProps) => {
   const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQuery();
   const value = getGlobEntry(localQuery);
+
+  if (viewMode === "modal") {
+    return (
+      <div className={style.Module__Column}>
+        <Input
+          error={checkErrors(errors)}
+          label="Glob pattern"
+          value={value}
+          placeholder="Example: *.tsx"
+          onBlur={() => publishLocalQuery()}
+          onChange={(e) => updateLocalQuery({ files: { path: e.currentTarget.value } })}
+        />
+      </div>
+    );
+  }
 
   return (
     <FileBaseQueryModule

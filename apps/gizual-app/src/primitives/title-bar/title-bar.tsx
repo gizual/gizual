@@ -1,6 +1,7 @@
-import { IconClose, IconFilter } from "@app/assets";
+import { IconClose } from "@app/assets";
 import { Panel, PANELS, useMainController } from "@app/controllers";
 import { useMediaQuery } from "@app/hooks/use-media-query";
+import { QueryEditorModal } from "@app/primitives/query-input/query-editor/query-editor-modal";
 import { Select, SelectOption } from "@app/primitives/select";
 import { Modal, Stack, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -104,7 +105,11 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
             </Stack>
           </Modal>
           <Tooltip label="Close repository">
-            <IconButton className={clsx(sharedStyle.CloseButton, style.IconClose)} onClick={open}>
+            <IconButton
+              className={clsx(sharedStyle.CloseButton, style.IconClose)}
+              onClick={open}
+              isDangerous
+            >
               <IconClose />
             </IconButton>
           </Tooltip>
@@ -139,18 +144,10 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
               setSelectedPanel(panel);
             }}
             data={panels}
-            style={{ maxWidth: 200 }}
+            style={{ maxWidth: 200, minWidth: 100 }}
           />
 
-          <IconButton
-            className={clsx(
-              style.IconButton,
-              mainController.isSimpleQueryVisible ? style.IconToggled : style.IconUnToggled,
-            )}
-            onClick={mainController.toggleSimpleQueryVisible}
-          >
-            <IconFilter />
-          </IconButton>
+          <QueryEditorModal triggerStyle={{ width: 30, height: 30 }} />
         </>
       )}
     </div>

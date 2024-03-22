@@ -24,10 +24,22 @@
     &:active {
       @include button-click-animation;
     }
+
+    svg {
+      margin: auto;
+    }
+  }
+
+  svg {
+    height: 100%;
+    width: auto;
   }
 
   .IconButton:hover {
     border-color: var(--accent-main) !important;
+    &[data-dangerous="true"] {
+      border-color: var(--border-secondary) !important;
+    }
     background-color: var(--background-secondary);
   }
 
@@ -37,12 +49,6 @@
 
   .BorderRight {
     @include rounded-right;
-  }
-
-  svg {
-    margin: auto;
-    height: 100%;
-    width: auto;
   }
 
   svg > path {

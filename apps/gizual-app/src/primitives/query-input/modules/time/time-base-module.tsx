@@ -1,5 +1,4 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
 
@@ -11,7 +10,7 @@ export type TimeBaseQueryModuleProps = {
   highlightItems?: string[];
 } & BaseQueryModuleProps;
 
-export const TimeBaseQueryModule = observer(
+const TimeBaseQueryModule = observer(
   ({ disableItems, highlightItems, ...props }: TimeBaseQueryModuleProps) => {
     const query = useQuery();
     return (
@@ -29,3 +28,5 @@ export const TimeBaseQueryModule = observer(
     );
   },
 );
+
+export { TimeBaseQueryModule };

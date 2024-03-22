@@ -6,6 +6,7 @@ import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
+import { ViewMode } from "../../shared";
 import style from "../modules.module.scss";
 
 import { TypePlaceholderModal } from "./type-modal/type-modal";
@@ -15,10 +16,18 @@ function getTypeEntry(query: SearchQueryType) {
   return "";
 }
 
-function TypeModuleComponent() {
+type TypeModuleComponentProps = {
+  viewMode?: ViewMode;
+};
+
+function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
   const { query } = useQuery();
   const value = getTypeEntry(query);
   const [isOpen, setIsOpen] = React.useState(false);
+
+  if (viewMode === "modal") {
+    return <TypePlaceholderModal />;
+  }
 
   return (
     <DialogProvider
@@ -41,7 +50,7 @@ function TypeModuleComponent() {
         </Button>
       }
     >
-      <TypePlaceholderModal closeModal={() => setIsOpen(false)} />
+      <TypePlaceholderModal closeModal={() => setIsOpen(false)} withSplitPreview />
     </DialogProvider>
   );
 }

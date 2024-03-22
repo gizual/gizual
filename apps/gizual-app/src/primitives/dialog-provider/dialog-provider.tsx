@@ -1,4 +1,4 @@
-import { IconClose } from "@app/assets";
+import { IconClose, IconQuestion } from "@app/assets";
 import { useMediaQuery } from "@app/hooks/use-media-query";
 import clsx from "clsx";
 import React from "react";
@@ -15,8 +15,10 @@ export type PopoverProviderProps = {
   trigger: React.ReactNode | React.ReactNode[];
   triggerClassName?: string;
   triggerStyle?: React.CSSProperties;
-  contentClassName?: string;
+  wrapperClassName?: string;
+  wrapperStyle?: React.CSSProperties;
   contentStyle?: React.CSSProperties;
+  contentClassName?: string;
   children: React.ReactNode | React.ReactNode[];
   isOpen?: boolean;
   setIsOpen?: (isOpen: boolean) => void;
@@ -24,6 +26,9 @@ export type PopoverProviderProps = {
   footerComponent?: React.ReactNode | React.ReactNode[];
   defaultFooterOpts?: DialogProviderDefaultFooterProps;
   stableSize?: boolean;
+  withoutDialogStyles?: boolean;
+  withHelp?: boolean;
+  onHelpClick?: () => void;
 };
 
 export const DialogProvider = React.memo(
@@ -32,6 +37,8 @@ export const DialogProvider = React.memo(
     triggerClassName,
     contentClassName,
     contentStyle,
+    wrapperClassName,
+    wrapperStyle,
     children,
     title,
     isOpen,
@@ -40,6 +47,9 @@ export const DialogProvider = React.memo(
     footerComponent,
     defaultFooterOpts,
     triggerStyle,
+    withoutDialogStyles,
+    withHelp,
+    onHelpClick,
   }: PopoverProviderProps) => {
     if (isOpen === undefined || setIsOpen === undefined)
       [isOpen, setIsOpen] = React.useState(false);
@@ -72,27 +82,44 @@ export const DialogProvider = React.memo(
                   }}
                 ></div>
                 <div
-                  className={clsx(style.Dialog, style.DialogWithFooter)}
+                  className={clsx(style.Dialog, style.DialogWithFooter, wrapperClassName)}
                   ref={ref}
-                  style={{
-                    width: isFullScreen ? "100dvw" : undefined,
-                    maxWidth: isFullScreen ? "100dvw" : "min(1500px, 95dvw)",
-                    minWidth: isFullScreen ? "100dvw" : "min(80dvw, 1500px)",
-                    height: isFullScreen ? "100dvh" : undefined,
-                    maxHeight: isFullScreen ? "100dvh" : "min(1200px, 95dvh)",
-                    minHeight: isFullScreen ? "100dvh" : "min(80dvh, 400px)",
-                  }}
+                  style={
+                    withoutDialogStyles
+                      ? { ...wrapperStyle }
+                      : {
+                          width: isFullScreen ? "100dvw" : undefined,
+                          maxWidth: isFullScreen ? "100dvw" : "min(1500px, 95dvw)",
+                          minWidth: isFullScreen ? "100dvw" : "min(80dvw, 1500px)",
+                          height: isFullScreen ? "100dvh" : undefined,
+                          maxHeight: isFullScreen ? "100dvh" : "min(1200px, 95dvh)",
+                          minHeight: isFullScreen ? "100dvh" : "min(80dvh, 400px)",
+                          ...wrapperStyle,
+                        }
+                  }
                 >
                   <div className={style.DialogHead}>
                     <h2 className={style.DialogTitle}>{title}</h2>
-                    <IconButton
-                      className={clsx(sharedStyle.CloseButton, style.CloseButton)}
-                      onClick={() => {
-                        setIsOpen!(false);
-                      }}
-                    >
-                      <IconClose />
-                    </IconButton>
+                    <div className={style.DialogHead__Right}>
+                      {withHelp && (
+                        <IconButton
+                          className={style.ActionButton}
+                          onClick={() => {
+                            onHelpClick?.();
+                          }}
+                        >
+                          <IconQuestion />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        className={clsx(sharedStyle.CloseButton, style.CloseButton)}
+                        onClick={() => {
+                          setIsOpen!(false);
+                        }}
+                      >
+                        <IconClose />
+                      </IconButton>
+                    </div>
                   </div>
                   <div className={clsx(style.DialogBody, contentClassName)} style={contentStyle}>
                     {children}

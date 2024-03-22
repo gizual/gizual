@@ -65,7 +65,16 @@ function RepoCard({
       <div className={style.RepoCard__Row}>
         <div className={style.RepoCard__Source}>
           <IconGithub />
-          <a href={repoSource}>{repoSource}</a>
+          <a
+            href={repoSource}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {repoSource}
+          </a>
         </div>
         <div className={style.RepoCard__Meta}>
           {stars !== 0 && (

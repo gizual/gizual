@@ -6,7 +6,7 @@
   padding: 0 0.5rem;
   background-color: var(--background-secondary);
   @media (width < 1024px) {
-    padding: 0;
+    display: none;
   }
 }
 
@@ -22,14 +22,11 @@
 
 .AdvancedSearchIconTrigger {
   align-self: center;
-  @media (width < 1024px) {
-    display: none;
-  }
 }
 
 .AdvancedSearchIconButton {
-  height: 40px;
   width: 40px;
+  height: 40px;
   border-color: var(--border-primary);
   cursor: pointer;
 }

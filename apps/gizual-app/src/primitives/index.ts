@@ -12,7 +12,7 @@ export { Footer } from "./footer";
 export { IconButton } from "./icon-button";
 export { LinearProgress } from "./linear-progress";
 export { MessageBar } from "./message-bar";
-export { AdvancedEditor, SimpleQueryInput } from "./query-input";
+export { AdvancedEditor, QueryBar as SimpleQueryInput } from "./query-input";
 export { Select } from "./select";
 export { Timeline } from "./timeline";
 export { TitleBar } from "./title-bar";

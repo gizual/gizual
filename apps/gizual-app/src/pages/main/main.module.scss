@@ -24,6 +24,9 @@
 .TitleBarContainer {
   position: relative;
   border-bottom: 1px solid var(--border-primary);
+  @media (width < 1024px) {
+    border-bottom: 0;
+  }
 }
 
 .AnalyzePage {

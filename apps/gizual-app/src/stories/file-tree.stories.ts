@@ -1,6 +1,8 @@
 import { FileTree as FileTreeComponent, FileTreeFlatItem } from "@app/primitives/file-tree";
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { createLogger } from "@giz/logging";
+
 import withDivWrapper from "./decorators/with-div-wrapper";
 import withMainController from "./decorators/with-main-controller";
 import withMantineProvider from "./decorators/with-mantine-provider";
@@ -90,11 +92,12 @@ const mockFiles: FileTreeFlatItem[] = [
   })),
 ];
 
+const logger = createLogger("FileTree");
 export const FileTree: Story = {
   args: {
     mode: "full",
     files: mockFiles,
     checked: ["src/index.ts"],
-    onChange: (checked) => console.log(checked),
+    onChange: (checked) => logger.log(checked),
   },
 };

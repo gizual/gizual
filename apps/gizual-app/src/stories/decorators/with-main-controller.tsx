@@ -14,8 +14,6 @@ const mainController = new MainController(maestro);
 
 (window as any).mainController = mainController;
 
-console.log("Attaching mainController to window");
-
 const withMainController = (Story: StoryFn, context: StoryContext) => {
   const [mainController, setMainController] = React.useState<MainController>();
   React.useEffect(() => {

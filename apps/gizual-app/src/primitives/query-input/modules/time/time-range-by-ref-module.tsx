@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
+import { ViewMode } from "../../shared";
 import style from "../modules.module.scss";
 
 import { TimeBaseQueryModule } from "./time-base-module";
@@ -31,7 +32,11 @@ function checkErrors(errors: QueryError[] | undefined): {
   return { error: errorField1 || errorField2, errorField1, errorField2 };
 }
 
-const TimeRangeByRefModule = observer(() => {
+type TimeRangeByRefModuleProps = {
+  viewMode?: ViewMode;
+};
+
+const TimeRangeByRefModule = observer(({ viewMode = "bar" }: TimeRangeByRefModuleProps) => {
   const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const { from, to } = getTimeRangeByRefEntry(localQuery);
 
@@ -50,6 +55,29 @@ const TimeRangeByRefModule = observer(() => {
       },
     });
   };
+
+  if (viewMode === "modal") {
+    return (
+      <div className={style.Module__Column}>
+        <Input
+          error={checkErrors(errors).errorField1}
+          onBlur={() => publishLocalQuery()}
+          onChange={(e) => onChangeStartRef(e.currentTarget.value)}
+          value={from}
+          label="From"
+          monospaced
+        />
+        <Input
+          error={checkErrors(errors).errorField2}
+          onBlur={() => publishLocalQuery()}
+          onChange={(e) => onChangeEndRef(e.currentTarget.value)}
+          value={to}
+          label="To"
+          monospaced
+        />
+      </div>
+    );
+  }
 
   return (
     <TimeBaseQueryModule

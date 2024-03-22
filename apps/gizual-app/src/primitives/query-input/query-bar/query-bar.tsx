@@ -8,23 +8,25 @@ import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
 import { AdvancedEditor } from "../advanced/advanced-query-input";
+import { ModuleProvider } from "../module-provider";
 import { QueryViewModel } from "../query.vm";
+import { QueryEditorModal } from "../query-editor/query-editor-modal";
 
-import { ModuleProvider } from "./module-provider";
-import style from "./simple-query-input.module.scss";
+import style from "./query-bar.module.scss";
 
-export const SimpleQueryInput = observer(() => {
+export const QueryBar = observer(() => {
   // Since the Monaco component contains some of the validation logic,
   // it's easier to share state via MobX than to try and pass props around.
   const queryVm = React.useMemo(() => new QueryViewModel(), []);
   const { setQuery } = useQuery();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isAdvancedEditorOpen, setAdvancedEditorOpen] = React.useState(false);
 
   return (
     <div className={style.Container}>
       <div className={style.Clickable}>
         <div className={style.Content}>
-          <ModuleProvider />
+          <ModuleProvider viewMode="bar" />
+          <QueryEditorModal />
 
           {import.meta.env.DEV && (
             <DialogProvider
@@ -41,8 +43,8 @@ export const SimpleQueryInput = observer(() => {
               }
               triggerClassName={style.AdvancedSearchIconTrigger}
               contentClassName={style.AdvancedSearchDialog}
-              isOpen={isOpen}
-              setIsOpen={setIsOpen}
+              isOpen={isAdvancedEditorOpen}
+              setIsOpen={setAdvancedEditorOpen}
               withFooter
               defaultFooterOpts={{
                 cancelLabel: "Close",
@@ -54,7 +56,7 @@ export const SimpleQueryInput = observer(() => {
 
                   if (validationResult.isValid) {
                     setQuery(validationResult.query);
-                    setIsOpen(false);
+                    setAdvancedEditorOpen(false);
                   } else {
                     notifications.show({
                       title: "Invalid Query",
@@ -64,7 +66,7 @@ export const SimpleQueryInput = observer(() => {
                   }
                 },
                 onCancel: () => {
-                  setIsOpen(false);
+                  setAdvancedEditorOpen(false);
                 },
               }}
             >

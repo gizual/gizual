@@ -1,4 +1,3 @@
-import { useMediaQuery } from "@app/hooks/use-media-query";
 import { DatePickerInput } from "@mantine/dates";
 
 import { DATE_DISPLAY_FORMAT } from "@giz/utils/gizdate";
@@ -12,7 +11,6 @@ type DatePickerProps = {} & React.ComponentProps<typeof DatePickerInput>;
  * @param props - The props for the DatePicker component.
  */
 function DatePicker({ styles, ...props }: DatePickerProps) {
-  const isSmallDevice = useMediaQuery({ max: 1024 });
   const height = 30;
   return (
     <DatePickerInput
@@ -27,12 +25,11 @@ function DatePicker({ styles, ...props }: DatePickerProps) {
           width: "100%",
         },
         label: {
-          fontWeight: 300,
+          fontWeight: 500,
         },
         ...styles,
       }}
       {...props}
-      label={isSmallDevice ? props.label : ""}
       valueFormat={DATE_DISPLAY_FORMAT}
     />
   );

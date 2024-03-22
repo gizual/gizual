@@ -1,8 +1,11 @@
 import { Select as SelectComponent } from "@app/primitives/select";
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { createLogger } from "@giz/logging";
 import withMainController from "../decorators/with-main-controller";
 import withMantineProvider from "../decorators/with-mantine-provider";
+
+const logger = createLogger("Select");
 
 const meta = {
   title: "Primitives/Select",
@@ -24,7 +27,7 @@ export const Select: Story = {
     })),
 
     value: "value5",
-    onChange: (value: string) => console.log(value),
+    onChange: (value: string) => logger.log(value),
   },
 };
 
@@ -37,6 +40,6 @@ export const SelectWithPayload: Story = {
     })),
 
     value: "value5",
-    onChange: (_, payload) => console.log(payload),
+    onChange: (_, payload) => logger.log(payload),
   },
 };

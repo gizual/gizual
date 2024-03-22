@@ -4,7 +4,7 @@ import { useMainController } from "@app/controllers";
 import { useMediaQuery } from "@app/hooks/use-media-query";
 import { useWindowSize } from "@app/hooks/use-window-size";
 import { Canvas, MessageBar, TitleBar } from "@app/primitives";
-import { SimpleQueryInput } from "@app/primitives/query-input";
+import { QueryBar } from "@app/primitives/query-input";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
@@ -20,8 +20,6 @@ export type MainPageProps = {
 
 export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
   const mainController = useMainController();
-  const isLargeScreen = useMediaQuery({ min: 1024 });
-  const isQueryInputVisible = isLargeScreen || mainController.isSimpleQueryVisible;
 
   const vm: MainPageViewModel = React.useMemo(() => {
     return externalVm || new MainPageViewModel(mainController);
@@ -31,7 +29,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
     <div className={style.Page}>
       <div className={style.TitleBarContainer}>
         <TitleBar />
-        {isQueryInputVisible && <SimpleQueryInput />}
+        <QueryBar />
         <MessageBar />
       </div>
 

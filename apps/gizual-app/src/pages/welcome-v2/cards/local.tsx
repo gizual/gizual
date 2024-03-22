@@ -34,7 +34,6 @@ function Local({
   };
 
   const onClick = async () => {
-    console.log("onClick", loaders);
     /* FSA */
     let preferredLoader = loaders.local.find((l) => l.id === "fsa");
     if (preferredLoader) {

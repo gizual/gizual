@@ -35,6 +35,7 @@ export { default as IconOpen } from "./open.svg";
 export { default as IconPalette } from "./palette.svg";
 export { default as IconPeople } from "./people.svg";
 export { default as IconPlus } from "./plus.svg";
+export { default as IconQuestion } from "./question.svg";
 export { default as IconRenderer } from "./renderer.svg";
 export { default as IconRuler } from "./ruler.svg";
 export { default as IconSafari } from "./safari.svg";

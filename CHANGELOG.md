@@ -2,13 +2,14 @@
 
 ### Features
 
+- **app:frontend:** Implement query editor modal
+- **app:frontend:** Add simplified welcome page
+
 ### Changes
 
 - **app:frontend:** UI refactor, apply consistent styling across all UI elements
 
 ### Bug Fixes
-
-- **app:frontend:** Implement functionality for query modules to behave differently on small screens
 
 ---
 

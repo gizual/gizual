@@ -7,6 +7,7 @@ import type { PresetQueryKeys, RenderTypeQueryType } from "@giz/query";
 class VisTypeViewModel extends ViewModel {
   constructor({ mainController }: Dependencies, ...args: any[]) {
     super({ mainController }, ...args);
+    this.id = "VisTypeViewModel";
     makeObservable(this, undefined);
   }
 

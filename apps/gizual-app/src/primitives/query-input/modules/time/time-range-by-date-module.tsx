@@ -15,6 +15,7 @@ import { observer } from "mobx-react-lite";
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
 import { DATE_FORMAT } from "@giz/utils/gizdate";
+import { ViewMode } from "../../shared";
 import style from "../modules.module.scss";
 
 import { TimeBaseQueryModule } from "./time-base-module";
@@ -33,7 +34,11 @@ function checkErrors(errors: QueryError[] | undefined) {
   return errors?.some((e) => e.selector === QUERY_ID);
 }
 
-const TimeRangeByDateModule = observer(() => {
+type TimeRangeByDateModuleProps = {
+  viewMode?: ViewMode;
+};
+
+const TimeRangeByDateModule = observer(({ viewMode = "bar" }: TimeRangeByDateModuleProps) => {
   const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const mainController = useMainController();
   const settingsController = useSettingsController();
@@ -88,6 +93,40 @@ const TimeRangeByDateModule = observer(() => {
     });
   };
 
+  if (viewMode === "modal") {
+    return (
+      <div className={style.Module__Column}>
+        <Select
+          onChange={(branch) => {
+            updateLocalQuery({ branch });
+            publishLocalQuery();
+          }}
+          value={branchValue}
+          data={[{ label: "HEAD", value: "HEAD" }, ...branches]}
+          label="Branch"
+          withCheckIcon
+        />
+
+        <div className={style.Module__SpaceBetween}>
+          <DatePicker
+            label="Range (Start)"
+            error={checkErrors(errors)}
+            value={startDate.toDate()}
+            onChange={onChangeStartDate}
+            style={{ width: "100%" }}
+          />
+          <DatePicker
+            label="Range (End)"
+            error={checkErrors(errors)}
+            value={endDate.toDate()}
+            onChange={onChangeEndDate}
+            style={{ width: "100%" }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <TimeBaseQueryModule
       containsErrors={checkErrors(errors)}
@@ -101,13 +140,13 @@ const TimeRangeByDateModule = observer(() => {
     >
       <div className={style.SpacedChildren}>
         <DatePicker
-          label="Oldest point in time"
+          aria-label="Oldest point in time"
           error={checkErrors(errors)}
           value={startDate.toDate()}
           onChange={onChangeStartDate}
         />
         <DatePicker
-          label="Newest point in time"
+          aria-label="Newest point in time"
           error={checkErrors(errors)}
           value={endDate.toDate()}
           onChange={onChangeEndDate}
@@ -129,7 +168,7 @@ const TimeRangeByDateModule = observer(() => {
           }}
           value={branchValue}
           data={[{ label: "HEAD", value: "HEAD" }, ...branches]}
-        ></Select>
+        />
 
         <Tooltip label="Toggle timeline visibility" position="top" withArrow>
           <IconButton

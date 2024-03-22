@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
+import { ViewMode } from "../../shared";
 import style from "../modules.module.scss";
 
 import { FileBaseQueryModule } from "./file-base-module";
@@ -21,9 +22,30 @@ function checkErrors(errors: QueryError[] | undefined) {
   return errors?.some((e) => e.selector === QUERY_ID);
 }
 
-const FileChangedInRefModule = observer(() => {
+type FileChangedInRefModuleProps = {
+  viewMode?: ViewMode;
+};
+
+const FileChangedInRefModule = observer(({ viewMode }: FileChangedInRefModuleProps) => {
   const { localQuery, updateLocalQuery, publishLocalQuery, errors } = useLocalQuery();
   const value = getChangedInRefEntry(localQuery);
+
+  if (viewMode === "modal") {
+    return (
+      <div className={style.Module__Column}>
+        <Input
+          error={checkErrors(errors)}
+          placeholder="Example: HEAD, master, origin/master, etc."
+          label="Revision"
+          onBlur={() => publishLocalQuery()}
+          onChange={(e) =>
+            updateLocalQuery({ files: { changedInRef: e.currentTarget.value ?? "" } })
+          }
+          value={value}
+        />
+      </div>
+    );
+  }
 
   return (
     <FileBaseQueryModule

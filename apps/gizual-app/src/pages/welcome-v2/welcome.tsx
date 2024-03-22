@@ -3,7 +3,7 @@ import { useMediaQuery } from "@app/hooks/use-media-query";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { useFileLoaders } from "@giz/maestro/react";
+import { FileLoaderDragAndDrop, useFileLoaders } from "@giz/maestro/react";
 
 import { Local, Remote } from "./cards";
 import { FeaturedRepos } from "./featured-repos";
@@ -17,6 +17,7 @@ const WelcomePage = observer(() => {
   const loaders = useFileLoaders();
   const supportsLocalLoaders = loaders.local.length > 0;
   const hasFsa = loaders.local.some((l) => l.id === "fsa");
+  const hasDragAndDrop = loaders.local.some((l) => l.id === "drag-and-drop");
 
   const toggleExpandedSection = (expanded: boolean, section: "local" | "remote") => {
     if (expanded) setExpandedSection(section);
@@ -25,6 +26,7 @@ const WelcomePage = observer(() => {
   return (
     <div
       className={style.WelcomePage}
+      onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -34,6 +36,23 @@ const WelcomePage = observer(() => {
         const { relatedTarget, currentTarget } = e;
         if (!relatedTarget || !currentTarget.contains(relatedTarget as Node)) {
           setDragging(false);
+        }
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const items = e.dataTransfer.items;
+        if (items.length > 0) {
+          const item = items[0].webkitGetAsEntry();
+          if (item && item.isDirectory && hasDragAndDrop) {
+            const loader = loaders.local.find(
+              (l) => l.id === "drag-and-drop",
+            ) as FileLoaderDragAndDrop;
+            if (!loader) throw new Error("Unexpectedly missing drag-and-drop loader");
+            loader!.load(item as FileSystemDirectoryEntry);
+          }
+          // TODO: Error states
         }
       }}
     >
