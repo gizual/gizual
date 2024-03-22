@@ -19,7 +19,6 @@ app.use(
   createProxyMiddleware({
     target: "http://localhost:5172",
     changeOrigin: true,
-    pathRewrite: (path) => path.replace(/^\/api/, ""),
   }),
 );
 

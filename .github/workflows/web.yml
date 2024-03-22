@@ -126,7 +126,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          file: Dockerfile.web
+          file: Dockerfile
           context: .
           push: ${{ startsWith(github.ref, 'refs/tags/') }} # Only push the image if the event was a tag
           tags: ${{ steps.meta.outputs.tags }}
