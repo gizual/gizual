@@ -1,5 +1,4 @@
 import { IconChevronDown, IconEdit, IconInfo } from "@app/assets";
-import { useMediaQuery } from "@app/hooks/use-media-query";
 import { Button } from "@app/primitives/button";
 import { IconButton } from "@app/primitives/icon-button";
 import { Menu, Tooltip } from "@mantine/core";
@@ -43,61 +42,6 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
   const [swapMenuOpen, setSwapMenuOpen] = React.useState(false);
   const onSwapMenuOpen = () => setSwapMenuOpen(true);
   const onSwapMenuClose = () => setSwapMenuOpen(false);
-
-  const layout = useMediaQuery({ max: 1024 }) ? "vertical" : "horizontal";
-  if (layout === "vertical") {
-    return (
-      <div className={clsx(style.BaseQueryModuleColumn, containsErrors && style.ContainsErrors)}>
-        <div className={style.BaseQueryModuleColumn__Header}>
-          <div className={style.QueryModuleIconWithText}>
-            {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
-            {title && <div className={style.QueryModuleTitle}>{title}</div>}
-          </div>
-          <div className={style.QueryModuleIconWithText} style={{ gap: "1rem" }}>
-            {hasHelpTooltip && (
-              <Tooltip label={helpContent} withArrow>
-                <div>
-                  <IconInfo className={style.QueryModuleIcon} />
-                </div>
-              </Tooltip>
-            )}
-            {hasSwapButton && (
-              <Menu
-                onChange={() => {
-                  onSwap?.();
-                }}
-                withArrow
-                position="bottom"
-                styles={{
-                  dropdown: {
-                    backgroundColor: "var(--background-secondary)",
-                    borderColor: "var(--border-primary)",
-                  },
-                  arrow: {
-                    borderColor: "var(--border-primary)",
-                  },
-                }}
-              >
-                <Menu.Target>
-                  <IconButton>
-                    <IconChevronDown className={style.CloseIcon} />
-                  </IconButton>
-                </Menu.Target>
-                {menuItems}
-              </Menu>
-            )}
-          </div>
-        </div>
-        {children}
-        {hasEditButton &&
-          (editButtonComponent ?? (
-            <IconButton onClick={onEdit}>
-              <IconEdit className={style.CloseIcon} />
-            </IconButton>
-          ))}
-      </div>
-    );
-  }
 
   return (
     <div

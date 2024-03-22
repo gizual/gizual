@@ -1,14 +1,11 @@
 import { IconEdit, IconSettingsOutline } from "@app/assets";
-import { useMediaQuery } from "@app/hooks/use-media-query";
 import { Button } from "@app/primitives/button";
 import { DialogProvider } from "@app/primitives/dialog-provider";
-import { IconButton } from "@app/primitives/icon-button";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { useQuery } from "@giz/maestro/react";
 import { SearchQueryType } from "@giz/query";
-import { BaseQueryModule } from "../base-query-module";
 import style from "../modules.module.scss";
 
 import { TypePlaceholderModal } from "./type-modal/type-modal";
@@ -22,36 +19,30 @@ function TypeModuleComponent() {
   const { query } = useQuery();
   const value = getTypeEntry(query);
   const [isOpen, setIsOpen] = React.useState(false);
-  const isSmallDevice = useMediaQuery({ max: 1024 });
 
   return (
-    <BaseQueryModule
-      icon={<IconSettingsOutline />}
-      title={"Vis:"}
-      hasEditButton
-      editButtonComponent={
-        <DialogProvider
-          trigger={
-            isSmallDevice ? (
-              <Button>Edit Visualization Type</Button>
-            ) : (
-              <IconButton className={style.TypeIconButton}>
-                <IconEdit className={style.CloseIcon} />
-              </IconButton>
-            )
-          }
-          title="Swap Visualization Type"
-          triggerClassName={style.PlaceholderQueryModuleTrigger}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          contentStyle={{ overflow: "hidden" }}
-        >
-          <TypePlaceholderModal closeModal={() => setIsOpen(false)} />
-        </DialogProvider>
+    <DialogProvider
+      title="Swap Visualization Type"
+      contentStyle={{ overflow: "hidden" }}
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      triggerClassName={style.BaseQueryModule}
+      triggerStyle={{ padding: 0, border: 0 }}
+      trigger={
+        <Button aria-expanded={isOpen} variant="secondary" className={style.TypeButton}>
+          <div className={style.QueryModuleIconWithText}>
+            <div className={style.QueryModuleIcon}>
+              <IconSettingsOutline />
+            </div>
+            <div className={style.QueryModuleTitle}>Vis:</div>
+            {value}
+            <IconEdit className={style.CloseIcon} />
+          </div>
+        </Button>
       }
     >
-      <div className={style.SpacedChildren}>{value}</div>
-    </BaseQueryModule>
+      <TypePlaceholderModal closeModal={() => setIsOpen(false)} />
+    </DialogProvider>
   );
 }
 

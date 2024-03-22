@@ -32,6 +32,6 @@ declare const classNames: {
   readonly GradientColorCustomization: "GradientColorCustomization";
   readonly GradientColorCustomizationRow: "GradientColorCustomizationRow";
   readonly GradientColorTitle: "GradientColorTitle";
-  readonly TypeIconButton: "TypeIconButton";
+  readonly TypeButton: "TypeButton";
 };
 export = classNames;

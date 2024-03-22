@@ -21,7 +21,7 @@ const buttonVariantCSSMapping: Record<ButtonVariant, string> = {
   unstyled: style.ButtonUnstyled,
 
   primary: style.ButtonFilled,
-  secondary: style.ButtonOutline,
+  secondary: style.ButtonGray,
 };
 
 const buttonSizeCSSMapping: Record<ButtonSize, string> = {

@@ -2,7 +2,7 @@
 @use "@/shared" as shared;
 
 .BaseQueryModule {
-  border: 1px solid var(--border-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 2px;
   background-color: var(--background-primary);
   display: flex;
@@ -158,6 +158,7 @@
   flex-direction: row;
   gap: 1rem;
   justify-content: flex-end;
+  padding-bottom: 0.25rem;
 }
 
 .QueryModuleIcon {
@@ -166,21 +167,12 @@
   & * {
     fill: var(--foreground-primary);
   }
-
-  @media (width < 1024px) {
-    width: 20px;
-    height: 20px;
-  }
 }
 
 .QueryModuleTitle {
   @include text-sm;
   text-align: left;
   font-weight: 500;
-
-  @media (width < 1024px) {
-    @include text-base;
-  }
 }
 
 .QueryModuleIconWithText {
@@ -188,11 +180,6 @@
   flex-direction: row;
   gap: 0.5rem;
   align-items: center;
-
-  @media (width < 1024px) {
-    border: none !important;
-    padding-left: 0 !important;
-  }
 }
 
 .SpacedChildren {
@@ -201,16 +188,6 @@
   gap: 0.5rem;
   margin: 0.125rem 0;
   align-items: center;
-
-  @media (width < 1024px) {
-    align-items: flex-start;
-    flex-direction: column;
-    width: 100%;
-    gap: 1rem;
-    > div {
-      width: 100%;
-    }
-  }
 }
 
 .LabelWithInput {
@@ -219,12 +196,6 @@
   gap: 1rem;
   width: 100%;
   align-items: center;
-
-  @media (width < 1024px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
 }
 
 .SpacedSmall {
@@ -328,6 +299,13 @@
   padding-left: 0.75rem;
 }
 
-.TypeIconButton {
-  border-color: var(--border-tertiary);
+.TypeButton {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  border-color: var(--border-primary);
+  &:hover {
+    border-color: var(--accent-main-dark);
+  }  
 }
+

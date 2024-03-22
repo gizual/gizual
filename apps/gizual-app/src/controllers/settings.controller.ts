@@ -100,17 +100,17 @@ export class SettingsController {
       groupName: "Colors",
       old: createColorSetting(
         "Old",
-        "The color that visualizes the most distant change.",
+        "The default color that visualizes the most distant change.",
         LINEAR_COLOR_RANGE[0],
       ),
       new: createColorSetting(
         "New",
-        "The color that visualizes the most recent change.",
+        "The default color that visualizes the most recent change.",
         LINEAR_COLOR_RANGE[1],
       ),
       notLoaded: createColorSetting(
         "Not loaded",
-        "The color that visualizes changes that did not load yet or are outside the range.",
+        "The color that visualizes changes that did not load yet or are outside the selected range.",
         SPECIAL_COLORS.NOT_LOADED,
       ),
     },

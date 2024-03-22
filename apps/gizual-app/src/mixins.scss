@@ -27,6 +27,13 @@
   //transition-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
+@mixin button-click-animation {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: transform 0.15s ease-out;
+    transform: scale(0.99) translateY(1px);
+  }
+}
+
 @mixin font-code {
   font-family: "Iosevka Extended";
 }

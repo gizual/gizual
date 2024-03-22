@@ -90,7 +90,7 @@ function ModuleProvider() {
   //  });
   //});
 
-  return <>{[presetMatch, timeMatch, fileMatch]}</>;
+  return <>{[timeMatch, fileMatch, presetMatch]}</>;
 }
 
 const ObserverModuleProvider = observer(ModuleProvider);

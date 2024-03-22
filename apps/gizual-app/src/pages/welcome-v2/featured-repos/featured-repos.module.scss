@@ -16,12 +16,16 @@ $mobile-breakpoint: 830px;
   border: 1px solid var(--border-primary);
   background-color: var(--background-secondary);
   transition:
-    background-color 0.2s ease-in-out,
-    border-color 0.2s ease-in-out;
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out;
 
   &:hover {
     background-color: var(--background-tertiary);
     border-color: var(--accent-main);
+  }
+
+  &:active {
+    @include button-click-animation;
   }
 
   @media (width < 400px) {
@@ -29,7 +33,7 @@ $mobile-breakpoint: 830px;
   }
 
   a {
-    transition: color 0.2s ease-in-out;
+    transition: color 0.2s ease-out;
     color: var(--foreground-tertiary);
     &:hover {
       color: var(--foreground-secondary);

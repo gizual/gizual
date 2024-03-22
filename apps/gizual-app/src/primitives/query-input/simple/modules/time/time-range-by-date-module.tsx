@@ -1,7 +1,5 @@
 import { IconClock, IconGitBranchLine, IconRuler } from "@app/assets";
 import { useMainController, useSettingsController } from "@app/controllers";
-import { useMediaQuery } from "@app/hooks/use-media-query";
-import { Button } from "@app/primitives/button";
 import { DatePicker } from "@app/primitives/date-picker";
 import { IconButton } from "@app/primitives/icon-button";
 import { Select } from "@app/primitives/select";
@@ -39,7 +37,6 @@ const TimeRangeByDateModule = observer(() => {
   const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const mainController = useMainController();
   const settingsController = useSettingsController();
-  const isSmallDevice = useMediaQuery({ max: 1024 });
 
   const branchValue = getBranchEntry(localQuery);
   const branches = mainController.branchNames.map((b) => {
@@ -134,24 +131,20 @@ const TimeRangeByDateModule = observer(() => {
           data={[{ label: "HEAD", value: "HEAD" }, ...branches]}
         ></Select>
 
-        {isSmallDevice ? (
-          <Button onClick={onToggleTimeline}>Toggle timeline visibility</Button>
-        ) : (
-          <Tooltip label="Toggle timeline visibility" position="top" withArrow>
-            <IconButton
-              className={clsx(
-                style.ToggleButton,
-                isTimelineOpen ? style.IconToggled : style.IconUnToggled,
-              )}
-              style={{ padding: 0, width: 30, height: 30 }}
-            >
-              <IconRuler
-                className={clsx(style.IconBase, style.IconLarge)}
-                onClick={onToggleTimeline}
-              />
-            </IconButton>
-          </Tooltip>
-        )}
+        <Tooltip label="Toggle timeline visibility" position="top" withArrow>
+          <IconButton
+            className={clsx(
+              style.ToggleButton,
+              isTimelineOpen ? style.IconToggled : style.IconUnToggled,
+            )}
+            style={{ padding: 0, width: 30, height: 30 }}
+          >
+            <IconRuler
+              className={clsx(style.IconBase, style.IconLarge)}
+              onClick={onToggleTimeline}
+            />
+          </IconButton>
+        </Tooltip>
       </div>
     </TimeBaseQueryModule>
   );

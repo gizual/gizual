@@ -14,6 +14,7 @@ export type PopoverProviderProps = {
   title?: string;
   trigger: React.ReactNode | React.ReactNode[];
   triggerClassName?: string;
+  triggerStyle?: React.CSSProperties;
   contentClassName?: string;
   contentStyle?: React.CSSProperties;
   children: React.ReactNode | React.ReactNode[];
@@ -38,6 +39,7 @@ export const DialogProvider = React.memo(
     withFooter,
     footerComponent,
     defaultFooterOpts,
+    triggerStyle,
   }: PopoverProviderProps) => {
     if (isOpen === undefined || setIsOpen === undefined)
       [isOpen, setIsOpen] = React.useState(false);
@@ -55,6 +57,7 @@ export const DialogProvider = React.memo(
           onClick={() => {
             setIsOpen!(true);
           }}
+          style={triggerStyle}
         >
           {trigger}
         </div>

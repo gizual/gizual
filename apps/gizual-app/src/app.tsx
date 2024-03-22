@@ -69,6 +69,15 @@ function App() {
           },
         },
       }),
+      Notifications: {
+        styles: {
+          notification: {
+            backgroundColor: "var(--background-secondary)",
+            border: "1px solid var(--border-primary)",
+            borderRadius: 0,
+          },
+        },
+      },
     },
   });
 

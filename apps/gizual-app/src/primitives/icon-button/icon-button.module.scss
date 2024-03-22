@@ -20,6 +20,10 @@
       border-color 0.2s,
       background-color 0.2s;
     border-color: var(--border-primary);
+
+    &:active {
+      @include button-click-animation;
+    }
   }
 
   .IconButton:hover {
