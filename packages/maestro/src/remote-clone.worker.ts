@@ -25,19 +25,12 @@ addEventListener("message", (e) => {
   });
 });
 
-/**
- * We use our own host if this is running as our deployed app.
- * Otherwise, we relay on a proxy to the API server hosted at /api
- */
-let host = "https://api.gizual.com/";
-if (!/app\.gizual\.com/.test(location.hostname)) {
-  host = "/api";
-}
+const API_PATH = "/api";
 
 async function download(opts: RepoDownloadOpts) {
   const { service, repoName } = opts;
   logger.debug("Cloning repository", { service, repoName });
-  const sseResponse = new EventSource(`${host}/on-demand-clone/${service}/${repoName}`);
+  const sseResponse = new EventSource(`${API_PATH}/on-demand-clone/${service}/${repoName}`);
 
   let zipFileName = "";
   const onMessage = (e: MessageEvent) => {
@@ -71,7 +64,7 @@ async function download(opts: RepoDownloadOpts) {
     throw new Error("Failed to clone repository");
   }
 
-  const url = `${host}/snapshots/${zipFileName}`;
+  const url = `${API_PATH}/snapshots/${zipFileName}`;
   logger.debug("Downloading snapshot", { url });
   const response = await fetch(url);
 

@@ -14,7 +14,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-web
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: "yarn"
 
       - run: yarn --immutable
@@ -42,7 +42,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: web-dist
-          path: apps/gizual-app/dist/
+          path: |
+            apps/gizual-app/dist/
+            apps/gizual-api/dist/
           retention-days: 1
 
   e2e:
@@ -63,19 +65,16 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: "yarn"
-
-      - run: yarn --immutable
 
       - name: Retrieve the build artifacts
         uses: actions/download-artifact@v3
         with:
           name: web-dist
-          path: apps/gizual-app/dist/
-
-      - name: build api
-        run: yarn build:api
+          path: |
+            apps/gizual-app/dist/
+            apps/gizual-api/dist/
 
       - name: Setup E2E tests
         run: cd e2e && yarn --immutable
@@ -101,7 +100,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: web-dist
-          path: apps/gizual-app/dist/
+          path: |
+            apps/gizual-app/dist/
+            apps/gizual-api/dist/
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -115,7 +116,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+          tags: |
+            type=ref,event=tag
+            type=semver,event=tag,pattern={{major}}
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:

@@ -1,7 +1,12 @@
-FROM caddy:2.4.6-alpine
+FROM node:20
 
-COPY Caddyfile.web /etc/caddy/Caddyfile
+COPY apps/gizual-api/dist /srv
+COPY apps/gizual-app/dist /srv/public
 
-COPY apps/gizual-app/dist /srv
+WORKDIR /srv
+RUN npm install
 
-EXPOSE 8080
+ENV PORT=7172
+EXPOSE 7172
+
+CMD ["node", "main.js"]

@@ -1,6 +1,7 @@
 import express from "express";
 import cron from "node-cron";
 import cors from "cors";
+import fs from "node:fs";
 
 // This is required to handle async errors in express
 import "express-async-errors";
@@ -18,19 +19,31 @@ import { SnapshotsController } from "./controllers/snapshots.controller";
 const isProduction = process.env.NODE_ENV !== "development";
 
 const app: express.Express = express();
+
+app.use((_req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  next();
+});
+
+app.disable("x-powered-by");
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 5172;
 const proxyCount = process.env.PROXY_COUNT ? Number.parseInt(process.env.PROXY_COUNT) : 0;
 app.set("trust proxy", proxyCount);
 
-app.use(
+const apiRouter = express.Router();
+
+apiRouter.use(
   cors({
     origin: ["https://app.gizual.com", "http://localhost:5173", "http://localhost:4173"],
   }),
 );
 
 if (isProduction) {
-  app.use(RateLimitMiddleware);
-  app.use(RateSlowDownMiddleware);
+  apiRouter.use(RateLimitMiddleware);
+  apiRouter.use(RateSlowDownMiddleware);
 }
 
 const cwd = process.cwd();
@@ -42,7 +55,7 @@ const runtime = new Runtime();
 
 function registerController<T extends Controller>(prefix: string, ctor: Constructor<T>) {
   const instance = runtime.container.build(ctor);
-  app.use(prefix, instance.router);
+  apiRouter.use(prefix, instance.router);
 }
 
 runtime.registerValue("reposCacheFolder", globalRepoCacheFolder);
@@ -56,9 +69,19 @@ runtime.registerClass("gitService", GitService);
 registerController("/on-demand-clone", OnDemandCloneController);
 registerController("/snapshots", SnapshotsController);
 
-app.get("/", async (_, res) => {
+apiRouter.get("/", async (_, res) => {
   res.status(200).send({ success: true });
 });
+
+app.use("/api", apiRouter);
+
+if (isProduction) {
+  app.use(
+    express.static("public", {
+      cacheControl: true,
+    }),
+  );
+}
 
 app.use(ErrorHandlerMiddleware);
 
