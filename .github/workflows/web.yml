@@ -87,11 +87,12 @@ jobs:
         run: cd e2e && yarn e2e
 
       - name: Store the e2e artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-dist
           path: e2e/dist/
-          retention-days: 1
+          retention-days: 2
 
   build-image:
     needs: build
