@@ -45,10 +45,22 @@ $mobile-breakpoint: 830px;
   width: 100%;
 }
 
+.RepoCard__TitleWithImage {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .RepoCard__Title {
   @include text-sm;
   font-weight: 600;
   color: var(--foreground-primary);
+}
+
+.RepoCard__Image {
+  width: 20px;
+  height: 20px;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .RepoCard__Meta {
@@ -86,7 +98,7 @@ $mobile-breakpoint: 830px;
 .RepoCard__Source {
   @include text-xs;
   display: flex;
-  gap: 0.25rem;
+  gap: 0.5rem;
   color: var(--foreground-primary);
   & > svg {
     width: 14px;

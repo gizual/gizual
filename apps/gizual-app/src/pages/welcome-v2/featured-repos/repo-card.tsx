@@ -9,6 +9,7 @@ import style from "./featured-repos.module.scss";
 type RepoCardProps = {
   repoName?: string;
   repoSource?: string;
+  imageSource?: string;
   metrics?: {
     /** String that includes the unit, e.g. `1.2MB`. */
     size?: string;
@@ -24,6 +25,7 @@ type RepoCardProps = {
 function RepoCard({
   repoName = "test/demo",
   repoSource = "https://github.com/test/demo",
+  imageSource = "",
   metrics = { size: "", commitHash: "", stars: 0 },
 }: RepoCardProps) {
   const { url: urlLoader } = useFileLoaders();
@@ -39,7 +41,12 @@ function RepoCard({
   return (
     <Button className={style.RepoCard} variant="unstyled" onClick={onClick}>
       <div className={style.RepoCard__Row}>
-        <h3 className={style.RepoCard__Title}>{repoName}</h3>
+        <div className={style.RepoCard__TitleWithImage}>
+          {imageSource && (
+            <img className={style.RepoCard__Image} src={imageSource} crossOrigin="anonymous" />
+          )}
+          <h3 className={style.RepoCard__Title}>{repoName}</h3>
+        </div>
         <div className={style.RepoCard__Meta}>
           {commitHash && (
             <span
