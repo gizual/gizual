@@ -67,7 +67,7 @@
 }
 
 .ControlWithLabel__Label {
-  @include text-xs;
+  @include text-2xs;
   white-space: nowrap;
   text-align: left;
 }
@@ -145,7 +145,7 @@
 }
 
 .DebugOverlay {
-  @include text-xs;
+  @include text-2xs;
   position: absolute;
   top: 0;
   left: 0;
@@ -159,7 +159,7 @@
 }
 
 .ErrorOverlay {
-  @include text-xs;
+  @include text-2xs;
   position: absolute;
   top: 0;
   left: 0;

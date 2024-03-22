@@ -10,7 +10,9 @@ type CheckboxProps = MantineCheckboxProps;
  * Attaches default Gizual styling.
  */
 function Checkbox(props: CheckboxProps) {
-  return <MantineCheckbox className={clsx(style.Checkbox, props.className)}></MantineCheckbox>;
+  return (
+    <MantineCheckbox {...props} className={clsx(style.Checkbox, props.className)}></MantineCheckbox>
+  );
 }
 
 export { Checkbox };

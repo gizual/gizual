@@ -13,22 +13,8 @@
 
 @font-face {
   font-family: "FiraGO";
-  src: url("@giz/fonts/FiraGO-Bold.woff2") format("woff2");
-  font-weight: bold;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "FiraGO";
   src: url("@giz/fonts/FiraGO-Medium.woff2") format("woff2");
   font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "FiraGO";
-  src: url("@giz/fonts/FiraGO-SemiBold.woff2") format("woff2");
-  font-weight: 600;
   font-style: normal;
 }
 
@@ -41,6 +27,22 @@
 
 @font-face {
   font-family: "FiraGO";
+  src: url("@giz/fonts/FiraGO-MediumItalic.woff2") format("woff2");
+  font-weight: 500;
+  font-style: italic;
+}
+*/
+
+/* -------------------------------- BRANDING -------------------------------- */
+@font-face {
+  font-family: "FiraGO";
+  src: url("@giz/fonts/FiraGO-Bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "FiraGO";
   src: url("@giz/fonts/FiraGO-BoldItalic.woff2") format("woff2");
   font-weight: bold;
   font-style: italic;
@@ -48,9 +50,9 @@
 
 @font-face {
   font-family: "FiraGO";
-  src: url("@giz/fonts/FiraGO-MediumItalic.woff2") format("woff2");
-  font-weight: 500;
-  font-style: italic;
+  src: url("@giz/fonts/FiraGO-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
 }
 
 @font-face {
@@ -59,8 +61,8 @@
   font-weight: 600;
   font-style: italic;
 }
-*/
 
+/* -------------------------------- BASE FONT ------------------------------- */
 @font-face {
   font-family: "Figtree";
   src: url("@giz/fonts/Figtree-Variable.woff2") format("woff2-variations");
@@ -196,22 +198,22 @@ html {
   /* End of preflight block */
 
   body > * {
-    @include text-base;
+    @include text-sm;
     color: var(--foreground-primary);
   }
 
   h1 {
-    @include text-2xl;
+    @include text-xl;
     font-weight: bold;
   }
 
   h2 {
-    @include text-xl;
+    @include text-lg;
     font-weight: 600;
   }
 
   h3 {
-    @include text-lg;
+    @include text-base;
     font-weight: 600;
   }
 

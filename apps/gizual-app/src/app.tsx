@@ -1,6 +1,6 @@
 import { useTheme } from "@app/hooks/use-theme";
 import { ErrorPage } from "@app/pages/error/error";
-import { WelcomePage } from "@app/pages/welcome";
+import { WelcomePage } from "@app/pages/welcome-v2";
 import { Loading } from "@app/primitives/loading";
 import { LocalQueryContext, LocalQueryManager } from "@app/services/local-query";
 import { createTheme, MantineProvider, Menu, Popover } from "@mantine/core";

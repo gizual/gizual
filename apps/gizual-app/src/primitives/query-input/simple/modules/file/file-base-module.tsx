@@ -32,6 +32,7 @@ export const FileBaseQueryModule = observer(
             query={query}
             disableItems={disableItems}
             highlightItems={highlightItems}
+            hideItems={["lastEditedBy", "editedBy", "createdBy", "contains"]}
           />
         }
       />

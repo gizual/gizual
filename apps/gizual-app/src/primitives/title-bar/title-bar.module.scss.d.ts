@@ -4,6 +4,7 @@ declare const classNames: {
   readonly Logo: "Logo";
   readonly Title: "Title";
   readonly Branding: "Branding";
+  readonly Branding__Version: "Branding__Version";
   readonly Left: "Left";
   readonly Menu: "Menu";
   readonly MenuItem: "MenuItem";

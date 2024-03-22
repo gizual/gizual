@@ -64,7 +64,7 @@
 }
 
 .SettingsEntryLabel {
-  @include text-base;
+  @include text-sm;
   font-weight: 500;
   color: var(--foreground-secondary);
   display: flex;
@@ -72,13 +72,13 @@
 }
 
 .SettingsEntryDescription {
-  @include text-sm;
+  @include text-xs;
   color: var(--foreground-secondary);
   margin-bottom: 0.25rem;
 }
 
 .SettingsEntryDefault {
-  @include text-xs;
+  @include text-2xs;
   font-weight: 200;
   color: var(--foreground-disabled);
   align-self: flex-end;

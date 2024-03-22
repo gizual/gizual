@@ -22,7 +22,9 @@ export const TitleBar = observer(() => {
     <div className={style.TitleBar}>
       <a href="/" className={clsx(style.Link, style.Branding)}>
         <img className={style.Logo} src="./giz-icon.svg" alt="Gizual Logo" />
-        <h1 className={style.Title}>Gizual</h1>
+        <h1 className={style.Title}>
+          gizual<span className={style.Branding__Version}>alpha</span>
+        </h1>
       </a>
       <div className={style.Menu}>
         {isLargeScreen ? <DesktopTitleBar screen={screen} /> : <MobileTitleBar screen={screen} />}

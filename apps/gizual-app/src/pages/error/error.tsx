@@ -9,7 +9,7 @@ function ErrorPage() {
         <div className={style.LogoWrapper}>
           <AnimatedLogo animationState="idle" />
         </div>
-        <h1 className={style.Heading}>Error ⚠️</h1>
+        <h1 className={style.Heading}> ⚠️ Error</h1>
         <p>
           Due to browser security policies, Gizual requires a{" "}
           <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">

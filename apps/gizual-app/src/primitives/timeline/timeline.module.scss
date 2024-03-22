@@ -22,14 +22,14 @@
 }
 
 .DateRangeInfoText {
-  @include text-xs;
+  @include text-2xs;
   position: absolute;
   bottom: 0;
   user-select: none;
 }
 
 .DateRangeCenterText {
-  @include text-xs;
+  @include text-2xs;
   position: absolute;
   left: 0;
   right: 0;
@@ -116,7 +116,7 @@
 }
 
 .Header {
-  @include text-xl;
+  @include text-lg;
   margin-right: 1rem;
   margin-left: 1rem;
 }
@@ -192,7 +192,7 @@
 }
 
 @mixin ruler-annotation {
-  @include text-xs;
+  @include text-2xs;
   pointer-events: none;
   fill: var(--foreground-primary);
 }

@@ -174,12 +174,12 @@
 }
 
 .QueryModuleTitle {
-  @include text-base;
+  @include text-sm;
   text-align: left;
   font-weight: 500;
 
   @media (width < 1024px) {
-    @include text-lg;
+    @include text-base;
   }
 }
 
@@ -244,7 +244,7 @@
 }
 
 .ControlWithLabel__Label {
-  @include text-base;
+  @include text-sm;
   white-space: nowrap;
   text-align: left;
   color: var(--foreground-secondary);
@@ -268,7 +268,9 @@
 }
 
 .ToggleButton {
-  transition: background-color 0.25s, border-color 0.25s;
+  transition:
+    background-color 0.25s,
+    border-color 0.25s;
 }
 
 .IconToggled {
@@ -288,7 +290,6 @@
 .IconUnToggled:hover {
   background-color: var(--background-secondary);
 }
-
 
 .FileTreeWrapper {
   min-height: 50dvh;
@@ -323,7 +324,7 @@
 }
 
 .GradientColorTitle {
-  @include text-base;
+  @include text-sm;
   padding-left: 0.75rem;
 }
 

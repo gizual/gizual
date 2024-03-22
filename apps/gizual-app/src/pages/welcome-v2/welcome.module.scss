@@ -1,0 +1,130 @@
+@use "@/mixins" as *;
+
+$mobile-breakpoint: 830px;
+
+.WelcomePage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  a {
+    color: var(--foreground-link);
+  }
+}
+
+.Body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 4rem;
+}
+
+.Section {
+  display: flex;
+  padding: 1rem 2rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+
+  @media (width < 400px) {
+    padding: 1rem 0.5rem;
+  }
+}
+
+.Section__Title {
+  @include text-2xl;
+  font-weight: 700;
+  text-align: center;
+  color: var(--foreground-secondary);
+}
+
+.SourceSelection {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.5rem;
+
+  @media (width < $mobile-breakpoint) {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.SourceSelection__InBetweenText {
+  @include text-xl;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  @media (width < $mobile-breakpoint) {
+    margin: 0;
+  }
+}
+
+.Divider {
+  width: calc(100% - 3rem);
+  max-width: 69rem;
+  height: 1px;
+  border-color: var(--border-primary);
+}
+
+.ContactUs {
+  color: var(--foreground-disabled);
+  text-align: center;
+}
+
+.BrowserWarning {
+  @include text-sm;
+  width: calc(100% - 3rem);
+  max-width: 69rem;
+  margin-top: 2rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  text-align: left;
+
+  background-color: var(--color-gold);
+  color: var(--color-gunmetal);
+  border: 1px solid var(--color-gunmetal);
+
+  & > span > a {
+    color: var(--color-gizblue-darker);
+  }
+
+  & > svg {
+    width: 36px;
+    height: 36px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin: 0.5rem 0;
+    & > path {
+      fill: var(--color-gunmetal);
+    }
+  }
+
+  & > span {
+    margin: 0.5rem 0;
+  }
+}
+
+.Footer {
+  @include text-xs;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  hr {
+    width: 250px;
+    margin: 0 auto;
+  }
+}

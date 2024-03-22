@@ -19,6 +19,7 @@
 }
 
 .Title {
+  @include font-branding;
   font-weight: semi-bold;
   color: var(--foreground-primary);
   display: inline-block;
@@ -32,6 +33,13 @@
   border-right: 1px solid var(--border-primary);
   flex-direction: row;
   align-items: center;
+}
+
+.Branding__Version {
+  @include text-xs;
+  @include font-base;
+  margin-left: 0.5rem;
+  color: var(--accent-main);
 }
 
 .Left {

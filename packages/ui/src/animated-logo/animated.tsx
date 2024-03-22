@@ -12,11 +12,11 @@ export function AnimatedLogo({ className, animationState }: AnimatedLogoProps) {
     <div className={style.Center}>
       <svg className={style.GitLineArt} viewBox={"0 0 800 100"} width={"100%"} height={100}>
         <line className={style.GitLineMain} x1={0} x2={800} y1={40} y2={40} strokeWidth={6} />
-        <line className={style.GitLineBranch} x1={315} x2={342.5} y1={40} y2={72} strokeWidth={6} />
+        <line className={style.GitLineBranch} x1={300} x2={330} y1={40} y2={72} strokeWidth={6} />
       </svg>
 
       <div className={clsx(style.Container, className)}>
-        <span className={style.TitleStroke}>Gizual</span>
+        <span className={style.TitleStroke}>gizual</span>
         <h2
           className={style.TitleIdleWave}
           style={{
@@ -24,7 +24,7 @@ export function AnimatedLogo({ className, animationState }: AnimatedLogoProps) {
               animationState === "loading" || animationState === "loading-finished" ? "2s" : "5s",
           }}
         >
-          Gizual
+          gizual
         </h2>
         <span
           className={clsx(
@@ -32,9 +32,9 @@ export function AnimatedLogo({ className, animationState }: AnimatedLogoProps) {
             animationState === "loading-finished" && style.LoadingFinishedWaveAnimate,
           )}
         >
-          Gizual
+          gizual
         </span>
-        <span className={style.TitleColorBg}>Gizual</span>
+        <span className={style.TitleColorBg}>gizual</span>
       </div>
     </div>
   );

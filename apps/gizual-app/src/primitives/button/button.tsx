@@ -3,7 +3,14 @@ import React from "react";
 
 import style from "./button.module.scss";
 
-type ButtonVariant = "filled" | "outline" | "gray" | "dangerous";
+type ButtonVariant =
+  | "filled"
+  | "outline"
+  | "gray"
+  | "dangerous"
+  | "unstyled"
+  | "primary"
+  | "secondary";
 type ButtonSize = "small" | "regular" | "large";
 
 const buttonVariantCSSMapping: Record<ButtonVariant, string> = {
@@ -11,6 +18,10 @@ const buttonVariantCSSMapping: Record<ButtonVariant, string> = {
   dangerous: style.ButtonDangerous,
   outline: style.ButtonOutline,
   gray: style.ButtonGray,
+  unstyled: style.ButtonUnstyled,
+
+  primary: style.ButtonFilled,
+  secondary: style.ButtonOutline,
 };
 
 const buttonSizeCSSMapping: Record<ButtonSize, string> = {
@@ -31,7 +42,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         className={clsx(
           className,
-          style.Button,
+          style.ButtonBase,
+          variant === "unstyled" ? undefined : style.Button,
           `${buttonVariantCSSMapping[variant]}`,
           `${buttonSizeCSSMapping[props.size ?? "regular"]}`,
         )}

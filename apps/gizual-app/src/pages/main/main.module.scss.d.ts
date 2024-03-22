@@ -4,5 +4,6 @@ declare const classNames: {
   readonly canvas: "canvas";
   readonly TitleBarContainer: "TitleBarContainer";
   readonly AnalyzePage: "AnalyzePage";
+  readonly ComingSoonOverlay: "ComingSoonOverlay";
 };
 export = classNames;

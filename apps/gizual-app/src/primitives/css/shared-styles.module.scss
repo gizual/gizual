@@ -20,7 +20,7 @@
 }
 
 @mixin card-title {
-  @include text-xs;
+  @include text-2xs;
   text-align: left;
   font-family: "Iosevka Extended", monospace;
   margin: 0.75rem 0 0 0;
@@ -93,7 +93,7 @@
   flex-direction: row;
 
   h1 {
-    @include text-xl;
+    @include text-lg;
   }
 }
 
@@ -287,6 +287,10 @@
   gap: 1rem;
 }
 
+.Text-2Xs {
+  @include text-2xs;
+}
+
 .Text-Xs {
   @include text-xs;
 }
@@ -296,7 +300,7 @@
 }
 
 .Text-Base {
-  @include text-base;
+  @include text-sm;
 }
 
 .Text-Lg {

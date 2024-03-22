@@ -54,6 +54,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
   const mainController = useMainController();
   if (!vm) return <div />;
   const [width, height] = useWindowSize();
+  const isLargeScreen = useMediaQuery({ min: 1024 });
   const [canvasWidth, setCanvasWidth] = React.useState(0);
 
   const ref = React.useRef<HTMLDivElement>(null);
@@ -61,16 +62,26 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
     setCanvasWidth(ref.current?.clientWidth ?? width);
   }, [ref, width, height]);
 
-  const layout: ReactGridLayout.Layout[] = [
-    { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  let layout: ReactGridLayout.Layout[] = [
+    { i: "a", x: 0, y: 0, w: 6, h: 4 },
     //{ i: "b", x: 2, y: 0, w: 2, h: 2 },
   ];
+
+  if (isLargeScreen) {
+    layout = [
+      { i: "a", x: 0, y: 0, w: 2, h: 2 },
+      //{ i: "b", x: 2, y: 0, w: 2, h: 2 },
+    ];
+  }
 
   if (!mainController.fileTreeRoot) return <div />;
   const languageData = parseLanguages(mainController.fileTreeRoot);
 
+  const isProductionBuild = import.meta.env.PROD;
+
   return (
     <div ref={ref} className={style.AnalyzePage}>
+      {isProductionBuild && <div className={style.ComingSoonOverlay}>Coming soon!</div>}
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
         <div key={"a"}>
           <Container title={"Language Distribution"}>

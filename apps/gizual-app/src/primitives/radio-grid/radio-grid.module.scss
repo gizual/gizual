@@ -22,7 +22,7 @@
   flex-direction: column;
   border: 1px solid var(--border-primary);
   background-color: var(--background-primary);
-  transition: background-color 0.25s border-color 0.25s;
+  transition: background-color 0.2s border-color 0.2s;
   cursor: pointer;
 
   &:hover {
@@ -86,12 +86,12 @@
 }
 
 .GridItemTitle {
-  @include text-base;
+  @include text-sm;
   font-weight: 600;
   text-align: left;
 }
 
 .GridItemDescription {
-  @include text-sm;
+  @include text-xs;
   text-align: left;
 }

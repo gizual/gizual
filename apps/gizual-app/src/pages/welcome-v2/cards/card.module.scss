@@ -1,0 +1,209 @@
+@use "@/mixins" as *;
+
+.Card {
+  display: inline-flex;
+  width: 100%;
+  width: 350px;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  position: relative;
+
+  border: 1px solid var(--border-primary);
+  background-color: var(--background-tertiary);
+
+  @media (width < 400px) {
+    width: 100%;
+  }
+
+  code {
+    @include font-code;
+    padding: 0.25rem 0.25rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    background-color: var(--background-primary);
+    color: var(--accent-code);
+  }
+
+  em {
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  svg {
+    margin: 0;
+  }
+}
+
+.Header {
+  display: flex;
+  padding: 0.375rem 1rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: stretch;
+
+  background: var(--background-secondary);
+  color: var(--foreground-primary);
+  border-bottom: 1px solid var(--background-secondary);
+  transition: border-color 0.25s ease-in-out;
+
+  &[aria-expanded="true"] {
+    border-bottom-color: var(--border-primary);
+  }
+}
+
+.Header__Icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  & > path {
+    fill: var(--foreground-primary);
+  }
+}
+
+.Header__Title {
+  @include text-lg;
+  font-weight: 600;
+  text-align: center;
+}
+
+.Body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  align-self: stretch;
+  padding-bottom: 1.5rem;
+}
+
+.ActionArea {
+  @include text-sm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: stretch;
+  padding: 0 1rem;
+}
+
+.ActionArea__Button {
+  width: 100%;
+  & > svg {
+    & > path {
+      fill: var(--accent-main-fg);
+    }
+  }
+}
+
+.DescriptionArea {
+  display: flex;
+  padding: 0rem 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.875rem;
+  align-self: stretch;
+}
+
+.Description {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  align-self: stretch;
+}
+
+.Description__Icon {
+  width: 1.625rem;
+  height: 1.625rem;
+  & > path {
+    fill: var(--foreground-primary);
+  }
+}
+
+.Description__Content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1 0 0;
+  padding-right: 1rem; /* Visual offset against the hanging icon */
+}
+
+.Description__Title {
+  @include text-lg;
+  font-weight: 600;
+  color: var(--foreground-primary);
+}
+
+.Description__Text {
+  @include text-sm;
+  color: var(--foreground-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.Divider {
+  width: 26px;
+  height: 1px;
+  background-color: var(--border-primary);
+}
+
+.UnsupportedDevice {
+  @include text-xs;
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-top: 1px solid var(--color-gunmetal);
+  border-bottom: 1px solid var(--color-gunmetal);
+  height: 68px;
+
+  background-color: var(--color-gold);
+  color: var(--color-gunmetal);
+  & > svg {
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 26px;
+    height: auto;
+    & > path {
+      fill: var(--color-gunmetal);
+    }
+  }
+
+  & > span > a {
+    color: var(--color-gizblue-darker);
+  }
+}
+
+.DropZoneOverlay {
+  @include text-lg;
+  font-weight: 500;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  border: 3px dashed var(--accent-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-secondary);
+  opacity: 0;
+  animation: fade-in 0.25s ease-in-out forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.95;
+  }
+}

@@ -57,7 +57,7 @@ $accent-tertiary-fg: #fff;
 
     --foreground-primary: var(--color-darkgray);
     --foreground-secondary: var(--color-black);
-    --foreground-tertiary: var(--color-gunmetal);
+    --foreground-tertiary: #2b303b;
     --foreground-disabled: var(--color-disabled);
     --foreground-link: #0069c2;
 
@@ -68,10 +68,9 @@ $accent-tertiary-fg: #fff;
     --accent-secondary-fg: var(--color-black);
     --accent-tertiary: var(--color-tomato);
     --accent-tertiary-fg: var(--color-white);
+    --accent-code: var(--color-plum);
 
     --border-primary: var(--color-gray);
-    --border-primary-shaded: hsl(from var(--border-primary) h s calc(l + 10%));
-
     --border-secondary: var(--color-darkslate);
     --border-tertiary: #e4e4e7;
   }
@@ -84,7 +83,7 @@ $accent-tertiary-fg: #fff;
     --background-red: var(--color-darkred);
     --foreground-primary: var(--color-lightgray);
     --foreground-secondary: var(--color-white);
-    --foreground-tertiary: var(--color-zinc);
+    --foreground-tertiary: #d5d5dd;
     --foreground-disabled: var(--color-disabled);
     --foreground-link: #8cb4ff;
 
@@ -95,10 +94,9 @@ $accent-tertiary-fg: #fff;
     --accent-secondary-fg: var(--color-white);
     --accent-tertiary: var(--color-tomato);
     --accent-tertiary-fg: var(--color-white);
+    --accent-code: var(--color-gold);
 
     --border-primary: var(--color-darkslate);
-    --border-primary-shaded: hsl(from var(--border-primary) h s calc(l - 10%));
-
     --border-secondary: var(--color-gray);
     --border-tertiary: #2f333d;
   }

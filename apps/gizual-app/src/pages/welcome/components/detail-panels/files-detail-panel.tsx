@@ -93,7 +93,7 @@ export const FilesDetailPanel = observer(
                     isHoveringImage ? sharedStyle.Opacity0 : sharedStyle.Opacity100,
                   )}
                 >
-                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-Xl"])}>
                     File System Access API
                   </h2>
                   <span>Hover or tap for a demo.</span>
@@ -130,7 +130,7 @@ export const FilesDetailPanel = observer(
                     isHoveringImage ? sharedStyle.Opacity0 : sharedStyle.Opacity100,
                   )}
                 >
-                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-Xl"])}>
                     Drag & Drop Input
                   </h2>
                   <span>Hover or tap for a demo.</span>
@@ -164,7 +164,7 @@ export const FilesDetailPanel = observer(
                     isHoveringImage ? sharedStyle.Opacity0 : sharedStyle.Opacity100,
                   )}
                 >
-                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-Xl"])}>
                     HTML Input Field
                   </h2>
                   <span>Hover or tap for a demo.</span>
@@ -190,7 +190,7 @@ export const FilesDetailPanel = observer(
             <>
               <div className={style.GifPanel}>
                 <div className={clsx(style.GifDescription)}>
-                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-2Xl"])}>
+                  <h2 className={clsx(sharedStyle["Text-Bold"], sharedStyle["Text-Xl"])}>
                     Unknown loader.
                   </h2>
                   <span>No demo available.</span>

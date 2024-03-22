@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/no-null */
 import { IconCollapse } from "@app/assets";
-import { Checkbox } from "@mantine/core";
+import { Checkbox } from "@app/primitives/checkbox";
 import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";

@@ -22,6 +22,7 @@ export const TimeBaseQueryModule = observer(
             query={query}
             disableItems={disableItems}
             highlightItems={highlightItems}
+            hideItems={["sinceFirstCommitBy"]}
           />
         }
       />
