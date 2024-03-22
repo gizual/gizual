@@ -1,7 +1,7 @@
 import express from "express";
 import cron from "node-cron";
 import cors from "cors";
-import fs from "node:fs";
+import compression from "compression";
 
 // This is required to handle async errors in express
 import "express-async-errors";
@@ -76,6 +76,7 @@ apiRouter.get("/", async (_, res) => {
 app.use("/api", apiRouter);
 
 if (isProduction) {
+  app.use(compression());
   app.use(
     express.static("public", {
       cacheControl: true,
