@@ -36,6 +36,7 @@ declare const classNames: {
   readonly "Gap-2": "Gap-2";
   readonly "Gap-3": "Gap-3";
   readonly "Gap-4": "Gap-4";
+  readonly "Text-2Xs": "Text-2Xs";
   readonly "Text-Xs": "Text-Xs";
   readonly "Text-Sm": "Text-Sm";
   readonly "Text-Base": "Text-Base";

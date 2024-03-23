@@ -1,0 +1,133 @@
+@use "@/mixins" as *;
+
+/* --------------------------------- Mixins --------------------------------- */
+@mixin tw-shadow {
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color),
+    0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+}
+
+/* --------------------------------- Classes -------------------------------- */
+.Wrapper {
+  @include tw-shadow;
+  width: 100%;
+  display: flex;
+  max-width: 100dvw;
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--background-secondary);
+  backdrop-filter: blur(4px);
+  opacity: 0.95;
+
+  @media (width > 768px) {
+    height: 65px;
+  }
+
+  nav {
+    display: flex;
+  }
+
+  nav > ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: 1;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    color: var(--foreground-tertiary);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    transition: color 0.15s ease-in-out;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--foreground-secondary);
+      text-decoration: underline;
+    }
+  }
+}
+
+.Header {
+  margin: 0 auto;
+  max-width: 72rem;
+  padding: 0 1.25rem;
+  width: 100%;
+
+  @media (width > 640px) {
+    padding: 0 1.5rem;
+  }
+}
+
+.Content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 3rem;
+
+  @media (width > 768px) {
+    height: 4rem;
+  }
+}
+
+.Branding {
+  display: flex;
+  flex-direction: row;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+.Branding__Logo {
+  height: 1.5rem;
+  width: auto;
+
+  @media (width > 640px) {
+    height: 2rem;
+  }
+}
+
+.Branding__Text {
+  @include text-lg;
+  @include font-branding;
+  color: var(--foreground-primary);
+
+  @media (width > 640px) {
+    @include text-2xl;
+  }
+}
+
+.Branding__Version {
+  @include text-xs;
+  @include font-base;
+  margin-left: 0.5rem;
+  color: var(--accent-main);
+}
+
+.GithubIcon {
+  aspect-ratio: auto;
+  height: 1.5rem;
+
+  @media (width > 640px) {
+    height: 2rem;
+  }
+
+  & > path {
+    fill: var(--foreground-primary);
+  }
+
+  &:hover {
+    cursor: pointer;
+    & > path {
+      fill: var(--foreground-secondary);
+    }
+  }
+}

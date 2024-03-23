@@ -125,10 +125,12 @@ export const ColorPicker = observer(({ hexValue, onChange, onAccept }: ColorPick
       </Popover.Dropdown>
       <Popover.Target>
         <IconButton
+          className={style.IconButton}
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={(e) => {
             if (e.key === "Escape") onCancel();
           }}
+          aria-expanded={isOpen}
         >
           <div className={style.ColorPreview} style={{ backgroundColor: color }}></div>
         </IconButton>

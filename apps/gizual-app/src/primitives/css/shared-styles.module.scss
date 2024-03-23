@@ -20,10 +20,9 @@
 }
 
 @mixin card-title {
-  @include text-xs;
+  @include text-2xs;
   text-align: left;
   font-family: "Iosevka Extended", monospace;
-  font-weight: 300;
   margin: 0.75rem 0 0 0;
   flex-grow: 1;
   overflow: hidden;
@@ -87,14 +86,14 @@
 }
 
 @mixin section-head {
-  background-color: var(--background-tertiary);
+  background-color: var(--background-secondary);
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-primary);
   display: flex;
   flex-direction: row;
 
   h1 {
-    @include text-xl;
+    @include text-lg;
   }
 }
 
@@ -198,6 +197,16 @@
   top: 0;
   left: 0;
   background-color: #00000080;
+
+  animation: overlayShow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  @keyframes overlayShow {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 .PopoverMax {
@@ -208,10 +217,18 @@
   .CloseButton {
     width: 24px;
     height: 24px;
+    & path {
+      fill: var(--foreground-primary);
+      transition: fill 0.2s;
+    }
   }
 
   .CloseButton:hover {
     background-color: var(--color-tomato);
+    border-color: var(--color-tomato);
+    & path {
+      fill: white;
+    }
   }
 }
 
@@ -270,6 +287,10 @@
   gap: 1rem;
 }
 
+.Text-2Xs {
+  @include text-2xs;
+}
+
 .Text-Xs {
   @include text-xs;
 }
@@ -279,7 +300,7 @@
 }
 
 .Text-Base {
-  @include text-base;
+  @include text-sm;
 }
 
 .Text-Lg {
@@ -303,15 +324,15 @@
 }
 
 .Text-Bold {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .Text-Medium {
-  font-weight: medium;
+  font-weight: 600;
 }
 
 .Text-Normal {
-  font-weight: normal;
+  font-weight: 400;
 }
 
 .Text-Accent {

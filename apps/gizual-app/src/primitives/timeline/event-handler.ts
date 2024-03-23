@@ -51,11 +51,29 @@ export class TimelineEventHandler {
     element.removeEventListener("mouseleave", this.mouseLeave);
 
     element.addEventListener("mousemove", this.mouseMove);
+    element.addEventListener("touchmove", (e) =>
+      this.mouseMove(this.translateTouchToMouseEvent(e)),
+    );
+
     element.addEventListener("mousedown", this.mouseDown);
+    element.addEventListener("touchstart", (e) =>
+      this.mouseDown(this.translateTouchToMouseEvent(e)),
+    );
+
     element.addEventListener("mouseup", this.mouseUp);
+    element.addEventListener("touchend", (e) => this.mouseUp(this.translateTouchToMouseEvent(e)));
+
     element.addEventListener("wheel", this.wheel, { passive: true });
     element.addEventListener("mouseenter", this.mouseEnter);
     element.addEventListener("mouseleave", this.mouseLeave);
+  }
+
+  translateTouchToMouseEvent(e: TouchEvent) {
+    return new MouseEvent("mousemove", {
+      clientX: e.touches[0].clientX,
+      clientY: e.touches[0].clientY,
+      bubbles: true,
+    });
   }
 
   /**
@@ -131,14 +149,14 @@ export class TimelineEventHandler {
     }
 
     if (e.shiftKey || e.ctrlKey) {
-      this.vm.zoom(ticks);
+      this.vm.move(-ticks * 40);
+      this.vm.updateSelectionStartCoords();
+      this.vm.updateSelectionEndCoords();
       return;
     }
 
-    // No extra key is pressed, so we perform a simple move operation.
-    this.vm.move(-ticks * 20);
-    this.vm.updateSelectionStartCoords();
-    this.vm.updateSelectionEndCoords();
+    // No extra key is pressed, we perform a `zoom` operation.
+    this.vm.zoom(ticks);
   };
 
   mouseMove = (e: MouseEvent) => {

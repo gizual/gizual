@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
+  darkMode: "selector",
   theme: {
     extend: {
       backgroundImage: {
@@ -36,6 +37,9 @@ export default {
       },
       fontFamily: {
         branding: ["FiraGO", "sans-serif"],
+        sans: ["Figtree", "ui-sans-serif"],
+        serif: ["Figtree", "ui-serif"],
+        mono: ["Iosevka Extended", "ui-monospace"],
       },
       animation: {
         "text-slide-2": "text-slide-2 5s cubic-bezier(0.83, 0, 0.17, 1) infinite",

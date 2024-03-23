@@ -19,7 +19,7 @@ function HeroModule({
         <div className="pb-12 pt-32 md:pb-20 md:pt-40">
           <div className="pb-8 text-center md:pb-12">
             <h1 className="mb-4 " data-aos="zoom-y-out">
-              <span className="bg-gradient-to-b from-slate-200/60 to-slate-200 to-50% bg-clip-text text-transparent">
+              <span className="bg-gradient-to-b from-foreground-primary to-foreground-secondary to-50% bg-clip-text text-transparent dark:from-slate-200/60 dark:to-slate-200">
                 {" "}
                 {"Modernize your Git experience with"}
               </span>
@@ -38,7 +38,7 @@ function HeroModule({
             </h1>
             <div className="mx-auto max-w-3xl">
               <div
-                className="mb-8 mt-8 flex flex-col gap-0 text-lg font-normal text-slate-300 md:text-xl"
+                className="mb-8 mt-8 flex flex-col gap-0 text-lg font-normal text-foreground-tertiary md:text-xl"
                 data-aos="zoom-y-out"
                 data-aos-delay="150"
               >
@@ -84,14 +84,7 @@ function HeroModule({
               Try it now
             </a>
             <span className="text-center text-sm text-foreground-tertiary">
-              Looking for even more performance? Download the native{" "}
-              <a
-                className="text-left font-normal text-foreground-link transition-all hover:underline"
-                href="/tauri"
-              >
-                Tauri build
-              </a>
-              .
+              For the best performance, we recommend using a Chromium-based browser.
             </span>
           </div>
 
@@ -100,17 +93,17 @@ function HeroModule({
             data-aos="fade-right"
             data-aos-delay="250"
           >
-            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-slate-300 md:text-xl">
+            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-foreground-primary md:text-xl">
               <h2 className="text-center">
                 <em className="emGradient">Interactive</em> visualizations in multiple styles
               </h2>
-              <span className="max-w-3xl text-center">
+              <span className="max-w-3xl text-center text-foreground-tertiary">
                 Dive into an (almost) infinitely zoomable canvas showcasing your repository's files.
                 Each line is color-coded based on a metric of your choosing, offering a unique
                 historical perspective.
               </span>
               <div className="relative flex justify-center pt-8 md:pt-12">
-                <div className="group relative h-auto w-[350px] rounded-xl border border-border-primary bg-gradient-to-r from-slate-800 to-slate-900 p-8 sm:w-[500px] md:w-[600px] lg:w-[768px]">
+                <div className="group relative h-auto w-[350px] rounded-xl border border-border-primary bg-gradient-to-r from-slate-50 to-slate-200 p-8 sm:w-[500px] md:w-[600px] lg:w-[768px] dark:from-slate-800 dark:to-slate-900">
                   <ul className="flex w-full flex-col gap-6 md:w-[40%]">
                     <li className="flex flex-col items-start justify-start">
                       <ZoomIcon className="h-10 w-auto pb-2"></ZoomIcon>
@@ -146,11 +139,11 @@ function HeroModule({
             data-aos="fade-left"
             data-aos-delay="250"
           >
-            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-slate-300 md:text-xl">
+            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-foreground-primary md:text-xl">
               <h2 className="text-center">
                 <em className="emGradient">Customizable</em> query language
               </h2>
-              <span className="max-w-3xl text-center">
+              <span className="max-w-3xl text-center text-foreground-tertiary">
                 Tailor your analytics with our built-in query language. Filter by authors, file
                 changes, and more, for focused insights.
               </span>
@@ -182,11 +175,11 @@ function HeroModule({
             data-aos="fade-right"
             data-aos-delay="250"
           >
-            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-slate-300 md:text-xl">
+            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-foreground-primary md:text-xl">
               <h2 className="text-center">
                 <em className="emGradient">Glanceable</em> charts and statistics
               </h2>
-              <span className="max-w-3xl text-center">
+              <span className="max-w-3xl text-center text-foreground-tertiary">
                 Explore comprehensive charts in the Analyze section. See your repository's
                 contribution history, file changes, and more.
               </span>
@@ -211,9 +204,9 @@ function HeroModule({
             data-aos="fade-down"
             data-aos-delay="250"
           >
-            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-slate-300 md:text-xl">
+            <div className="mb-8 mt-8 flex flex-col items-center gap-4 text-lg font-normal text-foreground-primary md:text-xl">
               <h2 className="text-center">Ready to get started?</h2>
-              <span className="max-w-3xl text-center">
+              <span className="max-w-3xl text-center text-foreground-tertiary">
                 Gizual is free and open-source. Try it out now!
               </span>
               <a

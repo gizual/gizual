@@ -1,9 +1,10 @@
 import { Container, parseLanguages } from "@app/charts";
 import { LanguageDistributionChart } from "@app/charts/languages/language-distribution";
 import { useMainController } from "@app/controllers";
+import { useMediaQuery } from "@app/hooks/use-media-query";
 import { useWindowSize } from "@app/hooks/use-window-size";
 import { Canvas, MessageBar, TitleBar } from "@app/primitives";
-import { SimpleQueryInput } from "@app/primitives/query-input";
+import { QueryBar } from "@app/primitives/query-input";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
@@ -28,7 +29,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
     <div className={style.Page}>
       <div className={style.TitleBarContainer}>
         <TitleBar />
-        <SimpleQueryInput />
+        <QueryBar />
         <MessageBar />
       </div>
 
@@ -51,6 +52,7 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
   const mainController = useMainController();
   if (!vm) return <div />;
   const [width, height] = useWindowSize();
+  const isLargeScreen = useMediaQuery({ min: 1024 });
   const [canvasWidth, setCanvasWidth] = React.useState(0);
 
   const ref = React.useRef<HTMLDivElement>(null);
@@ -58,16 +60,26 @@ const AnalyzePage = observer(({ vm }: MainPageProps) => {
     setCanvasWidth(ref.current?.clientWidth ?? width);
   }, [ref, width, height]);
 
-  const layout: ReactGridLayout.Layout[] = [
-    { i: "a", x: 0, y: 0, w: 2, h: 2 },
+  let layout: ReactGridLayout.Layout[] = [
+    { i: "a", x: 0, y: 0, w: 6, h: 4 },
     //{ i: "b", x: 2, y: 0, w: 2, h: 2 },
   ];
+
+  if (isLargeScreen) {
+    layout = [
+      { i: "a", x: 0, y: 0, w: 2, h: 2 },
+      //{ i: "b", x: 2, y: 0, w: 2, h: 2 },
+    ];
+  }
 
   if (!mainController.fileTreeRoot) return <div />;
   const languageData = parseLanguages(mainController.fileTreeRoot);
 
+  const isProductionBuild = import.meta.env.PROD;
+
   return (
     <div ref={ref} className={style.AnalyzePage}>
+      {isProductionBuild && <div className={style.ComingSoonOverlay}>Coming soon!</div>}
       <ReactGridLayout layout={layout} width={canvasWidth} cols={6} rowHeight={canvasWidth / 5}>
         <div key={"a"}>
           <Container title={"Language Distribution"}>

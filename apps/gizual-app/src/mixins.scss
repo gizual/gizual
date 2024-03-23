@@ -1,6 +1,6 @@
 @mixin rounded {
   border: 1px solid var(--border-primary);
-  border-radius: 0.25rem;
+  border-radius: 2px;
 }
 
 @mixin rounded-left {
@@ -27,12 +27,19 @@
   //transition-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
+@mixin button-click-animation {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: transform 0.15s ease-out;
+    transform: scale(0.99) translateY(1px);
+  }
+}
+
 @mixin font-code {
   font-family: "Iosevka Extended";
 }
 
 @mixin font-base {
-  font-family: "FiraGO";
+  font-family: "Figtree";
 }
 
 @mixin shadow-sm {
@@ -68,29 +75,69 @@
   box-shadow: 0 15px 15px 2px #000c;
 }
 
-@mixin text-xs {
+@mixin text-2xs {
   font-size: 0.625rem; /* 10px */
   line-height: 0.875rem; /* 14px */
 }
-@mixin text-sm {
+@mixin text-xs {
   font-size: 0.75rem; /* 12px */
-  line-height: 1.125rem; /* 18px */
+  line-height: 1rem; /* 16px */
+}
+@mixin text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
 }
 @mixin text-base {
-  font-size: 0.875rem; /* 14px */
-  line-height: 1.375rem; /* 22px */
-}
-@mixin text-lg {
   font-size: 1rem; /* 16px */
   line-height: 1.5rem; /* 24px */
 }
-@mixin text-xl {
+@mixin text-lg {
   font-size: 1.125rem; /* 18px */
-  line-height: 1.5rem; /* 24px */
+  line-height: 1.75rem; /* 28px */
 }
-@mixin text-2xl {
+@mixin text-xl {
   font-size: 1.25rem; /* 20px */
   line-height: 1.75rem; /* 28px */
+}
+@mixin text-2xl {
+  font-size: 1.5rem; /* 24px */
+  line-height: 2rem; /* 32px */
+}
+@mixin text-3xl {
+  font-size: 1.875rem; /* 30px */
+  line-height: 2.25rem; /* 36px */
+}
+@mixin text-4xl {
+  font-size: 2.25rem; /* 36px */
+  line-height: 2.625rem; /* 42px */
+}
+@mixin text-5xl {
+  font-size: 2.625rem; /* 42px */
+  line-height: 3rem; /* 48px */
+}
+@mixin text-6xl {
+  font-size: 3rem; /* 48px */
+  line-height: 3.5rem; /* 56px */
+}
+@mixin text-7xl {
+  font-size: 3.5rem; /* 56px */
+  line-height: 4rem; /* 64px */
+}
+@mixin text-8xl {
+  font-size: 4rem; /* 64px */
+  line-height: 4.5rem; /* 72px */
+}
+@mixin text-9xl {
+  font-size: 4.5rem; /* 72px */
+  line-height: 5rem; /* 80px */
+}
+
+@mixin font-branding {
+  font-family: "FiraGO";
+  font-weight: 600;
+}
+@mixin font-base {
+  font-family: "Figtree";
 }
 
 @mixin transition-bg {

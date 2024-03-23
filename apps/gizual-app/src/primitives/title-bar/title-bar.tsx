@@ -1,6 +1,7 @@
 import { IconClose } from "@app/assets";
 import { Panel, PANELS, useMainController } from "@app/controllers";
 import { useMediaQuery } from "@app/hooks/use-media-query";
+import { QueryEditorModal } from "@app/primitives/query-input/query-editor/query-editor-modal";
 import { Select, SelectOption } from "@app/primitives/select";
 import { Modal, Stack, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -15,14 +16,16 @@ import { Button } from "..";
 import style from "./title-bar.module.scss";
 
 export const TitleBar = observer(() => {
-  const isLargeScreen = useMediaQuery({ min: 768 });
+  const isLargeScreen = useMediaQuery({ min: 1024 });
   const screen = useScreen();
 
   return (
     <div className={style.TitleBar}>
       <a href="/" className={clsx(style.Link, style.Branding)}>
         <img className={style.Logo} src="./giz-icon.svg" alt="Gizual Logo" />
-        <h1 className={style.Title}>gizual</h1>
+        <h1 className={style.Title}>
+          gizual<span className={style.Branding__Version}>alpha</span>
+        </h1>
       </a>
       <div className={style.Menu}>
         {isLargeScreen ? <DesktopTitleBar screen={screen} /> : <MobileTitleBar screen={screen} />}
@@ -96,13 +99,17 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
           <Modal opened={opened} onClose={close} centered title="Close repository">
             <Stack gap="md">
               Do you wish to close the repository?
-              <Button onClick={() => mainController.closeRepository()} variant="filled">
+              <Button onClick={() => mainController.closeRepository()} variant="dangerous">
                 Close repository
               </Button>
             </Stack>
           </Modal>
           <Tooltip label="Close repository">
-            <IconButton className={sharedStyle.CloseButton} onClick={open}>
+            <IconButton
+              className={clsx(sharedStyle.CloseButton, style.IconClose)}
+              onClick={open}
+              isDangerous
+            >
               <IconClose />
             </IconButton>
           </Tooltip>
@@ -130,14 +137,18 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
         </div>
       )}
       {screen !== "welcome" && (
-        <Select<Panel>
-          value={selectedPanel}
-          size="md"
-          onChange={(_, panel) => {
-            setSelectedPanel(panel);
-          }}
-          data={panels}
-        />
+        <>
+          <Select<Panel>
+            value={selectedPanel}
+            onChange={(_, panel) => {
+              setSelectedPanel(panel);
+            }}
+            data={panels}
+            style={{ maxWidth: 200, minWidth: 100 }}
+          />
+
+          <QueryEditorModal triggerStyle={{ width: 30, height: 30 }} />
+        </>
       )}
     </div>
   );

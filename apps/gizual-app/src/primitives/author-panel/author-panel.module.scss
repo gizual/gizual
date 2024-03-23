@@ -2,7 +2,7 @@
 
 .SettingsPanel {
   @include panel;
-  max-width: 100%;
+  max-width: 250px;
   border-left: 1px solid var(--border-primary);
 }
 

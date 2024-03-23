@@ -1,10 +1,11 @@
 declare const classNames: {
   readonly TitleBar: "TitleBar";
+  readonly Right: "Right";
   readonly Logo: "Logo";
   readonly Title: "Title";
   readonly Branding: "Branding";
+  readonly Branding__Version: "Branding__Version";
   readonly Left: "Left";
-  readonly Right: "Right";
   readonly Menu: "Menu";
   readonly MenuItem: "MenuItem";
   readonly Selected: "Selected";
@@ -12,5 +13,9 @@ declare const classNames: {
   readonly InfoText: "InfoText";
   readonly SelectIcon: "SelectIcon";
   readonly Link: "Link";
+  readonly IconClose: "IconClose";
+  readonly IconButton: "IconButton";
+  readonly IconToggled: "IconToggled";
+  readonly IconUnToggled: "IconUnToggled";
 };
 export = classNames;

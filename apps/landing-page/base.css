@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  /*
   @font-face {
     font-family: "FiraGO";
     src: url("@giz/fonts/FiraGO-Regular.woff2") format("woff2");
@@ -57,6 +58,21 @@
     src: url("@giz/fonts/FiraGO-SemiBoldItalic.woff2") format("woff2");
     font-weight: 600;
     font-style: italic;
+  }*/
+
+  @font-face {
+    font-family: "Figtree";
+    src: url("@giz/fonts/Figtree-Variable.woff2") format("woff2-variations");
+    src: url("@giz/fonts/Figtree-Variable.woff2") format("woff2") tech("variations");
+    font-weight: 100 1000;
+  }
+
+  @font-face {
+    font-family: "Figtree";
+    src: url("@giz/fonts/Figtree-Italic-Variable.woff2") format("woff2-variations");
+    src: url("@giz/fonts/Figtree-Italic-Variable.woff2") format("woff2") tech("variations");
+    font-weight: 100 1000;
+    font-style: italic;
   }
 
   @font-face {
@@ -96,12 +112,14 @@
 
   :root {
     /* Main colors */
-    --color-lightgray: #ececef;
-    --color-darkgray: #13161a;
-    --color-white: #fff;
+    --color-lightgray: #f2f2f3;
+    --color-lightgray-shaded: #e3e3e3;
+    --color-darkgray: #13131a;
+    --color-white: #ffffff;
     --color-black: #000;
-    --color-zinc: #dedede;
-    --color-gunmetal: #2b303a;
+    --color-black-shaded: #0d0d0d;
+    --color-zinc: #f7f7f8;
+    --color-gunmetal: #1a1d23;
     --color-gray: #cecece;
     --color-darkslate: #35404e;
     --color-disabled: #8d8d8d;
@@ -119,53 +137,53 @@
     --color-gold: #ffb800;
 
     /* Color definitions */
-    /*@media (prefers-color-scheme: light) {
-      --background-primary: var(--color-white);
-      --background-secondary: var(--color-lightgray);
-      --background-tertiary: var(--color-zinc);
-      --background-red: var(--color-peach);
-      --foreground-primary: var(--color-darkgray);
-      --foreground-secondary: var(--color-black);
-      --foreground-tertiary: var(--color-gunmetal);
-      --foreground-disabled: var(--color-disabled);
-      --foreground-link: #0069c2;
-
-      --accent-main: var(--color-gizblue);
-      --accent-main-hover: var(--color-gizblue-hover);
-      --accent-main-dark: var(--color-gizblue-dark);
-      --accent-main-dark-hover: var(--color-gizblue-dark);
-      --accent-main-fg: var(--color-white);
-      --accent-secondary: var(--color-lavender);
-      --accent-secondary-fg: var(--color-black);
-      --accent-tertiary: var(--color-tomato);
-      --accent-tertiary-fg: var(--color-white);
-
-      --border-primary: var(--color-gray);
-      --border-secondary: var(--color-darkslate);
-    }*/
-
-    --background-primary: var(--color-darkgray);
-    --background-secondary: var(--color-black);
-    --background-tertiary: var(--color-gunmetal);
-    --background-red: var(--color-darkred);
-    --foreground-primary: var(--color-lightgray);
-    --foreground-secondary: var(--color-white);
-    --foreground-tertiary: var(--color-zinc);
+    --background-primary: var(--color-white);
+    --background-secondary: var(--color-lightgray);
+    --background-tertiary: var(--color-zinc);
+    --background-red: var(--color-peach);
+    --foreground-primary: var(--color-darkgray);
+    --foreground-secondary: var(--color-black);
+    --foreground-tertiary: #2b303b;
     --foreground-disabled: var(--color-disabled);
-    --foreground-link: #8cb4ff;
+    --foreground-link: #0069c2;
 
     --accent-main: var(--color-gizblue);
     --accent-main-hover: var(--color-gizblue-hover);
     --accent-main-dark: var(--color-gizblue-dark);
     --accent-main-dark-hover: var(--color-gizblue-dark);
     --accent-main-fg: var(--color-white);
-    --accent-secondary: var(--color-plum);
-    --accent-secondary-fg: var(--color-white);
+    --accent-secondary: var(--color-lavender);
+    --accent-secondary-fg: var(--color-black);
     --accent-tertiary: var(--color-tomato);
     --accent-tertiary-fg: var(--color-white);
 
-    --border-primary: var(--color-darkslate);
-    --border-secondary: var(--color-gray);
+    --border-primary: var(--color-gray);
+    --border-secondary: var(--color-darkslate);
+
+    @media (prefers-color-scheme: dark) {
+      --background-primary: var(--color-darkgray);
+      --background-secondary: var(--color-black);
+      --background-secondary-shaded: var(--color-black-shaded);
+      --background-tertiary: var(--color-gunmetal);
+      --background-red: var(--color-darkred);
+      --foreground-primary: var(--color-lightgray);
+      --foreground-secondary: var(--color-white);
+      --foreground-tertiary: #d5d5dd;
+      --foreground-disabled: var(--color-disabled);
+      --foreground-link: #8cb4ff;
+
+      --accent-main: var(--color-gizblue);
+      --accent-main-dark: var(--color-gizblue-darker);
+      --accent-main-fg: var(--color-white);
+      --accent-secondary: var(--color-plum);
+      --accent-secondary-fg: var(--color-white);
+      --accent-tertiary: var(--color-tomato);
+      --accent-tertiary-fg: var(--color-white);
+
+      --border-primary: var(--color-darkslate);
+      --border-secondary: var(--color-gray);
+      --border-tertiary: #2f333d;
+    }
   }
 
   html,
@@ -178,7 +196,7 @@
   }
 
   h2 {
-    @apply bg-gradient-to-b from-slate-200/100 to-slate-200/70 bg-clip-text pb-2 text-2xl font-extrabold leading-snug tracking-tight text-transparent md:text-4xl;
+    @apply bg-gradient-to-b from-foreground-primary to-foreground-secondary bg-clip-text pb-2 text-2xl font-extrabold leading-snug tracking-tight text-transparent md:text-4xl;
   }
 
   em {

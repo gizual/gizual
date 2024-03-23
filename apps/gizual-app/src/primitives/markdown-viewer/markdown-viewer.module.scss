@@ -1,17 +1,18 @@
 @use "@/mixins" as *;
 
 .markdownContent {
-  @include text-sm;
-  font-family: "FiraGO";
-  min-width: 50vw;
+  @include text-xs;
+  font-family: "Figtree";
+  min-width: 40vw;
+  width: 100%;
 
   h2 {
-    @include text-lg;
-    font-family: "FiraGO";
+    @include text-base;
+    font-family: "Figtree";
   }
   h3 {
-    @include text-base;
-    font-family: "FiraGO";
+    @include text-sm;
+    font-family: "Figtree";
     padding-top: 0.5rem;
   }
   strong {

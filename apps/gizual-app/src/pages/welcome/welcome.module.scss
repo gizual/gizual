@@ -4,7 +4,7 @@
 .EmphasizedContainer {
   background-color: var(--background-red);
   color: var(--foreground-primary);
-  font-weight: medium;
+  font-weight: 600;
   padding: 1rem;
   text-wrap: balance;
   width: 100%;
@@ -206,8 +206,8 @@
 }
 
 .CollapsibleHeaderText {
-  @include text-2xl;
-  font-weight: 500;
+  @include text-xl;
+  font-weight: 600;
   flex-grow: 1;
   flex-shrink: 0;
   text-align: left;
@@ -250,8 +250,7 @@
 }
 
 .OpenRowTitle {
-  @include text-base;
-  font-weight: 300;
+  @include text-sm;
   flex-grow: 1;
   flex-shrink: 0;
   text-align: left;
@@ -299,7 +298,7 @@
 }
 
 .RepoRowName {
-  @include text-base;
+  @include text-sm;
   font-weight: 600;
   flex-grow: 1;
   flex-shrink: 0;
@@ -309,7 +308,7 @@
 }
 
 .RepoRowSource {
-  @include text-xs;
+  @include text-2xs;
   font-family: "Iosevka Extended";
   flex-grow: 1;
   flex-shrink: 0;
@@ -320,7 +319,7 @@
 }
 
 .RepoRowMetrics {
-  @include text-xs;
+  @include text-2xs;
   color: var(--foreground-primary);
 }
 
@@ -337,20 +336,19 @@
 }
 
 .DetailHeader {
-  @include text-2xl;
+  @include text-xl;
   font-weight: 500;
   text-align: left;
 }
 
 .DetailDescription {
-  @include text-base;
-  font-weight: 300;
+  @include text-sm;
   text-align: left;
   color: var(--foreground-primary);
 }
 
 .AdvancedConfigurationTitle {
-  @include text-lg;
+  @include text-base;
 }
 
 .Radio {
@@ -361,8 +359,7 @@
 }
 
 .NotSupportedText {
-  @include text-sm;
-  font-weight: 300;
+  @include text-xs;
   text-align: left;
   color: var(--color-tomato);
   font-style: italic;

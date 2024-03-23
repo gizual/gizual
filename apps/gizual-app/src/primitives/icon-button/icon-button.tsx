@@ -10,11 +10,15 @@ export type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   ariaLabel?: string;
   colored?: boolean;
   wide?: boolean;
+  isDangerous?: boolean;
   border?: "right";
 };
 
 const IconButtonI = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ children, onClick, ariaLabel, colored, wide, border, className, ...props }, ref) => {
+  (
+    { children, onClick, ariaLabel, colored, wide, border, className, isDangerous, ...props },
+    ref,
+  ) => {
     return (
       <button
         ref={ref}
@@ -27,6 +31,7 @@ const IconButtonI = forwardRef<HTMLButtonElement, IconButtonProps>(
         )}
         onClick={onClick}
         aria-label={ariaLabel}
+        data-dangerous={isDangerous}
         {...props}
       >
         {children}

@@ -8,7 +8,7 @@
   display: block;
   position: relative;
 
-  @media screen and (max-width: 800px) {
+  @media (width < 1024px) {
     width: 100%;
   }
 
@@ -20,6 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-bottom: 8rem;
 }
 
 .SettingsActionBar {
@@ -58,12 +59,12 @@
   transition: all 0.2s;
 
   &:hover {
-    background-color: var(--background-secondary);
+    background-color: var(--background-tertiary);
   }
 }
 
 .SettingsEntryLabel {
-  @include text-base;
+  @include text-sm;
   font-weight: 500;
   color: var(--foreground-secondary);
   display: flex;
@@ -71,13 +72,13 @@
 }
 
 .SettingsEntryDescription {
-  @include text-sm;
-  font-weight: 300;
+  @include text-xs;
   color: var(--foreground-secondary);
+  margin-bottom: 0.25rem;
 }
 
 .SettingsEntryDefault {
-  @include text-xs;
+  @include text-2xs;
   font-weight: 200;
   color: var(--foreground-disabled);
   align-self: flex-end;

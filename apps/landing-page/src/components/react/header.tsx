@@ -14,7 +14,7 @@ function Header({ logo }: { logo: string }) {
   }, [top]);
 
   return (
-    <header className="fixed z-30 w-full max-w-[100vw] border-b border-border-primary bg-black opacity-95 shadow-lg backdrop-blur-sm transition duration-300 ease-in-out md:bg-opacity-90">
+    <header className="fixed z-30 w-full max-w-[100vw] border-b border-border-primary bg-background-secondary opacity-95 shadow-lg backdrop-blur-sm transition duration-300 ease-in-out md:bg-opacity-90">
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <div className="flex h-12 items-center justify-between md:h-16">
           {/* Site branding */}
@@ -22,7 +22,7 @@ function Header({ logo }: { logo: string }) {
             <a href="/">
               <img src={logo} className="h-6 w-auto sm:h-8" alt="Logo" />
             </a>
-            <p className="text-xl font-bold text-slate-50 sm:text-2xl">Gizual</p>
+            <p className="text-xl font-bold text-foreground-primary sm:text-2xl">Gizual</p>
           </div>
 
           {/* Site navigation */}
@@ -38,7 +38,7 @@ function Header({ logo }: { logo: string }) {
               </li>
               <li title="Github link coming soon! :)">
                 {/*<a href="https://github.com/gizual/gizual" aria-label="Github Repository - Gizual">*/}
-                <GithubIcon className="aspect-auto h-6 sm:h-8"></GithubIcon>
+                <GithubIcon className="aspect-auto h-6 sm:h-8 [&>path]:fill-foreground-primary"></GithubIcon>
                 {/*</a>*/}
               </li>
             </ul>

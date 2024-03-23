@@ -35,9 +35,9 @@
 }
 
 .FileIcon {
-  width: 18px;
-  height: 18px;
   @include icon-scaled;
+  width: 12px;
+  height: 12px;
 }
 
 .FileTitle {
@@ -107,6 +107,7 @@
 .File {
   @include shared.card;
   width: 300px;
+  background-color: var(--background-tertiary);
   border: 1px solid var(--border-primary);
 }
 
@@ -134,4 +135,5 @@
   min-width: 0;
   min-height: 40dvh;
   overflow: hidden;
+  padding: 0;
 }

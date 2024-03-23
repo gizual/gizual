@@ -2,12 +2,14 @@
 
 /* Accent colors */
 $color-gizblue: #007acc;
+$color-gizblue-darker: #015f9b;
 $color-tomato: #e94f37;
 $color-lavender: #d4cdf4;
 $color-plum: #5c29af;
 $color-gold: #ffb800;
 
 $accent-main: $color-gizblue;
+$accent-main-darker: $color-gizblue-darker;
 $accent-main-fg: #fff;
 $accent-secondary: $color-plum;
 $accent-secondary-fg: #fff;
@@ -24,12 +26,14 @@ $accent-tertiary-fg: #fff;
 
 :root {
   /* Main colors */
-  --color-lightgray: #ececef;
-  --color-darkgray: #13161a;
-  --color-white: #fff;
+  --color-lightgray: #f2f2f3;
+  --color-lightgray-shaded: #e3e3e3;
+  --color-darkgray: #13131a;
+  --color-white: #ffffff;
   --color-black: #000;
-  --color-zinc: #dedede;
-  --color-gunmetal: #2b303a;
+  --color-black-shaded: #0d0d0d;
+  --color-zinc: #f7f7f8;
+  --color-gunmetal: #1a1d23;
   --color-gray: #cecece;
   --color-darkslate: #35404e;
   --color-disabled: #8d8d8d;
@@ -37,6 +41,7 @@ $accent-tertiary-fg: #fff;
   --color-peach: #fbe5eb;
 
   --color-gizblue: #{$color-gizblue};
+  --color-gizblue-darker: #{$color-gizblue-darker};
   --color-tomato: #{$color-tomato};
   --color-lavender: #{$color-lavender};
   --color-plum: #{$color-plum};
@@ -46,46 +51,53 @@ $accent-tertiary-fg: #fff;
   @media (prefers-color-scheme: light) {
     --background-primary: var(--color-white);
     --background-secondary: var(--color-lightgray);
+    --background-secondary-shaded: var(--color-lightgray-shaded);
     --background-tertiary: var(--color-zinc);
     --background-red: var(--color-peach);
+
     --foreground-primary: var(--color-darkgray);
     --foreground-secondary: var(--color-black);
-    --foreground-tertiary: var(--color-gunmetal);
+    --foreground-tertiary: #2b303b;
     --foreground-disabled: var(--color-disabled);
     --foreground-link: #0069c2;
 
     --accent-main: var(--color-gizblue);
-    --accent-main-dark: var(--color-gizblue-dark);
+    --accent-main-dark: var(--color-gizblue-darker);
     --accent-main-fg: var(--color-white);
     --accent-secondary: var(--color-lavender);
     --accent-secondary-fg: var(--color-black);
     --accent-tertiary: var(--color-tomato);
     --accent-tertiary-fg: var(--color-white);
+    --accent-code: var(--color-plum);
 
     --border-primary: var(--color-gray);
     --border-secondary: var(--color-darkslate);
+    --border-tertiary: #e4e4e7;
   }
 
   @media (prefers-color-scheme: dark) {
     --background-primary: var(--color-darkgray);
     --background-secondary: var(--color-black);
+    --background-secondary-shaded: var(--color-black-shaded);
     --background-tertiary: var(--color-gunmetal);
     --background-red: var(--color-darkred);
     --foreground-primary: var(--color-lightgray);
     --foreground-secondary: var(--color-white);
-    --foreground-tertiary: var(--color-zinc);
+    --foreground-tertiary: #d5d5dd;
     --foreground-disabled: var(--color-disabled);
     --foreground-link: #8cb4ff;
 
     --accent-main: var(--color-gizblue);
-    --accent-main-dark: var(--color-gizblue-dark);
+    --accent-main-dark: var(--color-gizblue-darker);
     --accent-main-fg: var(--color-white);
     --accent-secondary: var(--color-plum);
     --accent-secondary-fg: var(--color-white);
     --accent-tertiary: var(--color-tomato);
     --accent-tertiary-fg: var(--color-white);
+    --accent-code: var(--color-gold);
 
     --border-primary: var(--color-darkslate);
     --border-secondary: var(--color-gray);
+    --border-tertiary: #2f333d;
   }
 }

@@ -7,10 +7,11 @@ export type SelectOption<T> = { label: string; value: string; payload?: T };
 export type SelectProps<T> = {
   data?: SelectOption<T>[];
   onChange: (value: string, payload: T) => void;
-} & Omit<MantineSelectProps, "onChange" | "data">;
+  style?: React.CSSProperties;
+} & Omit<MantineSelectProps, "onChange" | "data" | "style">;
 
 export function Select<T = undefined>(props: SelectProps<T>) {
-  const { data, onChange, ...mantineProps } = props;
+  const { data, onChange, style: css, ...mantineProps } = props;
 
   const onChangeWrapper = (value: string | null) => {
     if (!data) return;
@@ -23,6 +24,8 @@ export function Select<T = undefined>(props: SelectProps<T>) {
     }
   };
 
+  const height = 30;
+
   return (
     <MantineSelect
       checkIconPosition={undefined}
@@ -33,8 +36,15 @@ export function Select<T = undefined>(props: SelectProps<T>) {
       size="sm"
       styles={{
         input: {
-          height: 30,
-          minHeight: 30,
+          height: height,
+          minHeight: height,
+          minWidth: 150,
+          width: "100%",
+          ...css,
+        },
+        root: {
+          width: "100%",
+          ...css,
         },
       }}
       allowDeselect={false}

@@ -26,7 +26,7 @@ const withMantineProvider = (Story: StoryFn, context: StoryContext) => {
       ],
     },
     primaryColor: "accentMain",
-    fontFamily: "FiraGO",
+    fontFamily: "Figtree",
     fontFamilyMonospace: "Iosevka Extended",
   });
 

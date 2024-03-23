@@ -16,11 +16,31 @@
     flex-grow: 0;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+    border-color: var(--border-primary);
+
+    &:active {
+      @include button-click-animation;
+    }
+
+    svg {
+      margin: auto;
+    }
+  }
+
+  svg {
+    height: 100%;
+    width: auto;
   }
 
   .IconButton:hover {
-    border-color: var(--accent-main);
+    border-color: var(--accent-main) !important;
+    &[data-dangerous="true"] {
+      border-color: var(--border-secondary) !important;
+    }
+    background-color: var(--background-secondary);
   }
 
   .Wide {
@@ -29,12 +49,6 @@
 
   .BorderRight {
     @include rounded-right;
-  }
-
-  svg {
-    margin: auto;
-    height: 100%;
-    width: auto;
   }
 
   svg > path {

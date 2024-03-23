@@ -17,7 +17,7 @@ function useMediaQuery(
 
   let query = "";
   if (min === undefined && max !== undefined) {
-    query = `(max-${dimension}: ${max}px)`;
+    query = `(max-${dimension}: ${max - 1}px)`;
   } else if (max === undefined && min !== undefined) {
     query = `(min-${dimension}: ${min}px)`;
   } else {

@@ -50,7 +50,6 @@ export class QueryViewModel {
     for (const marker of markers)
       validationOutput = [...validationOutput, marker.message as string];
 
-    console.log("handleEditorValidation", validationOutput);
     this.setValidationOutput(validationOutput);
   }
 }

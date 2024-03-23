@@ -1,0 +1,18 @@
+.Checkbox {
+  & input {
+    background-color: var(--background-tertiary);
+    border-color: var(--border-tertiary);
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+
+    &:hover {
+      border-color: var(--accent-main-dark);
+    }
+
+    &:focus {
+      background-color: var(--background-secondary);
+      border-color: var(--accent-main);
+    }
+  }
+}

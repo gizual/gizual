@@ -1,0 +1,127 @@
+@use "@/mixins" as *;
+
+$mobile-breakpoint: 830px;
+
+.RepoCard {
+  display: flex;
+  width: 350px;
+  padding: 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.25rem;
+  align-self: stretch;
+  margin: 0 auto;
+
+  border: 1px solid var(--border-primary);
+  background-color: var(--background-secondary);
+  transition:
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out;
+
+  &:hover {
+    background-color: var(--background-tertiary);
+    border-color: var(--accent-main);
+  }
+
+  &:active {
+    @include button-click-animation;
+  }
+
+  @media (width < 400px) {
+    width: 100%;
+  }
+
+  a {
+    transition: color 0.2s ease-out;
+    color: var(--foreground-tertiary);
+    &:hover {
+      color: var(--foreground-secondary);
+    }
+  }
+}
+
+.RepoCard__Row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1 0 0;
+  width: 100%;
+}
+
+.RepoCard__TitleWithImage {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.RepoCard__Title {
+  @include text-sm;
+  font-weight: 600;
+  color: var(--foreground-primary);
+}
+
+.RepoCard__Image {
+  width: 20px;
+  height: 20px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.RepoCard__Meta {
+  @include text-xs;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.RepoCard__MetaItem {
+  display: flex;
+  padding: 0.0625rem 0.25rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 0.25rem;
+  background-color: var(--background-tertiary);
+}
+
+.RepoCard__MetaItem--Primary {
+  color: var(--foreground-primary);
+}
+
+.RepoCard__MetaItem--Secondary {
+  color: var(--foreground-disabled);
+}
+
+.RepoCard__Item {
+  width: 14px;
+  height: 14px;
+  & > path {
+    fill: var(--foreground-primary);
+  }
+}
+
+.RepoCard__Source {
+  @include text-xs;
+  display: flex;
+  gap: 0.5rem;
+  color: var(--foreground-primary);
+  & > svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.FeaturedRepos {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  align-self: stretch;
+  column-gap: 4.75rem;
+  row-gap: 0.5rem;
+
+  @media (width < $mobile-breakpoint) {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,4 +1,8 @@
+import { createLogger } from "@giz/logging";
+
 import { getBaseConsoleCSS, getPrettyConsoleCSS } from "./console";
+
+const logger = createLogger("decorators");
 
 function getTimestamp(): string {
   const now = new Date();
@@ -41,7 +45,7 @@ export function logWithPrefix(prefix = "[LOGGER]", bgColor = "lightblue", ...arg
     }
   }
 
-  console.log(messageConfig, cssPrefix, prefix, cssContent, ...args);
+  logger.log(messageConfig, cssPrefix, prefix, cssContent, ...args);
 }
 
 export function loggedMethod(prefix = "", bgColor = "lightblue") {

@@ -1,28 +1,35 @@
 @use "@/mixins" as *;
 @layer reset, components, overrides;
 
-p {
-  text-align: center;
-}
+@layer reset {
+  p {
+    text-align: center;
+  }
 
-code {
-  background-color: var(--background-tertiary);
-  color: var(--foreground-primary);
-}
+  code {
+    background-color: var(--background-tertiary);
+    color: var(--foreground-primary);
+  }
 
-hr {
-  border: none;
-  border-top: 1px solid var(--border-primary);
-}
+  hr {
+    border: none;
+    border-top: 1px solid var(--border-primary);
+  }
 
-a {
-  text-decoration: underline;
-  color: var(--foreground-link);
-}
+  a {
+    text-decoration: none;
+    color: var(--foreground-link);
 
-a:hover {
-  text-decoration: none;
-  color: var(--foreground-link);
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  svg {
+    & > path {
+      fill: var(--foreground-primary);
+    }
+  }
 }
 
 .App {

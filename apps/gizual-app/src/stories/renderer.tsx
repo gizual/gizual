@@ -11,6 +11,7 @@ import {
 } from "@giz/file-renderer";
 import { FileRendererWorker } from "@giz/file-renderer/worker";
 import FileRendererWorkerURL from "@giz/file-renderer/worker?worker&url";
+import { createLogger } from "@giz/logging";
 import { GizDate } from "@giz/utils/gizdate";
 import { GizWorker } from "@giz/worker";
 
@@ -63,6 +64,8 @@ type RendererProps =
   | AuthorContributionsProps
   | FileBarProps
   | AuthorBarProps;
+
+const logger = createLogger("Storybook Renderer");
 
 function prepareContext(props: RendererProps) {
   const colorNewest = "colorNewest" in props ? props.colorNewest : undefined;
@@ -218,7 +221,7 @@ export function Renderer(props: RendererProps) {
     });
 
     worker.draw(prepareContext(props), "annotations").then(({ result }) => {
-      console.log(
+      logger.log(
         "%c%s %s",
         getPrettyConsoleCSS("#599810"),
         "[Storybook:Renderer]",

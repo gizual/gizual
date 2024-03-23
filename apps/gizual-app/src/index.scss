@@ -3,17 +3,11 @@
 
 @layer reset, components, overrides;
 
+/*
 @font-face {
   font-family: "FiraGO";
   src: url("@giz/fonts/FiraGO-Regular.woff2") format("woff2");
   font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "FiraGO";
-  src: url("@giz/fonts/FiraGO-Bold.woff2") format("woff2");
-  font-weight: bold;
   font-style: normal;
 }
 
@@ -26,16 +20,25 @@
 
 @font-face {
   font-family: "FiraGO";
-  src: url("@giz/fonts/FiraGO-SemiBold.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
+  src: url("@giz/fonts/FiraGO-Italic.woff2") format("woff2");
+  font-weight: normal;
+  font-style: italic;
 }
 
 @font-face {
   font-family: "FiraGO";
-  src: url("@giz/fonts/FiraGO-Italic.woff2") format("woff2");
-  font-weight: normal;
+  src: url("@giz/fonts/FiraGO-MediumItalic.woff2") format("woff2");
+  font-weight: 500;
   font-style: italic;
+}
+*/
+
+/* -------------------------------- BRANDING -------------------------------- */
+@font-face {
+  font-family: "FiraGO";
+  src: url("@giz/fonts/FiraGO-Bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
 }
 
 @font-face {
@@ -47,15 +50,31 @@
 
 @font-face {
   font-family: "FiraGO";
-  src: url("@giz/fonts/FiraGO-MediumItalic.woff2") format("woff2");
-  font-weight: 500;
-  font-style: italic;
+  src: url("@giz/fonts/FiraGO-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "FiraGO";
   src: url("@giz/fonts/FiraGO-SemiBoldItalic.woff2") format("woff2");
   font-weight: 600;
+  font-style: italic;
+}
+
+/* -------------------------------- BASE FONT ------------------------------- */
+@font-face {
+  font-family: "Figtree";
+  src: url("@giz/fonts/Figtree-Variable.woff2") format("woff2-variations");
+  src: url("@giz/fonts/Figtree-Variable.woff2") format("woff2") tech("variations");
+  font-weight: 100 1000;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("@giz/fonts/Figtree-Italic-Variable.woff2") format("woff2-variations");
+  src: url("@giz/fonts/Figtree-Italic-Variable.woff2") format("woff2") tech("variations");
+  font-weight: 100 1000;
   font-style: italic;
 }
 
@@ -101,13 +120,14 @@ html {
 @layer reset {
   html {
     display: block;
-    font-family: "FiraGO", system-ui, sans-serif;
+    font-family: "Figtree", system-ui, sans-serif;
     background-color: var(--color-giz-white);
     height: 100%;
     width: 100%;
     overflow: hidden;
     scrollbar-width: thin;
     user-select: none;
+    font-weight: 400;
   }
 
   body {
@@ -178,23 +198,23 @@ html {
   /* End of preflight block */
 
   body > * {
-    @include text-base;
+    @include text-sm;
     color: var(--foreground-primary);
   }
 
   h1 {
-    @include text-2xl;
+    @include text-xl;
     font-weight: bold;
   }
 
   h2 {
-    @include text-xl;
-    font-weight: medium;
+    @include text-lg;
+    font-weight: 600;
   }
 
   h3 {
-    @include text-lg;
-    font-weight: medium;
+    @include text-base;
+    font-weight: 600;
   }
 
   hr {

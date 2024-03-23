@@ -1,3 +1,5 @@
+@use "@/mixins" as *;
+
 @mixin stroke-color {
   stroke: var(--color-gizblue);
 }
@@ -22,13 +24,13 @@
 .Container {
   h2,
   span {
+    @include font-branding;
     font-size: 8em;
     position: absolute;
     transform: translate(-50%, -50%);
     line-height: unset;
-    font-weight: 600;
-    font-family: "Noto Sans";
-    letter-spacing: -2px;
+    font-weight: 700;
+    letter-spacing: 2px;
   }
   span {
     user-select: none;

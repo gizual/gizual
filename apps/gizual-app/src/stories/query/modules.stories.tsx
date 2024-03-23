@@ -1,4 +1,4 @@
-import { SimpleQueryInput as SimpleQueryInputComponent } from "@app/primitives/query-input";
+import { QueryBar as SimpleQueryInputComponent } from "@app/primitives/query-input";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import withMainController from "../decorators/with-main-controller";

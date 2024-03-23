@@ -151,12 +151,8 @@ const FileBlock = ({
     }
   };
 
-  const headerHeight = 26;
-  const footerHeight = 22;
-  const footerTextPadding = 8;
-
-  const headerWithContentHeight = height + headerHeight;
-  const totalHeight = headerWithContentHeight + (isTruncated ? footerHeight : 0);
+  const headerWithContentHeight = height + HEADER_HEIGHT;
+  const totalHeight = headerWithContentHeight + (isTruncated ? FOOTER_HEIGHT : 0);
 
   return (
     <svg
@@ -188,16 +184,16 @@ const FileBlock = ({
             x={0}
             y={headerWithContentHeight}
             width={300}
-            height={footerHeight}
-            style={{ fill: useStyleFn("--background-tertiary") }}
+            height={FOOTER_HEIGHT}
+            style={{ fill: useStyleFn("--background-secondary") }}
           />
           <text
             x={150}
-            y={totalHeight - footerTextPadding}
+            y={totalHeight - FOOTER_TEXT_PADDING}
             textAnchor="middle"
             style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
           >
-            Content truncated
+            ... content truncated
           </text>
         </g>
       )}
@@ -241,7 +237,7 @@ function FileBlockSvg({
         href={url}
         ref={blockRef}
         x={0}
-        y={26}
+        y={HEADER_HEIGHT}
         width={300}
         height={height}
       />
@@ -259,17 +255,21 @@ function FileBlockSvg({
   );
 }
 
+const HEADER_HEIGHT = 20;
+const FOOTER_HEIGHT = 22;
+const FOOTER_TEXT_PADDING = 8;
+
 // ---------------------------------------------
 // -------------- BLOCK HEADER -----------------
 // ---------------------------------------------
 
 // Config constants for SVG header
-const TITLE_HEIGHT = 26;
+const TITLE_HEIGHT = HEADER_HEIGHT;
 const TITLE_MAX_WIDTH = 180;
 const BLOCK_WIDTH = 300;
 const PADDING_CONTAINER = 4;
-const ICON_SIZE = 26;
-const BUTTON_SIZE = 24;
+const ICON_SIZE = 20;
+const BUTTON_SIZE = 16;
 const BUTTON_GAP = 4;
 
 type BlockHeaderProps = {
@@ -332,7 +332,7 @@ function generateBlockHeader({
     y: 0,
     width: BLOCK_WIDTH,
     height: TITLE_HEIGHT,
-    fill: useStyleFn("--background-tertiary"),
+    fill: useStyleFn("--background-secondary"),
   });
 
   const hr = new SvgRectElement({
@@ -347,9 +347,9 @@ function generateBlockHeader({
     truncateSmart(path, maxCharactersThatFitInWidth(TITLE_MAX_WIDTH, 10)),
     {
       x: PADDING_CONTAINER + (noForeignObjects ? 0 : ICON_SIZE),
-      y: 16,
-      fontSize: "10",
-      lineHeight: "14",
+      y: 14,
+      fontSize: "9",
+      lineHeight: "12",
       fill: useStyleFn("--foreground-primary"),
     },
   );
@@ -399,11 +399,12 @@ function BlockHeaderSvg({
                 name={icon}
                 colors={iconColor}
                 style={{
+                  margin: "0 0 0 0",
                   width: ICON_SIZE,
                   height: ICON_SIZE,
                   display: "inline-block",
-                  fontSize: "18px",
-                  lineHeight: "24px",
+                  fontSize: "12px",
+                  lineHeight: "16px",
                   textAlign: "center",
                   verticalAlign: "middle",
                 }}
@@ -427,12 +428,18 @@ function BlockHeaderSvg({
                 height: "100%",
               }}
             >
-              <Menu withArrow position="bottom">
+              <Menu
+                withArrow
+                position="bottom"
+                styles={{
+                  dropdown: {
+                    backgroundColor: "var(--background-secondary)",
+                    borderColor: "var(--border-primary)",
+                  },
+                }}
+              >
                 <Menu.Target>
-                  <IconButton
-                    onClick={() => console.log("hi there")}
-                    style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}
-                  >
+                  <IconButton style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}>
                     <IconDownload className={clsx(sharedStyle.Pointer, style.FileIcon)} />
                   </IconButton>
                 </Menu.Target>
@@ -446,10 +453,7 @@ function BlockHeaderSvg({
               </Menu>
               <DialogProvider
                 trigger={
-                  <IconButton
-                    onClick={() => console.log("hi there")}
-                    style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}
-                  >
+                  <IconButton style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}>
                     <IconSource className={style.FileIcon} />
                   </IconButton>
                 }

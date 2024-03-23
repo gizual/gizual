@@ -1,10 +1,13 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
 
+import { createLogger } from "@giz/logging";
 import { useQuery } from "@giz/maestro/react";
 import { ColorPicker } from "../color-picker";
 
 import style from "./gradient-legend.module.scss";
+
+const logger = createLogger("gradient-legend");
 
 type GradientLegendProps = {
   startColor: string;
@@ -45,7 +48,7 @@ function GradientLegend({
 }: GradientLegendProps) {
   const { query, updateQuery } = useQuery();
   if (height < 50) {
-    console.error("Cannot construct gradient legend with height < 50px");
+    logger.error("Cannot construct gradient legend with height < 50px");
     return <></>;
   }
 
@@ -68,7 +71,7 @@ function GradientLegend({
 
   const width = Math.max(desiredWidth, startTextWidth + endTextWidth + paddingX * 4);
   if (width > desiredWidth) {
-    console.warn(
+    logger.debug(
       "Gradient legend width was adjusted to be larger than desired width due to text size constraints.",
     );
   }
@@ -107,7 +110,7 @@ function GradientLegend({
               className={style.GradientTextElement}
               x={paddingX + startTextWidth / 2}
               y={0}
-              fontSize={12}
+              fontSize={10}
               textAnchor="middle"
               dominantBaseline="middle"
             >
@@ -118,7 +121,7 @@ function GradientLegend({
               className={style.GradientTextElement}
               x={width - endTextWidth / 2 - paddingX}
               y={0}
-              fontSize={12}
+              fontSize={10}
               textAnchor="middle"
               dominantBaseline="middle"
             >

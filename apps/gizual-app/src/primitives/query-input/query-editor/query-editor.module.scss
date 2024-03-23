@@ -1,0 +1,95 @@
+@use "@/mixins" as *;
+
+.QueryEditor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.Section {
+  display: flex;
+  min-width: 350px;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.Section__Heading {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.Heading__Icon {
+  width: 20px;
+  height: 20px;
+  & * {
+    fill: var(--foreground-primary);
+  }
+}
+
+.Heading__Title {
+  @include text-xl;
+  text-align: left;
+  font-weight: 600;
+  color: var(--foreground-primary);
+}
+
+.Section__Body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  align-self: stretch;
+}
+
+.Divider {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.Trigger {
+  width: 40px;
+  height: 40px;
+  border-color: var(--border-primary);
+  cursor: pointer;
+}
+
+.TriggerButton {
+  height: 100%;
+  width: 100%;
+  border-color: var(--border-primary);
+  cursor: pointer;
+}
+
+.TriggerButton__Icon {
+  & > path {
+    stroke: var(--foreground-primary);
+    fill: var(--background-tertiary);
+  }
+}
+
+.QueryEditorDialog {
+  min-height: 80dvh;
+  min-width: 0;
+  max-width: 900px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  align-items: center;
+  padding: 0;
+  @media (width > 900px) {
+    min-width: 800px;
+  }
+}
+
+.HighlightElement {
+  border: 3px solid var(--color-gold);
+  padding: 0.5rem;
+}

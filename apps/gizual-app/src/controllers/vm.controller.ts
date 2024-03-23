@@ -1,6 +1,8 @@
 import { TimelineViewModel } from "@app/primitives/timeline/timeline.vm";
 import { action, computed, makeObservable, observable } from "mobx";
 
+import { createLogger, Logger } from "@giz/logging";
+
 import type { MainController } from "./main.controller";
 
 /**
@@ -15,6 +17,8 @@ export class ViewModelController {
   @observable _vms: Record<string, any> = {};
 
   _mainController: MainController;
+
+  logger: Logger = createLogger("VmController");
 
   constructor(mainController: MainController) {
     this._mainController = mainController;
@@ -44,7 +48,7 @@ export class ViewModelController {
    */
   @computed
   get timelineViewModel(): TimelineViewModel | undefined {
-    if (this._vms["timeline"] === undefined) console.warn("Timeline ViewModel not found");
+    if (this._vms["timeline"] === undefined) this.logger.warn("Timeline ViewModel not found");
     return this._vms["timeline"];
   }
 }
