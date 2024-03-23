@@ -37,7 +37,7 @@ jobs:
         run: |
           # PR branch remote must be checked out using https URL
           git config --global hub.protocol https
-          git config --global --add safe.directory *
+          git config --global --add safe.directory '*'
 
           gh pr checkout ${{ github.event.issue.number }}
         env:
