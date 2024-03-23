@@ -43,7 +43,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install the packages
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+
+      - name: Install global deps
+        run: yarn --immutable
+
+      - name: Install e2e deps
         run: |
           cd e2e
           yarn install --immutable
