@@ -17,6 +17,16 @@ jobs:
         with:
           lfs: true
 
+      - name: Checkout the branch from the PR that triggered the job
+        run: |
+          # PR branch remote must be checked out using https URL
+          git config --global hub.protocol https
+          git config --global --add safe.directory '*'
+
+          gh pr checkout ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
