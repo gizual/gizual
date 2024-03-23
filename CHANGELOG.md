@@ -13,7 +13,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.17 (14.03.2024)
+## Gizual 1.0.0-alpha.17 (15.03.2024)
 
 ### Features
 
@@ -45,7 +45,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.16 (22.02.2024)
+## Gizual 1.0.0-alpha.16 (22.02.2024)
 
 ### Features
 
@@ -63,7 +63,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.15 (01.02.2024)
+## Gizual 1.0.0-alpha.15 (01.02.2024)
 
 ### Features
 
@@ -81,7 +81,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.14 (16.01.2024)
+## Gizual 1.0.0-alpha.14 (16.01.2024)
 
 ### Features
 
@@ -99,7 +99,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.13 (05.01.2024)
+## Gizual 1.0.0-alpha.13 (05.01.2024)
 
 ### Changes
 
@@ -113,7 +113,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.12 (12.12.2023)
+## Gizual 1.0.0-alpha.12 (12.12.2023)
 
 ### Features
 
@@ -133,7 +133,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.11 (21.11.2023)
+## Gizual 1.0.0-alpha.11 (21.11.2023)
 
 ### Changes
 
@@ -148,7 +148,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.10 (17.11.2023)
+## Gizual 1.0.0-alpha.10 (17.11.2023)
 
 ### Features
 
@@ -161,7 +161,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.9 (07.11.2023)
+## Gizual 1.0.0-alpha.9 (07.11.2023)
 
 ### Features
 
@@ -177,7 +177,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.8 (07.11.2023)
+## Gizual 1.0.0-alpha.8 (07.11.2023)
 
 ### Features
 
@@ -188,7 +188,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.7 (28.10.2023)
+## Gizual 1.0.0-alpha.7 (28.10.2023)
 
 ### Features
 
@@ -197,7 +197,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.6 (23.10.2023)
+## Gizual 1.0.0-alpha.6 (23.10.2023)
 
 ### Features
 
@@ -205,7 +205,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.5 (22.10.2023)
+## Gizual 1.0.0-alpha.5 (22.10.2023)
 
 ### Features
 
@@ -224,7 +224,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.4 (20.10.2023)
+## Gizual 1.0.0-alpha.4 (20.10.2023)
 
 ### Features
 
@@ -232,7 +232,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.3 (10.10.2023)
+## Gizual 1.0.0-alpha.3 (10.10.2023)
 
 ### Features
 
@@ -245,7 +245,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.2 (10.10.2023)
+## Gizual 1.0.0-alpha.2 (10.10.2023)
 
 ### Features
 
@@ -258,7 +258,7 @@
 
 ---
 
-## Gizual 3.0.0-alpha.1 (07.10.2023)
+## Gizual 1.0.0-alpha.1 (07.10.2023)
 
 ### Features
 

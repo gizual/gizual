@@ -1,4 +1,4 @@
-# Gizual v3
+# Gizual
 
 A live demo can be found at [gizual.com](https://www.gizual.com).
 
