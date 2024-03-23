@@ -18,6 +18,8 @@
   strong {
     font-weight: 600;
     color: var(--accent-main);
+    display: inline-block;
+    padding-right: 0.5rem;
   }
   em {
     color: var(--accent-tertiary);

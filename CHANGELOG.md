@@ -1,15 +1,21 @@
-## Gizual 3.0.0-alpha.XX (XX.XX.2024)
+## Gizual 1.0.0-alpha.18 (23.03.2024)
 
 ### Features
 
 - **app:frontend:** Implement query editor modal
 - **app:frontend:** Add simplified welcome page
+- **app:general:** Add check for OPFS availability on entry
+- **app:backend:** Add error state when selecting a time-range without commits
 
 ### Changes
 
 - **app:frontend:** UI refactor, apply consistent styling across all UI elements
+- **app:backend:** Remove tanstack query and TRPC in favor of MobX and event emitters
+- **app:general:** Merge Docker containers `api` and `web` into a single deliverable
 
 ### Bug Fixes
+
+- **app:backend:** Fix error that caused unexpected coloring of ignored lines (off by one commit)
 
 ---
 

@@ -1,6 +1,7 @@
 # Gizual
 
-A live demo can be found at [gizual.com](https://www.gizual.com).
+Gizual (pronounced `/ˈgɪʒ.u.əl/`, a combination of the words "git" and "visual") is a tool to visualize Git repositories.  
+A deployed live version of the project can be accessed at [gizual.com](https://www.gizual.com).
 
 ### Browser Compatibility
 
@@ -18,7 +19,7 @@ A live demo can be found at [gizual.com](https://www.gizual.com).
 [3]: Safari (iOS) - Gizual, being memory and CPU intensive, frequently crashes due to system limitations despite technical support.
 
 👍 Works as intended  
-🚧 Partial support / unstable
+🚧 Partial support / unstable  
 👨‍💻 Work in progress  
 🚫 Not supported
 
