@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   build:
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/ci update-snapshots') }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -40,6 +41,7 @@ jobs:
 
   update-snapshots:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/ci update-snapshots') }}
+    needs: build
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/steschi/playwright:v1.42.1-jammy
