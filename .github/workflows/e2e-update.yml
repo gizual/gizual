@@ -86,6 +86,9 @@ jobs:
           node-version: 20
           cache: "yarn"
 
+      - name: Setup Api deps
+        run: cd apps/gizual-api/dist && npm install
+
       - name: Install e2e deps
         run: |
           cd e2e
