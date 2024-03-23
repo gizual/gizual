@@ -51,17 +51,23 @@ export class TimelineEventHandler {
     element.removeEventListener("mouseleave", this.mouseLeave);
 
     element.addEventListener("mousemove", this.mouseMove);
-    element.addEventListener("touchmove", (e) =>
-      this.mouseMove(this.translateTouchToMouseEvent(e)),
+    element.addEventListener(
+      "touchmove",
+      (e) => this.mouseMove(this.translateTouchToMouseEvent(e)),
+      { passive: true },
     );
 
     element.addEventListener("mousedown", this.mouseDown);
-    element.addEventListener("touchstart", (e) =>
-      this.mouseDown(this.translateTouchToMouseEvent(e)),
+    element.addEventListener(
+      "touchstart",
+      (e) => this.mouseDown(this.translateTouchToMouseEvent(e)),
+      { passive: true },
     );
 
     element.addEventListener("mouseup", this.mouseUp);
-    element.addEventListener("touchend", (e) => this.mouseUp(this.translateTouchToMouseEvent(e)));
+    element.addEventListener("touchend", (e) => this.mouseUp(this.translateTouchToMouseEvent(e)), {
+      passive: true,
+    });
 
     element.addEventListener("wheel", this.wheel, { passive: true });
     element.addEventListener("mouseenter", this.mouseEnter);

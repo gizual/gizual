@@ -277,7 +277,7 @@
 }
 
 .ContainsErrors {
-  border-bottom: 2px solid var(--accent-tertiary);
+  border-bottom: 2px solid var(--accent-tertiary) !important;
 }
 
 .GradientColorCustomization {

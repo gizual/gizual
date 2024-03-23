@@ -5,7 +5,7 @@ import { Alert } from "@mantine/core";
 import clsx from "clsx";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
-import React, { useState } from "react";
+import React, { ForwardedRef, useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { useBlocks, useQuery, useSetScale } from "@giz/maestro/react";
@@ -84,8 +84,8 @@ type InteractiveCanvasProps = {
  * This is the main canvas element that contains the individual blocks, wrapped inside
  * the `react-zoom-pan-pinch` wrapper component.
  */
-const InteractiveCanvas = observer<any, HTMLDivElement>(
-  ({ vm, showModal }: InteractiveCanvasProps, ref) => {
+const InteractiveCanvas = observer(
+  React.forwardRef<HTMLDivElement, any>(({ vm, showModal }: InteractiveCanvasProps, ref) => {
     const { showContextMenu } = useContextMenu();
     const contextMenu: ContextMenuContent = React.useMemo(
       () => [
@@ -116,8 +116,7 @@ const InteractiveCanvas = observer<any, HTMLDivElement>(
         })}
       />
     );
-  },
-  { forwardRef: true },
+  }),
 );
 
 type InnerCanvasProps = {

@@ -257,9 +257,7 @@ export const Timeline = observer(() => {
   // If the query changed, update the start & end dates and re-center the timeline.
   React.useEffect(() => {
     if (rangeByDate) {
-      vm.setSelectedStartDate(rangeByDate[0]);
-      vm.setSelectedEndDate(rangeByDate[1]);
-      vm.initializePositionsFromSelection();
+      vm.updateSelectedDates(rangeByDate[0], rangeByDate[1]);
     }
   }, [rangeByDate]);
 

@@ -182,6 +182,20 @@ class TimelineViewModel extends ViewModel {
   }
 
   @action.bound
+  updateSelectedDates(startDate: GizDate, endDate: GizDate) {
+    if (
+      this.selectedStartDate.toString() === startDate.toString() &&
+      this.selectedEndDate.toString() === endDate.toString()
+    ) {
+      return;
+    }
+    this.setSelectedStartDate(startDate);
+    this.setSelectedEndDate(endDate);
+
+    this.initializePositionsFromSelection();
+  }
+
+  @action.bound
   offsetDateByPx(startDate: Date, px: number): GizDate {
     const days = px / this.dayWidthInPx;
 
@@ -275,9 +289,6 @@ class TimelineViewModel extends ViewModel {
   @action.bound
   setSelectedStartDate(date?: GizDate) {
     if (date === undefined) date = this.defaultStartDate ?? new GizDate();
-    if (getDaysBetweenAbs(date, this.selectedEndDate) < 1) {
-      date = date.subtractDays(1);
-    }
 
     if (this._selectedStartDate.getTime() !== date.getTime()) {
       this._selectedStartDate = date;
@@ -290,9 +301,6 @@ class TimelineViewModel extends ViewModel {
   @action.bound
   setSelectedEndDate(date?: GizDate) {
     if (date === undefined) date = this.defaultStartDate ?? new GizDate();
-    if (getDaysBetweenAbs(date, this.selectedStartDate) < 1) {
-      date = date.addDays(1);
-    }
 
     if (this._selectedEndDate.getTime() !== date.getTime()) this._selectedEndDate = date;
 
