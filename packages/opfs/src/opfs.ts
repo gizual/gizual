@@ -72,9 +72,13 @@ export async function getNativeDirectoryHandle(
 }
 
 export async function findDirectoryHandle(
-  h: FileSystemDirectoryHandle,
+  h: FileSystemDirectoryHandle | undefined,
   path: string,
+  create = false,
 ): Promise<FileSystemDirectoryHandle | undefined> {
+  if (!h) {
+    h = await navigator.storage.getDirectory();
+  }
   const parts = path.split("/");
   let current = h;
   try {
@@ -82,7 +86,7 @@ export async function findDirectoryHandle(
       if (part === "") {
         continue;
       }
-      current = await current.getDirectoryHandle(part, { create: false });
+      current = await current.getDirectoryHandle(part, { create });
     }
   } catch (e) {
     logger.warn(`Failed to find directory handle at ${path}`, e);
@@ -92,9 +96,13 @@ export async function findDirectoryHandle(
 }
 
 export async function findFileHandle(
-  h: FileSystemDirectoryHandle,
+  h: FileSystemDirectoryHandle | undefined,
   path: string,
+  create = false,
 ): Promise<FileSystemFileHandle | undefined> {
+  if (!h) {
+    h = await navigator.storage.getDirectory();
+  }
   const parts = path.split("/");
 
   if (parts.length === 0) {
@@ -103,13 +111,13 @@ export async function findFileHandle(
 
   const fileName = parts.pop()!;
   const dirPath = parts.join("/");
-  const dir = await findDirectoryHandle(h, dirPath);
+  const dir = await findDirectoryHandle(h, dirPath, create);
   if (!dir) {
     logger.warn(`Failed to directory for file handle at "${path}"`);
     return undefined;
   }
   try {
-    return await dir.getFileHandle(fileName, { create: false });
+    return await dir.getFileHandle(fileName, { create });
   } catch (e) {
     logger.warn(`Failed to find file handle at ${path}`, e);
     return undefined;
