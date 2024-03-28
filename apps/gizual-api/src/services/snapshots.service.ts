@@ -129,17 +129,17 @@ export class SnapshotsService {
   }
 
   async cleanOldSnapshots(maxAgeMs: number = 1000 * 60 * 60 * 24 * 2) {
-    const snapshotDirs = await glob(`*`, {
+    const dirs = await glob(`*`, {
       onlyDirectories: true,
       onlyFiles: false,
       deep: 1,
       stats: true,
       cwd: this.snapshotCacheFolder,
     });
-    const toDelete = snapshotDirs.filter((zip) => Date.now() - zip.stats!.mtimeMs > maxAgeMs);
+    const toDelete = dirs.filter((dir) => Date.now() - dir.stats!.mtimeMs > maxAgeMs);
     return Promise.all(
-      toDelete.map((zip) =>
-        fsp.rm(path.join(this.snapshotCacheFolder, zip.name), { recursive: true }),
+      toDelete.map((dir) =>
+        fsp.rm(path.join(this.snapshotCacheFolder, dir.name), { recursive: true }),
       ),
     );
   }
@@ -156,12 +156,6 @@ type GetRepoSnapshotNameProps = {
   repoDescriptor: RepoDescriptor;
   date?: Date;
   suffix: "date" | "glob";
-};
-
-type Snapshot = {
-  zipPath: string;
-  mtimeMs: number;
-  stillValidMs: number;
 };
 
 export type SnapshotIndex = SnapshotFile[];
