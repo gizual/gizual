@@ -262,7 +262,7 @@ export async function printFileTree(
   }
 }
 
-async function clearDirectory(directoryHandle: FileSystemDirectoryHandle) {
+export async function clearDirectory(directoryHandle: FileSystemDirectoryHandle) {
   const entries = await directoryHandle.keys();
   for await (const name of entries) {
     await directoryHandle.removeEntry(name, { recursive: true });

@@ -1,35 +1,34 @@
-import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { RepoDescriptor, getRepoSlug } from "@/utils/repo-utils";
-import archiver from "archiver";
 import glob from "fast-glob";
 import { EventService } from "./event.service";
 import { RuntimeDependencies } from "@/utils/di";
 
 export class SnapshotsService {
-  private zipCacheFolder: string;
+  private snapshotCacheFolder: string;
   private eventService: EventService;
   constructor(deps: RuntimeDependencies) {
     this.eventService = deps.eventService;
-    this.zipCacheFolder = deps.zipsCacheFolder;
+    this.snapshotCacheFolder = deps.snapshotsFolder;
   }
 
   async findSnapshot(repoDescriptor: RepoDescriptor, maxAgeMs: number) {
-    const pathGlob = this.getUniqueRepoZipName({
+    const pathGlob = this.getSnapshotName({
       repoDescriptor,
       suffix: "glob",
     });
-    let zips = await glob(pathGlob, {
-      onlyFiles: true,
+    let snapshots = await glob(pathGlob, {
+      onlyFiles: false,
+      onlyDirectories: true,
       deep: 1,
       stats: true,
-      cwd: this.zipCacheFolder,
+      cwd: this.snapshotCacheFolder,
     });
 
-    zips = zips.sort((a, b) => (a.stats?.mtimeMs || 0) - (b.stats?.mtimeMs || 0));
+    snapshots = snapshots.sort((a, b) => (a.stats?.mtimeMs || 0) - (b.stats?.mtimeMs || 0));
 
-    const candidate = zips.at(-1);
+    const candidate = snapshots.at(-1);
 
     if (!candidate) {
       return;
@@ -37,8 +36,8 @@ export class SnapshotsService {
 
     if (candidate.stats?.mtimeMs && Date.now() - candidate.stats.mtimeMs < maxAgeMs) {
       return {
-        zipName: candidate.name,
-        zipPath: path.join(this.zipCacheFolder, candidate.name),
+        snapshotName: candidate.name,
+        snapshotPath: path.join(this.snapshotCacheFolder, candidate.name),
         mtimeMs: candidate.stats.mtimeMs,
         stillValidMs: maxAgeMs - (Date.now() - candidate.stats.mtimeMs),
       };
@@ -48,51 +47,75 @@ export class SnapshotsService {
   }
 
   async createSnapshot(repoDescriptor: RepoDescriptor, folderPath: string) {
-    const zipName = this.getUniqueRepoZipName({
+    const snapshotName = this.getSnapshotName({
       repoDescriptor,
       suffix: "date",
     });
 
-    await fsp.mkdir(this.zipCacheFolder, { recursive: true });
+    await fsp.mkdir(this.snapshotCacheFolder, { recursive: true });
 
-    const zipPath = path.join(this.zipCacheFolder, zipName);
+    const snapshotPath = path.join(this.snapshotCacheFolder, snapshotName);
 
-    if (await exists(zipPath)) {
-      console.log("Snapshot already exists", zipPath);
-      return zipPath;
+    if (await exists(snapshotPath)) {
+      console.log("Snapshot already exists", snapshotPath);
+      return snapshotPath;
     }
 
-    await fsp.mkdir(path.dirname(zipPath), { recursive: true });
+    await fsp.mkdir(snapshotPath, { recursive: true });
 
-    const archive = archiver.create("zip", {});
-
-    const endPromise = new Promise<void>((resolve, reject) => {
-      archive.on("end", resolve);
-      archive.on("error", reject);
+    const snapshotFiles = await glob(`**/*`, {
+      cwd: folderPath,
+      onlyFiles: false,
+      markDirectories: true,
+      stats: true,
     });
 
-    const output = fs.createWriteStream(zipPath);
+    await fsp.cp(folderPath, snapshotPath, { recursive: true });
 
-    archive.pipe(output);
+    let index: SnapshotIndex = [];
 
-    // we pack the whole repo (since its --bare) into the zip's .git folder
-    archive.directory(folderPath, ".git");
+    for (const file of snapshotFiles) {
+      if (file.stats!.isFile()) {
+        if (file.path.startsWith("hooks/") && file.path.endsWith(".sample")) {
+          // we can skip sample hooks
+          continue;
+        }
+        const smallFile = file.stats!.size < 1024 * 2; // 2kb
 
-    await archive.finalize();
+        let content: string | undefined = undefined;
 
-    await endPromise;
-    output.close();
+        if (smallFile) {
+          content = await fsp.readFile(path.join(folderPath, file.path), "base64");
+        }
+
+        index.push({
+          name: file.path,
+          size: file.stats!.size,
+          content,
+        });
+      } else {
+        index.push({
+          name: file.path,
+        });
+      }
+    }
+
+    index = index.sort((a, b) => a.name.length - b.name.length);
+
+    const indexContent = JSON.stringify(index, null, 2);
+
+    await fsp.writeFile(path.join(snapshotPath, "index.json"), indexContent);
 
     this.eventService.emit({
       type: "snapshot-created",
       repoSlug: getRepoSlug(repoDescriptor),
-      snapshotName: zipName,
+      snapshotName,
     });
 
-    return zipPath;
+    return snapshotPath;
   }
 
-  getUniqueRepoZipName(props: GetRepoZipNameProps) {
+  getSnapshotName(props: GetRepoSnapshotNameProps) {
     if (!props.date) props.date = new Date();
     const { service, org, repo } = props.repoDescriptor;
     let suffix = "";
@@ -102,17 +125,23 @@ export class SnapshotsService {
       suffix = "*";
     }
 
-    return `${service}-${org}-${repo}-${suffix}.zip`;
+    return `${service}-${org}-${repo}-${suffix}`;
   }
 
   async cleanOldSnapshots(maxAgeMs: number = 1000 * 60 * 60 * 24 * 2) {
-    const zips = await glob(`${this.zipCacheFolder}/*.zip`, {
-      onlyFiles: true,
+    const dirs = await glob(`*`, {
+      onlyDirectories: true,
+      onlyFiles: false,
       deep: 1,
       stats: true,
+      cwd: this.snapshotCacheFolder,
     });
-    const toDelete = zips.filter((zip) => Date.now() - zip.stats!.mtimeMs > maxAgeMs);
-    return Promise.all(toDelete.map((zip) => fsp.unlink(path.join(this.zipCacheFolder, zip.name))));
+    const toDelete = dirs.filter((dir) => Date.now() - dir.stats!.mtimeMs > maxAgeMs);
+    return Promise.all(
+      toDelete.map((dir) =>
+        fsp.rm(path.join(this.snapshotCacheFolder, dir.name), { recursive: true }),
+      ),
+    );
   }
 }
 
@@ -123,14 +152,16 @@ async function exists(p: string): Promise<boolean> {
   );
 }
 
-type GetRepoZipNameProps = {
+type GetRepoSnapshotNameProps = {
   repoDescriptor: RepoDescriptor;
   date?: Date;
   suffix: "date" | "glob";
 };
 
-type Snapshot = {
-  zipPath: string;
-  mtimeMs: number;
-  stillValidMs: number;
+export type SnapshotIndex = SnapshotFile[];
+
+export type SnapshotFile = {
+  name: string;
+  size?: number;
+  content?: string;
 };

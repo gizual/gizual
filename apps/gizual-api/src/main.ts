@@ -49,7 +49,8 @@ if (isProduction) {
 const cwd = process.cwd();
 
 const globalRepoCacheFolder = process.env.REPO_CACHE_FOLDER || `${cwd}/.cache/api/repos`;
-const globalZipCacheFolder = process.env.ZIP_CACHE_FOLDER || `${cwd}/.cache/api/zips`;
+const globalSnapshotCacheFolder =
+  process.env.SNAPSHOT_CACHE_FOLDER || `${cwd}/.cache/api/snapshots`;
 
 const runtime = new Runtime();
 
@@ -59,7 +60,7 @@ function registerController<T extends Controller>(prefix: string, ctor: Construc
 }
 
 runtime.registerValue("reposCacheFolder", globalRepoCacheFolder);
-runtime.registerValue("zipsCacheFolder", globalZipCacheFolder);
+runtime.registerValue("snapshotsFolder", globalSnapshotCacheFolder);
 runtime.registerClass("snapshotsService", SnapshotsService);
 runtime.registerClass("eventService", EventService);
 runtime.registerClass("onDemandQueue", OnDemandQueue);

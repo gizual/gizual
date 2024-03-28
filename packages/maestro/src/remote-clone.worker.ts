@@ -1,8 +1,17 @@
 import "@giz/logging/worker";
 
-import type * as Events from "@giz/gizual-api/types";
+import { Buffer } from "buffer/";
+
+import type * as ServerTypes from "@giz/gizual-api/types";
 import { createLogger } from "@giz/logging";
-import { FSHandle, importZipFile, seekRepo, serializeHandle } from "@giz/opfs";
+import {
+  clearDirectory,
+  findDirectoryHandle,
+  findFileHandle,
+  FSHandle,
+  printFileTree,
+  serializeHandle,
+} from "@giz/opfs";
 
 export type RepoDownloadOpts = {
   service: string;
@@ -12,9 +21,9 @@ export type RepoDownloadOpts = {
 const logger = createLogger();
 
 export type DownloadEvent =
-  | Events.CloneProgressEvent
-  | Events.CloneFailedEvent
-  | Events.CloneCompleteEvent
+  | ServerTypes.CloneProgressEvent
+  | ServerTypes.CloneFailedEvent
+  | ServerTypes.CloneCompleteEvent
   | { type: "success"; handle: FSHandle };
 
 addEventListener("message", (e) => {
@@ -32,13 +41,13 @@ async function download(opts: RepoDownloadOpts) {
   logger.debug("Cloning repository", { service, repoName });
   const sseResponse = new EventSource(`${API_PATH}/on-demand-clone/${service}/${repoName}`);
 
-  let zipFileName = "";
+  let snapshotName = "";
   const onMessage = (e: MessageEvent) => {
     logger.debug("Received message", e.data);
 
     const data = JSON.parse(e.data);
     if (data.type === "snapshot-created") {
-      zipFileName = data.snapshotName;
+      snapshotName = data.snapshotName;
       return;
     }
     if (data.type === "clone-progress" || data.type === "clone-complete") {
@@ -60,27 +69,104 @@ async function download(opts: RepoDownloadOpts) {
 
   logger.debug("Cloning completed");
 
-  if (!zipFileName) {
-    throw new Error("Failed to clone repository");
+  if (!snapshotName) {
+    throw new Error("Could not find snapshot");
   }
 
-  const url = `${API_PATH}/snapshots/${zipFileName}`;
+  const url = `${API_PATH}/snapshots/${snapshotName}/`;
   logger.debug("Downloading snapshot", { url });
-  const response = await fetch(url);
 
-  const data = await response.arrayBuffer();
+  const indexResponse = await fetch(url);
 
-  let directoryHandle: FileSystemDirectoryHandle | undefined = await importZipFile(data);
-
-  if (!directoryHandle) {
-    throw new Error("Failed to import zip file");
+  if (!indexResponse.ok) {
+    throw new Error("Failed to download snapshot index");
   }
 
-  directoryHandle = await seekRepo(directoryHandle);
+  const index: ServerTypes.SnapshotIndex = await indexResponse.json();
+
+  const directoryHandle = await findDirectoryHandle(undefined, "repo", true);
 
   if (!directoryHandle) {
-    throw new Error("Failed to find repo in zip");
+    throw new Error("Failed to resolve handle");
   }
+
+  await clearDirectory(directoryHandle);
+
+  const gitDir = await findDirectoryHandle(directoryHandle, ".git", true);
+
+  if (!gitDir) {
+    throw new Error("Failed to find .git directory");
+  }
+
+  let totalBytes = 0;
+  let loadedBytes = 0;
+
+  // Create the directory structure
+  for (const file of index) {
+    if (file.name.endsWith("/")) {
+      await findDirectoryHandle(gitDir, file.name, true);
+      continue;
+    }
+
+    if (file.size !== undefined) {
+      totalBytes += file.size;
+    }
+  }
+
+  function emitProgress(newBytesProcessed: number) {
+    loadedBytes += newBytesProcessed;
+
+    postMessage({
+      type: "clone-progress",
+      progress: Math.round((loadedBytes / totalBytes) * 100),
+      numProcessed: loadedBytes,
+      numTotal: totalBytes,
+      state: "downloading",
+    });
+  }
+
+  const promises = index
+    .filter((file) => !file.name.endsWith("/"))
+    .map(async (file) => {
+      const handle = await findFileHandle(gitDir, file.name, true);
+      if (!handle) {
+        throw new Error("Failed to find file handle");
+      }
+      const writable = await handle.createSyncAccessHandle();
+
+      if (file.content) {
+        const content = Buffer.from(file.content, "base64");
+        const bytes = writable.write(content);
+
+        emitProgress(bytes);
+      } else {
+        const response = await fetch(`${API_PATH}/snapshots/${snapshotName}/${file.name}`);
+        if (!response.ok) {
+          throw new Error("Failed to download file");
+        }
+
+        if (!response.body) {
+          throw new Error("Response body is empty");
+        }
+
+        const writer = new WritableStream<Uint8Array>({
+          write(chunk) {
+            emitProgress(chunk.byteLength);
+            writable.write(chunk);
+          },
+          close() {
+            writable.close();
+          },
+        });
+
+        await response.body.pipeTo(writer);
+      }
+
+      writable.close();
+    });
+
+  await Promise.all(promises);
+  await printFileTree(directoryHandle);
 
   const handle = await serializeHandle(directoryHandle);
   logger.debug(`Zip imported, repository found at`, handle);

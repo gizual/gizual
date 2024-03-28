@@ -54,7 +54,7 @@ export class OnDemandCloneController implements Controller {
       client.send({
         type: "snapshot-created",
         repoSlug: slug,
-        snapshotName: snapshot.zipName,
+        snapshotName: snapshot.snapshotName,
       });
       client.end();
       return;

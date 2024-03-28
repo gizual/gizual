@@ -19,7 +19,7 @@ export interface RuntimeDependencies {
   onDemandQueue: OnDemandQueue;
   eventService: EventService;
   reposCacheFolder: string;
-  zipsCacheFolder: string;
+  snapshotsFolder: string;
 }
 
 export class Runtime {
