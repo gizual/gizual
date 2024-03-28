@@ -3,5 +3,5 @@
   "semi": true,
   "bracketSameLine": false,
   "printWidth": 100,
-  "plugins": ["prettier-plugin-toml", "prettier-plugin-astro", "prettier-plugin-tailwindcss"]
+  "plugins": ["prettier-plugin-toml"]
 }

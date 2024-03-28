@@ -9,7 +9,7 @@ function Header() {
         <div className={style.Content}>
           {/* Site branding */}
           <div className={style.Branding}>
-            <a href="/">
+            <a href="https://gizual.com">
               <img src={"./giz-icon.svg"} className={style.Branding__Logo} alt="Gizual Logo" />
             </a>
             <p className={style.Branding__Text}>
