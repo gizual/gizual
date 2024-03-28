@@ -32,6 +32,7 @@ export type IntermediatePayload<M extends Methods> = M extends keyof Intermediat
   : never;
 
 type FinalCallbackPayloadMap = {
+  get_authors: gen.Author[];
   open_repository: gen.OpenRepositoryResult;
   stream_authors: void;
   stream_file_tree: void;

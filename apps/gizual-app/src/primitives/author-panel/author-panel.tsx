@@ -24,6 +24,7 @@ interface AuthorType {
   email: string;
   gravatarHash: string;
   color: string;
+  numCommits: number;
 }
 
 const PAGE_SIZE = 10;
@@ -198,7 +199,7 @@ function getAuthorColumns(
     {
       title: "Author",
       accessor: "email",
-      render: ({ id, name, email }: AuthorType) => (
+      render: ({ id, name, email, numCommits }: AuthorType) => (
         <div
           onContextMenu={showContextMenu(
             [
@@ -260,7 +261,7 @@ function getAuthorColumns(
               paddingTop: "0.25rem",
             }}
           >
-            {email}
+            {email} {numCommits}
           </p>
         </div>
       ),

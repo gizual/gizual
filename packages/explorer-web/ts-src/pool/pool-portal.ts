@@ -307,6 +307,9 @@ export class PoolPortal {
       onErr,
     });
   }
+  getAuthors(): FinalPayload<"get_authors"> {
+    return this.execute("get_authors", undefined, 100).promise;
+  }
 
   streamAuthors(onData: (data: Author) => void, onEnd: () => void, onErr: (err: any) => void) {
     return this.stream({

@@ -6,7 +6,8 @@
   },
   "dependencies": {
     "@sqlite.org/sqlite-wasm": "^3.43.2-build1",
-    "comlink": "4.4.1"
+    "comlink": "4.4.1",
+    "dedent": "1.5.1"
   },
   "devDependencies": {
     "eslint": "8.45.0",

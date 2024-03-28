@@ -60,6 +60,9 @@ pub enum Request {
     #[serde(rename = "stream_authors")]
     StreamAuthors(StreamAuthorsParams),
 
+    #[serde(rename = "get_authors")]
+    GetAuthors(NoParams),    
+
     #[serde(rename = "get_file_tree")]
     GetFileTree(GetFileTreeParams),
 
@@ -243,6 +246,7 @@ impl Explorer {
         match request {
             Request::OpenRepository(params) => self.cmd_open_repository(&params),
             Request::StreamAuthors(_) => self.cmd_stream_authors(),
+            Request::GetAuthors(_) => self.cmd_get_authors(),
             Request::GetFileTree(params) => self.get_file_tree(&params),
             Request::StreamFileTree(params) => self.stream_file_tree(&params),
             Request::GetBranchList(_) => self.cmd_get_branches(),
