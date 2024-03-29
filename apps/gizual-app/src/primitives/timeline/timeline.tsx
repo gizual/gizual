@@ -236,7 +236,7 @@ export const Timeline = observer(() => {
   // the entire component, because the dimensions of the viewport must be changed
   // to adhere the dimensions of the parent.
   const [width, _] = useWindowSize();
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const containerWidth = timelineContainerRef.current?.clientWidth ?? 1000;
 
     const timelineSvgWrapperWidth = containerWidth; //previously: containerWidth - vm.textColumnWidth - 3 * vm.padding;

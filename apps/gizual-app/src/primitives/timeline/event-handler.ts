@@ -360,11 +360,7 @@ export class TimelineEventHandler {
       this.vm.selectEndX + this.vm.currentTranslationX,
     );
 
-    if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
-      this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
-    } else {
-      this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent());
-    }
+    this.vm.setSelectedEndDate(selectedEndDate.discardTimeComponent().addDays(1));
     this.vm.propagateUpdate();
   }
 
@@ -390,10 +386,8 @@ export class TimelineEventHandler {
       this.vm.selectEndX + this.vm.currentTranslationX,
     );
 
-    if (this.vm.mainController.settingsController.timelineSettings.snap.value) {
-      selectedStartDate = selectedStartDate.discardTimeComponent();
-      selectedEndDate = selectedEndDate.discardTimeComponent().addDays(1);
-    }
+    selectedStartDate = selectedStartDate.discardTimeComponent();
+    selectedEndDate = selectedEndDate.discardTimeComponent().addDays(1);
 
     this.vm.setSelectedStartDate(selectedStartDate);
     this.vm.setSelectedEndDate(selectedEndDate);

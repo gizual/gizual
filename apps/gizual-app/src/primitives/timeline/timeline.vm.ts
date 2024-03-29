@@ -51,12 +51,12 @@ class TimelineViewModel extends ViewModel {
   @observable private _endDate: GizDate;
   @observable private _selectedEndDate: GizDate;
 
-  dragStartX = 0;
-  selectStartX = 0;
-  selectEndX = 0;
-  moveBoxStartX = 0;
-  resizeBoxStartLeft = 0;
-  resizeBoxStartRight = 0;
+  @observable dragStartX = 0;
+  @observable selectStartX = 0;
+  @observable selectEndX = 0;
+  @observable moveBoxStartX = 0;
+  @observable resizeBoxStartLeft = 0;
+  @observable resizeBoxStartRight = 0;
 
   @observable viewBox = {
     width: 1000,

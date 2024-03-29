@@ -1,5 +1,4 @@
 import {
-  createCheckboxSetting,
   createColorSetting,
   createNumberSetting,
   createSelectSetting,
@@ -40,7 +39,6 @@ type EditorSettings = {
 
 type TimelineSettings = {
   displayMode: SettingsEntry<TimelineMode, "select">;
-  snap: SettingsEntry<boolean, "checkbox">;
   defaultRange: SettingsEntry<number, "number">;
   weekModeThreshold: SettingsEntry<number, "number">;
 } & GroupEntry;
@@ -73,11 +71,6 @@ export class SettingsController {
       TIMELINE_MODES.map((m) => {
         return { value: m, label: m };
       }),
-    ),
-    snap: createCheckboxSetting(
-      "Snap to grid",
-      "Controls if selections on the timeline snap to the nearest grid element.",
-      false,
     ),
     defaultRange: createNumberSetting(
       "Default Selection Range",
