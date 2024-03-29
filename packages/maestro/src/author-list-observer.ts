@@ -30,6 +30,7 @@ export class AuthorListObserver {
 
     this.observer = new PromiseObserver({
       name: "author-list",
+      initiallyLoading: true,
       cache: false,
       initialPromise: {
         create: this.maestro.getAuthorList,

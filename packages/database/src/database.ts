@@ -23,10 +23,11 @@ export class Database {
   }
 
   async queryAuthors(offset: number, limit: number, search?: string) {
-    if (search) {
-      throw new Error("search is not implemented");
-    }
-    return await this.worker.queryAuthors(offset, limit);
+    return await this.worker.queryAuthors({
+      offset,
+      limit,
+      search,
+    });
   }
 
   async countAuthors() {

@@ -2,7 +2,6 @@ use crate::{explorer::Explorer, utils};
 
 use git2::Error;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 
 #[cfg(feature = "bindings")]
 use specta::Type;
@@ -12,13 +11,17 @@ use specta::Type;
 pub struct StreamAuthorsParams {}
 
 #[cfg_attr(feature = "bindings", derive(Type))]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Author {
     id: String,
     name: String,
     email: String,
+
     #[serde(rename = "gravatarHash")]
     gravatar_hash: String,
+
+    #[serde(rename = "numCommits")]
+    num_commits: u32,
 }
 
 impl Explorer {
@@ -47,7 +50,7 @@ impl Explorer {
         revwalk.set_sorting(git2::Sort::TIME | git2::Sort::REVERSE)?;
         revwalk.push_head()?;
 
-        let mut seen_authors = HashSet::new();
+        let mut authors = std::collections::HashMap::new();
 
         for oid in revwalk {
             let oid = oid?;
@@ -69,24 +72,31 @@ impl Explorer {
 
             let author_id = utils::get_author_id(&author_name, &author_email);
 
-            if !seen_authors.contains(&author_id) {
-                seen_authors.insert(author_id.clone());
-                let author = Author {
-                    id: author_id,
-                    name: author_name,
-                    email: author_email,
-                    gravatar_hash: format!("{:x}", gravatar_hash),
-                };
-                if stream {
-                    self.send(author, false);
-                }
+            let author = authors.entry(author_id.clone()).or_insert(Author {
+                id: author_id.clone(),
+                name: author_name.clone(),
+                email: author_email.clone(),
+                gravatar_hash: format!("{:x}", gravatar_hash),
+                num_commits: 0,
+            });
+
+            author.num_commits += 1;
+
+            if stream {
+                self.send(author, false);
             }
         }
 
         if stream {
             self.send((), true);
         } else {
-            self.send(seen_authors, true);
+            let mut result = Vec::new();
+
+            for (_, author) in authors.iter() {
+                result.push(author);
+            }
+
+            self.send(result, true);
         }
         Ok(())
     }

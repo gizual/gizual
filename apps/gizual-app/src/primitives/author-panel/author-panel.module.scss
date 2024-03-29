@@ -1,9 +1,13 @@
-@use "@/shared" as *;
+@use "@/mixins" as *;
+@use "@/shared" as shared;
 
 .SettingsPanel {
-  @include panel;
-  max-width: 250px;
+  @include shared.panel;
+  max-width: 350px;
   border-left: 1px solid var(--border-primary);
+  @media (width < 1024px) {
+    display: none;
+  }
 }
 
 .Progress {
@@ -25,4 +29,47 @@
 
 .DataTable {
   font-family: "Iosevka Extended";
+}
+
+.CellContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.CellContainer__Header {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.CellContainer__Name {
+  @include text-xs;
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.CellContainer__NumCommits {
+  @include text-2xs;
+  @include rounded;
+  padding: 0.125rem 0.25rem;
+  background-color: var(--background-tertiary);
+  color: var(--foreground-primary);
+  text-wrap: nowrap;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.CellContainer__Email {
+  @include text-2xs;
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+  padding-top: 0.25rem;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  text-align: left;
 }

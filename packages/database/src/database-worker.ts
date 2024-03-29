@@ -6,64 +6,74 @@ import {
   type Sqlite3Static,
 } from "@sqlite.org/sqlite-wasm";
 import { expose } from "comlink";
+import dedent from "dedent";
 import _flatten from "lodash/flatten";
 
-import { Author, PoolPortal } from "@giz/explorer-web";
+import { Author } from "@giz/explorer";
+import { PoolPortal } from "@giz/explorer-web";
 import { createLogger } from "@giz/logging";
 
 const logger = createLogger();
 
-const AUTHORS_TABLE = `
-    CREATE TABLE authors (
-        id VARCHAR(20) PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        gravatarHash TEXT NOT NULL,
-        UNIQUE(name, email)
-    );
+const AUTHORS_TABLE = dedent`
+  CREATE TABLE authors (
+      id VARCHAR(20) PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      gravatarHash TEXT NOT NULL,
+      numCommits INTEGER DEFAULT 0,
+      UNIQUE(name, email)
+  );
 `;
 
-const INSERT_AUTHORS_TABLE = `
-    INSERT INTO authors (id, name, email, gravatarHash) VALUES (?, ?, ?, ?);
+const INSERT_AUTHORS_TABLE = dedent`
+  INSERT INTO authors (id, name, email, gravatarHash, numCommits) VALUES (?, ?, ?, ?, ?);
 `;
 
-const COMMITS_TABLE = `
-    CREATE TABLE commits (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        oid VARCHAR(40), 
-        aid VARCHAR(20) NOT NULL, 
-        message TEXT NOT NULL,
-        timestamp INTEGER NOT NULL
-    );
+const COMMITS_TABLE = dedent`
+  CREATE TABLE commits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      oid VARCHAR(40), 
+      aid VARCHAR(20) NOT NULL, 
+      message TEXT NOT NULL,
+      timestamp INTEGER NOT NULL
+  );
 `;
 
-const INSERT_COMMIT_STMT = `
-    INSERT INTO commits (oid, aid, message, timestamp) VALUES (?, ?, ?, ?);
+const INSERT_COMMIT_STMT = dedent`
+  INSERT INTO commits (oid, aid, message, timestamp) VALUES (?, ?, ?, ?);
 `;
 
-const FILES_TABLE = `
-    CREATE TABLE files (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        filePath TEXT NOT NULL,
-        UNIQUE(filePath)
-    );
+const FILES_TABLE = dedent`
+  CREATE TABLE files (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      filePath TEXT NOT NULL,
+      UNIQUE(filePath)
+  );
 `;
 
-const INSERT_FILE_STMT = `
-    INSERT OR IGNORE INTO files (filePath) VALUES (?);
+const INSERT_FILE_STMT = dedent`
+  INSERT OR IGNORE INTO files (filePath) VALUES (?);
 `;
 
-const SELECT_FILE_STMT = `
-    SELECT id FROM files WHERE filePath = (?);
+const SELECT_FILE_STMT = dedent`
+  SELECT id FROM files WHERE filePath = (?);
 `;
 
-const COMMITS_FILES_TABLE = `
-    CREATE TABLE commits_files (id INTEGER PRIMARY KEY AUTOINCREMENT, cid INTEGER, fid INTEGER);
+const COMMITS_FILES_TABLE = dedent`
+  CREATE TABLE commits_files (id INTEGER PRIMARY KEY AUTOINCREMENT, cid INTEGER, fid INTEGER);
 `;
 
-const INSERT_COMMITS_FILES_STMT = `
-    INSERT INTO commits_files (cid, fid) VALUES (?, ?);
+const INSERT_COMMITS_FILES_STMT = dedent`
+  INSERT INTO commits_files (cid, fid) VALUES (?, ?);
 `;
+
+export type QueryAuthorsOpts = {
+  offset?: number;
+  limit?: number;
+  orderBy?: ["numCommits" | "name", "ASC" | "DESC"];
+  search?: string;
+};
 
 export class DatabaseWorker {
   db!: SqliteDb;
@@ -92,6 +102,8 @@ export class DatabaseWorker {
 
     logger.log("Creating authors table ...");
     db.exec(AUTHORS_TABLE);
+
+    return db;
     logger.log("Creating commits table ...");
 
     db.exec(COMMITS_TABLE);
@@ -105,12 +117,37 @@ export class DatabaseWorker {
     return db;
   }
 
-  async queryAuthors(offset: number, limit: number): Promise<Author[]> {
+  async queryAuthors(opts: QueryAuthorsOpts): Promise<Author[]> {
+    const { offset = 0, limit = 10, orderBy = ["numCommits", "DESC"], search } = opts;
+
+    if (!search) {
+      const result = await this.db.exec({
+        sql: dedent`
+          SELECT id, name, email, gravatarHash, numCommits 
+          FROM authors 
+          ORDER BY ${orderBy[0]} ${orderBy[1]} 
+          LIMIT ${limit}
+          OFFSET ${offset};
+        `,
+        returnValue: "resultRows",
+        rowMode: "object",
+      });
+
+      return result as any;
+    }
+
     const result = await this.db.exec({
-      sql: "SELECT id, name, email, gravatarHash FROM authors LIMIT (?) OFFSET (?);",
+      sql: dedent`
+        SELECT id, name, email, gravatarHash, numCommits
+        FROM authors
+        WHERE name LIKE (?) OR email LIKE (?)
+        ORDER BY  ${orderBy[0]} ${orderBy[1]}
+        LIMIT ${limit}
+        OFFSET ${offset};
+      `,
       returnValue: "resultRows",
       rowMode: "object",
-      bind: [limit, offset],
+      bind: [`%${search}%`, `%${search}%`],
     });
 
     return result as any;
@@ -129,20 +166,16 @@ export class DatabaseWorker {
   async loadAuthors() {
     const stmt = this.db.prepare(INSERT_AUTHORS_TABLE);
 
-    await new Promise<void>((resolve, reject) => {
-      this.portal.streamAuthors(
-        (author) => {
-          stmt.bind([author.id, author.name, author.email, author.gravatarHash]).step();
-          stmt.reset();
-        },
-        () => {
-          resolve();
-        },
-        (error) => {
-          reject(error);
-        },
-      );
-    });
+    const authors = await this.portal.getAuthors();
+
+    logger.log("adding", authors.length, "authors to database");
+
+    for (const author of authors) {
+      stmt
+        .bind([author.id, author.name, author.email, author.gravatarHash, author.numCommits])
+        .step();
+      stmt.reset();
+    }
 
     stmt.finalize();
   }
