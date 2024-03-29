@@ -1,5 +1,5 @@
 import { useLocalQuery } from "@app/services/local-query";
-import { Avatar, Skeleton } from "@mantine/core";
+import { Avatar } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import clsx from "clsx";
 import { ShowContextMenuFunction, useContextMenu } from "mantine-contextmenu";
@@ -102,16 +102,8 @@ const AuthorTable = observer(
       showContextMenu,
     );
 
-    if (!isLoading && data === undefined) {
-      return <div>An unknown error occurred.</div>;
-    }
-
-    if (isLoading && data === undefined) {
-      return (
-        <div className={style.PaddedPlaceholder}>
-          <Skeleton />
-        </div>
-      );
+    if (!data && isLoading) {
+      return <div>Waiting for data ... please wait.</div>;
     }
 
     return (
@@ -240,29 +232,15 @@ function getAuthorColumns(
             { styles: { item: { backgroundColor: "var(--background-secondary)" } } },
           )}
         >
-          <p
-            style={{
-              whiteSpace: "break-spaces",
-              textAlign: "left",
-              overflowWrap: "anywhere",
-              fontSize: "0.875em",
-              lineHeight: "1em",
-            }}
-          >
-            {name}
-          </p>
-          <p
-            style={{
-              whiteSpace: "break-spaces",
-              textAlign: "left",
-              overflowWrap: "anywhere",
-              fontSize: "0.75em",
-              lineHeight: "0.75em",
-              paddingTop: "0.25rem",
-            }}
-          >
-            {email} {numCommits}
-          </p>
+          <div className={style.CellContainer__Header}>
+            <p className={style.CellContainer__Name}>{name}</p>
+            <div>
+              <p className={style.CellContainer__NumCommits}>
+                {`${numCommits} ${numCommits > 1 ? "commits" : "commit"}`}
+              </p>
+            </div>
+          </div>
+          <p className={style.CellContainer__Email}>{email}</p>
         </div>
       ),
     },
