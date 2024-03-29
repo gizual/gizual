@@ -14,7 +14,7 @@ import {
 import _ from "lodash";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
-import { estimateDayOnScale, getDateFromTimestamp } from "@giz/utils/gizdate";
+import { estimateDayOnScale, getDateFromTimestamp, getDaysBetweenAbs } from "@giz/utils/gizdate";
 
 import { PRERENDER_MULTIPLIER, TimelineViewModel } from "./timeline.vm";
 
@@ -330,6 +330,10 @@ export class TimelineEventHandler {
         this.vm.selectStartX = e.clientX - this.parentBBox.left;
         this.vm.selectEndX = e.clientX - this.parentBBox.left;
 
+        if (this.isResizingSelectionBox !== false) {
+          this.setStartOrEndDateFromSelectionCoordinates();
+          return;
+        }
         this.setDatesFromSelectionCoordinates();
       });
     }
@@ -367,8 +371,47 @@ export class TimelineEventHandler {
   @action.bound
   stopMovingSelection() {
     this.isMovingSelectionBox = false;
-    this.setDatesFromSelectionCoordinates();
+    this.setDatesFromMovedSelectionBox();
     this.vm.propagateUpdate();
+  }
+
+  @action.bound
+  setDatesFromMovedSelectionBox() {
+    // We want to make sure that the amount of days does not change due to rounding.
+    const expectedRange = Math.round(
+      getDaysBetweenAbs(this.vm.selectedStartDate, this.vm.selectedEndDate),
+    );
+
+    let selectedStartDate = estimateDayOnScale(
+      this.vm.timelineRenderStart,
+      this.vm.timelineRenderEnd,
+      this.vm.viewBox.width,
+      this.vm.selectStartX + this.vm.currentTranslationX,
+    );
+    selectedStartDate.setHours(0, 0, 0);
+    let selectedEndDate = estimateDayOnScale(
+      this.vm.timelineRenderStart,
+      this.vm.timelineRenderEnd,
+      this.vm.viewBox.width,
+      this.vm.selectEndX + this.vm.currentTranslationX,
+    );
+    selectedEndDate.setHours(23, 59, 59, 999);
+
+    const range = Math.round(getDaysBetweenAbs(selectedStartDate, selectedEndDate));
+    if (range !== expectedRange) {
+      const diff = range - expectedRange;
+      if (this.vm.selectStartX < this.vm.selectEndX) {
+        selectedEndDate = selectedEndDate.addDays(-diff);
+      } else {
+        selectedStartDate = selectedStartDate.addDays(-diff);
+      }
+    }
+
+    selectedStartDate = selectedStartDate.discardTimeComponent();
+    selectedEndDate = selectedEndDate.discardTimeComponent();
+
+    this.vm.setSelectedStartDate(selectedStartDate);
+    this.vm.setSelectedEndDate(selectedEndDate);
   }
 
   @action.bound
@@ -387,16 +430,44 @@ export class TimelineEventHandler {
     );
 
     selectedStartDate = selectedStartDate.discardTimeComponent();
-    selectedEndDate = selectedEndDate.discardTimeComponent().addDays(1);
+    selectedEndDate = selectedEndDate.discardTimeComponent();
 
     this.vm.setSelectedStartDate(selectedStartDate);
     this.vm.setSelectedEndDate(selectedEndDate);
   }
 
   @action.bound
+  setStartOrEndDateFromSelectionCoordinates() {
+    if (this.isResizingSelectionBox === "left") {
+      let selectedStartDate = estimateDayOnScale(
+        this.vm.timelineRenderStart,
+        this.vm.timelineRenderEnd,
+        this.vm.viewBox.width,
+        this.vm.selectStartX + this.vm.currentTranslationX,
+      );
+      selectedStartDate = selectedStartDate.discardTimeComponent();
+      this.vm.setSelectedStartDate(selectedStartDate);
+      return;
+    }
+
+    if (this.isResizingSelectionBox === "right") {
+      let selectedEndDate = estimateDayOnScale(
+        this.vm.timelineRenderStart,
+        this.vm.timelineRenderEnd,
+        this.vm.viewBox.width,
+        this.vm.selectEndX + this.vm.currentTranslationX,
+      );
+      selectedEndDate = selectedEndDate.discardTimeComponent();
+      this.vm.setSelectedEndDate(selectedEndDate);
+      return;
+    }
+  }
+
+  @action.bound
   stopResizingSelectionBox() {
+    this.setStartOrEndDateFromSelectionCoordinates();
     this.isResizingSelectionBox = false;
-    this.setDatesFromSelectionCoordinates();
+
     this.vm.propagateUpdate();
   }
 }

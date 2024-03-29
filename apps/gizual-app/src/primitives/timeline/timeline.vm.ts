@@ -183,16 +183,20 @@ class TimelineViewModel extends ViewModel {
 
   @action.bound
   updateSelectedDates(startDate: GizDate, endDate: GizDate) {
+    let triggerCentering = true;
+
+    // If the user barely changed the selection (and we can still see it), don't force center.
     if (
-      this.selectedStartDate.toString() === startDate.toString() &&
-      this.selectedEndDate.toString() === endDate.toString()
+      getDaysBetweenAbs(this.selectedStartDate, startDate) < 5 &&
+      getDaysBetweenAbs(this.selectedEndDate, endDate) < 5
     ) {
-      return;
+      triggerCentering = false;
     }
     this.setSelectedStartDate(startDate);
+    endDate.setHours(23, 59, 59, 999);
     this.setSelectedEndDate(endDate);
 
-    this.initializePositionsFromSelection();
+    if (triggerCentering) this.initializePositionsFromSelection();
   }
 
   @action.bound
@@ -242,7 +246,9 @@ class TimelineViewModel extends ViewModel {
    * Function called by the EventHandler whenever the user finishes interacting with a part of the timeline
    */
   propagateUpdate() {
-    this.notify("timelineSelection:changed", this.selectedStartDate, this.selectedEndDate);
+    const queryEndDate = this.selectedEndDate.subtractDays(1);
+    queryEndDate.setHours(23, 59, 59, 999);
+    this.notify("timelineSelection:changed", this.selectedStartDate, queryEndDate);
   }
 
   // -------------------------------------------------------------------------- //
