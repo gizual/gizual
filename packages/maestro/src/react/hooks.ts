@@ -27,11 +27,23 @@ export function useMaestro(): Maestro {
 export function useAuthorList(limit = 10, offset = 0, search = "") {
   const maestro = useMaestro();
 
+  /**
+   * Contrary to the recommended approach of having symmetric useEffect functions
+   * we need to instantiate the observer in the render function to ensure
+   * it is already created when the component first renders.
+   * useMemo is not suitable since it would not dispose the observer when the component is unmounted.
+   *
+   * TODO: We should probably keep the ListObserver in a viewModel instead of a hook.
+   */
   const ref = React.useRef<AuthorListObserver | undefined>(undefined);
-
+  if (!ref.current) {
+    ref.current = new AuthorListObserver(maestro, limit, offset, search);
+  }
   React.useEffect(() => {
-    ref.current = new AuthorListObserver(maestro);
-    return () => ref.current?.dispose();
+    return () => {
+      ref.current?.dispose();
+      ref.current = undefined;
+    };
   }, [maestro]);
 
   React.useEffect(() => {
