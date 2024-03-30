@@ -25,7 +25,15 @@ import { createLogger } from "@giz/logging";
 import { SearchQueryType } from "@giz/query";
 import { getStringDate, GizDate } from "@giz/utils/gizdate";
 
-import { EvaluatedRange, evaluateTimeRange, QueryError, QueryWithErrors } from "./query-utils";
+import { Cache } from "./cache";
+import {
+  EvaluatedRange,
+  evaluateTimeRange,
+  QueryError,
+  QueryWithErrors,
+  Result,
+  TimeQuery,
+} from "./query-utils";
 
 export type Metrics = typeof MaestroWorker.prototype.metrics;
 export type State = typeof MaestroWorker.prototype.state;
@@ -263,9 +271,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         });
       });
     });
+    this.updateState({ repoLoaded: true, screen: "main" });
 
     await this.setInitialQuery();
-    this.updateState({ repoLoaded: true, screen: "main" });
 
     return this.explorerPoolController;
   };
@@ -276,7 +284,16 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
 
     const endDate = new GizDate(this.state.lastCommitTimestamp * 1000);
-    const startDate = endDate.subtractDays(365);
+
+    // Set the start date to 5 years before the last commit, but not further than the first commit
+    const deltaSeconds = Math.min(
+      5 * 365 * 24 * 60 * 60, // 5 years in seconds
+      this.state.lastCommitTimestamp - this.state.firstCommitTimestamp,
+    );
+
+    const deltaDays = Math.ceil(deltaSeconds / (24 * 60 * 60));
+
+    const startDate = endDate.subtractDays(deltaDays);
     return [getStringDate(startDate), getStringDate(endDate)];
   };
 
@@ -289,16 +306,44 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
   };
 
   setInitialQuery = async () => {
-    const { branches, currentBranch, remotes, tags } =
+    const { branches, currentBranch, remotes, tags, lastCommit, firstCommit } =
       await this.explorerPool.execute<InitialDataResult>("get_initial_data", {}).promise;
 
-    const headCommit = await this.explorerPool.getCommit({ rev: "HEAD" });
+    const headCommitFiles = await this.getAvailableFiles(lastCommit.oid);
+
+    const allExtensions = headCommitFiles
+      .map((f) => {
+        const fileName = f.path.at(-1);
+        if (!fileName) {
+          return "";
+        }
+        const ext = fileName.split(".").pop();
+
+        if (!ext) {
+          return "";
+        }
+
+        return ext;
+      })
+      .filter(Boolean);
+
+    // count the number of files with the same extension and sort them by count
+    const extensionCounter: Record<string, number> = {};
+
+    for (const ext of allExtensions) {
+      extensionCounter[ext] = (extensionCounter[ext] || 0) + 1;
+    }
+
+    const sortedExtensions = Object.entries(extensionCounter).sort((a, b) => b[1] - a[1]);
+
+    const mostCommonExtension = sortedExtensions[0]?.[0] ?? "{t,j}s";
 
     // TODO: determine name of repo from remote urls if possible
 
     this.updateState({
-      lastCommitTimestamp: +headCommit.timestamp,
-      lastCommitAuthorId: headCommit.aid,
+      lastCommitTimestamp: +lastCommit.timestamp,
+      firstCommitTimestamp: +firstCommit.timestamp,
+      lastCommitAuthorId: lastCommit.aid,
       currentBranch,
       branches,
       remotes,
@@ -309,7 +354,8 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       branches,
       remotes,
       tags,
-      lastCommit: headCommit,
+      lastCommit,
+      firstCommit,
       currentBranch,
       initialrange: this.getDefaultRangeByDate(),
     });
@@ -321,7 +367,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         rangeByDate: this.getDefaultRangeByDate(),
       },
       files: {
-        changedInRef: currentBranch,
+        path: "*." + mostCommonExtension,
       },
       preset: {
         gradientByAge: [
@@ -401,6 +447,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     error: undefined as string | undefined,
 
     lastCommitTimestamp: 0,
+    firstCommitTimestamp: 0,
     lastCommitAuthorId: "",
     currentBranch: "",
 
@@ -578,11 +625,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       !isEqual(query.time, oldQuery.time) ||
       !isEqual(query.branch, oldQuery.branch)
     ) {
-      const { result, errors } = await evaluateTimeRange(
-        this.query.time,
-        this.explorerPool,
-        this.query.branch,
-      );
+      const { result, errors } = await this.evaluateTimeRange(this.query.time, this.query.branch);
 
       if (errors) {
         this.queryErrors.push(...errors);
@@ -648,6 +691,20 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     this.safeRefreshAvailableFiles(oldQuery);
   };
 
+  evaluateTimeRangeCache = new Cache<Result<EvaluatedRange>>(10);
+
+  evaluateTimeRange = async (time: TimeQuery | undefined, branch?: string) => {
+    const key = this.evaluateTimeRangeCache.getKey({ time, branch });
+
+    if (this.evaluateTimeRangeCache.has(key)) {
+      return this.evaluateTimeRangeCache.get(key);
+    }
+    const result = await evaluateTimeRange(time, this.explorerPool, branch);
+    this.evaluateTimeRangeCache.set(key, result);
+
+    return result;
+  };
+
   // ---------------------------------------------
   // -------------- AvailableFiles ---------------
   // ---------------------------------------------
@@ -664,6 +721,50 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     this.safeRefreshSelectedFiles();
   };
 
+  availableFilesCache = new Cache<FileTreeNode[]>(10);
+
+  getAvailableFiles = async (rev: string) => {
+    if (this.availableFilesCache.has(rev)) {
+      return this.availableFilesCache.get(rev);
+    }
+
+    const tree = await this.explorerPool!.getFileTree({
+      rev,
+    });
+
+    const files = tree
+      .filter((f) => {
+        if (f.path.length <= 0) {
+          return false;
+        }
+
+        if (f.path.some((p) => hasNonAsciiCharacters(p))) {
+          return false;
+        }
+
+        if (f.kind === "folder") {
+          return true;
+        }
+        const ext = f.path.at(-1)!.split(".").pop();
+
+        if (!ext) {
+          return true;
+        }
+
+        return !IGNORED_FILE_EXTENSIONS.has(ext);
+      })
+      .sort((a, b) => {
+        if (a.kind === "folder" && b.kind !== "folder") return -1; // Sort folders before files
+        if (a.kind !== "folder" && b.kind === "folder") return 1; // Sort folders before files
+
+        return a.path.length - b.path.length;
+      });
+
+    this.availableFilesCache.set(rev, files);
+
+    return files;
+  };
+
   private refreshAvailableFiles = async (oldQuery?: SearchQueryType) => {
     const { branch, time, type, preset } = this.query;
     if (!type) {
@@ -678,33 +779,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     const initial = !this.availableFiles || !oldQuery;
 
     if (typeChanged || branchChanged || timeChanged || presetChanged || initial) {
-      const tree = await this.explorerPool!.getFileTree({
-        rev: this.range.until.commit.oid,
-      });
-
       const oldFiles = this.availableFiles;
-      this.availableFiles = tree
-        .filter((f) => {
-          if (f.path.length <= 0) {
-            return false;
-          }
-          if (f.kind === "folder") {
-            return true;
-          }
-          const ext = f.path.at(-1)!.split(".").pop();
 
-          if (!ext) {
-            return true;
-          }
-
-          return !IGNORED_FILE_EXTENSIONS.has(ext);
-        })
-        .sort((a, b) => {
-          if (a.kind === "folder" && b.kind !== "folder") return -1; // Sort folders before files
-          if (a.kind !== "folder" && b.kind === "folder") return 1; // Sort folders before files
-
-          return a.path.length - b.path.length;
-        });
+      this.availableFiles = await this.getAvailableFiles(this.range.until.commit.oid);
 
       this.emit("available-files:updated", {
         oldValue: oldFiles,
@@ -747,15 +824,21 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           return [];
         }
 
-        return this.availableFiles.filter((node) => {
-          if (node.kind === "folder") {
-            return false;
-          }
-          const result = globPatterns.some((p) =>
-            minimatch(node.path.join("/"), p, { matchBase: true }),
-          );
-          return result;
-        });
+        return this.availableFiles
+          .filter((node) => {
+            if (node.kind === "folder") {
+              return false;
+            }
+            const result = globPatterns.some((p) =>
+              minimatch(node.path.join("/"), p, { matchBase: true }),
+            );
+
+            return result;
+          })
+          .sort((a, b) => {
+            return a.path.length - b.path.length;
+          })
+          .slice(0, 500);
       })
       .with({ path: Pattern.array(Pattern.string) }, (f) => {
         // select files by path array (one or multiple)
@@ -1391,5 +1474,8 @@ function simpleHash(input: string): string {
   }
   return (hash >>> 0).toString(36);
 }
+
+// eslint-disable-next-line no-control-regex
+const hasNonAsciiCharacters = (str: string) => /[^\u0000-\u007F]/.test(str);
 
 expose(new MaestroWorker());

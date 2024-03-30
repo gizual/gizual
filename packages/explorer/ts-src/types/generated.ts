@@ -44,7 +44,7 @@ export type HistoryGraph = { commit_indices: { [key in string]: number }; commit
 
 export type Infallible = never
 
-export type InitialDataResult = { currentBranch: string; lastCommit: Commit; remotes: Remote[]; branches: string[]; tags: string[] }
+export type InitialDataResult = { currentBranch: string; lastCommit: Commit; firstCommit: Commit; remotes: Remote[]; branches: string[]; tags: string[] }
 
 export type IsValidRevParams = { rev: string }
 

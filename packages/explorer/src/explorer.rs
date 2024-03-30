@@ -43,6 +43,9 @@ pub struct InitialDataResult {
     #[serde(rename = "lastCommit")]
     pub last_commit: commits::Commit,
 
+    #[serde(rename = "firstCommit")]
+    pub first_commit: commits::Commit,
+
     pub remotes: Vec<Remote>,
     pub branches: Vec<String>,
     pub tags: Vec<String>,
@@ -228,10 +231,43 @@ impl Explorer {
 
             remotes.push(Remote { name, url });
         }
+        
+        let mut revwalk = repo.revwalk().unwrap();
+        revwalk.push(head_commit.id()).unwrap();
+        revwalk.set_sorting(git2::Sort::TIME).unwrap();
+
+        let mut first_commit: Option<git2::Commit> = None;
+
+        for oid in revwalk {
+            if oid.is_err() {
+                continue;
+            }
+            let oid = oid.unwrap();
+            let commit = repo.find_commit(oid);
+
+            if commit.is_err() {
+                continue;
+            }
+
+            let commit = commit.unwrap();
+
+            if commit.parent_count() == 0 {
+                first_commit = Some(commit);
+                break;
+            }
+        }
+
+        if first_commit.is_none() {
+            self.send_error("No initial commit found".to_string());
+            return;
+        }
+       
+        let first_commit_id = first_commit.unwrap().id().to_string();
 
         let data = InitialDataResult {
             current_branch: head.shorthand().unwrap().to_string(),
             last_commit: self.get_commit(&head_commit_id).unwrap(),
+            first_commit: self.get_commit(&first_commit_id).unwrap(),
             remotes,
             branches,
             tags,
