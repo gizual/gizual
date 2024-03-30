@@ -51,6 +51,7 @@ const RenderType = Type.Union([
   Type.Literal("author-mosaic"),
   Type.Literal("author-contributions"),
   Type.Literal("file-lines"),
+  Type.Literal("file-lines-full"),
   Type.Literal("file-mosaic"),
   Type.Literal("file-bar"),
   Type.Literal("author-bar"),

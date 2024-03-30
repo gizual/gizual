@@ -25,7 +25,7 @@ const PresetSelectionGrid = observer(({ vm }: { vm: VisTypeViewModel }) => {
   return (
     <div className={sharedStyle.FlexColumn}>
       {match(type)
-        .with(Pattern.union("file-lines", "file-mosaic"), () => (
+        .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), () => (
           <RadioGrid>
             <RadioGridItem<PresetQueryKeys>
               checked={vm.selectedPreset === "gradientByAge"}

@@ -19,7 +19,7 @@ const LegendComponent = observer(
     const { query } = useQuery();
 
     return match(query.type)
-      .with("file-lines", "file-mosaic", () => {
+      .with("file-lines", "file-lines-full", "file-mosaic", () => {
         let colorStart = "#ff0000";
         let colorEnd = "#00ffff";
         let descriptionStart = "XXXX-XX-XX";

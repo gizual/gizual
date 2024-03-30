@@ -362,7 +362,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
     const query: SearchQueryType = {
       branch: currentBranch,
-      type: "file-lines",
+      type: "file-lines-full",
       time: {
         rangeByDate: this.getDefaultRangeByDate(),
       },
@@ -538,7 +538,11 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       "preset.paletteByAuthor": "ppba",
     };
 
-    if (this.query.type !== "file-lines" && this.query.type !== "file-mosaic") {
+    if (
+      this.query.type !== "file-lines" &&
+      this.query.type !== "file-lines-full" &&
+      this.query.type !== "file-mosaic"
+    ) {
       // Rerenders are only required if the file selection changes for queries other than file-lines / file-mosaic
       // TODO: recheck this as soon as we support other block types
       keyReplacements = {
@@ -967,7 +971,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
 
     const blocks = await match(type)
-      .with(Pattern.union("file-lines", "file-mosaic"), async (t) => {
+      .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), async (t) => {
         const fileContents = await Promise.all(
           this.selectedFiles.map((file) => this.getFileContent(file.path.join("/"))),
         );
@@ -985,7 +989,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           const maxNumLines = this.visualizationSettings.style.maxNumLines.value;
           const truncatedNumLines = Math.min(numLines, maxNumLines);
           const blockHeight = match(type)
-            .with("file-lines", () => truncatedNumLines * 10)
+            .with("file-lines", "file-lines-full", () => truncatedNumLines * 10)
             .with("file-mosaic", () => Math.max((Math.floor(truncatedNumLines / 10) + 1) * 10, 10))
             .otherwise(() => {
               throw new Error("Unsupported block type (height calculation)");
@@ -1107,12 +1111,16 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       return;
     }
 
-    if (block.type !== "file-lines" && block.type !== "file-mosaic") {
+    if (
+      block.type !== "file-lines" &&
+      block.type !== "file-lines-full" &&
+      block.type !== "file-mosaic"
+    ) {
       throw new Error("Unsupported block type");
     }
 
     match(block.type)
-      .with(Pattern.union("file-lines", "file-mosaic"), () => {})
+      .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), () => {})
       .otherwise(() => {
         throw new Error("Unsupported block type");
       });
@@ -1151,7 +1159,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         notLoaded: visualizationSettings.colors.notLoaded.value,
       },
       style: {
-        lineLength: visualizationSettings.style.lineLength.value,
+        lineLength: "full",
       },
     };
 
@@ -1176,7 +1184,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     };
 
     const { result } = await match(query.type)
-      .with("file-lines", async () => {
+      .with("file-lines", "file-lines-full", async (type) => {
         return renderPool.renderCanvas({
           ...baseCtx,
           type: RenderType.FileLines,
@@ -1186,6 +1194,12 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           showContent,
           rect: new DOMRect(0, 0, 300, lines.length * 10),
           colorDefinition: colorManager.state,
+          visualizationConfig: {
+            ...visualizationConfig,
+            style: {
+              lineLength: type === "file-lines-full" ? "full" : "lineLength",
+            },
+          },
         });
       })
       .with("file-mosaic", async () => {
@@ -1365,7 +1379,7 @@ export type BaseBlock = {
 };
 
 export type FileLinesBlock = BaseBlock & {
-  type: "file-lines";
+  type: "file-lines" | "file-lines-full";
   meta: {
     filePath: string;
     fileType?: FileIcon | undefined;
