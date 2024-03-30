@@ -18,7 +18,16 @@ import { estimateDayOnScale, getDateFromTimestamp, getDaysBetweenAbs } from "@gi
 
 import { PRERENDER_MULTIPLIER, TimelineViewModel } from "./timeline.vm";
 
-type EventCode = "mousemove" | "mouseup" | "mousedown" | "wheel" | "mouseenter" | "mouseleave";
+type EventCode =
+  | "mousemove"
+  | "mouseup"
+  | "mousedown"
+  | "wheel"
+  | "mouseenter"
+  | "mouseleave"
+  | "pointerdown"
+  | "pointerup"
+  | "pointermove";
 type Receiver = { element: HTMLElement | SVGElement; events: EventCode[] };
 
 export class TimelineEventHandler {
@@ -31,6 +40,9 @@ export class TimelineEventHandler {
   @observable canResizeSelectionBox: "left" | "right" | false = false;
 
   @observable _parent?: HTMLElement;
+  @observable _pointerEvents: PointerEvent[] = [];
+  @observable _previousPinchDistX: number | undefined = undefined;
+
   _receivers?: Map<string, Receiver>;
 
   constructor(vm: TimelineViewModel) {
@@ -43,43 +55,19 @@ export class TimelineEventHandler {
     this._parent = element;
 
     // If we ever get here again, just remove the old listeners first for safety.
-    element.removeEventListener("mousemove", this.mouseMove);
-    element.removeEventListener("mousedown", this.mouseDown);
-    element.removeEventListener("mouseup", this.mouseUp);
     element.removeEventListener("wheel", this.wheel);
     element.removeEventListener("mouseenter", this.mouseEnter);
     element.removeEventListener("mouseleave", this.mouseLeave);
-
-    element.addEventListener("mousemove", this.mouseMove);
-    element.addEventListener(
-      "touchmove",
-      (e) => this.mouseMove(this.translateTouchToMouseEvent(e)),
-      { passive: true },
-    );
-
-    element.addEventListener("mousedown", this.mouseDown);
-    element.addEventListener(
-      "touchstart",
-      (e) => this.mouseDown(this.translateTouchToMouseEvent(e)),
-      { passive: true },
-    );
-
-    element.addEventListener("mouseup", this.mouseUp);
-    element.addEventListener("touchend", (e) => this.mouseUp(this.translateTouchToMouseEvent(e)), {
-      passive: true,
-    });
+    element.removeEventListener("pointerdown", this.pointerDown);
+    element.removeEventListener("pointerup", this.pointerUp);
+    element.removeEventListener("pointermove", this.pointerMove);
 
     element.addEventListener("wheel", this.wheel, { passive: true });
     element.addEventListener("mouseenter", this.mouseEnter);
     element.addEventListener("mouseleave", this.mouseLeave);
-  }
-
-  translateTouchToMouseEvent(e: TouchEvent) {
-    return new MouseEvent("mousemove", {
-      clientX: e.touches[0].clientX,
-      clientY: e.touches[0].clientY,
-      bubbles: true,
-    });
+    element.addEventListener("pointerdown", this.pointerDown);
+    element.addEventListener("pointerup", this.pointerUp);
+    element.addEventListener("pointermove", this.pointerMove);
   }
 
   /**
@@ -133,8 +121,13 @@ export class TimelineEventHandler {
     if (this.isResizingSelectionBox) this.stopResizingSelectionBox();
   };
 
-  mouseUp = (e: MouseEvent) => {
-    this._forwardEvent("mouseup", e);
+  pointerUp = (e: PointerEvent) => {
+    this._forwardEvent("pointerup", e);
+    if (e.pointerType === "touch") {
+      this._pointerEvents = [];
+      this._previousPinchDistX = undefined;
+    }
+
     if (this.isSelecting) this.stopSelecting();
     if (this.isDragging) this.stopDragging();
     if (this.isMovingSelectionBox) this.stopMovingSelection();
@@ -165,9 +158,36 @@ export class TimelineEventHandler {
     this.vm.zoom(ticks);
   };
 
-  mouseMove = (e: MouseEvent) => {
-    this._forwardEvent("mousemove", e);
+  calculatePinchDist() {
+    const [p1, p2] = this._pointerEvents;
+    const x1 = p1.pageX;
+    const x2 = p2.pageX;
+    const pinchDistX = Math.abs(x1 - x2) / 2;
+    return pinchDistX;
+  }
+
+  pointerMove = (e: PointerEvent) => {
+    this._forwardEvent("pointermove", e);
     if (this.vm.isContextMenuOpen) return;
+
+    // Two-finger pinch to zoom, this takes precedence over other events.
+    if (this._pointerEvents.length === 2 && e.pointerType === "touch") {
+      // Make sure the new event is in the list.
+      const pointers = this._pointerEvents.filter((p) => p.pointerId !== e.pointerId);
+      pointers.push(e);
+      runInAction(() => {
+        this._pointerEvents = pointers;
+      });
+
+      const pinchDistX = this.calculatePinchDist();
+      const zoomDelta = this._previousPinchDistX ? pinchDistX - this._previousPinchDistX : 0;
+      runInAction(() => {
+        this._previousPinchDistX = pinchDistX;
+      });
+      this.vm.zoom(zoomDelta * 0.25);
+      return;
+    }
+
     if (this.vm.tooltip) {
       const date = estimateDayOnScale(
         this.vm.timelineRenderStart,
@@ -299,8 +319,20 @@ export class TimelineEventHandler {
     return false;
   }
 
-  mouseDown = (e: MouseEvent) => {
-    this._forwardEvent("mousedown", e);
+  pointerDown = (e: PointerEvent) => {
+    this._forwardEvent("pointerdown", e);
+
+    if (e.pointerType === "touch") {
+      this.pointerDownTouch(e);
+    }
+    this.pointerDownMouse(e);
+  };
+
+  pointerDownTouch = (e: PointerEvent) => {
+    this._pointerEvents.push(e);
+  };
+
+  pointerDownMouse = (e: MouseEvent) => {
     if (e.button === MOUSE_BUTTON_PRIMARY && !e.altKey) {
       const mousePos = e.clientX - this.parentBBox.left;
 

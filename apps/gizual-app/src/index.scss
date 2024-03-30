@@ -113,6 +113,10 @@
   font-style: normal;
 }
 
+:root {
+  touch-action: none;
+}
+
 html {
   display: block !important;
 }
