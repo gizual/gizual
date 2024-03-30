@@ -304,9 +304,13 @@ export class Maestro extends EventEmitter<MaestroEvents> {
         }
 
         runInAction(() => {
-          this.progressText = `${progress.state}: ${progress.numProcessed}/${progress.numTotal} (${progress.progress}%)`;
+          this.progressText = `${progress.state}:  ${progress.progress}%`;
         });
       },
+    });
+
+    runInAction(() => {
+      this.progressText = "";
     });
 
     const opts: PoolControllerOpts = {};
