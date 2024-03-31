@@ -5,7 +5,7 @@ import { Alert } from "@mantine/core";
 import clsx from "clsx";
 import { ContextMenuContent, useContextMenu } from "mantine-contextmenu";
 import { observer } from "mobx-react-lite";
-import React, { ForwardedRef, useState } from "react";
+import React, { useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { useBlocks, useQuery, useSetScale } from "@giz/maestro/react";

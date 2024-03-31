@@ -12,7 +12,7 @@ import {
   normalizeWheelEventDirection,
 } from "@app/utils";
 import _ from "lodash";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 
 import { estimateDayOnScale, getDateFromTimestamp, getDaysBetweenAbs } from "@giz/utils/gizdate";
 
@@ -33,10 +33,8 @@ type Receiver = { element: HTMLElement | SVGElement; events: EventCode[] };
 export class TimelineEventHandler {
   vm: TimelineViewModel;
 
-  @observable isDragging = false;
-  @observable isSelecting = false;
-  @observable isMovingSelectionBox = false;
-  @observable isResizingSelectionBox: "left" | "right" | false = false;
+  @observable interaction: "pan" | "select" | "resizeLeft" | "resizeRight" | "move" | "none" =
+    "none";
   @observable canResizeSelectionBox: "left" | "right" | false = false;
 
   @observable _parent?: HTMLElement;
@@ -107,35 +105,49 @@ export class TimelineEventHandler {
     return this._parent.getBoundingClientRect();
   }
 
+  @action.bound
   mouseEnter = (e: MouseEvent) => {
     this._forwardEvent("mouseenter", e);
     this.vm.setTooltipShown(true);
   };
 
+  @action.bound
   mouseLeave = (e: MouseEvent) => {
     this._forwardEvent("mouseleave", e);
     this.vm.setTooltipShown(false);
-    if (this.isDragging) this.stopDragging();
-    if (this.isSelecting) this.stopSelecting();
-    if (this.isMovingSelectionBox) this.stopMovingSelection();
-    if (this.isResizingSelectionBox) this.stopResizingSelectionBox();
+    this.stopInteraction();
   };
 
+  @action.bound
+  stopInteraction() {
+    if (this.interaction === "select") this.stopSelecting();
+    if (this.interaction === "pan") this.stopPanning();
+    if (this.interaction === "move") this.stopMovingSelection();
+    if (this.interaction === "resizeLeft" || this.interaction === "resizeRight")
+      this.stopResizingSelectionBox();
+
+    this.interaction = "none";
+  }
+
+  @action.bound
   pointerUp = (e: PointerEvent) => {
     this._forwardEvent("pointerup", e);
     if (e.pointerType === "touch") {
       this._pointerEvents = [];
       this._previousPinchDistX = undefined;
-      this.isDragging = false;
-      this.vm.dragStartX = 0;
+      this.vm.panStartX = 0;
+      this.vm.setTooltipShown(false);
     }
-
-    if (this.isSelecting) this.stopSelecting();
-    if (this.isDragging) this.stopDragging();
-    if (this.isMovingSelectionBox) this.stopMovingSelection();
-    if (this.isResizingSelectionBox) this.stopResizingSelectionBox();
+    if (this.interaction === "resizeLeft" || this.interaction === "resizeRight") {
+      this.setStartOrEndDateFromSelectionCoordinates();
+      this.stopInteraction();
+      return;
+    }
+    this.setDatesFromSelectionCoordinates();
+    this.stopInteraction();
   };
 
+  @action.bound
   wheel = (e: WheelEvent) => {
     this._forwardEvent("wheel", e);
     let ticks = 0;
@@ -145,7 +157,7 @@ export class TimelineEventHandler {
       // Probably a proper mouse wheel.
       ticks = Math.sign(delta);
     } else {
-      // Probably something fine-grained (e.g. trackpad)
+      // Probably something fine-grained (e.g. track-pad)
       ticks = accumulateWheelTicks(delta * MOUSE_ZOOM_FACTOR_FINE);
     }
 
@@ -160,7 +172,8 @@ export class TimelineEventHandler {
     this.vm.zoom(ticks);
   };
 
-  calculatePinchDist() {
+  @computed
+  get pinchDist() {
     const [p1, p2] = this._pointerEvents;
     const x1 = p1.pageX;
     const x2 = p2.pageX;
@@ -168,42 +181,57 @@ export class TimelineEventHandler {
     return pinchDistX;
   }
 
+  @computed
+  get panCenter() {
+    const [p1, p2, p3] = this._pointerEvents;
+    const x1 = p1.pageX;
+    const x2 = p2.pageX;
+    const x3 = p3.pageX;
+    return (x1 + x2 + x3) / 3;
+  }
+
+  @action.bound
   pointerMove = (e: PointerEvent) => {
     this._forwardEvent("pointermove", e);
     if (this.vm.isContextMenuOpen) return;
 
+    // If a mouse is used, we update the available state to display the proper cursor.
+    if (e.pointerType === "mouse") {
+      this.canResizeSelectionBox = this.evaluateCanResize(e);
+    }
+
+    // Update the current pointer events list for compatibility with touch devices.
+    this._pointerEvents = this._pointerEvents.filter((p) => p.pointerId !== e.pointerId);
+    this._pointerEvents.push(e);
+
     // Two-finger pinch to zoom, this takes precedence over other events.
     if (this._pointerEvents.length === 2 && e.pointerType === "touch") {
-      // Make sure the new event is in the list.
-      const pointers = this._pointerEvents.filter((p) => p.pointerId !== e.pointerId);
-      pointers.push(e);
-      runInAction(() => {
-        this._pointerEvents = pointers;
-      });
-
-      const pinchDistX = this.calculatePinchDist();
+      const pinchDistX = this.pinchDist;
       const zoomDelta = this._previousPinchDistX ? pinchDistX - this._previousPinchDistX : 0;
-      runInAction(() => {
-        this._previousPinchDistX = pinchDistX;
-      });
+      this._previousPinchDistX = pinchDistX;
       this.vm.zoom(zoomDelta * 0.25);
       return;
     }
 
-    // Three-finger drag to move the entire timeline with the selection box.
-    if (this._pointerEvents.length === 3 && e.pointerType === "touch") {
-      // Make sure the new event is in the list.
-      const pointers = this._pointerEvents.filter((p) => p.pointerId !== e.pointerId);
-      pointers.push(e);
-      runInAction(() => {
-        this._pointerEvents = pointers;
-      });
-
-      this.isDragging = true;
-      this.vm.dragStartX = e.clientX + this.vm.currentTranslationX;
+    // Three-finger pan to move the entire timeline with the selection box.
+    // The first time this event is fired, we capture the coordinates and set the state,
+    // the previous events are then captured by the `pan` event below.
+    if (
+      this._pointerEvents.length === 3 &&
+      e.pointerType === "touch" &&
+      this.interaction !== "pan"
+    ) {
+      const panCenter = this.panCenter;
+      this.vm.panStartX = panCenter + this.vm.currentTranslationX;
+      this.interaction = "pan";
     }
 
-    if (this.vm.tooltip) {
+    if (
+      this.vm.tooltip &&
+      (this.interaction === "none" ||
+        this.interaction === "select" ||
+        (e.pointerType !== "touch" && this.interaction === "move"))
+    ) {
       const date = estimateDayOnScale(
         this.vm.timelineRenderStart,
         this.vm.timelineRenderEnd,
@@ -250,65 +278,58 @@ export class TimelineEventHandler {
       this.vm.tooltip.style.visibility = "visible";
     }
 
-    if (this.isSelecting) {
-      runInAction(() => {
-        this.vm.selectEndX = e.clientX - this.parentBBox.left;
-        this.vm.setSelectedEndDate(
-          estimateDayOnScale(
-            this.vm.timelineRenderStart,
-            this.vm.timelineRenderEnd,
-            this.vm.viewBox.width,
-            this.vm.selectEndX + this.vm.currentTranslationX,
-          ),
-        );
-      });
+    if (this.interaction === "select") {
+      this.vm.selectEndX = e.clientX - this.parentBBox.left;
+      this.vm.setSelectedEndDate(
+        estimateDayOnScale(
+          this.vm.timelineRenderStart,
+          this.vm.timelineRenderEnd,
+          this.vm.viewBox.width,
+          this.vm.selectEndX + this.vm.currentTranslationX,
+        ),
+      );
       return;
     }
 
-    if (this.isDragging) {
-      this.vm.applyTransform(this.vm.dragStartX - e.clientX);
+    if (this.interaction === "pan") {
+      let clientX = e.clientX;
+      if (this._pointerEvents.length === 3) {
+        clientX = this.panCenter;
+      }
+      this.vm.applyTransform(this.vm.panStartX - clientX);
       this.vm.updateSelectionStartCoords();
       this.vm.updateSelectionEndCoords();
       return;
     }
 
-    if (this.isMovingSelectionBox) {
+    if (this.interaction === "move") {
       const range = this.vm.selectEndX - this.vm.selectStartX;
       const dist = this.vm.moveBoxStartX - e.clientX;
 
-      runInAction(() => {
-        this.vm.selectStartX = this.vm.selectStartX - dist;
-        this.vm.selectEndX = this.vm.selectStartX + range;
-        this.vm.moveBoxStartX = this.vm.moveBoxStartX - dist;
-      });
+      this.vm.selectStartX = this.vm.selectStartX - dist;
+      this.vm.selectEndX = this.vm.selectStartX + range;
+      this.vm.moveBoxStartX = this.vm.moveBoxStartX - dist;
       return;
     }
 
-    if (this.isResizingSelectionBox === "left") {
+    if (this.interaction === "resizeLeft") {
       const dist = this.vm.resizeBoxStartLeft - e.clientX;
 
-      runInAction(() => {
-        this.vm.selectStartX = this.vm.selectStartX - dist;
-        this.vm.resizeBoxStartLeft = this.vm.resizeBoxStartLeft - dist;
-      });
+      this.vm.selectStartX = this.vm.selectStartX - dist;
+      this.vm.resizeBoxStartLeft = this.vm.resizeBoxStartLeft - dist;
       return;
     }
 
-    if (this.isResizingSelectionBox === "right") {
+    if (this.interaction === "resizeRight") {
       const dist = this.vm.resizeBoxStartRight - e.clientX;
 
-      runInAction(() => {
-        this.vm.selectEndX = this.vm.selectEndX - dist;
-        this.vm.resizeBoxStartRight = this.vm.resizeBoxStartRight - dist;
-      });
+      this.vm.selectEndX = this.vm.selectEndX - dist;
+      this.vm.resizeBoxStartRight = this.vm.resizeBoxStartRight - dist;
       return;
     }
-
-    runInAction(() => {
-      this.canResizeSelectionBox = this.evaluateCanResize(e);
-    });
   };
 
+  @action.bound
   evaluateCanResize(e: MouseEvent) {
     const posX = e.clientX - this.parentBBox.left;
     const posY = e.clientY - this.parentBBox.top;
@@ -334,6 +355,7 @@ export class TimelineEventHandler {
     return false;
   }
 
+  @action.bound
   pointerDown = (e: PointerEvent) => {
     this._forwardEvent("pointerdown", e);
 
@@ -343,66 +365,58 @@ export class TimelineEventHandler {
     this.pointerDownMouse(e);
   };
 
+  @action.bound
   pointerDownTouch = (e: PointerEvent) => {
     this._pointerEvents.push(e);
   };
 
+  @action.bound
   pointerDownMouse = (e: PointerEvent) => {
     if ((e.button === MOUSE_BUTTON_PRIMARY && !e.altKey) || e.pointerType === "touch") {
       const mousePos = e.clientX - this.parentBBox.left;
+      this.canResizeSelectionBox = this.evaluateCanResize(e);
 
       if (this.canResizeSelectionBox === "left") {
-        this.isResizingSelectionBox = "left";
+        this.interaction = "resizeLeft";
         this.vm.resizeBoxStartLeft = e.clientX;
         return;
       }
 
       if (this.canResizeSelectionBox === "right") {
-        this.isResizingSelectionBox = "right";
+        this.interaction = "resizeRight";
         this.vm.resizeBoxStartRight = e.clientX;
         return;
       }
 
       if (mousePos > this.vm.selectStartX && mousePos < this.vm.selectEndX) {
-        runInAction(() => {
-          this.isMovingSelectionBox = true;
-          this.vm.moveBoxStartX = e.clientX;
-        });
+        this.interaction = "move";
+        this.vm.moveBoxStartX = e.clientX;
         return;
       }
 
-      runInAction(() => {
-        this.isSelecting = true;
+      this.vm.selectStartX = e.clientX - this.parentBBox.left;
+      this.vm.selectEndX = e.clientX - this.parentBBox.left;
 
-        this.vm.selectStartX = e.clientX - this.parentBBox.left;
-        this.vm.selectEndX = e.clientX - this.parentBBox.left;
-
-        if (this.isResizingSelectionBox !== false) {
-          this.setStartOrEndDateFromSelectionCoordinates();
-          return;
-        }
-        this.setDatesFromSelectionCoordinates();
-      });
+      this.setDatesFromSelectionCoordinates();
+      this.interaction = "select";
     }
 
     if (e.button === MOUSE_BUTTON_WHEEL || (e.button === MOUSE_BUTTON_PRIMARY && e.altKey)) {
-      runInAction(() => {
-        this.isDragging = true;
-        this.vm.dragStartX = e.clientX + this.vm.currentTranslationX;
-      });
+      this.interaction = "pan";
+      this.vm.panStartX = e.clientX + this.vm.currentTranslationX;
     }
   };
 
   @action.bound
-  stopDragging() {
-    this.isDragging = false;
+  stopPanning() {
+    this.interaction = "none";
     const pxOffset = this.vm.currentTranslationX - this.vm.viewBox.width / PRERENDER_MULTIPLIER;
     this.vm.move(pxOffset);
   }
 
   @action.bound
   stopSelecting() {
-    this.isSelecting = false;
+    this.interaction = "none";
 
     const selectedEndDate = estimateDayOnScale(
       this.vm.timelineRenderStart,
@@ -417,7 +431,7 @@ export class TimelineEventHandler {
 
   @action.bound
   stopMovingSelection() {
-    this.isMovingSelectionBox = false;
+    this.interaction = "none";
     this.setDatesFromMovedSelectionBox();
     this.vm.propagateUpdate();
   }
@@ -485,7 +499,7 @@ export class TimelineEventHandler {
 
   @action.bound
   setStartOrEndDateFromSelectionCoordinates() {
-    if (this.isResizingSelectionBox === "left") {
+    if (this.interaction === "resizeLeft") {
       let selectedStartDate = estimateDayOnScale(
         this.vm.timelineRenderStart,
         this.vm.timelineRenderEnd,
@@ -497,7 +511,7 @@ export class TimelineEventHandler {
       return;
     }
 
-    if (this.isResizingSelectionBox === "right") {
+    if (this.interaction === "resizeRight") {
       let selectedEndDate = estimateDayOnScale(
         this.vm.timelineRenderStart,
         this.vm.timelineRenderEnd,
@@ -513,7 +527,7 @@ export class TimelineEventHandler {
   @action.bound
   stopResizingSelectionBox() {
     this.setStartOrEndDateFromSelectionCoordinates();
-    this.isResizingSelectionBox = false;
+    this.interaction = "none";
 
     this.vm.propagateUpdate();
   }

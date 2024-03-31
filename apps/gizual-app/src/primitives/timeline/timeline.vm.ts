@@ -51,7 +51,7 @@ class TimelineViewModel extends ViewModel {
   @observable private _endDate: GizDate;
   @observable private _selectedEndDate: GizDate;
 
-  @observable dragStartX = 0;
+  @observable panStartX = 0;
   @observable selectStartX = 0;
   @observable selectEndX = 0;
   @observable moveBoxStartX = 0;
@@ -407,24 +407,24 @@ class TimelineViewModel extends ViewModel {
     return str;
   }
 
-  get isDragging() {
-    return this._eventHandler.isDragging;
+  get isPanning() {
+    return this._eventHandler.interaction === "pan";
   }
 
   get isSelecting() {
-    return this._eventHandler.isSelecting;
+    return this._eventHandler.interaction === "select";
   }
 
   get isMovingSelectionBox() {
-    return this._eventHandler.isMovingSelectionBox;
+    return this._eventHandler.interaction === "move";
   }
 
   get isResizingSelectionBoxLeft() {
-    return this._eventHandler.isResizingSelectionBox === "left";
+    return this._eventHandler.interaction === "resizeLeft";
   }
 
   get isResizingSelectionBoxRight() {
-    return this._eventHandler.isResizingSelectionBox === "right";
+    return this._eventHandler.interaction === "resizeRight";
   }
 
   get canResizeSelectionBoxLeft() {
@@ -593,7 +593,9 @@ class TimelineViewModel extends ViewModel {
   @computed
   get timelineRenderEnd() {
     const daysBetween = getDaysBetweenAbs(this.startDate, this.endDate);
-    return this.endDate.addDays(daysBetween);
+
+    const newDate = this.endDate.addDays(daysBetween);
+    return newDate;
   }
 
   @computed

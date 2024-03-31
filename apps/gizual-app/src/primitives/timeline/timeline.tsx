@@ -112,7 +112,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
         styles: { item: { backgroundColor: "var(--background-secondary)" } },
       })}
       className={clsx(
-        vm.isDragging && style["InteractionLayer--isDragging"],
+        vm.isPanning && style["InteractionLayer--isPanning"],
         vm.isSelecting && style["InteractionLayer--isSelecting"],
         vm.isMovingSelectionBox && style["InteractionLayer--isDragging"],
         vm.canResizeSelectionBoxLeft && style["InteractionLayer--isResizingLeft"],
@@ -122,7 +122,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
       <div
         className={clsx(
           style.InteractionLayer,
-          vm.isDragging && style["InteractionLayer--isDragging"],
+          vm.isPanning && style["InteractionLayer--isDragging"],
         )}
         id={"TimelineInteractionLayer"}
         ref={interactionLayerRef}
@@ -172,7 +172,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
             />
           </>
         )}
-        {!vm.isDragging && (
+        {!vm.isPanning && (
           <>
             <p className={style.DateRangeInfoText} style={{ left: 4 }}>
               {vm.startDate.toDisplayString()}

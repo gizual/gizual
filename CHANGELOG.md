@@ -1,15 +1,3 @@
-## Gizual 1.0.0-alpha.XX (XX.XX.2024)
-
-### Features
-
-### Changes
-
-- **app:frontend:** Improve timeline snapping behavior and re-centering issues
-
-### Bug Fixes
-
----
-
 ## Gizual 1.0.0-alpha.18 (23.03.2024)
 
 ### Features

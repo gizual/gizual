@@ -152,6 +152,21 @@ const TimeRangeByDateModule = observer(({ viewMode = "bar" }: TimeRangeByDateMod
           onChange={onChangeEndDate}
         />
 
+        <Tooltip label="Toggle timeline visibility" position="top" withArrow>
+          <IconButton
+            className={clsx(
+              style.ToggleButton,
+              isTimelineOpen ? style.IconToggled : style.IconUnToggled,
+            )}
+            style={{ padding: 0, width: 30, height: 30 }}
+          >
+            <IconRuler
+              className={clsx(style.IconBase, style.IconLarge)}
+              onClick={onToggleTimeline}
+            />
+          </IconButton>
+        </Tooltip>
+
         <div
           className={style.QueryModuleIconWithText}
           style={{ borderLeft: "1px solid var(--border-primary)", paddingLeft: "0.5rem" }}
@@ -169,21 +184,6 @@ const TimeRangeByDateModule = observer(({ viewMode = "bar" }: TimeRangeByDateMod
           value={branchValue}
           data={[{ label: "HEAD", value: "HEAD" }, ...branches]}
         />
-
-        <Tooltip label="Toggle timeline visibility" position="top" withArrow>
-          <IconButton
-            className={clsx(
-              style.ToggleButton,
-              isTimelineOpen ? style.IconToggled : style.IconUnToggled,
-            )}
-            style={{ padding: 0, width: 30, height: 30 }}
-          >
-            <IconRuler
-              className={clsx(style.IconBase, style.IconLarge)}
-              onClick={onToggleTimeline}
-            />
-          </IconButton>
-        </Tooltip>
       </div>
     </TimeBaseQueryModule>
   );

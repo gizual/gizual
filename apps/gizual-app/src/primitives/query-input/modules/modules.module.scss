@@ -229,6 +229,7 @@
   cursor: pointer;
   & > path {
     fill: none;
+    color: var(--foreground-primary);
   }
 }
 
