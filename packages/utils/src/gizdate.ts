@@ -39,6 +39,10 @@ export class GizDate extends Date {
     return dayjs(this).format(DATE_DISPLAY_FORMAT);
   }
 
+  toTimeString(): string {
+    return dayjs(this).format("DD MMM YYYY HH:mm");
+  }
+
   isBetween(start: GizDate, end: GizDate) {
     return isDateBetween(this, start, end);
   }

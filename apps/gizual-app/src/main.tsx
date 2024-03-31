@@ -34,6 +34,17 @@ const mainController = new MainController(maestro);
 
 (window as any).mainController = mainController;
 
+// This prevents document-level zooming on touch devices.
+document.addEventListener(
+  "touchmove",
+  function (event: any) {
+    if (event.scale !== 1) {
+      event.preventDefault();
+    }
+  },
+  { passive: false },
+);
+
 ReactDOM.createRoot(document.querySelector("#root") as HTMLElement).render(
   <MaestroProvider maestro={maestro}>
     <MainContext.Provider value={mainController}>

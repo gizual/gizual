@@ -10,7 +10,7 @@ declare const classNames: {
   readonly TimelineInfoColumn: "TimelineInfoColumn";
   readonly CurrentBranchInfoContainer: "CurrentBranchInfoContainer";
   readonly InteractionLayer: "InteractionLayer";
-  readonly "InteractionLayer--isDragging": "InteractionLayer--isDragging";
+  readonly "InteractionLayer--isPanning": "InteractionLayer--isPanning";
   readonly "InteractionLayer--canDrag": "InteractionLayer--canDrag";
   readonly "InteractionLayer--isSelecting": "InteractionLayer--isSelecting";
   readonly "InteractionLayer--isResizingLeft": "InteractionLayer--isResizingLeft";

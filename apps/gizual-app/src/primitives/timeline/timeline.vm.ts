@@ -51,12 +51,12 @@ class TimelineViewModel extends ViewModel {
   @observable private _endDate: GizDate;
   @observable private _selectedEndDate: GizDate;
 
-  dragStartX = 0;
-  selectStartX = 0;
-  selectEndX = 0;
-  moveBoxStartX = 0;
-  resizeBoxStartLeft = 0;
-  resizeBoxStartRight = 0;
+  @observable panStartX = 0;
+  @observable selectStartX = 0;
+  @observable selectEndX = 0;
+  @observable moveBoxStartX = 0;
+  @observable resizeBoxStartLeft = 0;
+  @observable resizeBoxStartRight = 0;
 
   @observable viewBox = {
     width: 1000,
@@ -182,6 +182,24 @@ class TimelineViewModel extends ViewModel {
   }
 
   @action.bound
+  updateSelectedDates(startDate: GizDate, endDate: GizDate) {
+    let triggerCentering = true;
+
+    // If the user barely changed the selection (and we can still see it), don't force center.
+    if (
+      getDaysBetweenAbs(this.selectedStartDate, startDate) < 5 &&
+      getDaysBetweenAbs(this.selectedEndDate, endDate) < 5
+    ) {
+      triggerCentering = false;
+    }
+    this.setSelectedStartDate(startDate);
+    endDate.setHours(23, 59, 59, 999);
+    this.setSelectedEndDate(endDate);
+
+    if (triggerCentering) this.initializePositionsFromSelection();
+  }
+
+  @action.bound
   offsetDateByPx(startDate: Date, px: number): GizDate {
     const days = px / this.dayWidthInPx;
 
@@ -228,7 +246,9 @@ class TimelineViewModel extends ViewModel {
    * Function called by the EventHandler whenever the user finishes interacting with a part of the timeline
    */
   propagateUpdate() {
-    this.notify("timelineSelection:changed", this.selectedStartDate, this.selectedEndDate);
+    const queryEndDate = this.selectedEndDate.subtractDays(1);
+    queryEndDate.setHours(23, 59, 59, 999);
+    this.notify("timelineSelection:changed", this.selectedStartDate, queryEndDate);
   }
 
   // -------------------------------------------------------------------------- //
@@ -275,9 +295,6 @@ class TimelineViewModel extends ViewModel {
   @action.bound
   setSelectedStartDate(date?: GizDate) {
     if (date === undefined) date = this.defaultStartDate ?? new GizDate();
-    if (getDaysBetweenAbs(date, this.selectedEndDate) < 1) {
-      date = date.subtractDays(1);
-    }
 
     if (this._selectedStartDate.getTime() !== date.getTime()) {
       this._selectedStartDate = date;
@@ -290,9 +307,6 @@ class TimelineViewModel extends ViewModel {
   @action.bound
   setSelectedEndDate(date?: GizDate) {
     if (date === undefined) date = this.defaultStartDate ?? new GizDate();
-    if (getDaysBetweenAbs(date, this.selectedStartDate) < 1) {
-      date = date.addDays(1);
-    }
 
     if (this._selectedEndDate.getTime() !== date.getTime()) this._selectedEndDate = date;
 
@@ -393,24 +407,24 @@ class TimelineViewModel extends ViewModel {
     return str;
   }
 
-  get isDragging() {
-    return this._eventHandler.isDragging;
+  get isPanning() {
+    return this._eventHandler.interaction === "pan";
   }
 
   get isSelecting() {
-    return this._eventHandler.isSelecting;
+    return this._eventHandler.interaction === "select";
   }
 
   get isMovingSelectionBox() {
-    return this._eventHandler.isMovingSelectionBox;
+    return this._eventHandler.interaction === "move";
   }
 
   get isResizingSelectionBoxLeft() {
-    return this._eventHandler.isResizingSelectionBox === "left";
+    return this._eventHandler.interaction === "resizeLeft";
   }
 
   get isResizingSelectionBoxRight() {
-    return this._eventHandler.isResizingSelectionBox === "right";
+    return this._eventHandler.interaction === "resizeRight";
   }
 
   get canResizeSelectionBoxLeft() {
@@ -579,7 +593,9 @@ class TimelineViewModel extends ViewModel {
   @computed
   get timelineRenderEnd() {
     const daysBetween = getDaysBetweenAbs(this.startDate, this.endDate);
-    return this.endDate.addDays(daysBetween);
+
+    const newDate = this.endDate.addDays(daysBetween);
+    return newDate;
   }
 
   @computed

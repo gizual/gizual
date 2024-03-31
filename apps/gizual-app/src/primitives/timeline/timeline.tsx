@@ -112,9 +112,9 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
         styles: { item: { backgroundColor: "var(--background-secondary)" } },
       })}
       className={clsx(
-        vm.isDragging && style["InteractionLayer--isDragging"],
+        vm.isPanning && style["InteractionLayer--isPanning"],
         vm.isSelecting && style["InteractionLayer--isSelecting"],
-        vm.isMovingSelectionBox && style["InteractionLayer--isDragging"],
+        vm.isMovingSelectionBox && style["InteractionLayer--isPanning"],
         vm.canResizeSelectionBoxLeft && style["InteractionLayer--isResizingLeft"],
         vm.canResizeSelectionBoxRight && style["InteractionLayer--isResizingRight"],
       )}
@@ -122,7 +122,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
       <div
         className={clsx(
           style.InteractionLayer,
-          vm.isDragging && style["InteractionLayer--isDragging"],
+          vm.isPanning && style["InteractionLayer--isPanning"],
         )}
         id={"TimelineInteractionLayer"}
         ref={interactionLayerRef}
@@ -172,7 +172,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
             />
           </>
         )}
-        {!vm.isDragging && (
+        {!vm.isPanning && (
           <>
             <p className={style.DateRangeInfoText} style={{ left: 4 }}>
               {vm.startDate.toDisplayString()}
@@ -236,7 +236,7 @@ export const Timeline = observer(() => {
   // the entire component, because the dimensions of the viewport must be changed
   // to adhere the dimensions of the parent.
   const [width, _] = useWindowSize();
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const containerWidth = timelineContainerRef.current?.clientWidth ?? 1000;
 
     const timelineSvgWrapperWidth = containerWidth; //previously: containerWidth - vm.textColumnWidth - 3 * vm.padding;
@@ -257,9 +257,7 @@ export const Timeline = observer(() => {
   // If the query changed, update the start & end dates and re-center the timeline.
   React.useEffect(() => {
     if (rangeByDate) {
-      vm.setSelectedStartDate(rangeByDate[0]);
-      vm.setSelectedEndDate(rangeByDate[1]);
-      vm.initializePositionsFromSelection();
+      vm.updateSelectedDates(rangeByDate[0], rangeByDate[1]);
     }
   }, [rangeByDate]);
 
