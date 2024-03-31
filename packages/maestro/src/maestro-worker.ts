@@ -1078,21 +1078,25 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
   };
 
+  getBlame(filePath: string, rev: string, sinceRev?: string, priority = 10) {
+    return this.explorerPool.getBlame(
+      {
+        rev,
+        path: filePath,
+        preview: false,
+        sinceRev,
+      },
+      priority,
+    );
+  }
+
   scheduleBlockRender = async (id: string) => {
     const block = this.blocks.find((b) => b.id === id);
     if (!block) {
       throw new Error("Block not found");
     }
 
-    const {
-      query,
-      explorerPool,
-      renderPool,
-      visualizationSettings,
-      renderCacheKey,
-      range,
-      colorManager,
-    } = this;
+    const { query, renderPool, visualizationSettings, renderCacheKey, range, colorManager } = this;
 
     let { requiredDpr } = this;
 
@@ -1124,17 +1128,13 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       .otherwise(() => {
         throw new Error("Unsupported block type");
       });
-
     if (!block.blameJobRef || block.currentImageCacheKey !== renderCacheKey) {
-      block.blameJobRef = explorerPool!.getBlame(
-        {
-          rev: range.until.commit.oid,
-          path: block.meta.filePath,
-          preview: false,
-          sinceRev: range.since.commit?.oid,
-        },
+      block.blameJobRef = this.getBlame(
+        block.meta.filePath,
+        range.until.commit.oid,
+        range.since.commit?.oid,
         10,
-      ) as any;
+      );
     }
 
     const blame = await block.blameJobRef!.promise;
@@ -1150,6 +1150,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     const selectedEndDate = this.range.until.date;
 
     if (lines.length === 0) {
+      // No lines to render, so we skip rendering
+      block.currentImageCacheKey = currentCacheKey;
+      block.upcomingImageCacheKey = undefined;
       return;
     }
     const visualizationConfig: VisualizationConfig = {
