@@ -114,7 +114,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
       className={clsx(
         vm.isPanning && style["InteractionLayer--isPanning"],
         vm.isSelecting && style["InteractionLayer--isSelecting"],
-        vm.isMovingSelectionBox && style["InteractionLayer--isDragging"],
+        vm.isMovingSelectionBox && style["InteractionLayer--isPanning"],
         vm.canResizeSelectionBoxLeft && style["InteractionLayer--isResizingLeft"],
         vm.canResizeSelectionBoxRight && style["InteractionLayer--isResizingRight"],
       )}
@@ -122,7 +122,7 @@ export const InteractionLayer = observer(({ vm }: TimelineProps) => {
       <div
         className={clsx(
           style.InteractionLayer,
-          vm.isPanning && style["InteractionLayer--isDragging"],
+          vm.isPanning && style["InteractionLayer--isPanning"],
         )}
         id={"TimelineInteractionLayer"}
         ref={interactionLayerRef}
