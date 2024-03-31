@@ -33,13 +33,21 @@ type Receiver = { element: HTMLElement | SVGElement; events: EventCode[] };
 export class TimelineEventHandler {
   vm: TimelineViewModel;
 
-  @observable interaction: "pan" | "select" | "resizeLeft" | "resizeRight" | "move" | "none" =
-    "none";
+  @observable interaction:
+    | "pan"
+    | "select"
+    | "resizeLeft"
+    | "resizeRight"
+    | "move"
+    | "pinch"
+    | "none" = "none";
   @observable canResizeSelectionBox: "left" | "right" | false = false;
 
   @observable _parent?: HTMLElement;
   @observable _pointerEvents: PointerEvent[] = [];
   @observable _previousPinchDistX: number | undefined = undefined;
+
+  @observable _gracePeriod = false;
 
   _receivers?: Map<string, Receiver>;
 
@@ -206,6 +214,7 @@ export class TimelineEventHandler {
 
     // Two-finger pinch to zoom, this takes precedence over other events.
     if (this._pointerEvents.length === 2 && e.pointerType === "touch") {
+      this.interaction = "pinch";
       const pinchDistX = this.pinchDist;
       const zoomDelta = this._previousPinchDistX ? pinchDistX - this._previousPinchDistX : 0;
       this._previousPinchDistX = pinchDistX;
@@ -279,6 +288,7 @@ export class TimelineEventHandler {
     }
 
     if (this.interaction === "select") {
+      if (this._gracePeriod) return;
       this.vm.selectEndX = e.clientX - this.parentBBox.left;
       this.vm.setSelectedEndDate(
         estimateDayOnScale(
@@ -394,10 +404,28 @@ export class TimelineEventHandler {
         return;
       }
 
-      this.vm.selectStartX = e.clientX - this.parentBBox.left;
-      this.vm.selectEndX = e.clientX - this.parentBBox.left;
+      // Deferred selection, in case we get multi-touch input.
+      setTimeout(
+        () => {
+          if (this.interaction === "pan" || this.interaction === "pinch") return;
 
-      this.setDatesFromSelectionCoordinates();
+          this.vm.selectStartX = e.clientX - this.parentBBox.left;
+          this.vm.selectEndX = e.clientX - this.parentBBox.left;
+
+          let selectedStartDate = estimateDayOnScale(
+            this.vm.timelineRenderStart,
+            this.vm.timelineRenderEnd,
+            this.vm.viewBox.width,
+            this.vm.selectStartX + this.vm.currentTranslationX,
+          );
+          selectedStartDate = selectedStartDate.discardTimeComponent();
+          this.vm.setSelectedStartDate(selectedStartDate);
+          this._gracePeriod = false;
+        },
+        e.pointerType === "touch" ? 100 : 0,
+      );
+
+      this._gracePeriod = e.pointerType === "touch" ? true : false;
       this.interaction = "select";
     }
 
