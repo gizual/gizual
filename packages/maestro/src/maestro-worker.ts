@@ -25,7 +25,15 @@ import { createLogger } from "@giz/logging";
 import { SearchQueryType } from "@giz/query";
 import { getStringDate, GizDate } from "@giz/utils/gizdate";
 
-import { EvaluatedRange, evaluateTimeRange, QueryError, QueryWithErrors } from "./query-utils";
+import { Cache } from "./cache";
+import {
+  EvaluatedRange,
+  evaluateTimeRange,
+  QueryError,
+  QueryWithErrors,
+  Result,
+  TimeQuery,
+} from "./query-utils";
 
 export type Metrics = typeof MaestroWorker.prototype.metrics;
 export type State = typeof MaestroWorker.prototype.state;
@@ -263,9 +271,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         });
       });
     });
+    this.updateState({ repoLoaded: true, screen: "main" });
 
     await this.setInitialQuery();
-    this.updateState({ repoLoaded: true, screen: "main" });
 
     return this.explorerPoolController;
   };
@@ -276,7 +284,16 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
 
     const endDate = new GizDate(this.state.lastCommitTimestamp * 1000);
-    const startDate = endDate.subtractDays(365);
+
+    // Set the start date to 5 years before the last commit, but not further than the first commit
+    const deltaSeconds = Math.min(
+      5 * 365 * 24 * 60 * 60, // 5 years in seconds
+      this.state.lastCommitTimestamp - this.state.firstCommitTimestamp,
+    );
+
+    const deltaDays = Math.ceil(deltaSeconds / (24 * 60 * 60));
+
+    const startDate = endDate.subtractDays(deltaDays);
     return [getStringDate(startDate), getStringDate(endDate)];
   };
 
@@ -289,16 +306,44 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
   };
 
   setInitialQuery = async () => {
-    const { branches, currentBranch, remotes, tags } =
+    const { branches, currentBranch, remotes, tags, lastCommit, firstCommit } =
       await this.explorerPool.execute<InitialDataResult>("get_initial_data", {}).promise;
 
-    const headCommit = await this.explorerPool.getCommit({ rev: "HEAD" });
+    const headCommitFiles = await this.getAvailableFiles(lastCommit.oid);
+
+    const allExtensions = headCommitFiles
+      .map((f) => {
+        const fileName = f.path.at(-1);
+        if (!fileName) {
+          return "";
+        }
+        const ext = fileName.split(".").pop();
+
+        if (!ext) {
+          return "";
+        }
+
+        return ext;
+      })
+      .filter(Boolean);
+
+    // count the number of files with the same extension and sort them by count
+    const extensionCounter: Record<string, number> = {};
+
+    for (const ext of allExtensions) {
+      extensionCounter[ext] = (extensionCounter[ext] || 0) + 1;
+    }
+
+    const sortedExtensions = Object.entries(extensionCounter).sort((a, b) => b[1] - a[1]);
+
+    const mostCommonExtension = sortedExtensions[0]?.[0] ?? "{t,j}s";
 
     // TODO: determine name of repo from remote urls if possible
 
     this.updateState({
-      lastCommitTimestamp: +headCommit.timestamp,
-      lastCommitAuthorId: headCommit.aid,
+      lastCommitTimestamp: +lastCommit.timestamp,
+      firstCommitTimestamp: +firstCommit.timestamp,
+      lastCommitAuthorId: lastCommit.aid,
       currentBranch,
       branches,
       remotes,
@@ -309,19 +354,20 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       branches,
       remotes,
       tags,
-      lastCommit: headCommit,
+      lastCommit,
+      firstCommit,
       currentBranch,
       initialrange: this.getDefaultRangeByDate(),
     });
 
     const query: SearchQueryType = {
       branch: currentBranch,
-      type: "file-lines",
+      type: "file-lines-full",
       time: {
         rangeByDate: this.getDefaultRangeByDate(),
       },
       files: {
-        changedInRef: currentBranch,
+        path: "*." + mostCommonExtension,
       },
       preset: {
         gradientByAge: [
@@ -401,6 +447,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     error: undefined as string | undefined,
 
     lastCommitTimestamp: 0,
+    firstCommitTimestamp: 0,
     lastCommitAuthorId: "",
     currentBranch: "",
 
@@ -491,7 +538,11 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       "preset.paletteByAuthor": "ppba",
     };
 
-    if (this.query.type !== "file-lines" && this.query.type !== "file-mosaic") {
+    if (
+      this.query.type !== "file-lines" &&
+      this.query.type !== "file-lines-full" &&
+      this.query.type !== "file-mosaic"
+    ) {
       // Rerenders are only required if the file selection changes for queries other than file-lines / file-mosaic
       // TODO: recheck this as soon as we support other block types
       keyReplacements = {
@@ -578,11 +629,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       !isEqual(query.time, oldQuery.time) ||
       !isEqual(query.branch, oldQuery.branch)
     ) {
-      const { result, errors } = await evaluateTimeRange(
-        this.query.time,
-        this.explorerPool,
-        this.query.branch,
-      );
+      const { result, errors } = await this.evaluateTimeRange(this.query.time, this.query.branch);
 
       if (errors) {
         this.queryErrors.push(...errors);
@@ -648,6 +695,20 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     this.safeRefreshAvailableFiles(oldQuery);
   };
 
+  evaluateTimeRangeCache = new Cache<Result<EvaluatedRange>>(10);
+
+  evaluateTimeRange = async (time: TimeQuery | undefined, branch?: string) => {
+    const key = this.evaluateTimeRangeCache.getKey({ time, branch });
+
+    if (this.evaluateTimeRangeCache.has(key)) {
+      return this.evaluateTimeRangeCache.get(key);
+    }
+    const result = await evaluateTimeRange(time, this.explorerPool, branch);
+    this.evaluateTimeRangeCache.set(key, result);
+
+    return result;
+  };
+
   // ---------------------------------------------
   // -------------- AvailableFiles ---------------
   // ---------------------------------------------
@@ -664,6 +725,50 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     this.safeRefreshSelectedFiles();
   };
 
+  availableFilesCache = new Cache<FileTreeNode[]>(10);
+
+  getAvailableFiles = async (rev: string) => {
+    if (this.availableFilesCache.has(rev)) {
+      return this.availableFilesCache.get(rev);
+    }
+
+    const tree = await this.explorerPool!.getFileTree({
+      rev,
+    });
+
+    const files = tree
+      .filter((f) => {
+        if (f.path.length <= 0) {
+          return false;
+        }
+
+        if (f.path.some((p) => hasNonAsciiCharacters(p))) {
+          return false;
+        }
+
+        if (f.kind === "folder") {
+          return true;
+        }
+        const ext = f.path.at(-1)!.split(".").pop();
+
+        if (!ext) {
+          return true;
+        }
+
+        return !IGNORED_FILE_EXTENSIONS.has(ext);
+      })
+      .sort((a, b) => {
+        if (a.kind === "folder" && b.kind !== "folder") return -1; // Sort folders before files
+        if (a.kind !== "folder" && b.kind === "folder") return 1; // Sort folders before files
+
+        return a.path.length - b.path.length;
+      });
+
+    this.availableFilesCache.set(rev, files);
+
+    return files;
+  };
+
   private refreshAvailableFiles = async (oldQuery?: SearchQueryType) => {
     const { branch, time, type, preset } = this.query;
     if (!type) {
@@ -678,33 +783,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     const initial = !this.availableFiles || !oldQuery;
 
     if (typeChanged || branchChanged || timeChanged || presetChanged || initial) {
-      const tree = await this.explorerPool!.getFileTree({
-        rev: this.range.until.commit.oid,
-      });
-
       const oldFiles = this.availableFiles;
-      this.availableFiles = tree
-        .filter((f) => {
-          if (f.path.length <= 0) {
-            return false;
-          }
-          if (f.kind === "folder") {
-            return true;
-          }
-          const ext = f.path.at(-1)!.split(".").pop();
 
-          if (!ext) {
-            return true;
-          }
-
-          return !IGNORED_FILE_EXTENSIONS.has(ext);
-        })
-        .sort((a, b) => {
-          if (a.kind === "folder" && b.kind !== "folder") return -1; // Sort folders before files
-          if (a.kind !== "folder" && b.kind === "folder") return 1; // Sort folders before files
-
-          return a.path.length - b.path.length;
-        });
+      this.availableFiles = await this.getAvailableFiles(this.range.until.commit.oid);
 
       this.emit("available-files:updated", {
         oldValue: oldFiles,
@@ -747,15 +828,21 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           return [];
         }
 
-        return this.availableFiles.filter((node) => {
-          if (node.kind === "folder") {
-            return false;
-          }
-          const result = globPatterns.some((p) =>
-            minimatch(node.path.join("/"), p, { matchBase: true }),
-          );
-          return result;
-        });
+        return this.availableFiles
+          .filter((node) => {
+            if (node.kind === "folder") {
+              return false;
+            }
+            const result = globPatterns.some((p) =>
+              minimatch(node.path.join("/"), p, { matchBase: true }),
+            );
+
+            return result;
+          })
+          .sort((a, b) => {
+            return a.path.length - b.path.length;
+          })
+          .slice(0, 500);
       })
       .with({ path: Pattern.array(Pattern.string) }, (f) => {
         // select files by path array (one or multiple)
@@ -884,7 +971,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
 
     const blocks = await match(type)
-      .with(Pattern.union("file-lines", "file-mosaic"), async (t) => {
+      .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), async (t) => {
         const fileContents = await Promise.all(
           this.selectedFiles.map((file) => this.getFileContent(file.path.join("/"))),
         );
@@ -902,7 +989,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           const maxNumLines = this.visualizationSettings.style.maxNumLines.value;
           const truncatedNumLines = Math.min(numLines, maxNumLines);
           const blockHeight = match(type)
-            .with("file-lines", () => truncatedNumLines * 10)
+            .with("file-lines", "file-lines-full", () => truncatedNumLines * 10)
             .with("file-mosaic", () => Math.max((Math.floor(truncatedNumLines / 10) + 1) * 10, 10))
             .otherwise(() => {
               throw new Error("Unsupported block type (height calculation)");
@@ -991,21 +1078,25 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
   };
 
+  getBlame(filePath: string, rev: string, sinceRev?: string, priority = 10) {
+    return this.explorerPool.getBlame(
+      {
+        rev,
+        path: filePath,
+        preview: false,
+        sinceRev,
+      },
+      priority,
+    );
+  }
+
   scheduleBlockRender = async (id: string) => {
     const block = this.blocks.find((b) => b.id === id);
     if (!block) {
       throw new Error("Block not found");
     }
 
-    const {
-      query,
-      explorerPool,
-      renderPool,
-      visualizationSettings,
-      renderCacheKey,
-      range,
-      colorManager,
-    } = this;
+    const { query, renderPool, visualizationSettings, renderCacheKey, range, colorManager } = this;
 
     let { requiredDpr } = this;
 
@@ -1024,26 +1115,26 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       return;
     }
 
-    if (block.type !== "file-lines" && block.type !== "file-mosaic") {
+    if (
+      block.type !== "file-lines" &&
+      block.type !== "file-lines-full" &&
+      block.type !== "file-mosaic"
+    ) {
       throw new Error("Unsupported block type");
     }
 
     match(block.type)
-      .with(Pattern.union("file-lines", "file-mosaic"), () => {})
+      .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), () => {})
       .otherwise(() => {
         throw new Error("Unsupported block type");
       });
-
     if (!block.blameJobRef || block.currentImageCacheKey !== renderCacheKey) {
-      block.blameJobRef = explorerPool!.getBlame(
-        {
-          rev: range.until.commit.oid,
-          path: block.meta.filePath,
-          preview: false,
-          sinceRev: range.since.commit?.oid,
-        },
+      block.blameJobRef = this.getBlame(
+        block.meta.filePath,
+        range.until.commit.oid,
+        range.since.commit?.oid,
         10,
-      ) as any;
+      );
     }
 
     const blame = await block.blameJobRef!.promise;
@@ -1059,6 +1150,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     const selectedEndDate = this.range.until.date;
 
     if (lines.length === 0) {
+      // No lines to render, so we skip rendering
+      block.currentImageCacheKey = currentCacheKey;
+      block.upcomingImageCacheKey = undefined;
       return;
     }
     const visualizationConfig: VisualizationConfig = {
@@ -1068,7 +1162,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         notLoaded: visualizationSettings.colors.notLoaded.value,
       },
       style: {
-        lineLength: visualizationSettings.style.lineLength.value,
+        lineLength: "full",
       },
     };
 
@@ -1093,7 +1187,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     };
 
     const { result } = await match(query.type)
-      .with("file-lines", async () => {
+      .with("file-lines", "file-lines-full", async (type) => {
         return renderPool.renderCanvas({
           ...baseCtx,
           type: RenderType.FileLines,
@@ -1103,6 +1197,12 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           showContent,
           rect: new DOMRect(0, 0, 300, lines.length * 10),
           colorDefinition: colorManager.state,
+          visualizationConfig: {
+            ...visualizationConfig,
+            style: {
+              lineLength: type === "file-lines-full" ? "full" : "lineLength",
+            },
+          },
         });
       })
       .with("file-mosaic", async () => {
@@ -1282,7 +1382,7 @@ export type BaseBlock = {
 };
 
 export type FileLinesBlock = BaseBlock & {
-  type: "file-lines";
+  type: "file-lines" | "file-lines-full";
   meta: {
     filePath: string;
     fileType?: FileIcon | undefined;
@@ -1391,5 +1491,8 @@ function simpleHash(input: string): string {
   }
   return (hash >>> 0).toString(36);
 }
+
+// eslint-disable-next-line no-control-regex
+const hasNonAsciiCharacters = (str: string) => /[^\u0000-\u007F]/.test(str);
 
 expose(new MaestroWorker());

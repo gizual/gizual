@@ -89,7 +89,7 @@ const VisTypePreview = observer(({ vm, ...svgProps }: VisTypePreviewProps) => {
   }, [colorGenerator]);
 
   return match(vm.selectedType)
-    .with("file-lines", () => {
+    .with("file-lines", "file-lines-full", (type) => {
       return (
         <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} {...svgProps}>
           {Array.from({ length: LINE_COUNT }).map((_, index) => (
@@ -97,7 +97,7 @@ const VisTypePreview = observer(({ vm, ...svgProps }: VisTypePreviewProps) => {
               key={`${index}`}
               x={0}
               y={index * LINE_HEIGHT}
-              width={memoizedWidths?.[index]}
+              width={type === "file-lines-full" ? CHAR_COUNT * CHAR_WIDTH : memoizedWidths?.[index]}
               height={LINE_HEIGHT}
               fill={memoizedColors?.[index] ?? "#00ded0"}
             />

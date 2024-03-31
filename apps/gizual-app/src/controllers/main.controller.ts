@@ -1,5 +1,5 @@
 import { LocalQueryManager } from "@app/services/local-query";
-import { ColoringMode, VisualizationConfig } from "@app/types";
+import { ColoringMode } from "@app/types";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
@@ -192,20 +192,6 @@ export class MainController {
 
   get isPendingTransition() {
     return this._pendingTransition;
-  }
-
-  @computed
-  get visualizationConfig(): VisualizationConfig {
-    return {
-      colors: {
-        newest: this.visualizationSettings.colors.new.value,
-        oldest: this.visualizationSettings.colors.old.value,
-        notLoaded: this.visualizationSettings.colors.notLoaded.value,
-      },
-      style: {
-        lineLength: this.visualizationSettings.style.lineLength.value,
-      },
-    };
   }
 
   get vmController() {

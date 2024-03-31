@@ -76,6 +76,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
   @observable state: "init" | "ready" | "loading" = "init";
   @observable progressText = "";
+  @observable loading = false;
 
   constructor() {
     super();
@@ -127,6 +128,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
       filesIndexed: false,
       error: undefined,
       lastCommitTimestamp: 0,
+      firstCommitTimestamp: 0,
       lastCommitAuthorId: "",
       currentBranch: "",
       tags: [],
@@ -213,6 +215,9 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     this.on("metrics:updated", ({ newValue }) => {
       runInAction(() => {
         this.metrics.set(newValue);
+        if (newValue.numExplorerWorkersBusy !== undefined) {
+          this.loading = newValue.numExplorerWorkersBusy > 0;
+        }
       });
     });
 
@@ -304,9 +309,13 @@ export class Maestro extends EventEmitter<MaestroEvents> {
         }
 
         runInAction(() => {
-          this.progressText = `${progress.state}: ${progress.numProcessed}/${progress.numTotal} (${progress.progress}%)`;
+          this.progressText = `${progress.state}:  ${progress.progress}%`;
         });
       },
+    });
+
+    runInAction(() => {
+      this.progressText = "";
     });
 
     const opts: PoolControllerOpts = {};

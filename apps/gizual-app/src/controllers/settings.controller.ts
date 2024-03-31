@@ -16,9 +16,6 @@ const version: string = import.meta.env.VERSION ?? "";
 const TIMELINE_MODES = ["visible", "collapsed"] as const;
 type TimelineMode = (typeof TIMELINE_MODES)[number];
 
-const LINE_LENGTH_MODES = ["lineLength", "full"] as const;
-type LineLengthMode = (typeof LINE_LENGTH_MODES)[number];
-
 export type VisualizationSettings = {
   colors: {
     old: SettingsEntry<string, "color">;
@@ -30,7 +27,6 @@ export type VisualizationSettings = {
     masonryColumns: SettingsEntry<number, "number">;
   } & GroupEntry;
   style: {
-    lineLength: SettingsEntry<LineLengthMode, "select">;
     maxNumLines: SettingsEntry<number, "number">;
   } & GroupEntry;
 } & GroupEntry;
@@ -129,15 +125,6 @@ export class SettingsController {
     },
     style: {
       groupName: "Style",
-      lineLength: createSelectSetting(
-        "Line Background Width",
-        "Controls the background width for each line within the visualization in file-line mode. It can either be set to represent the line length within the file, or full width.",
-        "lineLength",
-        [
-          { value: "lineLength", label: "By actual line length" },
-          { value: "full", label: "Full width" },
-        ],
-      ),
       maxNumLines: createNumberSetting(
         "Maximum Number of Lines",
         "The maximum number of lines to display per file. If set to 0, all lines will be displayed.",

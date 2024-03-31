@@ -22,6 +22,15 @@ const TypeSelectionGrid = observer(({ vm }: { vm: VisTypeViewModel }) => {
       />
 
       <RadioGridItem<RenderTypeQueryType>
+        value="file-lines-full"
+        onChange={onChange}
+        title="File Lines Full Width"
+        checked={type === "file-lines-full"}
+        description="Displays file content as a series of full-width colored lines. Each line represents a line of code."
+        inputName="type"
+      />
+
+      <RadioGridItem<RenderTypeQueryType>
         value="file-mosaic"
         onChange={onChange}
         title="File Mosaic"

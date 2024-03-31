@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import "@giz/logging/worker";
 
 import * as Comlink from "comlink";

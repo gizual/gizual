@@ -40,16 +40,23 @@ export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
           if (!wrapper) return <React.Fragment key={index}></React.Fragment>;
 
           return match(block)
-            .with(Pattern.union({ type: "file-lines" }, { type: "file-mosaic" }), (b) => (
-              <FileBlock
-                key={`${b.id} ${b.height}`}
-                parentContainer={wrapper}
-                id={b.id}
-                filePath={b.meta.filePath}
-                fileType={b.meta.fileType}
-                height={b.height}
-              />
-            ))
+            .with(
+              Pattern.union(
+                { type: "file-lines" },
+                { type: "file-lines-full" },
+                { type: "file-mosaic" },
+              ),
+              (b) => (
+                <FileBlock
+                  key={`${b.id} ${b.height}`}
+                  parentContainer={wrapper}
+                  id={b.id}
+                  filePath={b.meta.filePath}
+                  fileType={b.meta.fileType}
+                  height={b.height}
+                />
+              ),
+            )
             .otherwise(() => <></>);
         })}
       </MasonryGrid>

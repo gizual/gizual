@@ -1,8 +1,6 @@
-export interface Blame {
-  fileName: string;
-  commits: Record<string, CommitInfo>;
-  lines: BlameLine[];
-}
+import { Blame, BlameLine, CommitInfo } from "@giz/explorer";
+export type { Blame, BlameLine, CommitInfo } from "@giz/explorer";
+
 export function isBlame(obj: any): obj is Blame {
   return (
     typeof obj === "object" &&
@@ -18,12 +16,6 @@ export function isBlame(obj: any): obj is Blame {
   );
 }
 
-export interface BlameLine {
-  lineNo: number;
-  commitId: string;
-  content: string;
-}
-
 export function isBlameLine(obj: any): obj is BlameLine {
   return (
     typeof obj === "object" &&
@@ -35,11 +27,6 @@ export function isBlameLine(obj: any): obj is BlameLine {
     "content" in obj &&
     typeof obj.content === "string"
   );
-}
-
-export interface CommitInfo {
-  authorId: string;
-  timestamp: string;
 }
 
 export function isCommitInfo(obj: any): obj is CommitInfo {
@@ -113,7 +100,7 @@ export interface BranchInfo {
   //target_branch?: number;
 }
 
-export interface CommitInfo {
+export interface GitGraphCommitInfo {
   oid: Oid;
   aid: string;
   timestamp: string;
