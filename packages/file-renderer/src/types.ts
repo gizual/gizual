@@ -1,8 +1,8 @@
 import type { ColoringMode } from "@app/types";
 import type { SvgBaseElement } from "@app/utils";
+import type { Line } from "@app/utils/shared-types";
 
 import type { ColorSetDefinition } from "@giz/color-manager";
-import type { Line } from "@giz/gizual-app/controllers";
 import type { VisualizationConfig } from "@giz/gizual-app/types";
 
 export type RenderingMode = "canvas" | "svg" | "annotations";

@@ -1,4 +1,4 @@
-import { useTheme } from "@app/hooks/use-theme";
+import { usePreferredColorScheme } from "@app/hooks/use-preferred-color-scheme";
 import clsx from "clsx";
 
 import styles from "./font-icon.module.scss";
@@ -12,7 +12,7 @@ export type FontIconProps = {
 };
 
 export function FontIcon({ name, className, style, colors, onClick }: FontIconProps) {
-  const theme = useTheme();
+  const theme = usePreferredColorScheme();
   const themeIndex = theme === "light" ? 0 : 1;
   const iconColor = colors ?? colors?.[themeIndex] ?? "var(--foreground-primary)";
 

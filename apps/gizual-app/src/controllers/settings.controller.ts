@@ -8,7 +8,7 @@ import {
 import debounce from "lodash/debounce";
 import { makeAutoObservable, toJS } from "mobx";
 
-import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
+import { LINEAR_COLOR_RANGE } from "@giz/color-manager";
 
 const version: string = import.meta.env.VERSION ?? "";
 
@@ -19,7 +19,6 @@ export type VisualizationSettings = {
   colors: {
     old: SettingsEntry<string, "color">;
     new: SettingsEntry<string, "color">;
-    notLoaded: SettingsEntry<string, "color">;
   } & GroupEntry;
   canvas: {
     rootMargin: SettingsEntry<number, "number">;
@@ -96,11 +95,6 @@ export class SettingsController {
         "New",
         "The default color that visualizes the most recent change.",
         LINEAR_COLOR_RANGE[1],
-      ),
-      notLoaded: createColorSetting(
-        "Not loaded",
-        "The color that visualizes changes that did not load yet or are outside the selected range.",
-        SPECIAL_COLORS.NOT_LOADED,
       ),
     },
     canvas: {

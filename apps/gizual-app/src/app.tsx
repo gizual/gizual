@@ -1,4 +1,4 @@
-import { useTheme } from "@app/hooks/use-theme";
+import { usePreferredColorScheme } from "@app/hooks/use-preferred-color-scheme";
 import { ErrorPage } from "@app/pages/error/error";
 import { WelcomePage } from "@app/pages/welcome-v2";
 import { Loading } from "@app/primitives/loading";
@@ -82,12 +82,13 @@ function App() {
   });
 
   const screen = useScreen();
-  const theme = useTheme();
+  const preferredColorScheme = usePreferredColorScheme();
+  mainController.setPreferredColorScheme(preferredColorScheme);
   const shouldDisplayLoadingIndicator = mainController.isLoading;
   const isSecureContext = window.isSecureContext;
 
   return (
-    <MantineProvider theme={mantineTheme} defaultColorScheme={theme}>
+    <MantineProvider theme={mantineTheme} defaultColorScheme={preferredColorScheme}>
       <Notifications position="top-right" />
       <ContextMenuProvider>
         <LocalQueryContext.Provider value={localQueryManager}>

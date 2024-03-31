@@ -1,4 +1,4 @@
-import { useTheme } from "@app/hooks/use-theme";
+import { usePreferredColorScheme } from "@app/hooks/use-preferred-color-scheme";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
@@ -51,7 +51,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
 
   const monacoInstance = useMonaco();
 
-  const theme = useTheme();
+  const preferredColorScheme = usePreferredColorScheme();
 
   function parseInput(e: string | undefined) {
     if (e === undefined) return;
@@ -75,7 +75,7 @@ export const AdvancedEditor = observer(({ vm }: AdvancedEditorProps) => {
         }}
         onChange={(e) => parseInput(e)}
         width="unset"
-        theme={theme === "light" ? "light" : "vs-dark"}
+        theme={preferredColorScheme === "light" ? "light" : "vs-dark"}
         height="100%"
       ></Editor>
       <pre>{vm.contentHasErrors && <>Validation error: {vm.validationOutput.join(", ")}</>}</pre>

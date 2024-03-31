@@ -1,3 +1,4 @@
+import type { Line } from "@app/utils/shared-types";
 import { hcl, HCLColor } from "d3-color";
 import { ScaleLinear, scaleLinear, ScaleOrdinal, scaleOrdinal } from "d3-scale";
 
@@ -8,7 +9,6 @@ import type {
   FileMosaicContext,
   RendererContext,
 } from "@giz/file-renderer";
-import type { Line } from "@giz/gizual-app/controllers";
 import { GizDate } from "@giz/utils/gizdate";
 
 import { BAND_COLOR_RANGE, LINEAR_COLOR_RANGE } from "./presets";
@@ -220,7 +220,7 @@ export class ColorManager {
       }
     }
 
-    return ctx.visualizationConfig.colors.notLoaded;
+    return "transparent";
   }
 
   private interpolateLineColor(ctx: RequiredColorInfo, line: Line) {
@@ -231,7 +231,7 @@ export class ColorManager {
       updatedAtSeconds * 1000 < ctx.selectedStartDate.getTime() ||
       updatedAtSeconds * 1000 > ctx.selectedEndDate.getTime()
     )
-      return ctx.visualizationConfig.colors.notLoaded;
+      return "transparent";
 
     switch (ctx.coloringMode) {
       case "age": {
@@ -254,7 +254,7 @@ export class ColorManager {
 
     return updatedAtSeconds
       ? getColorScale(timeRange, colorRange)(updatedAtSeconds)
-      : ctx.visualizationConfig.colors.notLoaded;
+      : "transparent";
   }
 
   private interpolateLineColorByAuthor(line: Line) {
@@ -298,5 +298,4 @@ type RequiredColorInfo = Pick<
   | "coloringMode"
   | "earliestTimestamp"
   | "latestTimestamp"
-  | "authors"
 >;

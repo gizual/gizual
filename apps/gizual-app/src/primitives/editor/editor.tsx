@@ -1,4 +1,4 @@
-import { useTheme } from "@app/hooks/use-theme";
+import { usePreferredColorScheme } from "@app/hooks/use-preferred-color-scheme";
 import { Editor as MonacoEditor, useMonaco } from "@monaco-editor/react";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
@@ -18,7 +18,7 @@ function Editor({ fileContent, isLoading }: EditorProps) {
 
   const monacoInstance = useMonaco();
 
-  const theme = useTheme();
+  const theme = usePreferredColorScheme();
 
   if (!monacoInstance) return <></>;
 

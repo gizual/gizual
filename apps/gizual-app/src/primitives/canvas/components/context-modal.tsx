@@ -1,5 +1,5 @@
 import { useSettingsController } from "@app/controllers";
-import { useTheme } from "@app/hooks/use-theme";
+import { usePreferredColorScheme } from "@app/hooks/use-preferred-color-scheme";
 import { RenderedSettingsEntry } from "@app/pages/settings";
 import { Button } from "@app/primitives/button";
 import { createNumberSetting, createSelectSetting } from "@app/utils/settings";
@@ -23,8 +23,8 @@ const ContextModal = observer(({ isModalOpen, setIsModalOpen }: ContextModalProp
     setIsModalOpen(false);
   }, [setIsModalOpen]);
 
-  const currentTheme = useTheme();
-  const [selectedAppearance, setSelectedAppearance] = React.useState(currentTheme);
+  const preferredColorScheme = usePreferredColorScheme();
+  const [selectedAppearance, setSelectedAppearance] = React.useState(preferredColorScheme);
   const numColsDefault =
     settingsController.settings.visualizationSettings.canvas.masonryColumns.defaultValue;
   const [numCols, setNumCols] = React.useState(numColsDefault);
@@ -52,8 +52,8 @@ const ContextModal = observer(({ isModalOpen, setIsModalOpen }: ContextModalProp
           ],
         )}
         onChange={setSelectedAppearance}
-        onResetToDefault={() => setSelectedAppearance(currentTheme)}
-        isDefault={() => selectedAppearance === currentTheme}
+        onResetToDefault={() => setSelectedAppearance(preferredColorScheme)}
+        isDefault={() => selectedAppearance === preferredColorScheme}
       />
       <div
         style={{
