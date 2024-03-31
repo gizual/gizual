@@ -1,15 +1,3 @@
-## Gizual 1.0.0-alpha.XX (XX.XX.2024)
-
-### Features
-
-### Changes
-
-- **app:frontend:** Remove setting for `colorNotLoaded` and automatically use `preferredColorScheme` instead
-
-### Bug Fixes
-
----
-
 ## Gizual 1.0.0-alpha.18 (23.03.2024)
 
 ### Features

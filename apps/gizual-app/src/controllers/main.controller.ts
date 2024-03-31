@@ -235,7 +235,8 @@ export class MainController {
     this._numFiles = n;
   }
 
-  @action.bound setPreferredColorScheme(scheme: "light" | "dark") {
+  @action.bound
+  setPreferredColorScheme(scheme: "light" | "dark") {
     this._preferredColorScheme = scheme;
   }
 

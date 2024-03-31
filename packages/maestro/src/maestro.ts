@@ -261,6 +261,9 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     await this.worker.init(
       {
         devicePixelRatio: window.devicePixelRatio,
+        preferredColorScheme: window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light",
       },
       transfer(port2, [port2]),
     );
