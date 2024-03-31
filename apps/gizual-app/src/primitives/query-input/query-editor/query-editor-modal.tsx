@@ -125,11 +125,14 @@ const QueryEditorModal = observer(({ triggerStyle }: QueryEditorModalProps) => {
         contentClassName={style.QueryEditorDialog}
         wrapperStyle={{ maxWidth: 900, minWidth: 350, maxHeight: "95dvh" }}
         isOpen={isQueryModalOpen}
-        setIsOpen={setQueryModalOpen}
+        setIsOpen={(isOpen) => {
+          if (!isOpen) publishLocalQuery();
+          setQueryModalOpen(isOpen);
+        }}
         withFooter
         defaultFooterOpts={{
           cancelLabel: "Close",
-          okLabel: "Close & Accept",
+          okLabel: "Close",
           hasOk: true,
           hasCancel: false,
           onOk: () => {
