@@ -5,6 +5,7 @@ export type Methods = keyof ParameterPayloadMap;
 export type ParameterPayloadMap = {
   open_repository: gen.OpenRepositoryParams;
   stream_authors: gen.StreamAuthorsParams;
+  get_authors: gen.NoParams;
   get_file_tree: gen.GetFileTreeParams;
   get_branches: gen.NoParams;
   get_git_graph: gen.NoParams;
