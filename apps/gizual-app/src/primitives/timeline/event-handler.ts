@@ -126,6 +126,8 @@ export class TimelineEventHandler {
     if (e.pointerType === "touch") {
       this._pointerEvents = [];
       this._previousPinchDistX = undefined;
+      this.isDragging = false;
+      this.vm.dragStartX = 0;
     }
 
     if (this.isSelecting) this.stopSelecting();
@@ -186,6 +188,19 @@ export class TimelineEventHandler {
       });
       this.vm.zoom(zoomDelta * 0.25);
       return;
+    }
+
+    // Three-finger drag to move the entire timeline with the selection box.
+    if (this._pointerEvents.length === 3 && e.pointerType === "touch") {
+      // Make sure the new event is in the list.
+      const pointers = this._pointerEvents.filter((p) => p.pointerId !== e.pointerId);
+      pointers.push(e);
+      runInAction(() => {
+        this._pointerEvents = pointers;
+      });
+
+      this.isDragging = true;
+      this.vm.dragStartX = e.clientX + this.vm.currentTranslationX;
     }
 
     if (this.vm.tooltip) {
@@ -332,8 +347,8 @@ export class TimelineEventHandler {
     this._pointerEvents.push(e);
   };
 
-  pointerDownMouse = (e: MouseEvent) => {
-    if (e.button === MOUSE_BUTTON_PRIMARY && !e.altKey) {
+  pointerDownMouse = (e: PointerEvent) => {
+    if ((e.button === MOUSE_BUTTON_PRIMARY && !e.altKey) || e.pointerType === "touch") {
       const mousePos = e.clientX - this.parentBBox.left;
 
       if (this.canResizeSelectionBox === "left") {
