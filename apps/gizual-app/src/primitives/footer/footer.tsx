@@ -1,6 +1,6 @@
-import { IconExplorer, IconRenderer } from "@app/assets";
+import { IconExplorer, IconRenderer, IconWarning } from "@app/assets";
 import { useMainController } from "@app/controllers";
-import { Loader } from "@mantine/core";
+import { Loader, Tooltip } from "@mantine/core";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
@@ -51,7 +51,16 @@ export const Footer = observer(() => {
       </div>
       <div className={style.RightSection}>
         {mainController.isBusy && <Loader size="sm" />}
-        <p data-test-id="numSelectedFiles">{metrics.numSelectedFiles} files</p>
+        <div className={style.NumSelectedFilesContainer}>
+          {metrics.numSelectedFiles >= 500 && (
+            <Tooltip label="The maximum number of selected files is limited to 500 for performance reasons.">
+              <span>
+                <IconWarning />
+              </span>
+            </Tooltip>
+          )}
+          <p data-test-id="numSelectedFiles">{metrics.numSelectedFiles} files</p>
+        </div>
         {explorer.totalWorkers && renderer.totalWorkers && (
           <div className={style.Metrics}>
             <IconExplorer className={style.IconExplorer} />
