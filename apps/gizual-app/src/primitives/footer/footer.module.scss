@@ -50,10 +50,11 @@
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+  height: 100%;
 
   & > span > svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   & > span > svg > path {
@@ -74,30 +75,41 @@
   > p {
     padding-bottom: 3px;
   }
-
-  // border-left on all child elements
-  > *:not(:first-child) {
-    border-left: 1px solid var(--border-primary);
-  }
 }
 
-.Metrics {
-  gap: 0.25rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+@layer components {
+  .Metrics {
+    gap: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    border-left: 1px solid var(--border-primary);
 
-  > span {
-    padding-right: 0.5rem;
-    margin-right: 0.25rem;
-    border-right: 1px solid var(--border-primary);
+    > span {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding-right: 0.5rem;
+      margin-right: 0.25rem;
+      border-right: 1px solid var(--border-primary);
+    }
+
+    > div:nth-last-child(1) {
+      padding-right: unset;
+      margin-right: unset;
+      border-right: none;
+    }
   }
-
-  > span:nth-last-child(2),
-  span:nth-last-child(1) {
-    padding-right: unset;
-    margin-right: unset;
-    border-right: none;
+  
+  .MetricsSection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    height: 100%;
+    border-right: 1px solid var(--border-primary);
+    padding-right: 1rem;
   }
 }
 
@@ -148,32 +160,38 @@
 }
 
 .IconExplorer {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   & > path {
     fill: var(--background-primary);
   }
-  padding-bottom: 2px;
 }
 
 .IconRenderer {
-  width: 20px;
-  height: 20px;
-  padding-bottom: 2px;
+  width: 18px;
+  height: 18px;
 }
 
-.NumJobs {
-  display: block;
+@layer overrides {
+  .NumJobs {
+    display: flex;
 
-  @media (width < 600px) {
+    @media (width < 600px) {
+      display: none;
+    }
+  }
+  .NumJobsShort {
     display: none;
+
+    @media (width < 600px) {
+      display: flex;
+    }
   }
 }
 
-.NumJobsShort {
-  display: none;
-
-  @media (width < 600px) {
-    display: block;
-  }
+.LoadingContainer {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  border-right: 1px solid var(--border-primary);
 }

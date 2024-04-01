@@ -201,7 +201,7 @@ export class MainController {
   }
 
   get isBusy() {
-    return this.isLoading;
+    return this.isLoading || this._maestro.loading;
   }
 
   @action.bound
