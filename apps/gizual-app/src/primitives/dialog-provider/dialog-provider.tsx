@@ -44,6 +44,9 @@ const DialogProvider = observer(
     setIsOpen,
     ...portalProps
   }: PopoverProviderProps) => {
+    if (isOpen === undefined || setIsOpen === undefined)
+      [isOpen, setIsOpen] = React.useState(false);
+
     return (
       <>
         <div
@@ -78,9 +81,6 @@ const DialogPortal = observer(
     withHelp,
     onHelpClick,
   }: PortalProps) => {
-    if (isOpen === undefined || setIsOpen === undefined)
-      [isOpen, setIsOpen] = React.useState(false);
-
     const ref = React.useRef<HTMLDivElement>(null);
 
     const narrowWidth = useMediaQuery({ max: 900 }, "width");
