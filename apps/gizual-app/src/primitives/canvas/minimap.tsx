@@ -328,9 +328,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
       ref={mainRef}
       style={wrapperStyle}
       className={clsx("rzpp-mini-map", style.Minimap, rest.className)}
-      onMouseDown={onMinimapMouseDown}
-      onMouseUp={onMinimapMouseUp}
-      onMouseMove={onMinimapMouseMove}
+      onPointerDown={onMinimapMouseDown}
+      onPointerUp={onMinimapMouseUp}
+      onPointerMove={onMinimapMouseMove}
       onMouseEnter={onMinimapMouseEnter}
       onMouseLeave={onMinimapMouseLeave}
     >
