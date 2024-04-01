@@ -280,8 +280,8 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     for (const [id, value] of this.pendingBlockUpdates) {
       const block = this.blocks.get(id);
       if (!block) {
-        this.logger.warn("Block not found", id);
-        return;
+        this.logger.debug("Block not found", id);
+        continue;
       }
       Object.assign(block, value);
     }
