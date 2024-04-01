@@ -1,0 +1,62 @@
+{
+  "name": "@giz/benchmark-app",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "yarn@3.5.0",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "clean": "rimraf dist",
+    "type-check": "tsc",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@giz/explorer": "workspace:*",
+    "@giz/explorer-web": "workspace:*",
+    "@giz/file-renderer": "workspace:*",
+    "@giz/maestro": "workspace:*"
+  },
+  "devDependencies": {
+    "@giz/eslint-config": "workspace:*",
+    "@types/react": "18.2.47",
+    "@types/react-dom": "18.2.18",
+    "@vitejs/plugin-react-swc": "3.6.0",
+    "eslint": "8.45.0",
+    "eslint-plugin-storybook": "^0.6.15",
+    "postcss": "8.4.32",
+    "rimraf": "5.0.1",
+    "sass": "1.60.0",
+    "storybook": "7.6.10",
+    "typescript": "5.0.4",
+    "vite": "5.1.0",
+    "vite-plugin-svgr": "4.2.0",
+    "vite-plugin-wasm": "3.3.0"
+  },
+  "please": {
+    "dev": {
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "build": {
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "storybook": {
+      "dependsOn": [
+        "build"
+      ]
+    }
+  }
+}

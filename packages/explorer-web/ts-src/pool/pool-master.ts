@@ -19,7 +19,7 @@ export type PoolMetrics = {
   numOpenPorts: number;
 };
 
-const DEFAULT_MAX_CONCURRENCY = navigator.hardwareConcurrency || 4;
+const DEFAULT_MAX_CONCURRENCY = navigator.hardwareConcurrency * 1.5 || 4;
 
 const SCHEDULER_INTERVAL = 50;
 

@@ -1,6 +1,6 @@
 import type { VisualizationSettings } from "@app/controllers";
 import { Remote, transfer, wrap } from "comlink";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { action, autorun, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "@giz/opfs";
@@ -35,7 +35,11 @@ import { createLogger } from "@giz/logging";
 import { Query, QueryError } from "./query-utils";
 import { downloadRepo } from "./remote-clone";
 
-declare const mainController: MainController;
+declare global {
+  interface Window {
+    mainController: MainController;
+  }
+}
 
 export type MaestroEvents = {
   "open:remote-clone": [
@@ -69,6 +73,7 @@ export type MaestroEvents = {
 } & Pick<MaestroWorkerEvents, SHARED_EVENTS>;
 
 export class Maestro extends EventEmitter<MaestroEvents> {
+  maxConcurrency: number | undefined;
   logger = createLogger("maestro");
   rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
@@ -81,6 +86,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   constructor() {
     super();
     this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
+    this.checkPendingUpdates = this.checkPendingUpdates.bind(this);
     this.logger.log("Maestro constructor");
 
     this.rawWorker = new GizWorker(MaestroWorkerURL, {
@@ -101,6 +107,8 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   selectedFiles = observable.box<FileTreeNode[]>([], { deep: false });
 
   blocks = observable.map<string, Block>([], { deep: true });
+
+  pendingBlockUpdates = observable.map<string, Partial<Block>>([], { deep: false });
 
   @computed
   get blocksArray() {
@@ -246,24 +254,53 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
     this.on("block:updated", (id, value) => {
       runInAction(() => {
-        const block = this.blocks.get(id);
-        if (!block) {
-          this.logger.warn("Block not found", id);
-          return;
-        }
-        Object.assign(block, value);
+        this.pendingBlockUpdates.set(id, value);
       });
+    });
+
+    let timer: any | undefined;
+    autorun(this.checkPendingUpdates, {
+      scheduler: (cb) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => requestAnimationFrame(cb), 100);
+      },
     });
   }
 
-  async setup() {
+  checkPendingUpdates() {
+    if (this.pendingBlockUpdates.size === 0) {
+      return;
+    }
+
+    this.applyPendingBlockUpdates();
+  }
+
+  @action.bound
+  applyPendingBlockUpdates() {
+    for (const [id, value] of this.pendingBlockUpdates) {
+      const block = this.blocks.get(id);
+      if (!block) {
+        this.logger.debug("Block not found", id);
+        continue;
+      }
+      Object.assign(block, value);
+    }
+    this.pendingBlockUpdates.clear();
+  }
+
+  async setup(maxConcurrency?: number) {
+    if (maxConcurrency) {
+      this.maxConcurrency = maxConcurrency;
+    }
     const { port1, port2 } = new MessageChannel();
     await this.worker.init(
       {
         devicePixelRatio: window.devicePixelRatio,
-        preferredColorScheme: window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light",
+        visualSettings: {
+          preferredColorScheme: window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light",
+        },
       },
       transfer(port2, [port2]),
     );
@@ -324,12 +361,13 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     const opts: PoolControllerOpts = {};
 
     opts.directoryHandle = handle;
+    opts.maxConcurrency = this.maxConcurrency;
 
     const result = await this.worker.setupPool(opts);
 
     const legacy_explorerPort = result.legacy_explorerPort;
 
-    await mainController.openRepository("?", legacy_explorerPort);
+    await window.mainController?.openRepository("?", legacy_explorerPort);
 
     runInAction(() => {
       this.state = "ready";
@@ -341,7 +379,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     this.state = "loading";
 
     const opts2: PoolControllerOpts = {
-      maxConcurrency: opts.maxConcurrency,
+      maxConcurrency: opts.maxConcurrency ?? this.maxConcurrency,
     };
 
     if (opts.fileList) {
@@ -385,7 +423,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     }
 
     // TODO: this is just for legacy reasons to support the old architecture within the main thread
-    await mainController.openRepository("?", legacy_explorerPort);
+    await window.mainController?.openRepository("?", legacy_explorerPort);
 
     runInAction(() => {
       this.state = "ready";
@@ -414,7 +452,11 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   }
 
   setVisualizationSettings(settings: VisualizationSettings) {
-    this.worker.setVisualizationSettings(JSON.parse(JSON.stringify(settings)));
+    this.worker.setVisualSettings({
+      oldColor: settings.colors.old.value,
+      newColor: settings.colors.new.value,
+      maxNumLines: settings.style.maxNumLines.value,
+    });
   }
 
   dispose() {
