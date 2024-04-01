@@ -1168,7 +1168,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       );
     }
 
-    const blame = await block.blameJobRef!.promise.catch((error) => {
+    const blame = await block.blameJobRef!.promise.catch((_error) => {
       // if the blame fails we probably aborted it
       return undefined;
     });

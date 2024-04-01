@@ -3,7 +3,8 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./react": "./src/react/index.ts"
+    "./react": "./src/react/index.ts",
+    "./clone": "./src/remote-clone.ts"
   },
   "dependencies": {
     "@giz/database": "workspace:*",

@@ -2321,6 +2321,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@giz/benchmark-app@workspace:apps/benchmark-app":
+  version: 0.0.0-use.local
+  resolution: "@giz/benchmark-app@workspace:apps/benchmark-app"
+  dependencies:
+    "@giz/eslint-config": "workspace:*"
+    "@giz/explorer": "workspace:*"
+    "@giz/explorer-web": "workspace:*"
+    "@giz/file-renderer": "workspace:*"
+    "@giz/maestro": "workspace:*"
+    "@types/react": 18.2.47
+    "@types/react-dom": 18.2.18
+    "@vitejs/plugin-react-swc": 3.6.0
+    eslint: 8.45.0
+    eslint-plugin-storybook: ^0.6.15
+    postcss: 8.4.32
+    rimraf: 5.0.1
+    sass: 1.60.0
+    storybook: 7.6.10
+    typescript: 5.0.4
+    vite: 5.1.0
+    vite-plugin-svgr: 4.2.0
+    vite-plugin-wasm: 3.3.0
+  languageName: unknown
+  linkType: soft
+
 "@giz/color-manager@workspace:packages/color-manager":
   version: 0.0.0-use.local
   resolution: "@giz/color-manager@workspace:packages/color-manager"

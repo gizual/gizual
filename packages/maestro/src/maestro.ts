@@ -35,7 +35,11 @@ import { createLogger } from "@giz/logging";
 import { Query, QueryError } from "./query-utils";
 import { downloadRepo } from "./remote-clone";
 
-declare const mainController: MainController;
+declare global {
+  interface Window {
+    mainController: MainController;
+  }
+}
 
 export type MaestroEvents = {
   "open:remote-clone": [
@@ -69,6 +73,7 @@ export type MaestroEvents = {
 } & Pick<MaestroWorkerEvents, SHARED_EVENTS>;
 
 export class Maestro extends EventEmitter<MaestroEvents> {
+  maxConcurrency: number | undefined;
   logger = createLogger("maestro");
   rawWorker!: Worker;
   worker!: Remote<MaestroWorker>;
@@ -356,12 +361,13 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     const opts: PoolControllerOpts = {};
 
     opts.directoryHandle = handle;
+    opts.maxConcurrency = this.maxConcurrency;
 
     const result = await this.worker.setupPool(opts);
 
     const legacy_explorerPort = result.legacy_explorerPort;
 
-    await mainController.openRepository("?", legacy_explorerPort);
+    await window.mainController?.openRepository("?", legacy_explorerPort);
 
     runInAction(() => {
       this.state = "ready";
@@ -373,7 +379,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     this.state = "loading";
 
     const opts2: PoolControllerOpts = {
-      maxConcurrency: opts.maxConcurrency,
+      maxConcurrency: opts.maxConcurrency ?? this.maxConcurrency,
     };
 
     if (opts.fileList) {
@@ -417,7 +423,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     }
 
     // TODO: this is just for legacy reasons to support the old architecture within the main thread
-    await mainController.openRepository("?", legacy_explorerPort);
+    await window.mainController?.openRepository("?", legacy_explorerPort);
 
     runInAction(() => {
       this.state = "ready";
