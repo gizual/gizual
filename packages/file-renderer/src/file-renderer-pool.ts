@@ -63,7 +63,7 @@ export class FileRendererNode {
 export class FileRendererPool {
   logger = createLogger("file-renderer-pool");
   counter = 0;
-  poolSize = navigator.hardwareConcurrency ?? 4;
+  poolSize = Math.max(Math.ceil(navigator.hardwareConcurrency / 2), 2);
 
   @observable.shallow jobs: RenderJob[] = [];
   @observable.shallow workers: FileRendererNode[] = [];

@@ -699,6 +699,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       !isEqual(query.preset, oldQuery.preset) ||
       !isEqual(query.files, oldQuery.files)
     ) {
+      this.resetAllBlocks();
       this.setNeedsRerender();
     }
 
@@ -1275,13 +1276,11 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     block.dpr = requiredDpr;
     block.isTruncated = parsedLines.length > maxNumLines;
 
-    if (block.inView) {
-      this.emit("block:updated", id, {
-        url: result,
-        isPreview: false,
-        isTruncated: parsedLines.length > maxNumLines,
-      });
-    }
+    this.emit("block:updated", id, {
+      url: result,
+      isPreview: false,
+      isTruncated: parsedLines.length > maxNumLines,
+    });
   };
 
   // ---------------------------------------------
