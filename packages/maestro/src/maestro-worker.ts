@@ -1,6 +1,5 @@
 import "@giz/logging/worker";
 
-import { VisualizationSettings } from "@app/controllers";
 import { VisualizationConfig } from "@app/types";
 import { expose, transfer } from "comlink";
 import EventEmitter from "eventemitter3";
@@ -118,7 +117,7 @@ export type MaestroWorkerEvents = {
   "metrics:updated": ObjectChangeEventArguments<Metrics>;
 
   "query:updated": [QueryWithErrors];
-  "visualization-settings:updated": ObjectReplaceEventArguments<VisualizationSettings>;
+  "visual-settings:updated": ObjectReplaceEventArguments<VisualSettings>;
 
   "device-pixel-ratio:updated": ChangeEventArguments<number>;
 
@@ -148,10 +147,16 @@ export const SHARED_EVENTS = [
 
 export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
 
+export type VisualSettings = {
+  oldColor: string;
+  newColor: string;
+  maxNumLines: number;
+  preferredColorScheme: "dark" | "light";
+};
+
 export type MaestroWorkerOpts = {
   devicePixelRatio: number;
-  visualizationSettings?: VisualizationSettings;
-  preferredColorScheme?: "dark" | "light";
+  visualSettings?: Partial<VisualSettings>;
   explorerPool?: PoolPortal;
 };
 
@@ -164,7 +169,6 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
   private needsRerender = false;
   private requiredDpr = 1;
-  private preferredColorScheme: "dark" | "light" = "light";
 
   constructor() {
     super();
@@ -177,13 +181,15 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
 
     this.devicePixelRatio = opts.devicePixelRatio;
-    if (opts.visualizationSettings) {
-      this.visualizationSettings = opts.visualizationSettings;
-    }
 
-    if (opts.preferredColorScheme) {
-      this.preferredColorScheme = opts.preferredColorScheme;
-    }
+    this.visualSettings = {
+      oldColor: "#ff0000",
+      newColor: "#00ff00",
+      preferredColorScheme: "light",
+      maxNumLines: 400,
+      ...opts.visualSettings,
+    };
+
     this.db = new Database();
 
     for (const event of SHARED_EVENTS) {
@@ -377,8 +383,8 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       },
       preset: {
         gradientByAge: [
-          this.visualizationSettings.colors.old.value,
-          this.visualizationSettings.colors.new.value,
+          this.visualSettings?.oldColor ?? "#ff0000",
+          this.visualSettings?.newColor ?? "#00ff00",
         ],
       },
     };
@@ -585,9 +591,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
     // TODO: Extend this
     queryCacheParts.push(
-      this.visualizationSettings.colors.old.value,
-      this.visualizationSettings.colors.new.value,
-      this.visualizationSettings.style.maxNumLines.value.toString(),
+      this.visualSettings.oldColor,
+      this.visualSettings.newColor,
+      this.visualSettings.maxNumLines.toString(),
     );
 
     this.renderCacheKey = queryCacheParts.join(pairDelimiter);
@@ -991,7 +997,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
           if (lines.length > 0 && lines.at(-1)?.length === 0) {
             numLines -= 1;
           }
-          const maxNumLines = this.visualizationSettings.style.maxNumLines.value;
+          const maxNumLines = this.visualSettings.maxNumLines;
           const truncatedNumLines = Math.min(numLines, maxNumLines);
           const blockHeight = match(type)
             .with("file-lines", "file-lines-full", () => truncatedNumLines * 10)
@@ -1083,6 +1089,14 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
   };
 
+  /**
+   * Since a JobRef is not serializable, we need to use the async version of this function
+   * to get the blame information directly in the main thread.
+   */
+  getBlameAsync = async (filePath: string, rev: string, sinceRev?: string) => {
+    return this.getBlame(filePath, rev, sinceRev).promise;
+  };
+
   getBlame(filePath: string, rev: string, sinceRev?: string, priority = 10) {
     return this.explorerPool.getBlame(
       {
@@ -1101,10 +1115,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       throw new Error("Block not found");
     }
 
-    const { query, renderPool, visualizationSettings, renderCacheKey, range, colorManager } = this;
+    const { query, renderPool, visualSettings, renderCacheKey, range, colorManager } = this;
 
     let { requiredDpr } = this;
-    const { preferredColorScheme } = this;
 
     const showContent = true;
 
@@ -1134,7 +1147,19 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       .otherwise(() => {
         throw new Error("Unsupported block type");
       });
-    if (!block.blameJobRef || block.currentImageCacheKey !== renderCacheKey) {
+
+    const blameKey = `${block.meta.filePath}:${range.until.commit.oid}:${
+      range.since.commit?.oid ?? 0
+    }`;
+
+    if (!block.blameJobRef || blameKey !== block.lastBlameOptionsKey) {
+      if (block.blameJobRef) {
+        block.blameJobRef.cancel();
+        block.blameJobRef = undefined;
+        block.lastBlameOptionsKey = "";
+      }
+
+      block.lastBlameOptionsKey = blameKey;
       block.blameJobRef = this.getBlame(
         block.meta.filePath,
         range.until.commit.oid,
@@ -1143,12 +1168,19 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       );
     }
 
-    const blame = await block.blameJobRef!.promise;
+    const blame = await block.blameJobRef!.promise.catch((error) => {
+      // if the blame fails we probably aborted it
+      return undefined;
+    });
+
+    if (!blame) {
+      return;
+    }
 
     const currentCacheKey = renderCacheKey;
     block.upcomingImageCacheKey = currentCacheKey;
 
-    const maxNumLines = visualizationSettings.style.maxNumLines.value;
+    const maxNumLines = visualSettings.maxNumLines;
     const parsedLines = parseLines(blame);
     const lines = parsedLines.slice(0, maxNumLines);
 
@@ -1163,13 +1195,13 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     }
     const visualizationConfig: VisualizationConfig = {
       colors: {
-        newest: visualizationSettings.colors.new.value,
-        oldest: visualizationSettings.colors.old.value,
+        newest: visualSettings.newColor,
+        oldest: visualSettings.oldColor,
       },
       style: {
         lineLength: "full",
       },
-      preferredColorScheme: preferredColorScheme,
+      preferredColorScheme: visualSettings.preferredColorScheme,
     };
 
     let coloringMode: "age" | "author" = "age";
@@ -1301,18 +1333,21 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
   // ---------- Visualization Settings -----------
   // ---------------------------------------------
 
-  visualizationSettings: VisualizationSettings = {} as any;
+  visualSettings: VisualSettings = {} as any;
 
-  setVisualizationSettings = (settings: VisualizationSettings) => {
-    const oldSettings = this.visualizationSettings;
-    this.visualizationSettings = settings;
-    this.emit("visualization-settings:updated", {
+  setVisualSettings = (settings: Partial<VisualSettings>) => {
+    const oldSettings = this.visualSettings;
+    this.visualSettings = {
+      ...this.visualSettings,
+      ...settings,
+    };
+    this.emit("visual-settings:updated", {
       oldValue: oldSettings,
-      newValue: this.visualizationSettings,
+      newValue: this.visualSettings,
     });
 
     this.updateQueryCacheKey();
-    if (isEqual(oldSettings?.style?.maxNumLines?.value, settings.style.maxNumLines.value)) {
+    if (isEqual(oldSettings?.maxNumLines, settings.maxNumLines)) {
       this.scheduleAllBlockRenders();
     } else {
       this.safeRefreshBlocks();
@@ -1449,6 +1484,7 @@ type BlockEntry = Block & {
   inView?: boolean;
   dpr: number;
   blameJobRef?: JobRef<Blame>;
+  lastBlameOptionsKey?: string;
 };
 
 function serializableBlock(block: BlockEntry): Block {

@@ -261,9 +261,11 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     await this.worker.init(
       {
         devicePixelRatio: window.devicePixelRatio,
-        preferredColorScheme: window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light",
+        visualSettings: {
+          preferredColorScheme: window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light",
+        },
       },
       transfer(port2, [port2]),
     );
@@ -414,7 +416,11 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   }
 
   setVisualizationSettings(settings: VisualizationSettings) {
-    this.worker.setVisualizationSettings(JSON.parse(JSON.stringify(settings)));
+    this.worker.setVisualSettings({
+      oldColor: settings.colors.old.value,
+      newColor: settings.colors.new.value,
+      maxNumLines: settings.style.maxNumLines.value,
+    });
   }
 
   dispose() {
