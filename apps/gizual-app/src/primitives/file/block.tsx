@@ -1,9 +1,9 @@
 import { IconDownload, IconSource } from "@app/assets";
-import { useMainController, useSettingsController } from "@app/controllers";
+import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
 import { useStyle } from "@app/hooks/use-style";
 import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
 import { SvgGroupElement, SvgRectElement, SvgTextElement } from "@app/utils/svg";
-import { Loader, Menu, Skeleton } from "@mantine/core";
+import { Menu } from "@mantine/core";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -11,8 +11,6 @@ import React from "react";
 import { FileIcon } from "@giz/explorer-web";
 import { useBlockImage, useFileContent } from "@giz/maestro/react";
 import sharedStyle from "../css/shared-styles.module.scss";
-import { DialogProvider } from "../dialog-provider";
-import { Editor } from "../editor";
 import { FontIcon } from "../font-icon";
 import { IconButton } from "../icon-button";
 
@@ -35,171 +33,141 @@ type FileBlockProps = {
   parentContainer?: Element | null;
   filePath?: string;
   fileType?: FileIcon | undefined;
-  htmlBase?: "div" | "svg";
 };
 
-const FileBlock = ({
-  id,
-  height,
-  parentContainer,
-  filePath,
-  fileType,
-  htmlBase: htmlBaseProp,
-}: FileBlockProps) => {
-  const useStyleFn = useMainController().getStyle;
-  const block = useBlockImage(id);
-  const { isPreview, url, setPriority, isTruncated } = block;
-  const ref = React.useRef<any>(null);
-  const settingsController = useSettingsController();
+const FileBlock = observer(
+  ({ id, height, parentContainer, filePath, fileType }: FileBlockProps) => {
+    const useStyleFn = useMainController().getStyle;
+    const block = useBlockImage(id);
+    const { isPreview, url, setPriority, isTruncated } = block;
+    const ref = React.useRef<any>(null);
+    const settingsController = useSettingsController();
 
-  const { data, loadContent } = useDeferredFileContent(filePath ?? id);
+    const { data, loadContent } = useDeferredFileContent(filePath ?? id);
 
-  // Attach IntersectionObserver on load, detach on dispose.
+    // Attach IntersectionObserver on load, detach on dispose.
 
-  React.useEffect(() => {
-    if (!ref || !ref.current || parentContainer === undefined) return;
+    React.useEffect(() => {
+      if (!ref || !ref.current || parentContainer === undefined) return;
 
-    const ioOptions: IntersectionObserverInit = {
-      root: parentContainer,
-      rootMargin: `${settingsController.visualizationSettings.canvas.rootMargin.value}px`,
-      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-    };
+      const ioOptions: IntersectionObserverInit = {
+        root: parentContainer,
+        rootMargin: `${settingsController.visualizationSettings.canvas.rootMargin.value}px`,
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+      };
 
-    const ioCallback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[]) => {
-      if (entries.length <= 0) return;
-      setPriority(entries[0].intersectionRatio * 100);
-    };
+      const ioCallback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[]) => {
+        if (entries.length <= 0) return;
+        setPriority(entries[0].intersectionRatio * 100);
+      };
 
-    const ioObserver = new IntersectionObserver(ioCallback, ioOptions);
-    ioObserver.observe(ref.current);
-    return () => {
-      ioObserver.disconnect();
-    };
-  }, []);
+      const ioObserver = new IntersectionObserver(ioCallback, ioOptions);
+      ioObserver.observe(ref.current);
+      return () => {
+        ioObserver.disconnect();
+      };
+    }, []);
 
-  const htmlBase = htmlBaseProp ?? settingsController.devSettings.blockHtmlBase.value;
+    /**
+     * TODO: This function currently naively pipes the image into the SVG.
+     * Ideally, we would want to render this blob with the SVG rendering backend.
+     *
+     * Maybe the Export SVG option should only be present on blobs that were rendered with that backend.
+     */
+    const onExportSvg = async () => {
+      const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
+      const style = `style="font-family: Courier New;font-size: 0.5rem;"`;
+      const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id });
 
-  if (htmlBase === "div")
-    return (
-      <div className={style.File}>
-        <BlockHeader
-          isPreview={isPreview}
-          path={filePath ?? id}
-          icon={fileType?.icon}
-          iconColor={fileType?.color}
-        />
-        <div className={style.FileBody} style={{ height: height }}>
-          {!url && <Skeleton />}
-          <img
-            className={style.FileCanvas}
-            alt={url ? id : ""}
-            height={height}
-            src={url}
-            ref={ref}
-          />
-        </div>
-      </div>
-    );
+      // Fetch the image as a Blob
+      const response = await fetch(url ?? "");
+      const blob = await response.blob();
 
-  /**
-   * TODO: This function currently naively pipes the image into the SVG.
-   * Ideally, we would want to render this blob with the SVG rendering backend.
-   *
-   * Maybe the Export SVG option should only be present on blobs that were rendered with that backend.
-   */
-  const onExportSvg = async () => {
-    const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
-    const style = `style="font-family: Courier New;font-size: 0.5rem;"`;
-    const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id });
+      // Convert the Blob to a Data URL
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      await new Promise((resolve) => (reader.onloadend = resolve));
 
-    // Fetch the image as a Blob
-    const response = await fetch(url ?? "");
-    const blob = await response.blob();
+      // Use the Data URL as the image href
+      const image = `<image href="${reader.result}" x="0" y="26" width="300" height="${height}" />`;
+      const group = `<g x="0" y="0">${blockHeader}${image}</g>`;
 
-    // Convert the Blob to a Data URL
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    await new Promise((resolve) => (reader.onloadend = resolve));
+      const svg = `<svg ${styleTag} ${style} viewBox="0 0 300 ${height}">${group}</svg>`;
 
-    // Use the Data URL as the image href
-    const image = `<image href="${reader.result}" x="0" y="26" width="300" height="${height}" />`;
-    const group = `<g x="0" y="0">${blockHeader}${image}</g>`;
-
-    const svg = `<svg ${styleTag} ${style} viewBox="0 0 300 ${height}">${group}</svg>`;
-
-    const svgBlob = new Blob([svg.toString()]);
-    const element = document.createElement("a");
-    element.download = `${id}.gizual.svg`;
-    element.href = window.URL.createObjectURL(svgBlob);
-    element.click();
-    element.remove();
-  };
-
-  /**
-   * Writes the file content of the block to a file.
-   */
-  const onExportRaw = async () => {
-    loadContent();
-
-    if (data) {
-      const blob = new Blob([data ?? ""]);
+      const svgBlob = new Blob([svg.toString()]);
       const element = document.createElement("a");
-      element.download = `${id}.gizual.txt`;
-      element.href = window.URL.createObjectURL(blob);
+      element.download = `${id}.gizual.svg`;
+      element.href = window.URL.createObjectURL(svgBlob);
       element.click();
       element.remove();
-    }
-  };
+    };
 
-  const headerWithContentHeight = height + HEADER_HEIGHT;
-  const totalHeight = headerWithContentHeight + (isTruncated ? FOOTER_HEIGHT : 0);
+    /**
+     * Writes the file content of the block to a file.
+     */
+    const onExportRaw = async () => {
+      loadContent();
 
-  return (
-    <svg
-      className={style.File}
-      viewBox={`0 0 300 ${totalHeight}`}
-      style={{
-        width: 300,
-        height: totalHeight,
-        boxSizing: "content-box",
-        margin: 0,
-      }}
-    >
-      <FileBlockSvg
-        id={id}
-        height={height}
-        url={url ?? ""}
-        blockRef={ref}
-        isPreview={isPreview}
-        filePath={filePath}
-        fileType={fileType}
-        onExportSvg={onExportSvg}
-        onExportRaw={onExportRaw}
-        interactive
-      />
+      if (data) {
+        const blob = new Blob([data ?? ""]);
+        const element = document.createElement("a");
+        element.download = `${id}.gizual.txt`;
+        element.href = window.URL.createObjectURL(blob);
+        element.click();
+        element.remove();
+      }
+    };
 
-      {isTruncated && (
-        <g>
-          <rect
-            x={0}
-            y={headerWithContentHeight}
-            width={300}
-            height={FOOTER_HEIGHT}
-            style={{ fill: useStyleFn("--background-secondary") }}
-          />
-          <text
-            x={150}
-            y={totalHeight - FOOTER_TEXT_PADDING}
-            textAnchor="middle"
-            style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
-          >
-            ... content truncated
-          </text>
-        </g>
-      )}
-    </svg>
-  );
-};
+    const headerWithContentHeight = height + HEADER_HEIGHT;
+    const totalHeight = headerWithContentHeight + (isTruncated ? FOOTER_HEIGHT : 0);
+
+    return (
+      <svg
+        className={style.File}
+        viewBox={`0 0 300 ${totalHeight}`}
+        style={{
+          width: 300,
+          height: totalHeight,
+          boxSizing: "content-box",
+          margin: 0,
+        }}
+      >
+        <FileBlockSvg
+          id={id}
+          height={height}
+          url={url ?? ""}
+          blockRef={ref}
+          isPreview={isPreview}
+          filePath={filePath}
+          fileType={fileType}
+          onExportSvg={onExportSvg}
+          onExportRaw={onExportRaw}
+          interactive
+        />
+
+        {isTruncated && (
+          <g>
+            <rect
+              x={0}
+              y={headerWithContentHeight}
+              width={300}
+              height={FOOTER_HEIGHT}
+              style={{ fill: useStyleFn("--background-secondary") }}
+            />
+            <text
+              x={150}
+              y={totalHeight - FOOTER_TEXT_PADDING}
+              textAnchor="middle"
+              style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
+            >
+              ... content truncated
+            </text>
+          </g>
+        )}
+      </svg>
+    );
+  },
+);
 
 type FileBlockSvgProps = {
   id: string;
@@ -216,44 +184,46 @@ type FileBlockSvgProps = {
   onExportRaw?: () => void;
 };
 
-function FileBlockSvg({
-  id,
-  height,
-  url,
-  blockRef,
-  isPreview,
-  filePath,
-  fileType,
-  transform,
-  interactive,
-  noForeignObjects,
-  onExportSvg,
-  onExportRaw,
-}: FileBlockSvgProps) {
-  return (
-    <g x={transform?.x} y={transform?.y}>
-      <image
-        className="svg-block-image"
-        href={url}
-        ref={blockRef}
-        x={0}
-        y={HEADER_HEIGHT}
-        width={300}
-        height={height}
-      />
-      <BlockHeaderSvg
-        isPreview={isPreview}
-        path={filePath ?? id}
-        icon={fileType?.icon}
-        iconColor={fileType?.color}
-        interactive={interactive}
-        noForeignObjects={noForeignObjects}
-        onExportSvg={onExportSvg}
-        onExportRaw={onExportRaw}
-      />
-    </g>
-  );
-}
+const FileBlockSvg = observer(
+  ({
+    id,
+    height,
+    url,
+    blockRef,
+    isPreview,
+    filePath,
+    fileType,
+    transform,
+    interactive,
+    noForeignObjects,
+    onExportSvg,
+    onExportRaw,
+  }: FileBlockSvgProps) => {
+    return (
+      <g x={transform?.x} y={transform?.y}>
+        <image
+          className="svg-block-image"
+          href={url}
+          ref={blockRef}
+          x={0}
+          y={HEADER_HEIGHT}
+          width={300}
+          height={height}
+        />
+        <BlockHeaderSvg
+          isPreview={isPreview}
+          path={filePath ?? id}
+          icon={fileType?.icon}
+          iconColor={fileType?.color}
+          interactive={interactive}
+          noForeignObjects={noForeignObjects}
+          onExportSvg={onExportSvg}
+          onExportRaw={onExportRaw}
+        />
+      </g>
+    );
+  },
+);
 
 const HEADER_HEIGHT = 20;
 const FOOTER_HEIGHT = 22;
@@ -282,41 +252,6 @@ type BlockHeaderProps = {
   onExportSvg?: () => void;
   onExportRaw?: () => void;
 };
-
-/**
- * @deprecated Use the new SVG block header instead.
- */
-function BlockHeader({ isPreview, path, icon, iconColor }: BlockHeaderProps) {
-  return (
-    <div className={style.FileHead}>
-      <div className={style.FileHeadLeft}>
-        {isPreview ? (
-          <div className={style.LoadingContainer}>
-            <Loader />
-          </div>
-        ) : (
-          <FontIcon className={style.FontIcon} name={icon} colors={iconColor} />
-        )}
-        <p className={style.FileTitle} title={path}>
-          {truncateSmart(path, maxCharactersThatFitInWidth(180, 10))}
-        </p>
-      </div>
-      <div className={style.FileActions}>
-        <DialogProvider
-          trigger={
-            <div className={sharedStyle.Pointer}>
-              <IconSource className={style.FileIcon} />
-            </div>
-          }
-          title={`${truncateSmart(path, 80)} (Read-Only)`}
-          contentClassName={style.EditorDialog}
-        >
-          <BlockEditor path={path} />
-        </DialogProvider>
-      </div>
-    </div>
-  );
-}
 
 function generateBlockHeader({
   useStyleFn,
@@ -372,6 +307,8 @@ function BlockHeaderSvg({
   onExportSvg,
   onExportRaw,
 }: BlockHeaderProps) {
+  const vmController = useViewModelController();
+  const hasMenu = import.meta.env.DEV && interactive;
   return (
     <>
       <g
@@ -423,45 +360,43 @@ function BlockHeaderSvg({
               style={{
                 display: "flex",
                 flexDirection: "row",
+                justifyContent: "flex-end",
                 gap: BUTTON_GAP,
                 width: "100%",
                 height: "100%",
               }}
             >
-              <Menu
-                withArrow
-                position="bottom"
-                styles={{
-                  dropdown: {
-                    backgroundColor: "var(--background-secondary)",
-                    borderColor: "var(--border-primary)",
-                  },
-                }}
-              >
-                <Menu.Target>
-                  <IconButton style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}>
-                    <IconDownload className={clsx(sharedStyle.Pointer, style.FileIcon)} />
-                  </IconButton>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Item onClick={onExportRaw}>Download raw file content</Menu.Item>
+              {hasMenu && (
+                <Menu
+                  withArrow
+                  position="bottom"
+                  styles={{
+                    dropdown: {
+                      backgroundColor: "var(--background-secondary)",
+                      borderColor: "var(--border-primary)",
+                    },
+                  }}
+                >
+                  <Menu.Target>
+                    <IconButton style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}>
+                      <IconDownload className={clsx(sharedStyle.Pointer, style.FileIcon)} />
+                    </IconButton>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item onClick={onExportRaw}>Download raw file content</Menu.Item>
 
-                  <Menu.Item disabled onClick={onExportSvg}>
-                    Export visualization as SVG
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-              <DialogProvider
-                trigger={
-                  <IconButton style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}>
-                    <IconSource className={style.FileIcon} />
-                  </IconButton>
-                }
-                title={`${truncateSmart(path, 80)} (Read-Only)`}
-                contentClassName={style.EditorDialog}
+                    <Menu.Item disabled onClick={onExportSvg}>
+                      Export visualization as SVG
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              )}
+              <IconButton
+                style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, padding: 0 }}
+                onClick={() => vmController.editorViewModel.loadFileContent(path)}
               >
-                <BlockEditor path={path} />
-              </DialogProvider>
+                <IconSource className={style.FileIcon} />
+              </IconButton>
             </div>
           </foreignObject>
         )}
@@ -470,12 +405,4 @@ function BlockHeaderSvg({
   );
 }
 
-const BlockEditor = observer(({ path }: { path: string }) => {
-  const { data, isLoading } = useFileContent(path);
-
-  return <Editor fileContent={data} isLoading={isLoading} />;
-});
-
-const ObservedFileBlock = observer(FileBlock);
-
-export { ObservedFileBlock as FileBlock, FileBlockSvg, generateBlockHeader };
+export { FileBlock, FileBlockSvg, generateBlockHeader };

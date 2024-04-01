@@ -3,7 +3,7 @@ import { LanguageDistributionChart } from "@app/charts/languages/language-distri
 import { useMainController } from "@app/controllers";
 import { useMediaQuery } from "@app/hooks/use-media-query";
 import { useWindowSize } from "@app/hooks/use-window-size";
-import { Canvas, MessageBar, TitleBar } from "@app/primitives";
+import { Canvas, Editor, MessageBar, TitleBar } from "@app/primitives";
 import { QueryBar } from "@app/primitives/query-input";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -38,6 +38,7 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
         {mainController.selectedPanel === "analyze" && <AnalyzePage vm={vm} />}
         {mainController.selectedPanel === "settings" && <SettingsPage />}
       </div>
+      <Editor />
     </div>
   );
 });
