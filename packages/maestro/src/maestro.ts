@@ -1,6 +1,6 @@
 import type { VisualizationSettings } from "@app/controllers";
 import { Remote, transfer, wrap } from "comlink";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { action, autorun, computed, makeObservable, observable, runInAction } from "mobx";
 
 import { PoolControllerOpts } from "@giz/explorer-web";
 import { importDirectoryEntry, importFromFileList, importZipFile, seekRepo } from "@giz/opfs";
@@ -81,6 +81,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   constructor() {
     super();
     this.updateDevicePixelRatio = this.updateDevicePixelRatio.bind(this);
+    this.checkPendingUpdates = this.checkPendingUpdates.bind(this);
     this.logger.log("Maestro constructor");
 
     this.rawWorker = new GizWorker(MaestroWorkerURL, {
@@ -101,6 +102,8 @@ export class Maestro extends EventEmitter<MaestroEvents> {
   selectedFiles = observable.box<FileTreeNode[]>([], { deep: false });
 
   blocks = observable.map<string, Block>([], { deep: true });
+
+  pendingBlockUpdates = observable.map<string, Partial<Block>>([], { deep: false });
 
   @computed
   get blocksArray() {
@@ -246,17 +249,44 @@ export class Maestro extends EventEmitter<MaestroEvents> {
 
     this.on("block:updated", (id, value) => {
       runInAction(() => {
-        const block = this.blocks.get(id);
-        if (!block) {
-          this.logger.warn("Block not found", id);
-          return;
-        }
-        Object.assign(block, value);
+        this.pendingBlockUpdates.set(id, value);
       });
+    });
+
+    let timer: any | undefined;
+    autorun(this.checkPendingUpdates, {
+      scheduler: (cb) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => requestAnimationFrame(cb), 100);
+      },
     });
   }
 
-  async setup() {
+  checkPendingUpdates() {
+    if (this.pendingBlockUpdates.size === 0) {
+      return;
+    }
+
+    this.applyPendingBlockUpdates();
+  }
+
+  @action.bound
+  applyPendingBlockUpdates() {
+    for (const [id, value] of this.pendingBlockUpdates) {
+      const block = this.blocks.get(id);
+      if (!block) {
+        this.logger.warn("Block not found", id);
+        return;
+      }
+      Object.assign(block, value);
+    }
+    this.pendingBlockUpdates.clear();
+  }
+
+  async setup(maxConcurrency?: number) {
+    if (maxConcurrency) {
+      this.maxConcurrency = maxConcurrency;
+    }
     const { port1, port2 } = new MessageChannel();
     await this.worker.init(
       {

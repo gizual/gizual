@@ -1224,6 +1224,10 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       visualizationConfig,
     };
 
+    if (!block.inView) {
+      return;
+    }
+
     const { result } = await match(query.type)
       .with("file-lines", "file-lines-full", async (type) => {
         return renderPool.renderCanvas({
@@ -1271,11 +1275,13 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     block.dpr = requiredDpr;
     block.isTruncated = parsedLines.length > maxNumLines;
 
-    this.emit("block:updated", id, {
-      url: result,
-      isPreview: false,
-      isTruncated: parsedLines.length > maxNumLines,
-    });
+    if (block.inView) {
+      this.emit("block:updated", id, {
+        url: result,
+        isPreview: false,
+        isTruncated: parsedLines.length > maxNumLines,
+      });
+    }
   };
 
   // ---------------------------------------------
