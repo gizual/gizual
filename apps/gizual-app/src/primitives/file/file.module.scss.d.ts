@@ -14,6 +14,5 @@ declare const classNames: {
   readonly LoadFileIcon: "LoadFileIcon";
   readonly FileBody: "FileBody";
   readonly FileCanvas: "FileCanvas";
-  readonly EditorDialog: "EditorDialog";
 };
 export = classNames;

@@ -1,6 +1,7 @@
 import { IconClose, IconQuestion } from "@app/assets";
 import { useMediaQuery } from "@app/hooks/use-media-query";
 import clsx from "clsx";
+import { observer } from "mobx-react-lite";
 import React from "react";
 import { createPortal } from "react-dom";
 
@@ -10,55 +11,41 @@ import { IconButton } from "../icon-button";
 
 import style from "./dialog-provider.module.scss";
 
-export type PopoverProviderProps = {
-  title?: string;
+type PopoverProviderProps = {
   trigger: React.ReactNode | React.ReactNode[];
   triggerClassName?: string;
   triggerStyle?: React.CSSProperties;
-  wrapperClassName?: string;
-  wrapperStyle?: React.CSSProperties;
-  contentStyle?: React.CSSProperties;
-  contentClassName?: string;
-  children: React.ReactNode | React.ReactNode[];
+  stableSize?: boolean;
+} & PortalProps;
+
+type PortalProps = {
   isOpen?: boolean;
   setIsOpen?: (isOpen: boolean) => void;
+  contentClassName?: string;
+  contentStyle?: React.CSSProperties;
+  wrapperClassName?: string;
+  wrapperStyle?: React.CSSProperties;
+  children: React.ReactNode | React.ReactNode[];
+  title?: string;
   withFooter?: boolean;
   footerComponent?: React.ReactNode | React.ReactNode[];
   defaultFooterOpts?: DialogProviderDefaultFooterProps;
-  stableSize?: boolean;
   withoutDialogStyles?: boolean;
   withHelp?: boolean;
   onHelpClick?: () => void;
 };
 
-export const DialogProvider = React.memo(
+const DialogProvider = observer(
   ({
     trigger,
     triggerClassName,
-    contentClassName,
-    contentStyle,
-    wrapperClassName,
-    wrapperStyle,
-    children,
-    title,
+    triggerStyle,
     isOpen,
     setIsOpen,
-    withFooter,
-    footerComponent,
-    defaultFooterOpts,
-    triggerStyle,
-    withoutDialogStyles,
-    withHelp,
-    onHelpClick,
+    ...portalProps
   }: PopoverProviderProps) => {
     if (isOpen === undefined || setIsOpen === undefined)
       [isOpen, setIsOpen] = React.useState(false);
-
-    const ref = React.useRef<HTMLDivElement>(null);
-
-    const narrowWidth = useMediaQuery({ max: 900 }, "width");
-    const narrowHeight = useMediaQuery({ max: 700 }, "height");
-    const isFullScreen = narrowHeight || narrowWidth;
 
     return (
       <>
@@ -71,6 +58,38 @@ export const DialogProvider = React.memo(
         >
           {trigger}
         </div>
+        <DialogPortal {...portalProps} isOpen={isOpen} setIsOpen={setIsOpen} />
+      </>
+    );
+  },
+);
+
+const DialogPortal = observer(
+  ({
+    isOpen,
+    setIsOpen,
+    contentClassName,
+    contentStyle,
+    wrapperClassName,
+    wrapperStyle,
+    children,
+    title,
+    withFooter,
+    footerComponent,
+    defaultFooterOpts,
+    withoutDialogStyles,
+    withHelp,
+    onHelpClick,
+  }: PortalProps) => {
+    const ref = React.useRef<HTMLDivElement>(null);
+
+    const narrowWidth = useMediaQuery({ max: 900 }, "width");
+    const narrowHeight = useMediaQuery({ max: 700 }, "height");
+
+    const isFullScreen = narrowHeight || narrowWidth;
+
+    return (
+      <>
         {isOpen &&
           createPortal(
             (
@@ -141,7 +160,7 @@ export const DialogProvider = React.memo(
   },
 );
 
-export type DialogProviderDefaultFooterProps = {
+type DialogProviderDefaultFooterProps = {
   hasOk?: boolean;
   hasCancel?: boolean;
 
@@ -152,7 +171,7 @@ export type DialogProviderDefaultFooterProps = {
   onCancel?: () => void;
 };
 
-export const DialogProviderDefaultFooter = React.memo(
+const DialogProviderDefaultFooter = observer(
   ({
     hasOk,
     hasCancel,
@@ -173,3 +192,5 @@ export const DialogProviderDefaultFooter = React.memo(
     );
   },
 );
+
+export { DialogPortal, DialogProvider, DialogProviderDefaultFooter };

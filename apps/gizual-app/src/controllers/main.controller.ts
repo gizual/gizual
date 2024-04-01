@@ -33,6 +33,8 @@ export class MainController {
   @observable _repo: Repository;
   @observable _numFiles = 0;
 
+  @observable private _preferredColorScheme: "light" | "dark" = "light";
+
   @observable private _pendingTransition = false;
 
   constructor(maestro: Maestro) {
@@ -233,6 +235,11 @@ export class MainController {
     this._numFiles = n;
   }
 
+  @action.bound
+  setPreferredColorScheme(scheme: "light" | "dark") {
+    this._preferredColorScheme = scheme;
+  }
+
   get numFiles() {
     return this._numFiles;
   }
@@ -268,5 +275,9 @@ export class MainController {
 
   get localQueryManager() {
     return this._localQueryManager;
+  }
+
+  get preferredColorScheme() {
+    return this._preferredColorScheme;
   }
 }

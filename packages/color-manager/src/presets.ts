@@ -35,7 +35,3 @@ export const BAND_COLOR_RANGE: string[] = [
   "#041C32",
   "#001E6C",
 ];
-
-export const SPECIAL_COLORS = {
-  NOT_LOADED: "#232323",
-};

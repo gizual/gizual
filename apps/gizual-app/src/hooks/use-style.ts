@@ -1,16 +1,16 @@
 import React from "react";
 
 import { useDocument } from "./use-document";
-import { useTheme } from "./use-theme";
+import { usePreferredColorScheme } from "./use-preferred-color-scheme";
 
 function useStyle(key: string) {
   const doc = useDocument();
-  const theme = useTheme();
+  const preferredColorScheme = usePreferredColorScheme();
   const [style, setStyle] = React.useState<string>("#00000000");
   React.useEffect(() => {
     if (!doc) return;
     setStyle(getComputedStyle(doc).getPropertyValue(key));
-  }, [doc, key, theme]);
+  }, [doc, key, preferredColorScheme]);
 
   return style;
 }

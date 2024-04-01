@@ -28,7 +28,7 @@
   },
   "scripts": {
     "dev": "yarn please @giz/gizual-api#dev @giz/gizual-app#dev",
-    "storybook": "yarn please @giz/gizual-app#storybook",
+    "storybook": "echo \"🚫 Sorry - Storybook is disabled in this build.\" && exit 1",
     "build": "concurrently -m 1 \"yarn:build:*\"",
     "build:api": "yarn please @giz/gizual-api#build",
     "build:app": "yarn please @giz/gizual-app#build",

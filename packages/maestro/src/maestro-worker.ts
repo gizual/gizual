@@ -151,6 +151,7 @@ export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
 export type MaestroWorkerOpts = {
   devicePixelRatio: number;
   visualizationSettings?: VisualizationSettings;
+  preferredColorScheme?: "dark" | "light";
   explorerPool?: PoolPortal;
 };
 
@@ -163,6 +164,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
   private needsRerender = false;
   private requiredDpr = 1;
+  private preferredColorScheme: "dark" | "light" = "light";
 
   constructor() {
     super();
@@ -177,6 +179,10 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     this.devicePixelRatio = opts.devicePixelRatio;
     if (opts.visualizationSettings) {
       this.visualizationSettings = opts.visualizationSettings;
+    }
+
+    if (opts.preferredColorScheme) {
+      this.preferredColorScheme = opts.preferredColorScheme;
     }
     this.db = new Database();
 
@@ -357,7 +363,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       lastCommit,
       firstCommit,
       currentBranch,
-      initialrange: this.getDefaultRangeByDate(),
+      initialRange: this.getDefaultRangeByDate(),
     });
 
     const query: SearchQueryType = {
@@ -581,7 +587,6 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     queryCacheParts.push(
       this.visualizationSettings.colors.old.value,
       this.visualizationSettings.colors.new.value,
-      this.visualizationSettings.colors.notLoaded.value,
       this.visualizationSettings.style.maxNumLines.value.toString(),
     );
 
@@ -1099,6 +1104,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     const { query, renderPool, visualizationSettings, renderCacheKey, range, colorManager } = this;
 
     let { requiredDpr } = this;
+    const { preferredColorScheme } = this;
 
     const showContent = true;
 
@@ -1159,11 +1165,11 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       colors: {
         newest: visualizationSettings.colors.new.value,
         oldest: visualizationSettings.colors.old.value,
-        notLoaded: visualizationSettings.colors.notLoaded.value,
       },
       style: {
         lineLength: "full",
       },
+      preferredColorScheme: preferredColorScheme,
     };
 
     let coloringMode: "age" | "author" = "age";

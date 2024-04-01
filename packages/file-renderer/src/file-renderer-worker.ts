@@ -245,7 +245,7 @@ export class FileRendererWorker {
     let currentX = 0;
     let currentY = 0;
     for (const [_, line] of ctx.fileContent.entries()) {
-      let color = ctx.visualizationConfig.colors.notLoaded;
+      let color = "transparent";
       if (line.commit && !ctx.isPreview) color = this.colorManager.interpolateColor(ctx, line);
 
       line.color = color;
@@ -300,7 +300,7 @@ export class FileRendererWorker {
       const color =
         line.commit && !ctx.isPreview
           ? this.colorManager.interpolateColor(ctx, line)
-          : ctx.visualizationConfig.colors.notLoaded;
+          : "transparent";
 
       line.color = color;
       colors.push(line.color ?? "#000");
@@ -318,7 +318,7 @@ export class FileRendererWorker {
           x: 0,
           y: currentY + Math.round(lineHeight / 1.5),
           fontSize: "4.1",
-          fill: "white",
+          fill: ctx.visualizationConfig.preferredColorScheme === "dark" ? "white" : "black",
         });
 
       currentY += lineHeight + VisualizationDefaults.lineSpacing;

@@ -1,4 +1,4 @@
-import { useTheme } from "@app/hooks/use-theme";
+import { usePreferredColorScheme } from "@app/hooks/use-preferred-color-scheme";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import type { StoryContext, StoryFn } from "@storybook/react";
@@ -30,7 +30,7 @@ const withMantineProvider = (Story: StoryFn, context: StoryContext) => {
     fontFamilyMonospace: "Iosevka Extended",
   });
 
-  const theme = useTheme();
+  const theme = usePreferredColorScheme();
 
   return (
     <MantineProvider theme={mantineTheme} defaultColorScheme={theme}>

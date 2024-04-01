@@ -8,7 +8,7 @@ import {
 import debounce from "lodash/debounce";
 import { makeAutoObservable, toJS } from "mobx";
 
-import { LINEAR_COLOR_RANGE, SPECIAL_COLORS } from "@giz/color-manager";
+import { LINEAR_COLOR_RANGE } from "@giz/color-manager";
 
 const version: string = import.meta.env.VERSION ?? "";
 
@@ -19,7 +19,6 @@ export type VisualizationSettings = {
   colors: {
     old: SettingsEntry<string, "color">;
     new: SettingsEntry<string, "color">;
-    notLoaded: SettingsEntry<string, "color">;
   } & GroupEntry;
   canvas: {
     rootMargin: SettingsEntry<number, "number">;
@@ -43,12 +42,7 @@ type TimelineSettings = {
   weekModeThreshold: SettingsEntry<number, "number">;
 } & GroupEntry;
 
-const BLOCK_HTML_BASES = ["div", "svg"] as const;
-type BlockHtmlBase = (typeof BLOCK_HTML_BASES)[number];
-
-type DevSettings = {
-  blockHtmlBase: SettingsEntry<BlockHtmlBase, "select">;
-} & GroupEntry;
+type DevSettings = {} & GroupEntry;
 
 export class SettingsController {
   editor: EditorSettings = {
@@ -97,11 +91,6 @@ export class SettingsController {
         "The default color that visualizes the most recent change.",
         LINEAR_COLOR_RANGE[1],
       ),
-      notLoaded: createColorSetting(
-        "Not loaded",
-        "The color that visualizes changes that did not load yet or are outside the selected range.",
-        SPECIAL_COLORS.NOT_LOADED,
-      ),
     },
     canvas: {
       groupName: "Canvas",
@@ -127,14 +116,6 @@ export class SettingsController {
   };
   devSettings: DevSettings = {
     groupName: "Dev Settings",
-    blockHtmlBase: createSelectSetting(
-      "Block HTML Base",
-      "The HTML base element to use for block elements.",
-      "svg",
-      BLOCK_HTML_BASES.map((b) => {
-        return { value: b, label: b };
-      }),
-    ),
   };
 
   eventCallbacks: Record<string, ((...args: any[]) => void)[]> = {};
@@ -144,12 +125,17 @@ export class SettingsController {
   }
 
   get settings() {
-    return {
+    const s = {
       editor: this.editor,
       timelineSettings: this.timelineSettings,
       visualizationSettings: this.visualizationSettings,
-      devSettings: this.devSettings,
     };
+
+    if (import.meta.env.DEV) {
+      return { ...s, devSettings: this.devSettings };
+    }
+
+    return s;
   }
 
   on(

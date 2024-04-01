@@ -12,8 +12,8 @@ const StyleRadioTitle: Record<PresetQueryKeys, string> = {
 };
 
 const StyleRadioDescriptions: Record<PresetQueryKeys, string> = {
-  gradientByAge: "Colors are assigned based on the age of the file.",
-  paletteByAuthor: "Colors are assigned based on the author of the file.",
+  gradientByAge: "Colors are assigned based on the age of the line of code.",
+  paletteByAuthor: "Colors are assigned based on the author of the line of code.",
 };
 
 const PresetSelectionGrid = observer(({ vm }: { vm: VisTypeViewModel }) => {

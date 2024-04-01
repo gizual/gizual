@@ -45,6 +45,22 @@
   }
 }
 
+.NumSelectedFilesContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+
+  & > span > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  & > span > svg > path {
+    fill: var(--color-gold);
+  }
+}
+
 .RightSection {
   @include footer-container;
   @include font-code;
@@ -69,6 +85,7 @@
   gap: 0.25rem;
   display: flex;
   flex-direction: row;
+  align-items: center;
 
   > span {
     padding-right: 0.5rem;

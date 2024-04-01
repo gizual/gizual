@@ -1,6 +1,7 @@
 declare const classNames: {
   readonly Footer: "Footer";
   readonly LeftSection: "LeftSection";
+  readonly NumSelectedFilesContainer: "NumSelectedFilesContainer";
   readonly RightSection: "RightSection";
   readonly Metrics: "Metrics";
   readonly UtilizationGraph: "UtilizationGraph";

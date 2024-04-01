@@ -507,7 +507,6 @@ export const testPackageJSON: any = {
     colors: {
       newest: "#f0abfc",
       oldest: "#581c87",
-      notLoaded: "#232323",
     },
     style: {
       lineLength: "lineLength",
