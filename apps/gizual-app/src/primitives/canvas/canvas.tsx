@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { useBlocks, useQuery, useSetScale } from "@giz/maestro/react";
+import { useBlocks, useMetrics, useQuery, useSetScale } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { Timeline } from "../timeline";
@@ -122,6 +122,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
   ({ vm, ...defaultProps }: InnerCanvasProps, ref) => {
     const mainController = useMainController();
     const maestroSetScale = useSetScale();
+    const { numSelectedFiles } = useMetrics();
     const rzppRef = React.useContext(CanvasContext).rzppRef;
     const [isPanning, setIsPanning] = useState(false);
     const [state, setState] = useState<{ scale: number; positionX: number; positionY: number }>({
@@ -201,6 +202,11 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               </table>
             </Alert>
           </div>
+          {numSelectedFiles === 0 && (
+            <div className={clsx(style.EmptySelectionOverlay)}>
+              No files selected. Refine your query to start exploring!
+            </div>
+          )}
           <TransformWrapper
             initialScale={vm.initialScale ?? 1}
             minScale={CanvasScale.min}
