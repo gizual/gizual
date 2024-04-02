@@ -311,7 +311,10 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
   getDefaultRangeByRef = async () => {
     if (this.range) {
-      return [this.range.since.commit!.oid, this.range.until.commit.oid];
+      return [
+        this.range.since.commit?.oid ?? this.state.firstCommitId ?? "",
+        this.range.until.commit.oid,
+      ];
     }
 
     return ["", ""];
@@ -355,6 +358,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     this.updateState({
       lastCommitTimestamp: +lastCommit.timestamp,
       firstCommitTimestamp: +firstCommit.timestamp,
+      firstCommitId: firstCommit.oid,
       lastCommitAuthorId: lastCommit.aid,
       currentBranch,
       branches,
@@ -459,6 +463,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     error: undefined as string | undefined,
 
     lastCommitTimestamp: 0,
+    firstCommitId: "",
     firstCommitTimestamp: 0,
     lastCommitAuthorId: "",
     currentBranch: "",
@@ -699,7 +704,6 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       !isEqual(query.preset, oldQuery.preset) ||
       !isEqual(query.files, oldQuery.files)
     ) {
-      this.resetAllBlocks();
       this.setNeedsRerender();
     }
 
