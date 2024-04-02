@@ -53,6 +53,8 @@ const FileGlobModule = observer(({ viewMode = "bar" }: FileGlobModuleProps) => {
       hasSwapButton
       disableItems={["pattern"]}
       highlightItems={["pattern"]}
+      hasHelpTooltip
+      helpContent="Enter a valid glob pattern. Example: *.tsx"
     >
       <div className={style.SpacedChildren}>
         <Input

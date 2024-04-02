@@ -97,6 +97,8 @@ const TimeRangeByRefModule = observer(({ viewMode = "bar" }: TimeRangeByRefModul
       hasSwapButton
       disableItems={["rangeByRef"]}
       highlightItems={["rangeByRef"]}
+      hasHelpTooltip
+      helpContent="Enter two valid git revisions. Revisions can be specified as branch names, commit hashes, or tags."
     >
       <div className={style.SpacedChildren}>
         <div className={style.LabelWithInput}>
