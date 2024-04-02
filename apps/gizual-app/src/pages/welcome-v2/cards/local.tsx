@@ -95,7 +95,11 @@ function Local({
                     Choose the root directory of your repository, or the <code>.git</code> folder.
                   </span>
                   <span>
-                    Check the <a href="">Documentation</a> to learn more.
+                    Check the{" "}
+                    <a href="https://gizual.com/docs" target="_blank" rel="noreferrer">
+                      Documentation
+                    </a>{" "}
+                    to learn more.
                   </span>
                 </div>
               </div>
@@ -108,7 +112,11 @@ function Local({
                 <div className={style.Description__Text}>
                   <span>No need - all data is processed locally and never leaves your device.</span>
                   <span>
-                    Read our <a href="">Privacy Notice</a> to learn more.
+                    Read our{" "}
+                    <a href="https://gizual.com/privacy" target="_blank" rel="noreferrer">
+                      Privacy Notice
+                    </a>{" "}
+                    to learn more.
                   </span>
                 </div>
               </div>

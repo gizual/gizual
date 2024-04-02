@@ -30,8 +30,8 @@ function Remote({ isExpanded, setExpanded, collapsible = false, supported = true
 
   const onUrlChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
-    const urlRegex = /(https?:\/\/(?:www\.)?(?:github|gitlab|bitbucket)\.(?:com|org)\/\S*)/;
-    setValidUrl(urlRegex.test(e.target.value));
+    const urlRegex = /(https?:\/\/(?:www\.)?github\.com\/\S*)/;
+    setValidUrl(urlRegex.test(e.target.value) || e.target.value === "");
   };
 
   const onClick = async () => {
@@ -42,7 +42,7 @@ function Remote({ isExpanded, setExpanded, collapsible = false, supported = true
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.currentTarget.blur();
-      onClick();
+      if (isValidUrl) onClick();
     }
   };
 
@@ -71,7 +71,7 @@ function Remote({ isExpanded, setExpanded, collapsible = false, supported = true
                 error={!isValidUrl}
                 onKeyDown={onKeyDown}
               />
-              <Button className={style.ActionArea__Button} onClick={onClick}>
+              <Button className={style.ActionArea__Button} onClick={onClick} disabled={!isValidUrl}>
                 <IconEarth />
                 Load from remote
               </Button>
@@ -93,12 +93,19 @@ function Remote({ isExpanded, setExpanded, collapsible = false, supported = true
                 <div className={style.Description__Title}>Info</div>
                 <div className={style.Description__Text}>
                   <span>
-                    Only public repositories from known <a href="">Providers</a> can be cloned
-                    directly. Clones are proxied through Gizual&apos;s servers - standard rate
-                    limits may apply.
+                    Only <em>public</em> repositories from{" "}
+                    <a href="https://github.com" target="_blank" rel="noreferrer">
+                      Github
+                    </a>{" "}
+                    can be cloned directly. Clones are proxied through Gizual&apos;s servers -
+                    standard rate limits may apply.
                   </span>
                   <span>
-                    Check the <a href="">Documentation</a> to learn more.
+                    Check the{" "}
+                    <a href="https://gizual.com/docs" target="_blank" rel="noreferrer">
+                      Documentation
+                    </a>{" "}
+                    to learn more.
                   </span>
                 </div>
               </div>

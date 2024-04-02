@@ -202,7 +202,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               </table>
             </Alert>
           </div>
-          {numSelectedFiles === 0 && (
+          {numSelectedFiles === 0 && !mainController.isLoading && (
             <div className={clsx(style.EmptySelectionOverlay)}>
               No files selected. Refine your query to start exploring!
             </div>
