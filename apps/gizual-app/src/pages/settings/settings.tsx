@@ -1,4 +1,4 @@
-import { IconDownload, IconOpen } from "@app/assets";
+import { IconDownload, IconOpen, IconTrash } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { Checkbox } from "@app/primitives/checkbox";
 import { ColorPicker } from "@app/primitives/color-picker";
@@ -173,6 +173,12 @@ export const RenderedSettingsEntry = observer(
             {namePrefix}
             {entry.name}
             {isDefault() && <span className={style.SettingsEntryDefault}>{" (Default)"}</span>}
+            {!isDefault() && (
+              <a onClick={() => onResetToDefault?.()} className={style.SettingsEntryDefault}>
+                <IconTrash />
+                {"Reset to default"}
+              </a>
+            )}
           </span>
           <span className={style.SettingsEntryDescription}>{entry.description}</span>
           <div>

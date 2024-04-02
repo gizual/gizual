@@ -85,38 +85,33 @@ type InteractiveCanvasProps = {
  * the `react-zoom-pan-pinch` wrapper component.
  */
 const InteractiveCanvas = observer(
-  React.forwardRef<HTMLDivElement, any>(({ vm, showModal }: InteractiveCanvasProps, ref) => {
-    const { showContextMenu } = useContextMenu();
-    const contextMenu: ContextMenuContent = React.useMemo(
-      () => [
-        {
-          key: "1",
-          title: "Reset zoom",
-          onClick: () => {
-            vm.center();
+  React.forwardRef<HTMLDivElement, any>(
+    ({ vm, showModal: _showModal }: InteractiveCanvasProps, ref) => {
+      const { showContextMenu } = useContextMenu();
+      const contextMenu: ContextMenuContent = React.useMemo(
+        () => [
+          {
+            key: "1",
+            title: "Reset zoom",
+            onClick: () => {
+              vm.center();
+            },
           },
-        },
-        {
-          key: "2",
-          title: "Export entire canvas as SVG",
-          onClick: () => {
-            showModal();
-          },
-        },
-      ],
-      [vm, showModal],
-    );
+        ],
+        [vm],
+      );
 
-    return (
-      <InnerCanvas
-        vm={vm}
-        ref={ref}
-        onContextMenu={showContextMenu(contextMenu, {
-          styles: { item: { backgroundColor: "var(--background-secondary)" } },
-        })}
-      />
-    );
-  }),
+      return (
+        <InnerCanvas
+          vm={vm}
+          ref={ref}
+          onContextMenu={showContextMenu(contextMenu, {
+            styles: { item: { backgroundColor: "var(--background-secondary)" } },
+          })}
+        />
+      );
+    },
+  ),
 );
 
 type InnerCanvasProps = {
