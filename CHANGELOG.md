@@ -1,3 +1,38 @@
+## Gizual 1.0.0-alpha.19 (02.04.2024)
+
+### Features
+
+- **app:frontend:** Add touch event handlers to timeline, improve general snapping behavior
+- **app:frontend:** Replace minimap mouse-events with pointer-events to support touch
+
+### Changes
+
+- **app:frontend:** Change coloring of “out of range” lines and file content based on `prefersColorScheme`
+- **app:frontend:** Expose warning triangle when `numSelectedFiles` are `>= 500`
+- **app:frontend:** Immediately apply settings when the query editor is closed
+- **app:frontend:** Move editor into separate portal entity
+- **app:frontend:** Improve footer metrics layout
+- **app:frontend:** Improve query error overlay
+- **app:frontend:** Disable canvas SVG export in context menu, add "Reset to default" option to settings
+- **app:frontend:** Force hide the timeline when the `rangeByRevision` module is mounted
+- **app:frontend:** Add empty selection overlay to canvas
+- **app:frontend:** Update welcome screen, fix canvas loading state, disable Gitlab & Bitbucket clone
+- **app:frontend:** Minor UI fixes
+- **app:backend:** Cache blames, cancel blames which may not have finished yet
+- **app:backend:** Debounce block:update event using `requestAnimationFrame`
+- **app:backend:** Adapt pool-size distribution
+- **app:backend:** Hide featured repo stars for now
+- **app:backend:** Expose general loading indicator
+- **app:backend:** Track `numCommits` of each author during indexing
+- **app:backend:** Replace zip-snapshots with simple multi-file-based snapshots
+
+### Bug Fixes
+
+- **app:backend:** Fix `rangeByRev` default if initial time-range spans the total repo history
+- **app:backend:** Fix bug which lead to re-blame of empty files on every rerender
+
+---
+
 ## Gizual 1.0.0-alpha.18 (23.03.2024)
 
 ### Features

@@ -83,4 +83,15 @@
   color: var(--foreground-disabled);
   align-self: flex-end;
   margin: auto 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  > svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    > path {
+      fill: var(--foreground-disabled);
+    }
+  }
 }

@@ -1,7 +1,10 @@
 import { IconClock } from "@app/assets";
+import { useSettingsController } from "@app/controllers";
 import { Input } from "@app/primitives/input";
 import { useLocalQuery } from "@app/services/local-query";
+import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
@@ -39,6 +42,13 @@ type TimeRangeByRefModuleProps = {
 const TimeRangeByRefModule = observer(({ viewMode = "bar" }: TimeRangeByRefModuleProps) => {
   const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const { from, to } = getTimeRangeByRefEntry(localQuery);
+  const settingsController = useSettingsController();
+
+  React.useEffect(() => {
+    runInAction(() => {
+      settingsController.timelineSettings.displayMode.value = "collapsed";
+    });
+  }, []);
 
   const onChangeStartRef = (ref: string) => {
     updateLocalQuery({
@@ -87,6 +97,8 @@ const TimeRangeByRefModule = observer(({ viewMode = "bar" }: TimeRangeByRefModul
       hasSwapButton
       disableItems={["rangeByRef"]}
       highlightItems={["rangeByRef"]}
+      hasHelpTooltip
+      helpContent="Enter two valid git revisions. Revisions can be specified as branch names, commit hashes, or tags."
     >
       <div className={style.SpacedChildren}>
         <div className={style.LabelWithInput}>

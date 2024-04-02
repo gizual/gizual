@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
-import { useBlocks, useQuery, useSetScale } from "@giz/maestro/react";
+import { useBlocks, useMetrics, useQuery, useSetScale } from "@giz/maestro/react";
 import { AuthorPanel } from "../author-panel";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { Timeline } from "../timeline";
@@ -85,38 +85,33 @@ type InteractiveCanvasProps = {
  * the `react-zoom-pan-pinch` wrapper component.
  */
 const InteractiveCanvas = observer(
-  React.forwardRef<HTMLDivElement, any>(({ vm, showModal }: InteractiveCanvasProps, ref) => {
-    const { showContextMenu } = useContextMenu();
-    const contextMenu: ContextMenuContent = React.useMemo(
-      () => [
-        {
-          key: "1",
-          title: "Reset zoom",
-          onClick: () => {
-            vm.center();
+  React.forwardRef<HTMLDivElement, any>(
+    ({ vm, showModal: _showModal }: InteractiveCanvasProps, ref) => {
+      const { showContextMenu } = useContextMenu();
+      const contextMenu: ContextMenuContent = React.useMemo(
+        () => [
+          {
+            key: "1",
+            title: "Reset zoom",
+            onClick: () => {
+              vm.center();
+            },
           },
-        },
-        {
-          key: "2",
-          title: "Export entire canvas as SVG",
-          onClick: () => {
-            showModal();
-          },
-        },
-      ],
-      [vm, showModal],
-    );
+        ],
+        [vm],
+      );
 
-    return (
-      <InnerCanvas
-        vm={vm}
-        ref={ref}
-        onContextMenu={showContextMenu(contextMenu, {
-          styles: { item: { backgroundColor: "var(--background-secondary)" } },
-        })}
-      />
-    );
-  }),
+      return (
+        <InnerCanvas
+          vm={vm}
+          ref={ref}
+          onContextMenu={showContextMenu(contextMenu, {
+            styles: { item: { backgroundColor: "var(--background-secondary)" } },
+          })}
+        />
+      );
+    },
+  ),
 );
 
 type InnerCanvasProps = {
@@ -127,6 +122,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
   ({ vm, ...defaultProps }: InnerCanvasProps, ref) => {
     const mainController = useMainController();
     const maestroSetScale = useSetScale();
+    const { numSelectedFiles } = useMetrics();
     const rzppRef = React.useContext(CanvasContext).rzppRef;
     const [isPanning, setIsPanning] = useState(false);
     const [state, setState] = useState<{ scale: number; positionX: number; positionY: number }>({
@@ -178,16 +174,39 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             )}
           >
             <Alert
-              variant="light"
-              color="red"
+              variant="transparent"
+              color="#ff0000"
               title="Query invalid"
-              styles={{ message: { color: "white" } }}
+              styles={{
+                message: { color: "white" },
+                title: { color: "#ff0000", fontSize: "1.125rem", lineHeight: "1.75rem" },
+              }}
             >
-              The query you entered was invalid. TODO: This is where we put a detailed list of
-              errors.
-              <pre style={{ marginTop: "1rem" }}>{JSON.stringify(errors, undefined, 2)}</pre>
+              <span>The query you entered was invalid. The following errors were found:</span>
+              <table className={style.ErrorTable}>
+                <thead>
+                  <tr>
+                    <td>Selector</td>
+                    <td>Error</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {errors &&
+                    errors.map((error, index) => (
+                      <tr key={index}>
+                        <td>{error.selector}</td>
+                        <td>{error.message}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </Alert>
           </div>
+          {numSelectedFiles === 0 && !mainController.isLoading && (
+            <div className={clsx(style.EmptySelectionOverlay)}>
+              No files selected. Refine your query to start exploring!
+            </div>
+          )}
           <TransformWrapper
             initialScale={vm.initialScale ?? 1}
             minScale={CanvasScale.min}

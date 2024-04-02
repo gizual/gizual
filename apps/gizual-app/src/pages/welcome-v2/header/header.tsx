@@ -23,16 +23,23 @@ function Header() {
             <ul>
               <li>
                 <a
-                  href="/docs"
+                  href="https://gizual.com/docs"
                   className="text-foreground-tertiary hover:text-foreground-secondary flex items-center py-3 text-base font-medium transition duration-150 ease-in-out"
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   Docs
                 </a>
               </li>
-              <li title="Github link coming soon! :)">
-                {/*<a href="https://github.com/gizual/gizual" aria-label="Github Repository - Gizual">*/}
-                <IconGithub className={style.GithubIcon}></IconGithub>
-                {/*</a>*/}
+              <li>
+                <a
+                  href="https://github.com/gizual/gizual"
+                  aria-label="Github Repository - Gizual"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <IconGithub className={style.GithubIcon}></IconGithub>
+                </a>
               </li>
             </ul>
           </nav>

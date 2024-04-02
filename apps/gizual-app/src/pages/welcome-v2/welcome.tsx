@@ -94,7 +94,10 @@ const WelcomePage = observer(() => {
           <h2 className={style.Section__Title}>Featured Repositories</h2>
           <FeaturedRepos />
           <span className={style.ContactUs}>
-            Think your repository should be on this list? <a>Contact us!</a>
+            Think your repository should be on this list?{" "}
+            <a href="https://github.com/gizual/gizual/issues/new" target="_blank" rel="noreferrer">
+              Contact us!
+            </a>
           </span>
         </div>
         <div className={style.Footer}>

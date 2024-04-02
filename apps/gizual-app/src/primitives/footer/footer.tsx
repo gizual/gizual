@@ -50,7 +50,11 @@ export const Footer = observer(() => {
         </DialogProvider>
       </div>
       <div className={style.RightSection}>
-        {mainController.isBusy && <Loader size="sm" />}
+        {mainController.isBusy && (
+          <div className={style.LoadingContainer}>
+            <Loader size="1rem" />
+          </div>
+        )}
         <div className={style.NumSelectedFilesContainer}>
           {metrics.numSelectedFiles >= 500 && (
             <Tooltip label="The maximum number of selected files is limited to 500 for performance reasons.">
@@ -63,15 +67,19 @@ export const Footer = observer(() => {
         </div>
         {explorer.totalWorkers && renderer.totalWorkers && (
           <div className={style.Metrics}>
-            <IconExplorer className={style.IconExplorer} />
-            <UtilizationGraph busy={explorer.busyWorkers} total={explorer.totalWorkers} />
-            <span className={style.NumJobs}>{`(${explorer.jobs} jobs)`}</span>
-            <span className={style.NumJobsShort}>{`(${explorer.jobs})`}</span>
+            <div className={style.MetricsSection}>
+              <IconExplorer className={style.IconExplorer} />
+              <UtilizationGraph busy={explorer.busyWorkers} total={explorer.totalWorkers} />
+              <span className={style.NumJobs}>{`(${explorer.jobs} jobs)`}</span>
+              <span className={style.NumJobsShort}>{`(${explorer.jobs})`}</span>
+            </div>
 
-            <IconRenderer className={style.IconRenderer} />
-            <UtilizationGraph busy={renderer.busyWorkers} total={renderer.totalWorkers} />
-            <span className={style.NumJobs}>{`(${renderer.jobs} jobs)`}</span>
-            <span className={style.NumJobsShort}>{`(${renderer.jobs})`}</span>
+            <div className={style.MetricsSection}>
+              <IconRenderer className={style.IconRenderer} />
+              <UtilizationGraph busy={renderer.busyWorkers} total={renderer.totalWorkers} />
+              <span className={style.NumJobs}>{`(${renderer.jobs} jobs)`}</span>
+              <span className={style.NumJobsShort}>{`(${renderer.jobs})`}</span>
+            </div>
           </div>
         )}
       </div>
