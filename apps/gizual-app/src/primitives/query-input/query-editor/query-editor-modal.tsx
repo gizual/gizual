@@ -82,7 +82,7 @@ const QueryEditorModal = observer(({ triggerStyle }: QueryEditorModalProps) => {
   };
 
   return (
-    <>
+    <div>
       <Joyride
         steps={joyRideSteps as any}
         run={showJoyride}
@@ -148,7 +148,7 @@ const QueryEditorModal = observer(({ triggerStyle }: QueryEditorModalProps) => {
       >
         <QueryEditor />
       </DialogProvider>
-    </>
+    </div>
   );
 });
 
