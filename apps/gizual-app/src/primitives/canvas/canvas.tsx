@@ -178,14 +178,32 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             )}
           >
             <Alert
-              variant="light"
-              color="red"
+              variant="transparent"
+              color="#ff0000"
               title="Query invalid"
-              styles={{ message: { color: "white" } }}
+              styles={{
+                message: { color: "white" },
+                title: { color: "#ff0000", fontSize: "1.125rem", lineHeight: "1.75rem" },
+              }}
             >
-              The query you entered was invalid. TODO: This is where we put a detailed list of
-              errors.
-              <pre style={{ marginTop: "1rem" }}>{JSON.stringify(errors, undefined, 2)}</pre>
+              <span>The query you entered was invalid. The following errors were found:</span>
+              <table className={style.ErrorTable}>
+                <thead>
+                  <tr>
+                    <td>Selector</td>
+                    <td>Error</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {errors &&
+                    errors.map((error, index) => (
+                      <tr key={index}>
+                        <td>{error.selector}</td>
+                        <td>{error.message}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </Alert>
           </div>
           <TransformWrapper

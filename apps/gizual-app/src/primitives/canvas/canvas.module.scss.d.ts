@@ -20,5 +20,6 @@ declare const classNames: {
   readonly DebugOverlay: "DebugOverlay";
   readonly ErrorOverlay: "ErrorOverlay";
   readonly ErrorOverlayVisible: "ErrorOverlayVisible";
+  readonly ErrorTable: "ErrorTable";
 };
 export = classNames;
