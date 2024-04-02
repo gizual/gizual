@@ -1,7 +1,10 @@
 import { IconClock } from "@app/assets";
+import { useSettingsController } from "@app/controllers";
 import { Input } from "@app/primitives/input";
 import { useLocalQuery } from "@app/services/local-query";
+import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
+import React from "react";
 
 import type { QueryError } from "@giz/maestro";
 import { SearchQueryType } from "@giz/query";
@@ -39,6 +42,13 @@ type TimeRangeByRefModuleProps = {
 const TimeRangeByRefModule = observer(({ viewMode = "bar" }: TimeRangeByRefModuleProps) => {
   const { localQuery, publishLocalQuery, updateLocalQuery, errors } = useLocalQuery();
   const { from, to } = getTimeRangeByRefEntry(localQuery);
+  const settingsController = useSettingsController();
+
+  React.useEffect(() => {
+    runInAction(() => {
+      settingsController.timelineSettings.displayMode.value = "collapsed";
+    });
+  }, []);
 
   const onChangeStartRef = (ref: string) => {
     updateLocalQuery({
