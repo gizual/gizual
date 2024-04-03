@@ -184,13 +184,18 @@
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.93);
   z-index: 40;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  background-color: rgba(255, 255, 255, 0.93);
+  color: var(--foreground-primary);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(0, 0, 0, 0.93);
+  }
 }
 
 .ErrorOverlayVisible {

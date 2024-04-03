@@ -1,3 +1,12 @@
+## Gizual 1.0.0-alpha.20 (03.04.2024)
+
+### Changes
+
+- **app:frontend:** Minor UI fixes
+- **app:frontend:** Automatically re-center the canvas when `numSelectedFiles` changes
+
+---
+
 ## Gizual 1.0.0-alpha.19 (02.04.2024)
 
 ### Features
