@@ -5,18 +5,19 @@ A deployed live version of the project can be accessed at [gizual.com](https://w
 
 ### Browser Compatibility
 
-| Browser          | Version | Release Date | FSA¹ | Drag & Drop | File Input | Remote Clone² |
-| ---------------- | :-----: | :----------: | :--: | :---------: | :--------: | :-----------: |
-| Chrome           |  106+   |   Sep. 22    |  👍  |     👍      |     👍     |      👍       |
-| Edge             |  106+   |   Oct. 22    |  👍  |     👍      |     👍     |      👍       |
-| Firefox          |  110+   |   Feb. 23    |  🚫  |     👍      |     👍     |      👍       |
-| Safari           |  16.4+  |   Mar. 23    |  🚫  |     👨‍💻      |     👨‍💻     |      👍       |
-| Safari (iOS)     |  16.4+  |   Mar. 23    |  🚫  |     🚫      |     🚫     |      🚧³      |
-| Chrome (Android) |  106+   |   Sep. 22    |  🚫  |     🚫      |     🚫     |      👍       |
+| Browser                  | Version | Release Date | FSA<sup>1</sup> | Drag & Drop | File Input | Remote Clone<sup>2</sup> |
+| ------------------------ | :-----: | :----------: | :-------------: | :---------: | :--------: | :----------------------: |
+| Chrome                   |  106+   |   Sep. 22    |       👍        |     👍      |     👍     |            👍            |
+| Edge                     |  106+   |   Oct. 22    |       👍        |     👍      |     👍     |            👍            |
+| Firefox                  |  110+   |   Feb. 23    |       🚫        |     👍      |     👍     |            👍            |
+| Safari<sup>3</sup>       |  16.4+  |   Mar. 23    |       🚫        |     👨‍💻      |     👨‍💻     |            👍            |
+| Safari (iOS)<sup>3</sup> |  17.0+  |   Sep. 23    |       🚫        |     🚫      |     🚫     |      🚧<sup>4</sup>      |
+| Chrome (Android)         |  106+   |   Sep. 22    |       🚫        |     🚫      |     🚫     |            👍            |
 
 [1]: FSA - [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API)  
 [2]: Remote Clone - Remote cloning via server proxy from public repos on GitHub, GitLab and Bitbucket.  
-[3]: Safari (iOS) - Gizual, being memory and CPU intensive, frequently crashes due to system limitations despite technical support.
+[3]: Safari - Only supported if private browsing is disabled.  
+[4]: Safari (iOS) - Gizual, being memory and CPU intensive, frequently crashes due to system limitations despite technical support.
 
 👍 Works as intended  
 🚧 Partial support / unstable  
