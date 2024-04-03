@@ -156,6 +156,10 @@ const InnerCanvas = observer<any, HTMLDivElement>(
       rzppRef.current?.setTransform(0, 0, vm.initialScale);
     }, [vm.initialScale]);
 
+    React.useEffect(() => {
+      vm.center();
+    }, [numSelectedFiles]);
+
     return (
       <div ref={ref} className={style.Canvas} {...defaultProps}>
         {debugLayout && (
