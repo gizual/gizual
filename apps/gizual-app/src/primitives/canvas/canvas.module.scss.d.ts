@@ -16,10 +16,10 @@ declare const classNames: {
   readonly MinimapPreview: "MinimapPreview";
   readonly MinimapPreviewHover: "MinimapPreviewHover";
   readonly MinimapPreviewDragging: "MinimapPreviewDragging";
+  readonly EmptySelectionOverlay: "EmptySelectionOverlay";
   readonly LegendContainer: "LegendContainer";
   readonly DebugOverlay: "DebugOverlay";
   readonly ErrorOverlay: "ErrorOverlay";
-  readonly EmptySelectionOverlay: "EmptySelectionOverlay";
   readonly ErrorOverlayVisible: "ErrorOverlayVisible";
   readonly ErrorTable: "ErrorTable";
 };
