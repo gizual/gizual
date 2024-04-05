@@ -1,21 +1,24 @@
 # Gizual
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 Gizual (pronounced `/ˈgɪʒ.u.əl/`, a combination of the words "git" and "visual") is a tool to visualize Git repositories.  
 A deployed live version of the project can be accessed at [gizual.com](https://www.gizual.com).
 
+![Gizual Screenshot](./docs/images/screenshot.png)
+
 ### Browser Compatibility
 
-| Browser                  | Version | Release Date | FSA<sup>1</sup> | Drag & Drop | File Input | Remote Clone<sup>2</sup> |
-| ------------------------ | :-----: | :----------: | :-------------: | :---------: | :--------: | :----------------------: |
-| Chrome                   |  106+   |   Sep. 22    |       👍        |     👍      |     👍     |            👍            |
-| Edge                     |  106+   |   Oct. 22    |       👍        |     👍      |     👍     |            👍            |
-| Firefox                  |  110+   |   Feb. 23    |       🚫        |     👍      |     👍     |            👍            |
-| Safari<sup>3</sup>       |  16.4+  |   Mar. 23    |       🚫        |     👨‍💻      |     👨‍💻     |            👍            |
-| Safari (iOS)<sup>3</sup> |  17.0+  |   Sep. 23    |       🚫        |     🚫      |     🚫     |      🚧<sup>4</sup>      |
-| Chrome (Android)         |  106+   |   Sep. 22    |       🚫        |     🚫      |     🚫     |            👍            |
+| Browser                      | Version | Release Date | FSA<sup>1</sup> | Drag & Drop | File Input | Remote Clone<sup>2</sup> |
+| ---------------------------- | :-----: | :----------: | :-------------: | :---------: | :--------: | :----------------------: |
+| Chromium<br/>(Chrome & Edge) |  106+   |   Sep. 22    |       👍        |     👍      |     👍     |            👍            |
+| Firefox                      |  110+   |   Feb. 23    |       🚫        |     👍      |     👍     |            👍            |
+| Safari<sup>3</sup>           |  16.4+  |   Mar. 23    |       🚫        |     👨‍💻      |     👨‍💻     |            👍            |
+| Safari (iOS)<sup>3</sup>     |  17.0+  |   Sep. 23    |       🚫        |     🚫      |     🚫     |      🚧<sup>4</sup>      |
+| Chrome (Android)             |  106+   |   Sep. 22    |       🚫        |     🚫      |     🚫     |            👍            |
 
 [1]: FSA - [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API)  
-[2]: Remote Clone - Remote cloning via server proxy from public repos on GitHub, GitLab and Bitbucket.  
+[2]: Remote Clone - Remote cloning via server proxy from public repos on GitHub.  
 [3]: Safari - Only supported if private browsing is disabled.  
 [4]: Safari (iOS) - Gizual, being memory and CPU intensive, frequently crashes due to system limitations despite technical support.
 
@@ -27,6 +30,19 @@ A deployed live version of the project can be accessed at [gizual.com](https://w
 ---
 
 ### How to run locally?
+
+We recommend using Docker for running the project locally. If you don't have Docker installed, you can follow the manual installation steps.
+
+#### via Docker Image
+
+::warning:: A secure context is required for Gizual to work. This means you need to access the Docker container from a secure context, either via HTTPS or via `localhost`.
+
+```bash
+docker run -p 7172:7172 --name gizual ghcr.io/gizual/gizual:v1.0.0-alpha.20
+# You can now open http://localhost:7172
+```
+
+#### Manual
 
 Ensure the required dependencies are installed. (Git, Rust, Node.js v18, yarn). For Windows, check the [docs](./docs/dep-install-windows.md).
 
@@ -42,38 +58,14 @@ yarn preview    # preview production build at http://localhost:4173
 
 ---
 
-### How to develop locally?
+### How to contribute?
 
-Ensure the required dependencies are installed. (Git, Rust, Node.js v18, yarn). For Windows, check the [docs](./docs/dep-install-windows.md).
+Since we are still in the early stages of development things change rapidly. As such, we recommend reaching out by creating an issue before starting work on a feature or a bug fix.
 
 ```bash
 git clone https://github.com/gizual/gizual.git
 cd gizual
 
 yarn            # install dependencies
-
 yarn dev        # runs server at http://localhost:5173
-```
-
-### How to build for release?
-
-Ensure the required dependencies are installed. (Git, Rust, Node.js v18, yarn). For Windows, check the [docs](./docs/dep-install-windows.md).
-
-```bash
-git clone https://github.com/gizual/gizual.git
-cd gizual
-
-yarn            # install dependencies
-
-yarn build      # run build, afterwards artifacts can then be found at `apps/gizual-app/dist/`
-```
-
-### Storybook (UI Testing)
-
-Some components are attached to Storybook so they can be tested in isolation.
-
-```bash
-yarn            # install dependencies
-
-yarn storybook  # builds the project and launches a dev server at http://localhost:6006
 ```
