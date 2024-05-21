@@ -31,7 +31,7 @@ function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
 
   return (
     <DialogProvider
-      title="Swap Visualization Type"
+      title="Change Visualization Type"
       contentStyle={{ overflow: "hidden" }}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
