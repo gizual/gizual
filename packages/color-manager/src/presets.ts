@@ -1,4 +1,4 @@
-export const LINEAR_COLOR_RANGE: [string, string] = ["#581c87", "#f0abfc"];
+export const LINEAR_COLOR_RANGE: [string, string] = ["#581c87", "#ffe4f3"];
 export const BAND_COLOR_RANGE: string[] = [
   "#40DFEF",
   "#A760FF",
