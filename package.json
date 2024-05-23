@@ -50,5 +50,8 @@
   "engines": {
     "yarn": ">=3.5.0",
     "node": ">=18.0.0"
+  },
+  "resolutions": {
+    "react-zoom-pan-pinch@3.4.2": "patch:react-zoom-pan-pinch@npm%3A3.4.2#./.yarn/patches/react-zoom-pan-pinch-npm-3.4.2-c7c7ecce4a.patch"
   }
 }

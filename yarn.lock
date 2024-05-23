@@ -2515,6 +2515,7 @@ __metadata:
     mobx: 6.12.0
     mobx-react-lite: 4.0.5
     monaco-editor: ^0.44.0
+    normalize-wheel: 1.0.1
     postcss: 8.4.32
     prettier: 3.0.0
     react: 18.2.0
@@ -13335,6 +13336,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"normalize-wheel@npm:1.0.1":
+  version: 1.0.1
+  resolution: "normalize-wheel@npm:1.0.1"
+  checksum: 00b32efa040bad9438e732385a4ca27f8532fa2c8c06b54be43b9f75b2da6642bf41a0b4f81e542639dc8d682cde8b059b0a02ae0723fb8ebc3c8f036c8e51d8
+  languageName: node
+  linkType: hard
+
 "normalize.css@npm:8.0.1":
   version: 8.0.1
   resolution: "normalize.css@npm:8.0.1"
@@ -14735,6 +14743,16 @@ __metadata:
     react: "*"
     react-dom: "*"
   checksum: 85cc0d17eca6d1e1de5e98e122acbca932644737c8ae7d3646e8455786d476e42e382861e5000d6f317342b4e3aae028c6c7910673d66684528066688fdf353b
+  languageName: node
+  linkType: hard
+
+"react-zoom-pan-pinch@patch:react-zoom-pan-pinch@npm%3A3.4.2#./.yarn/patches/react-zoom-pan-pinch-npm-3.4.2-c7c7ecce4a.patch::locator=gizual%40workspace%3A.":
+  version: 3.4.2
+  resolution: "react-zoom-pan-pinch@patch:react-zoom-pan-pinch@npm%3A3.4.2#./.yarn/patches/react-zoom-pan-pinch-npm-3.4.2-c7c7ecce4a.patch::version=3.4.2&hash=a7cc87&locator=gizual%40workspace%3A."
+  peerDependencies:
+    react: "*"
+    react-dom: "*"
+  checksum: b2f4df6903f0b18ea59dd9803a59b1dea4de711473d674455055ea87f4390ad932de2786641351beb823a28639d95ed9b53b1e4ed0fe3a5c1bc122159cb6fa69
   languageName: node
   linkType: hard
 

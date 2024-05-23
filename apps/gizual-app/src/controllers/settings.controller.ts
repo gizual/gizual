@@ -23,6 +23,7 @@ export type VisualizationSettings = {
   canvas: {
     rootMargin: SettingsEntry<number, "number">;
     masonryColumns: SettingsEntry<number, "number">;
+    zoomStep: SettingsEntry<number, "number">;
   } & GroupEntry;
   style: {
     maxNumLines: SettingsEntry<number, "number">;
@@ -103,6 +104,11 @@ export class SettingsController {
         "Masonry Columns",
         "The amount of columns to show in the main canvas.",
         10,
+      ),
+      zoomStep: createNumberSetting(
+        "Zoom Step",
+        "Modifies the base zoom step for mice and touch-pads when zooming on the canvas. Values between 0.05 and 0.5 are recommended.",
+        0.15,
       ),
     },
     style: {
