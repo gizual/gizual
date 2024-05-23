@@ -110,6 +110,20 @@ $mobile-breakpoint: 830px;
   }
 }
 
+.RepoCard__Modal__Content {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.RepoCard__Modal__IconButton {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .FeaturedRepos {
   display: grid;
   grid-template-columns: auto auto;

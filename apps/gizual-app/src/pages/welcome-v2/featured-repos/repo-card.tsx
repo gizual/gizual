@@ -1,10 +1,11 @@
-import { IconGithub, IconStarFilled } from "@app/assets";
+import { IconStarFilled } from "@app/assets";
 import { Button } from "@app/primitives/button";
 import clsx from "clsx";
 
 import { useFileLoaders } from "@giz/maestro/react";
 
 import style from "./featured-repos.module.scss";
+import { RepoModal } from "./repo-modal";
 
 type RepoCardProps = {
   repoName?: string;
@@ -63,18 +64,8 @@ function RepoCard({
         </div>
       </div>
       <div className={style.RepoCard__Row}>
-        <div className={style.RepoCard__Source}>
-          <IconGithub />
-          <a
-            href={repoSource}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            {repoSource}
-          </a>
+        <div onClick={(e) => e.stopPropagation()}>
+          <RepoModal repoName={repoName} repoSource={repoSource} onOpenCb={onClick} />
         </div>
         <div className={style.RepoCard__Meta}>
           {stars !== 0 && (

@@ -10,6 +10,8 @@ declare const classNames: {
   readonly "RepoCard__MetaItem--Secondary": "RepoCard__MetaItem--Secondary";
   readonly RepoCard__Item: "RepoCard__Item";
   readonly RepoCard__Source: "RepoCard__Source";
+  readonly RepoCard__Modal__Content: "RepoCard__Modal__Content";
+  readonly RepoCard__Modal__IconButton: "RepoCard__Modal__IconButton";
   readonly FeaturedRepos: "FeaturedRepos";
 };
 export = classNames;
