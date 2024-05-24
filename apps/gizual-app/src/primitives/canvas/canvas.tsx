@@ -1,4 +1,4 @@
-import { useMainController, useViewModelController } from "@app/controllers";
+import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
 import { useViewModel } from "@app/services/view-model";
 import { CanvasScale } from "@app/utils";
 import { Alert } from "@mantine/core";
@@ -121,6 +121,7 @@ type InnerCanvasProps = {
 const InnerCanvas = observer<any, HTMLDivElement>(
   ({ vm, ...defaultProps }: InnerCanvasProps, ref) => {
     const mainController = useMainController();
+    const settingsController = useSettingsController();
     const maestroSetScale = useSetScale();
     const { numSelectedFiles } = useMetrics();
     const rzppRef = React.useContext(CanvasContext).rzppRef;
@@ -217,7 +218,10 @@ const InnerCanvas = observer<any, HTMLDivElement>(
             maxScale={CanvasScale.max}
             initialPositionX={0}
             initialPositionY={0}
-            wheel={{ smoothStep: 0.0035, step: 0.15 }}
+            wheel={{
+              smoothStep: 0.0035,
+              step: settingsController.visualizationSettings.canvas.zoomStep.value ?? 0.15,
+            }}
             limitToBounds={true}
             centerZoomedOut={true}
             disablePadding={false}
