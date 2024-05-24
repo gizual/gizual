@@ -1,3 +1,15 @@
+## Gizual 1.0.0-alpha.21 (24.05.2024)
+
+### Changes
+
+- **app:frontend:** Minor UI fixes
+- **app:frontend:** Add additional confirmation modal when clicking a repo link in the welcome screen
+- **app:frontend:** Change default color for age band
+- **app:frontend:** Patch `react-zoom-pan-pinch` with an implementation for more natural zooming
+- **app:frontend:** Introduce shortcut to vis-type dialog
+
+---
+
 ## Gizual 1.0.0-alpha.20 (03.04.2024)
 
 ### Changes
