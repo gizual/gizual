@@ -92,6 +92,18 @@
   }
 }
 
+.SidePanel__Bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.SidePanel__Link {
+  @include text-xs;
+  color: var(--foreground-unimportant);
+}
+
 .Vr {
   position: relative;
   border-left: 1px solid var(--border-primary);
@@ -184,7 +196,7 @@
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  z-index: 40;
+  z-index: 19;
   padding: 0.5rem;
   display: flex;
   align-items: center;

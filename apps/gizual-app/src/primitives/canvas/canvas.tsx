@@ -280,7 +280,15 @@ const InnerCanvas = observer<any, HTMLDivElement>(
               />
             </MiniMapWrapper>
           </div>
-          <LegendComponent legendWidth={legendWidth} legendHeight={legendHeight} />
+          <div className={style.SidePanel__Bottom}>
+            <LegendComponent legendWidth={legendWidth} legendHeight={legendHeight} />
+            <a
+              className={style.SidePanel__Link}
+              onClick={() => mainController.setVisTypeModalOpen(true)}
+            >
+              Switch visualization type
+            </a>
+          </div>
         </div>
       </div>
     );

@@ -32,6 +32,7 @@ export class MainController {
   @observable _scale = 1;
   @observable _repo: Repository;
   @observable _numFiles = 0;
+  @observable _isVisTypeModalOpen = false;
 
   @observable private _preferredColorScheme: "light" | "dark" = "light";
 
@@ -70,6 +71,15 @@ export class MainController {
 
   get repoController() {
     return this._repoController;
+  }
+
+  get isVisTypeModalOpen() {
+    return this._isVisTypeModalOpen;
+  }
+
+  @action.bound
+  setVisTypeModalOpen(open: boolean) {
+    this._isVisTypeModalOpen = open;
   }
 
   @computed

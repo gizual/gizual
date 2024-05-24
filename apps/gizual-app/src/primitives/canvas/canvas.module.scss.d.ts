@@ -11,6 +11,8 @@ declare const classNames: {
   readonly ToolbarButton: "ToolbarButton";
   readonly SidePanel: "SidePanel";
   readonly Vr: "Vr";
+  readonly SidePanel__Bottom: "SidePanel__Bottom";
+  readonly SidePanel__Link: "SidePanel__Link";
   readonly MinimapContainer: "MinimapContainer";
   readonly Minimap: "Minimap";
   readonly MinimapPreview: "MinimapPreview";
