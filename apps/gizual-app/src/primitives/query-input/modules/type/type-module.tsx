@@ -1,4 +1,5 @@
 import { IconEdit, IconSettingsOutline } from "@app/assets";
+import { useMainController } from "@app/controllers";
 import { Button } from "@app/primitives/button";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { observer } from "mobx-react-lite";
@@ -23,7 +24,10 @@ type TypeModuleComponentProps = {
 function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
   const { query } = useQuery();
   const value = getTypeEntry(query);
-  const [isOpen, setIsOpen] = React.useState(false);
+
+  const mainController = useMainController();
+  const isOpen = mainController.isVisTypeModalOpen;
+  const setIsOpen = mainController.setVisTypeModalOpen;
 
   if (viewMode === "modal") {
     return <TypePlaceholderModal />;
@@ -31,7 +35,7 @@ function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
 
   return (
     <DialogProvider
-      title="Swap Visualization Type"
+      title="Change Visualization Type"
       contentStyle={{ overflow: "hidden" }}
       isOpen={isOpen}
       setIsOpen={setIsOpen}

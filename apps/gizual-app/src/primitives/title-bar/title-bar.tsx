@@ -76,7 +76,7 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
               )}
             >
               <a className={style.MenuItemText} onClick={() => setSelectedPanel("analyze")}>
-                Analyze
+                Statistics
               </a>
             </div>
 

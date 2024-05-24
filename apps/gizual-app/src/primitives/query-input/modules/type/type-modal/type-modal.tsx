@@ -35,7 +35,7 @@ const TypePlaceholderModal = observer(
 
     const sections: { title: string; children: React.ReactNode }[] = [
       {
-        title: "Select Type",
+        title: "Select Visualization Type",
         children: <TypeSelectionGrid vm={vm} />,
       },
       {

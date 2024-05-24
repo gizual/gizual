@@ -36,6 +36,7 @@ $accent-tertiary-fg: #fff;
   --color-gunmetal: #1a1d23;
   --color-gray: #cecece;
   --color-darkslate: #35404e;
+  --color-unimportant: #797979;
   --color-disabled: #8d8d8d;
   --color-darkred: #200202;
   --color-peach: #fbe5eb;
@@ -59,6 +60,7 @@ $accent-tertiary-fg: #fff;
     --foreground-secondary: var(--color-black);
     --foreground-tertiary: #2b303b;
     --foreground-disabled: var(--color-disabled);
+    --foreground-unimportant: var(--color-unimportant);
     --foreground-link: #0069c2;
 
     --accent-main: var(--color-gizblue);
@@ -85,6 +87,7 @@ $accent-tertiary-fg: #fff;
     --foreground-secondary: var(--color-white);
     --foreground-tertiary: #d5d5dd;
     --foreground-disabled: var(--color-disabled);
+    --foreground-unimportant: var(--color-unimportant);
     --foreground-link: #8cb4ff;
 
     --accent-main: var(--color-gizblue);
