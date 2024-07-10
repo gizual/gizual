@@ -150,6 +150,8 @@ export type SHARED_EVENTS = (typeof SHARED_EVENTS)[number];
 export type VisualSettings = {
   oldColor: string;
   newColor: string;
+  outOfRangeLight: string;
+  outOfRangeDark: string;
   maxNumLines: number;
   preferredColorScheme: "dark" | "light";
 };
@@ -185,6 +187,8 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     this.visualSettings = {
       oldColor: "#ff0000",
       newColor: "#00ff00",
+      outOfRangeLight: "#fff",
+      outOfRangeDark: "#000",
       preferredColorScheme: "light",
       maxNumLines: 400,
       ...opts.visualSettings,
@@ -598,6 +602,8 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     queryCacheParts.push(
       this.visualSettings.oldColor,
       this.visualSettings.newColor,
+      this.visualSettings.outOfRangeLight,
+      this.visualSettings.outOfRangeDark,
       this.visualSettings.maxNumLines.toString(),
     );
 
@@ -1202,6 +1208,8 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       colors: {
         newest: visualSettings.newColor,
         oldest: visualSettings.oldColor,
+        outOfRangeLight: visualSettings.outOfRangeLight,
+        outOfRangeDark: visualSettings.outOfRangeDark,
       },
       style: {
         lineLength: "full",

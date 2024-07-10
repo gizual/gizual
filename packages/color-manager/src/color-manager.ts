@@ -225,15 +225,17 @@ export class ColorManager {
 
   private interpolateLineColor(ctx: RequiredColorInfo, line: Line) {
     const updatedAtSeconds = +(line.commit?.timestamp ?? 0);
+    const { visualizationConfig, selectedStartDate, selectedEndDate, coloringMode } = ctx;
+    const { preferredColorScheme, colors } = visualizationConfig;
 
     // If the line was updated before the start or after the end date, grey it out.
     if (
-      updatedAtSeconds * 1000 < ctx.selectedStartDate.getTime() ||
-      updatedAtSeconds * 1000 > ctx.selectedEndDate.getTime()
+      updatedAtSeconds * 1000 < selectedStartDate.getTime() ||
+      updatedAtSeconds * 1000 > selectedEndDate.getTime()
     )
-      return "transparent";
+      return preferredColorScheme === "light" ? colors.outOfRangeLight : colors.outOfRangeDark;
 
-    switch (ctx.coloringMode) {
+    switch (coloringMode) {
       case "age": {
         return this.interpolateLineColorByAge(ctx, line);
       }

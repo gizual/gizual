@@ -1,3 +1,11 @@
+## Gizual 1.0.0-alpha.XX (XX.XX.2024)
+
+### Changes
+
+- **app:frontend:** Expose "out of range" color as a setting for both light and dark mode
+
+---
+
 ## Gizual 1.0.0-alpha.21 (24.05.2024)
 
 ### Changes
