@@ -1,8 +1,9 @@
-import { IconSettingsOutline } from "@app/assets";
+import { IconInfo, IconSettingsOutline } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { Button } from "@app/primitives/button";
 import { DialogProvider } from "@app/primitives/dialog-provider";
 import { useViewModel } from "@app/services/view-model";
+import { Tooltip } from "@mantine/core";
 import { observer } from "mobx-react-lite";
 
 import { useQuery } from "@giz/maestro/react";
@@ -38,11 +39,19 @@ function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
   return (
     <div className={style.BaseQueryModule}>
       <div className={style.ColumnContainer}>
-        <div className={style.QueryModuleIconWithText}>
-          <div className={style.QueryModuleIcon}>
-            <IconSettingsOutline />
+        <div className={style.QueryModuleHeader}>
+          <div className={style.QueryModuleIconWithText}>
+            <div className={style.QueryModuleIcon}>
+              <IconSettingsOutline />
+            </div>
+            <div className={style.QueryModuleTitle}>Vis</div>
           </div>
-          <div className={style.QueryModuleTitle}>Vis</div>
+
+          <Tooltip label={"Select the desired visualisation type with this module."} withArrow>
+            <div>
+              <IconInfo className={style.QueryModuleIcon} />
+            </div>
+          </Tooltip>
         </div>
 
         <div className={style.RowContainer}>

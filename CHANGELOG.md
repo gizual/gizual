@@ -1,8 +1,9 @@
-## Gizual 1.0.0-alpha.XX (XX.XX.2024)
+## Gizual 1.0.0-alpha.23 (29.08.2024)
 
 ### Changes
 
 - **app:frontend:** Rework UI layout, modify toolbar position
+- **app:frontend:** Expose "out of range" color as a setting for both light and dark mode
 
 ---
 
