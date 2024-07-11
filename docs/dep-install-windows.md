@@ -23,7 +23,7 @@
 
 ## Rust
 
-1. Install Rust (64-bit, tested with 1.69) \
+1. Install Rust (64-bit, tested with 1.79.0) \
    Installer: https://www.rust-lang.org/tools/install
 
    a. continue without visual c++ (y)
