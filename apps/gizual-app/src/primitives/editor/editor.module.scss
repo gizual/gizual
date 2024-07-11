@@ -26,3 +26,11 @@
   flex-direction: row;
   gap: 1rem;
 }
+
+:global(.rendered-markdown) {
+  text-align: left;
+
+  & > p {
+    text-align: left;
+  }
+}

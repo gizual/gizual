@@ -1,3 +1,11 @@
+## Gizual 1.0.0-alpha.22 (11.07.2024)
+
+### Features
+
+- **app:frontend:** Add colored gutter to code editor view
+
+---
+
 ## Gizual 1.0.0-alpha.21 (24.05.2024)
 
 ### Changes

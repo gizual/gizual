@@ -290,7 +290,7 @@ export class ColorManager {
   }
 }
 
-type RequiredColorInfo = Pick<
+export type RequiredColorInfo = Pick<
   FileLinesContext,
   | "selectedStartDate"
   | "selectedEndDate"
