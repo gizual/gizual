@@ -69,6 +69,15 @@ export type ChangeEventArguments<P extends string | number | boolean | any> = [
   },
 ];
 
+export type CommitInfoWithAuthor = CommitInfo & {
+  authorName: string;
+  authorEmail: string;
+};
+
+export type BlameWithAuthors = Omit<Blame, "commits"> & {
+  commits: Record<string, CommitInfoWithAuthor>;
+};
+
 const IGNORED_FILE_EXTENSIONS = new Set([
   "ico",
   "lock",
@@ -1098,9 +1107,37 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
    * Since a JobRef is not serializable, we need to use the async version of this function
    * to get the blame information directly in the main thread.
    */
-  getBlameAsync = async (filePath: string, rev: string, sinceRev?: string) => {
+  getBlameAsync = async (filePath: string) => {
+    const rev = this.range.until.commit.oid;
+    const sinceRev = this.range.since.commit?.oid;
     return this.getBlame(filePath, rev, sinceRev).promise;
   };
+
+  getBlameWithAuthors = async (filePath: string) => {
+    const blame = await this.getBlameAsync(filePath);
+
+    const blameWithAuthors: BlameWithAuthors = {
+      commits: {},
+      fileName: blame.fileName,
+      lines: blame.lines,
+    };
+
+    for (const [key, c] of Object.entries(blame.commits)) {
+      const author = this.cachedAuthors.find((a) => a.id === c.authorId);
+
+      blameWithAuthors.commits[key] = {
+        ...c,
+        authorName: author?.name ?? "",
+        authorEmail: author?.email ?? "",
+      };
+    }
+
+    return blameWithAuthors;
+  };
+
+  getColorSetDefinition() {
+    return this.colorManager.state;
+  }
 
   getBlame(filePath: string, rev: string, sinceRev?: string, priority = 10) {
     return this.explorerPool.getBlame(
@@ -1112,6 +1149,10 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       },
       priority,
     );
+  }
+
+  getRange() {
+    return this.range;
   }
 
   scheduleBlockRender = async (id: string) => {

@@ -205,6 +205,22 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     return this.worker.getFileContent(path);
   };
 
+  getFileBlame = (path: string) => {
+    return this.worker.getBlameAsync(path);
+  };
+
+  getFileBlameWithAuthors = (path: string) => {
+    return this.worker.getBlameWithAuthors(path);
+  };
+
+  getRange = () => {
+    return this.worker.getRange();
+  };
+
+  getColorSetDefinition = () => {
+    return this.worker.getColorSetDefinition();
+  };
+
   setupEventListeners() {
     this.setupDevicePixelRatioListener();
 
