@@ -13,35 +13,6 @@
   }
 }
 
-.Logo {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
-.Title {
-  @include font-branding;
-  font-weight: semi-bold;
-  color: var(--foreground-primary);
-  display: inline-block;
-  margin: auto 0;
-  margin-left: 0.75rem;
-}
-
-.Branding {
-  display: flex;
-  padding: 0.25rem 1rem;
-  border-right: 1px solid var(--border-primary);
-  flex-direction: row;
-  align-items: center;
-}
-
-.Branding__Version {
-  @include text-xs;
-  @include font-base;
-  margin-left: 0.5rem;
-  color: var(--accent-main);
-}
-
 .Left {
   --_gap-size: 1rem;
 
@@ -167,11 +138,6 @@
   width: 1rem;
   height: 1rem;
   transform: rotate(180deg);
-}
-
-.Link {
-  cursor: pointer;
-  text-decoration: none !important;
 }
 
 .IconClose {

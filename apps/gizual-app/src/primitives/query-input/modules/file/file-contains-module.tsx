@@ -28,7 +28,7 @@ const FileContainsModule = observer(() => {
     <FileBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconFile />}
-      title={"Contains:"}
+      title={"Contains"}
       hasSwapButton
       disableItems={["contains"]}
       highlightItems={["contains"]}

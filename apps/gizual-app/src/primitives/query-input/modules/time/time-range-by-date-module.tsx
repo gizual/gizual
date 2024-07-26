@@ -131,7 +131,7 @@ const TimeRangeByDateModule = observer(({ viewMode = "bar" }: TimeRangeByDateMod
     <TimeBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconClock />}
-      title={"Range by date:"}
+      title={"Range by date"}
       hasSwapButton
       disableItems={["rangeByDate"]}
       highlightItems={["rangeByDate"]}

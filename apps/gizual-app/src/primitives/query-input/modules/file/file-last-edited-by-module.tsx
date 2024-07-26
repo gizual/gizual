@@ -29,7 +29,7 @@ const FileLastEditedByModule = observer(() => {
     <FileBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconFile />}
-      title={"Last edited by:"}
+      title={"Last edited by"}
       hasSwapButton
       disableItems={["lastEditedBy"]}
       highlightItems={["lastEditedBy"]}

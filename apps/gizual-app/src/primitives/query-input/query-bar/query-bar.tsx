@@ -10,7 +10,6 @@ import { useQuery } from "@giz/maestro/react";
 import { AdvancedEditor } from "../advanced/advanced-query-input";
 import { ModuleProvider } from "../module-provider";
 import { QueryViewModel } from "../query.vm";
-import { QueryEditorModal } from "../query-editor/query-editor-modal";
 
 import style from "./query-bar.module.scss";
 
@@ -26,7 +25,6 @@ export const QueryBar = observer(() => {
       <div className={style.Clickable}>
         <div className={style.Content}>
           <ModuleProvider viewMode="bar" />
-          <QueryEditorModal />
 
           {import.meta.env.DEV && (
             <DialogProvider

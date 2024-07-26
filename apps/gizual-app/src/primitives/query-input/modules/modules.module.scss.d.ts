@@ -1,5 +1,7 @@
 declare const classNames: {
   readonly BaseQueryModule: "BaseQueryModule";
+  readonly ColumnContainer: "ColumnContainer";
+  readonly RowContainer: "RowContainer";
   readonly SwapButton: "SwapButton";
   readonly BaseQueryModuleColumn: "BaseQueryModuleColumn";
   readonly BaseQueryModuleColumn__Header: "BaseQueryModuleColumn__Header";
@@ -35,5 +37,6 @@ declare const classNames: {
   readonly TypeButton: "TypeButton";
   readonly Module__Column: "Module__Column";
   readonly Module__SpaceBetween: "Module__SpaceBetween";
+  readonly TypeModalContainer: "TypeModalContainer";
 };
 export = classNames;

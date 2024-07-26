@@ -49,7 +49,7 @@ const FileGlobModule = observer(({ viewMode = "bar" }: FileGlobModuleProps) => {
     <FileBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconFile />}
-      title={"Pattern:"}
+      title={"Pattern"}
       hasSwapButton
       disableItems={["pattern"]}
       highlightItems={["pattern"]}

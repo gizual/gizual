@@ -4,11 +4,9 @@ declare const classNames: {
   readonly CanvasWrapper: "CanvasWrapper";
   readonly Stage: "Stage";
   readonly StageRow: "StageRow";
-  readonly Toolbar: "Toolbar";
   readonly Separator: "Separator";
   readonly ControlWithLabel: "ControlWithLabel";
   readonly ControlWithLabel__Label: "ControlWithLabel__Label";
-  readonly ToolbarButton: "ToolbarButton";
   readonly SidePanel: "SidePanel";
   readonly Vr: "Vr";
   readonly SidePanel__Bottom: "SidePanel__Bottom";

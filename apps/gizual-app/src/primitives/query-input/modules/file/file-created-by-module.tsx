@@ -29,7 +29,7 @@ const FileCreatedByModule = observer(() => {
     <FileBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconFile />}
-      title={"Created by:"}
+      title={"Created by"}
       hasSwapButton
       disableItems={["createdBy"]}
       highlightItems={["createdBy"]}

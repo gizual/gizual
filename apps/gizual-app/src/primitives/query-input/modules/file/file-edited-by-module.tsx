@@ -29,7 +29,7 @@ const FileEditedByModule = observer(() => {
     <FileBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconFile />}
-      title={"Edited by:"}
+      title={"Edited by"}
       hasSwapButton
       disableItems={["editedBy"]}
       highlightItems={["editedBy"]}

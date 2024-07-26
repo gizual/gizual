@@ -1,3 +1,4 @@
+import type { CanvasViewModel } from "@app/primitives/canvas/canvas.vm";
 import type { EditorViewModel } from "@app/primitives/editor/editor.vm";
 import type { TimelineViewModel } from "@app/primitives/timeline/timeline.vm";
 import { action, computed, makeObservable, observable } from "mobx";
@@ -81,5 +82,11 @@ export class ViewModelController {
   get timelineViewModel(): TimelineViewModel | undefined {
     if (this._vms["timeline"] === undefined) this.logger.warn("Timeline ViewModel not found");
     return this._vms["timeline"].vm;
+  }
+
+  @computed
+  get canvasViewModel(): CanvasViewModel | undefined {
+    if (this._vms["canvas"] === undefined) this.logger.warn("Canvas ViewModel not found");
+    return this._vms["canvas"].vm;
   }
 }

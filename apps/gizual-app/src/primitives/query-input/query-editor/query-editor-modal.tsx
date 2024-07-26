@@ -114,7 +114,7 @@ const QueryEditorModal = observer(({ triggerStyle }: QueryEditorModalProps) => {
       <DialogProvider
         title="Query Editor"
         trigger={
-          <Tooltip label="Open query editor modal">
+          <Tooltip label="Open query editor modal" position="right">
             <IconButton aria-label="Query editor" className={style.TriggerButton}>
               <IconFilter className={style.TriggerButton__Icon} />
             </IconButton>

@@ -51,7 +51,7 @@ const FileChangedInRefModule = observer(({ viewMode }: FileChangedInRefModulePro
     <FileBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconFile />}
-      title={"Changed in revision:"}
+      title={"Changed in revision"}
       hasSwapButton
       disableItems={["changedInRef"]}
       highlightItems={["changedInRef"]}
