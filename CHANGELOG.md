@@ -1,3 +1,11 @@
+## Gizual 1.0.0-alpha.XX (XX.XX.2024)
+
+### Changes
+
+- **app:frontend:** Rework UI layout, modify toolbar position
+
+---
+
 ## Gizual 1.0.0-alpha.22 (11.07.2024)
 
 ### Features

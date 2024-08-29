@@ -1,4 +1,4 @@
-import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
+import { useMainController, useSettingsController } from "@app/controllers";
 import { useViewModel } from "@app/services/view-model";
 import { CanvasScale } from "@app/utils";
 import { Alert } from "@mantine/core";
@@ -17,8 +17,9 @@ import type { CanvasContextProps } from "./canvas.context";
 import { CanvasContext } from "./canvas.context";
 import style from "./canvas.module.scss";
 import { CanvasViewModel } from "./canvas.vm";
-import { LegendComponent, MasonryCanvas, Toolbar } from "./components";
+import { LegendComponent } from "./components";
 import { ContextModal } from "./components/context-modal";
+import { MasonryCanvas } from "./components/file-canvas";
 import { MiniMapContent, MiniMapWrapper } from "./minimap";
 
 export type CanvasProps = {} & Partial<CanvasContextProps>;
@@ -29,7 +30,6 @@ export type CanvasProps = {} & Partial<CanvasContextProps>;
  */
 function Canvas({ ...contextProps }: CanvasProps) {
   const mainController = useMainController();
-  const vmController = useViewModelController();
   const { query } = useQuery();
 
   const visibleTimeline =
@@ -65,7 +65,6 @@ function Canvas({ ...contextProps }: CanvasProps) {
           <CanvasContext.Provider
             value={{ useBlocks: useBlocks, debugLayout: false, rzppRef: ref, ...contextProps }}
           >
-            <Toolbar vm={vm} vmController={vmController} />
             <InteractiveCanvas vm={vm} showModal={showModal} />
           </CanvasContext.Provider>
           {query && query.preset && "paletteByAuthor" in query.preset && <AuthorPanel />}

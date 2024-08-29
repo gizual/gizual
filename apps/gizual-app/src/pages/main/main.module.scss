@@ -11,9 +11,20 @@
 
 .Page {
   height: 100%;
+  width: 100%;
+  min-width: 0;
   position: relative;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+.TwoColumn {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  position: relative;
   min-height: 0;
 }
 

@@ -48,52 +48,58 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
       className={clsx(style.BaseQueryModule, containsErrors && style.ContainsErrors)}
       aria-expanded={swapMenuOpen}
     >
-      <div className={style.QueryModuleIconWithText}>
-        {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
-        {title && <div className={style.QueryModuleTitle}>{title}</div>}
-      </div>
-      {children}
-      {hasHelpTooltip && (
-        <Tooltip label={helpContent} withArrow>
-          <div>
-            <IconInfo className={style.QueryModuleIcon} />
+      <div className={style.ColumnContainer}>
+        <div className={style.QueryModuleHeader}>
+          <div className={style.QueryModuleIconWithText}>
+            {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
+            {title && <div className={style.QueryModuleTitle}>{title}</div>}
           </div>
-        </Tooltip>
-      )}
-      {hasSwapButton && (
-        <Menu
-          onChange={() => {
-            onSwap?.();
-          }}
-          opened={swapMenuOpen}
-          onOpen={onSwapMenuOpen}
-          onClose={onSwapMenuClose}
-          withArrow
-          position="bottom"
-          styles={{
-            dropdown: {
-              backgroundColor: "var(--background-secondary)",
-              borderColor: "var(--border-primary)",
-            },
-            arrow: {
-              borderColor: "var(--border-primary)",
-            },
-          }}
-        >
-          <Menu.Target>
-            <IconButton className={style.SwapButton} aria-expanded={swapMenuOpen}>
-              <IconChevronDown className={style.CloseIcon} />
-            </IconButton>
-          </Menu.Target>
-          {menuItems}
-        </Menu>
-      )}
-      {hasEditButton &&
-        (editButtonComponent ?? (
-          <IconButton onClick={onEdit}>
-            <IconEdit className={style.CloseIcon} />
-          </IconButton>
-        ))}
+          {hasHelpTooltip && (
+            <Tooltip label={helpContent} withArrow>
+              <div>
+                <IconInfo className={style.QueryModuleIcon} />
+              </div>
+            </Tooltip>
+          )}
+        </div>
+        <div className={style.RowContainer}>
+          {children}
+          {hasSwapButton && (
+            <Menu
+              onChange={() => {
+                onSwap?.();
+              }}
+              opened={swapMenuOpen}
+              onOpen={onSwapMenuOpen}
+              onClose={onSwapMenuClose}
+              withArrow
+              position="bottom"
+              styles={{
+                dropdown: {
+                  backgroundColor: "var(--background-secondary)",
+                  borderColor: "var(--border-primary)",
+                },
+                arrow: {
+                  borderColor: "var(--border-primary)",
+                },
+              }}
+            >
+              <Menu.Target>
+                <IconButton className={style.SwapButton} aria-expanded={swapMenuOpen}>
+                  <IconChevronDown className={style.CloseIcon} />
+                </IconButton>
+              </Menu.Target>
+              {menuItems}
+            </Menu>
+          )}
+          {hasEditButton &&
+            (editButtonComponent ?? (
+              <IconButton onClick={onEdit}>
+                <IconEdit className={style.CloseIcon} />
+              </IconButton>
+            ))}
+        </div>
+      </div>
     </div>
   );
 }

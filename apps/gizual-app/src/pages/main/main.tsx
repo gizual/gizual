@@ -3,8 +3,9 @@ import { LanguageDistributionChart } from "@app/charts/languages/language-distri
 import { useMainController } from "@app/controllers";
 import { useMediaQuery } from "@app/hooks/use-media-query";
 import { useWindowSize } from "@app/hooks/use-window-size";
-import { Canvas, Editor, MessageBar, TitleBar } from "@app/primitives";
+import { Canvas, Editor, MessageBar } from "@app/primitives";
 import { QueryBar } from "@app/primitives/query-input";
+import { Toolbar } from "@app/primitives/toolbar";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ReactGridLayout from "react-grid-layout";
@@ -26,19 +27,21 @@ export const MainPage = observer(({ vm: externalVm }: MainPageProps) => {
   }, [externalVm]);
 
   return (
-    <div className={style.Page}>
-      <div className={style.TitleBarContainer}>
-        <TitleBar />
-        <QueryBar />
-        <MessageBar />
-      </div>
+    <div className={style.TwoColumn}>
+      <Toolbar />
+      <div className={style.Page}>
+        <div className={style.TitleBarContainer}>
+          <QueryBar />
+          <MessageBar />
+        </div>
 
-      <div className={style.Body}>
-        {mainController.selectedPanel === "explore" && <ExplorePage vm={vm} />}
-        {mainController.selectedPanel === "analyze" && <AnalyzePage vm={vm} />}
-        {mainController.selectedPanel === "settings" && <SettingsPage />}
+        <div className={style.Body}>
+          {mainController.selectedPanel === "explore" && <ExplorePage vm={vm} />}
+          {mainController.selectedPanel === "analyze" && <AnalyzePage vm={vm} />}
+          {mainController.selectedPanel === "settings" && <SettingsPage />}
+        </div>
+        <Editor />
       </div>
-      <Editor />
     </div>
   );
 });

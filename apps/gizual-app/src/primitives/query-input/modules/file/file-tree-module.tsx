@@ -44,7 +44,7 @@ const FileTreeModule = observer(({ viewMode }: FileTreeModuleProps) => {
     <FileBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconFile />}
-      title={"Files:"}
+      title={"Files"}
       hasSwapButton
       disableItems={["filePicker"]}
       highlightItems={["filePicker"]}

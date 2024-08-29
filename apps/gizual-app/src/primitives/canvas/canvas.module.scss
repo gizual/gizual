@@ -43,17 +43,6 @@
   height: 100%;
 }
 
-.Toolbar {
-  padding: 0.5rem 0.5rem;
-  border-right: 1px solid var(--border-primary);
-  justify-content: space-between;
-  display: flex;
-  flex-direction: column;
-  min-width: 3rem;
-  max-width: 3rem;
-  background-color: var(--background-secondary);
-}
-
 .Separator {
   width: 1px;
   border-right: 1px solid var(--border-primary);
@@ -70,10 +59,6 @@
   @include text-2xs;
   white-space: nowrap;
   text-align: left;
-}
-
-.ToolbarButton {
-  height: 2rem;
 }
 
 .SidePanel {

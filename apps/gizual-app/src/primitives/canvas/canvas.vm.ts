@@ -6,6 +6,8 @@ import { RefObject } from "react";
 import { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 
 export class CanvasViewModel extends ViewModel {
+  id = "canvas";
+
   @observable private _canvasContainerRef?: RefObject<ReactZoomPanPinchRef>;
   @observable private _canvasWidth = 0;
 
