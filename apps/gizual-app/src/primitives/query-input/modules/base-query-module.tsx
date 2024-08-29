@@ -49,12 +49,11 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
       aria-expanded={swapMenuOpen}
     >
       <div className={style.ColumnContainer}>
-        <div className={style.QueryModuleIconWithText}>
-          {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
-          {title && <div className={style.QueryModuleTitle}>{title}</div>}
-        </div>
-        <div className={style.RowContainer}>
-          {children}
+        <div className={style.QueryModuleHeader}>
+          <div className={style.QueryModuleIconWithText}>
+            {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
+            {title && <div className={style.QueryModuleTitle}>{title}</div>}
+          </div>
           {hasHelpTooltip && (
             <Tooltip label={helpContent} withArrow>
               <div>
@@ -62,6 +61,9 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
               </div>
             </Tooltip>
           )}
+        </div>
+        <div className={style.RowContainer}>
+          {children}
           {hasSwapButton && (
             <Menu
               onChange={() => {

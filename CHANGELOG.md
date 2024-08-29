@@ -2,7 +2,7 @@
 
 ### Changes
 
-- *app:frontend:** Rework UI layout, modify toolbar position
+- **app:frontend:** Rework UI layout, modify toolbar position
 
 ---
 

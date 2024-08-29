@@ -18,6 +18,7 @@ declare const classNames: {
   readonly QueryModuleIcon: "QueryModuleIcon";
   readonly QueryModuleTitle: "QueryModuleTitle";
   readonly QueryModuleIconWithText: "QueryModuleIconWithText";
+  readonly QueryModuleHeader: "QueryModuleHeader";
   readonly SpacedChildren: "SpacedChildren";
   readonly LabelWithInput: "LabelWithInput";
   readonly SpacedSmall: "SpacedSmall";

@@ -1,10 +1,5 @@
-import {
-  IconCenterFocus,
-  IconMagnifyMinus,
-  IconMagnifyPlus,
-  IconQuestion,
-  IconSettings,
-} from "@app/assets";
+import { IconCenterFocus, IconMagnifyMinus, IconMagnifyPlus, IconSettings } from "@app/assets";
+import { IconPeople } from "@app/assets";
 import { useViewModelController } from "@app/controllers";
 import { SettingsPage } from "@app/pages";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
@@ -14,6 +9,8 @@ import { Tooltip } from "@mantine/core";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
+import { useQuery } from "@giz/maestro/react";
+import { AuthorTable } from "../author-panel";
 import { DialogProvider } from "../dialog-provider";
 
 import style from "./toolbar.module.scss";
@@ -22,6 +19,8 @@ const Toolbar = observer(() => {
   const vmController = useViewModelController();
   const canvas = vmController.canvasViewModel;
   if (!canvas) return <div />;
+  const { query } = useQuery();
+  const isAuthorPanelVisible = query?.preset && "paletteByAuthor" in query.preset;
 
   return (
     <div className={style.Toolbar}>
@@ -80,6 +79,24 @@ const Toolbar = observer(() => {
         </Tooltip>
       </div>
 
+      {isAuthorPanelVisible && (
+        <div className={style.Toolbar__Section}>
+          <DialogProvider
+            trigger={
+              <Tooltip label="Open author modal">
+                <IconButton style={{ width: 30, height: 30 }}>
+                  <IconPeople />
+                </IconButton>
+              </Tooltip>
+            }
+            title="Authors"
+          >
+            <AuthorTable />
+          </DialogProvider>
+        </div>
+      )}
+
+      {/*
       <div className={style.Toolbar__Section}>
         <Tooltip label={"Help"} position="right">
           <IconButton
@@ -91,6 +108,7 @@ const Toolbar = observer(() => {
           </IconButton>
         </Tooltip>
       </div>
+      */}
     </div>
   );
 });

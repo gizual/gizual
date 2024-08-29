@@ -2,6 +2,7 @@ import { IconSettingsOutline } from "@app/assets";
 import { useMainController } from "@app/controllers";
 import { Button } from "@app/primitives/button";
 import { DialogProvider } from "@app/primitives/dialog-provider";
+import { useViewModel } from "@app/services/view-model";
 import { observer } from "mobx-react-lite";
 
 import { useQuery } from "@giz/maestro/react";
@@ -10,6 +11,7 @@ import { ViewMode } from "../../shared";
 import style from "../modules.module.scss";
 
 import { TypePlaceholderModal } from "./type-modal/type-modal";
+import { VisTypeViewModel } from "./type-modal/type-modal.vm";
 
 function getTypeEntry(query: SearchQueryType) {
   if (query.type) return query.type;
@@ -23,13 +25,14 @@ type TypeModuleComponentProps = {
 function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
   const { query } = useQuery();
   const value = getTypeEntry(query);
+  const vm = useViewModel(VisTypeViewModel);
 
   const mainController = useMainController();
   const isOpen = mainController.isVisTypeModalOpen;
   const setIsOpen = mainController.setVisTypeModalOpen;
 
   if (viewMode === "modal") {
-    return <TypePlaceholderModal />;
+    return <TypePlaceholderModal vm={vm} />;
   }
 
   return (
@@ -51,6 +54,20 @@ function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
             triggerClassName={style.BaseQueryModule}
             triggerStyle={{ padding: 0, border: 0 }}
             contentClassName={style.TypeModalContainer}
+            defaultFooterOpts={{
+              cancelLabel: "Discard",
+              okLabel: "Apply",
+              hasOk: true,
+              hasCancel: true,
+              onOk: () => {
+                vm.apply();
+                setIsOpen(false);
+              },
+              onCancel: () => {
+                setIsOpen(false);
+              },
+            }}
+            withFooter
             trigger={
               <Button
                 aria-expanded={isOpen}
@@ -62,7 +79,7 @@ function TypeModuleComponent({ viewMode }: TypeModuleComponentProps) {
               </Button>
             }
           >
-            <TypePlaceholderModal closeModal={() => setIsOpen(false)} withSplitPreview />
+            <TypePlaceholderModal vm={vm} withSplitPreview />
           </DialogProvider>
         </div>
       </div>
