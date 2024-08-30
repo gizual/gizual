@@ -26,7 +26,6 @@ function App() {
   const mainController = useMainController();
   const maestro = useMaestro();
 
-  // TODO: maybe we can move this into mainController?
   const localQueryManager = React.useMemo(() => {
     const lqm = new LocalQueryManager(maestro);
     mainController.setLocalQueryManager(lqm);

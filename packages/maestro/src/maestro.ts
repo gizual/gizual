@@ -471,6 +471,8 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     this.worker.setVisualSettings({
       oldColor: settings.colors.old.value,
       newColor: settings.colors.new.value,
+      outOfRangeLight: settings.colors.outOfRangeLight.value,
+      outOfRangeDark: settings.colors.outOfRangeDark.value,
       maxNumLines: settings.style.maxNumLines.value,
     });
   }

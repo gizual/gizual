@@ -19,6 +19,8 @@ export type VisualizationSettings = {
   colors: {
     old: SettingsEntry<string, "color">;
     new: SettingsEntry<string, "color">;
+    outOfRangeLight: SettingsEntry<string, "color">;
+    outOfRangeDark: SettingsEntry<string, "color">;
   } & GroupEntry;
   canvas: {
     rootMargin: SettingsEntry<number, "number">;
@@ -91,6 +93,16 @@ export class SettingsController {
         "New",
         "The default color that visualizes the most recent change.",
         LINEAR_COLOR_RANGE[1],
+      ),
+      outOfRangeLight: createColorSetting(
+        "Out of Range (Light Mode)",
+        "The default color that visualizes changes outside the specified time range in light mode.",
+        "#fff",
+      ),
+      outOfRangeDark: createColorSetting(
+        "Out of Range (Dark Mode)",
+        "The default color that visualizes changes outside the specified time range in dark mode.",
+        "#000",
       ),
     },
     canvas: {
