@@ -66,7 +66,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "yarn"
+          # A fix to ensure post setup-node action does not break, as seen in
+          # https://github.com/actions/setup-node/issues/801
+          # we do not use the cache here, as it is not needed for the e2e tests
+          cache: ""
 
       - name: Retrieve the build artifacts
         uses: actions/download-artifact@v4
