@@ -17,6 +17,7 @@ md5 = "0.6.0"
 lazy_static = "1.4.0"
 regex = { workspace = true }
 git2 = { workspace = true }
+base64 = "0.22.1"
 
 [target.'cfg(not(target_os = "wasm"))'.dependencies]
 petgraph = "0.6.3"

@@ -135,6 +135,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
       commitsIndexed: false,
       filesIndexed: false,
       error: undefined,
+      firstCommitId: "",
       lastCommitTimestamp: 0,
       firstCommitTimestamp: 0,
       lastCommitAuthorId: "",
