@@ -225,7 +225,7 @@ const FileBlockSvg = observer(
             style={{
               fontSize: 12,
               lineHeight: 16,
-              fill: useStyleFn("(--foreground-primary)"),
+              fill: useStyleFn("--foreground-primary"),
             }}
           >
             LFS (Large File Storage)
