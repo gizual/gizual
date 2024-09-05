@@ -8,7 +8,7 @@ import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import type { BlockEntry, MaestroWorker, SvgBlock } from "./maestro-worker";
+import type { MaestroWorker, SvgBlock } from "./maestro-worker";
 import type {
   Block,
   MaestroWorkerEvents,
@@ -34,7 +34,6 @@ import { createLogger } from "@giz/logging";
 
 import { Query, QueryError } from "./query-utils";
 import { downloadRepo } from "./remote-clone";
-import { SvgBaseElement } from "@app/utils";
 
 declare global {
   interface Window {
@@ -490,6 +489,11 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     const resolvedBlocks = await Promise.all(svgBlocks);
     return resolvedBlocks;
   }
+
+  renderBlockSvg = async (id: string) => {
+    const svgBlock = await this.worker.prepareBlockSvg(id);
+    return svgBlock;
+  };
 
   dispose() {
     for (const dispose of this.disposers) dispose();

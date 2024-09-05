@@ -1207,7 +1207,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
     const coloringMode = query.preset && "paletteByAuthor" in query.preset ? "author" : "age";
 
-    const { result } = await match(query.type)
+    let { result } = await match(query.type)
       .with("file-lines", "file-lines-full", async (type) => {
         return renderPool.renderSvg({
           ...baseCtx,
@@ -1246,7 +1246,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     const maxNumLines = visualSettings.maxNumLines;
     const truncatedNumLines = Math.min(lines.length, maxNumLines);
 
-    const blockHeight = match(query.type)
+    let blockHeight = match(query.type)
       .with("file-lines", "file-lines-full", () => truncatedNumLines * 10)
       .with("file-mosaic", () => Math.max((Math.floor(truncatedNumLines / 10) + 1) * 10, 10))
       .otherwise(() => {
@@ -1262,7 +1262,23 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       filePath = block.meta.filePath;
     }
 
-    return { result, blockHeight, id: block.id, path: filePath };
+    if (block.isImage) {
+      blockHeight = 200;
+      result = [`<image width="300" height="200" href="${block.url!}"></image>`];
+    }
+    if (block.isLfs) {
+      const fillColor = visualSettings.preferredColorScheme === "light" ? "#000000" : "#ffffff";
+      result = [
+        `<text x="10" y="20" font-size="12" fill="${fillColor}" stroke="transparent">LFS (Large File Storage)</text>`,
+      ];
+    }
+
+    return {
+      result,
+      blockHeight,
+      id: block.id,
+      path: filePath,
+    };
   }
 
   prepareVisualizationConfig(): VisualizationConfig {

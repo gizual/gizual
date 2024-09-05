@@ -1,19 +1,30 @@
 import { IconDownload, IconSource } from "@app/assets";
 import { useMainController, useSettingsController, useViewModelController } from "@app/controllers";
 import { useStyle } from "@app/hooks/use-style";
-import { maxCharactersThatFitInWidth, truncateSmart } from "@app/utils";
-import { SvgGroupElement, SvgRectElement, SvgTextElement } from "@app/utils/svg";
 import { Menu } from "@mantine/core";
 import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { FileIcon } from "@giz/explorer-web";
-import { useBlockImage, useFileContent } from "@giz/maestro/react";
+import { useBlockImage, useFileContent, useMaestro } from "@giz/maestro/react";
+import { GizDate } from "@giz/utils/gizdate";
 import sharedStyle from "../css/shared-styles.module.scss";
 import { FontIcon } from "../font-icon";
 import { IconButton } from "../icon-button";
 
+import {
+  BLOCK_WIDTH,
+  BUTTON_GAP,
+  BUTTON_SIZE,
+  FOOTER_HEIGHT,
+  FOOTER_TEXT_PADDING,
+  generateBlockHeader,
+  HEADER_HEIGHT,
+  ICON_SIZE,
+  PADDING_CONTAINER,
+  TITLE_HEIGHT,
+} from "./block-helpers";
 import style from "./file.module.scss";
 
 function useDeferredFileContent(filePath: string) {
@@ -38,6 +49,8 @@ type FileBlockProps = {
 
 const FileBlock = observer((props: FileBlockProps) => {
   const { id, height, parentContainer, filePath } = props;
+  const maestro = useMaestro();
+  const { renderBlockSvg } = maestro;
 
   const useStyleFn = useMainController().getStyle;
   const block = useBlockImage(id);
@@ -46,6 +59,8 @@ const FileBlock = observer((props: FileBlockProps) => {
   const settingsController = useSettingsController();
 
   const { data, loadContent } = useDeferredFileContent(filePath ?? id);
+
+  const fileNameWithExtension = filePath?.split("/").pop();
 
   // Attach IntersectionObserver on load, detach on dispose.
 
@@ -79,26 +94,23 @@ const FileBlock = observer((props: FileBlockProps) => {
   const onExportSvg = async () => {
     const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
     const style = `style="font-family: Courier New;font-size: 0.5rem;"`;
-    const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id }).render();
+    const blockHeader = generateBlockHeader({
+      useStyleFn,
+      path: filePath ?? id,
+      maxTextWidth: 300,
+      noForeignObjects: true,
+    }).render();
 
-    // Fetch the image as a Blob
-    const response = await fetch(url ?? "");
-    const blob = await response.blob();
-
-    // Convert the Blob to a Data URL
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    await new Promise((resolve) => (reader.onloadend = resolve));
-
-    // Use the Data URL as the image href
-    const image = `<image href="${reader.result}" x="0" y="26" width="300" height="${height}" />`;
-    const group = `<g x="0" y="0">${blockHeader}${image}</g>`;
+    // Render the block with the SVG backend
+    const image = await renderBlockSvg(id);
+    const group = `<g x="0" y="0">${blockHeader}<g x="0" y="0" transform="translate(0,20)">${image?.result}</g></g>`;
 
     const svg = `<svg ${styleTag} ${style} viewBox="0 0 300 ${height}">${group}</svg>`;
 
     const svgBlob = new Blob([svg.toString()]);
     const element = document.createElement("a");
-    element.download = `${id}.gizual.svg`;
+    const curDate = new GizDate().toFileString();
+    element.download = `gizual-export_${curDate}_${fileNameWithExtension ?? id}.svg`;
     element.href = window.URL.createObjectURL(svgBlob);
     element.click();
     element.remove();
@@ -236,22 +248,9 @@ const FileBlockSvg = observer(
   },
 );
 
-const HEADER_HEIGHT = 20;
-const FOOTER_HEIGHT = 22;
-const FOOTER_TEXT_PADDING = 8;
-
 // ---------------------------------------------
 // -------------- BLOCK HEADER -----------------
 // ---------------------------------------------
-
-// Config constants for SVG header
-const TITLE_HEIGHT = HEADER_HEIGHT;
-const TITLE_MAX_WIDTH = 180;
-const BLOCK_WIDTH = 300;
-const PADDING_CONTAINER = 4;
-const ICON_SIZE = 20;
-const BUTTON_SIZE = 16;
-const BUTTON_GAP = 4;
 
 type BlockHeaderProps = {
   isPreview?: boolean;
@@ -263,47 +262,6 @@ type BlockHeaderProps = {
   onExportSvg?: () => void;
   onExportRaw?: () => void;
 };
-
-function generateBlockHeader({
-  useStyleFn,
-  noForeignObjects,
-  path,
-}: {
-  useStyleFn: (key: string) => string;
-  noForeignObjects?: boolean;
-  path: string;
-}) {
-  const headerBg = new SvgRectElement({
-    x: 0,
-    y: 0,
-    width: BLOCK_WIDTH,
-    height: TITLE_HEIGHT,
-    fill: useStyleFn("--background-secondary"),
-  });
-
-  const hr = new SvgRectElement({
-    x: 0,
-    y: TITLE_HEIGHT,
-    width: BLOCK_WIDTH,
-    height: 1,
-    fill: useStyleFn("--border-primary"),
-  });
-
-  const text = new SvgTextElement(
-    truncateSmart(path, maxCharactersThatFitInWidth(TITLE_MAX_WIDTH, 10)),
-    {
-      x: PADDING_CONTAINER + (noForeignObjects ? 0 : ICON_SIZE),
-      y: 14,
-      fontSize: "9",
-      lineHeight: "12",
-      fill: useStyleFn("--foreground-primary"),
-    },
-  );
-
-  const group = new SvgGroupElement(0, 0, 300, 26);
-  group.assignChildren(headerBg, hr, text);
-  return group;
-}
 
 /**
  * Returns a set of SVG elements that represent the header of a block. These elements need to be wrapped in a <svg> tag.
@@ -396,9 +354,7 @@ function BlockHeaderSvg({
                   <Menu.Dropdown>
                     <Menu.Item onClick={onExportRaw}>Download raw file content</Menu.Item>
 
-                    <Menu.Item disabled onClick={onExportSvg}>
-                      Export visualization as SVG
-                    </Menu.Item>
+                    <Menu.Item onClick={onExportSvg}>Export visualization as SVG</Menu.Item>
                   </Menu.Dropdown>
                 </Menu>
               )}
@@ -416,4 +372,4 @@ function BlockHeaderSvg({
   );
 }
 
-export { FileBlock, FileBlockSvg, generateBlockHeader };
+export { FileBlock, FileBlockSvg };

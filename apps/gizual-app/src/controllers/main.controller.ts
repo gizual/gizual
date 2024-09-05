@@ -1,13 +1,14 @@
-import { generateBlockHeader } from "@app/primitives/file/block";
+import { generateBlockHeader } from "@app/primitives/file/block-helpers";
 import { LocalQueryManager } from "@app/services/local-query";
 import { ColoringMode } from "@app/types";
 import { Masonry } from "@app/utils/masonry";
-import { SvgBaseElement, SvgGroupElement } from "@app/utils/svg";
+import { SvgBaseElement, SvgGroupElement, SvgRectElement } from "@app/utils/svg";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
 import { FileTree, Repository } from "@giz/explorer-web";
 import { Maestro } from "@giz/maestro";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
@@ -288,19 +289,24 @@ export class MainController {
 
   async exportAsSVG() {
     const blocks = await this._maestro.renderBlocksSvg();
-    const numCols = this.settings.visualizationSettings.canvas.masonryColumns.value;
+    const numCols = Math.min(
+      this.settings.visualizationSettings.canvas.masonryColumns.value,
+      blocks.length,
+    );
     const width = numCols * 300 + (numCols - 1) * 16 + 32;
+    const TITLE_HEIGHT = 20;
 
     const masonry = new Masonry<SvgBaseElement>({ numColumns: numCols });
     for (const block of blocks) {
       if (!block) continue;
 
-      const blockContainer = new SvgGroupElement(0, 0, 300, block.blockHeight + 26);
+      const blockContainer = new SvgGroupElement(0, 0, 300, block.blockHeight + TITLE_HEIGHT);
 
       const header = generateBlockHeader({
         path: block.path,
         useStyleFn: this.getStyle.bind(this),
         noForeignObjects: true,
+        maxTextWidth: 280,
       });
 
       const blockContent = new SvgGroupElement(0, 0, 300, block.blockHeight);
@@ -308,10 +314,23 @@ export class MainController {
         continue;
       }
       blockContent.assignChildren(...block.result);
-      blockContent.transform = { x: 0, y: 20 };
+      blockContent.transform = { x: 0, y: TITLE_HEIGHT };
+
+      const border = new SvgRectElement({
+        x: 0,
+        y: 0,
+        width: 300,
+        height: block.blockHeight + TITLE_HEIGHT,
+        fill: "transparent",
+        stroke:
+          this.preferredColorScheme === "light"
+            ? this.getStyle("--color-gray")
+            : this.getStyle("--color-darkslate"),
+      });
 
       blockContainer.addChild(header);
       blockContainer.addChild(blockContent);
+      blockContainer.addChild(border);
 
       masonry.insertElement({
         id: block.id,
@@ -340,13 +359,15 @@ export class MainController {
         : this.getStyle("--color-darkgray")
     };font-family: Courier New;font-size: 0.5rem;"`;
 
-    const svg = `<svg ${styleTag} ${style} viewBox="0 0 ${width} ${masonry.maxHeight}">${svgChildren
-      .map((c) => c.render())
-      .join("")}</svg>`;
+    const svg = `<svg ${styleTag} ${style} viewBox="0 0 ${width} ${
+      masonry.maxHeight + 32
+    }">${svgChildren.map((c) => c.render()).join("")}</svg>`;
 
     const blob = new Blob([svg.toString()]);
     const element = document.createElement("a");
-    element.download = `${this.repoName}.gizual.svg`;
+    const curDate = new GizDate();
+    const repoNameDelimited = this.repoName === "?" ? "" : "_" + this.repoName;
+    element.download = `gizual-export_${curDate.toFileString()}${repoNameDelimited}.svg`;
     element.href = window.URL.createObjectURL(blob);
     element.click();
     element.remove();
