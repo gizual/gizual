@@ -1,6 +1,6 @@
 import React from "react";
 
-import { CommitInfo, FileTreeNode } from "@giz/explorer";
+import { CommitInfo, FileTreeNode, GetFileContentResult } from "@giz/explorer";
 import { PromiseObserver } from "@giz/explorer-web/ts-src/promise-observer";
 import { SearchQueryType } from "@giz/query";
 import { AuthorListObserver } from "../author-list-observer";
@@ -61,7 +61,7 @@ export function useFileContent(path: string) {
   const maestro = useMaestro();
 
   const promise = React.useMemo(() => {
-    return new PromiseObserver<string>({
+    return new PromiseObserver<GetFileContentResult>({
       name: "file-content",
       cache: false,
       initialValue: undefined,
@@ -79,7 +79,8 @@ export function useFileContent(path: string) {
 
   return {
     isLoading: promise.loading,
-    data: promise.value,
+    data: promise.value?.content,
+    isLfs: promise.value?.lfs ?? false,
     error: promise.error,
   };
 }

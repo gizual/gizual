@@ -1,5 +1,5 @@
 import { Blame, BlameLine, CommitInfo } from "@giz/explorer";
-export type { Blame, BlameLine, CommitInfo } from "@giz/explorer";
+export type { Blame, BlameLine, CommitInfo, GetFileContentResult } from "@giz/explorer";
 
 export function isBlame(obj: any): obj is Blame {
   return (

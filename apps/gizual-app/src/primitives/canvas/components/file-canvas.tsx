@@ -54,6 +54,7 @@ export const MasonryCanvas = observer(({ vm, wrapper }: MasonryCanvasProps) => {
                   filePath={b.meta.filePath}
                   fileType={b.meta.fileType}
                   height={b.height}
+                  isLfs={b.isLfs}
                 />
               ),
             )

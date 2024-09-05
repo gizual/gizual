@@ -1,5 +1,6 @@
 import { Dependencies, ViewModel } from "@app/services/view-model";
 import { VisualizationConfig } from "@app/types";
+import { notifications } from "@mantine/notifications";
 import { action, makeObservable, observable, runInAction } from "mobx";
 import * as monaco from "monaco-editor";
 
@@ -61,8 +62,18 @@ class EditorViewModel extends ViewModel {
     this._filePath = path;
     this.openModal();
     this._mainController._maestro.getFileContent(path).then((fc) => {
+      if (fc.encoding.includes("base64")) {
+        notifications.show({
+          title: "Error",
+          message: "Images cannot be displayed in the editor.",
+        });
+        // TODO: We should probably never show the modal in this case.
+        this.closeModal();
+        return;
+      }
+
       runInAction(() => {
-        this.setFileContent(fc);
+        this.setFileContent(fc.content);
         this._contentLoading = false;
       });
     });

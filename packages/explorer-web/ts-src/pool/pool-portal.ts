@@ -1,6 +1,6 @@
 import { FinalPayload, ParameterPayloadMap } from "@giz/explorer";
 import { createLogger } from "@giz/logging";
-import { Author, Blame, FileTreeNode, GitGraph } from "../types";
+import { Author, Blame, FileTreeNode, GetFileContentResult, GitGraph } from "../types";
 
 import { PoolResponse, PoolTask } from "./types";
 
@@ -251,8 +251,8 @@ export class PoolPortal {
     return this.execute<Blame>("get_blame", params, priority ?? 0);
   }
 
-  getFileContent(params: ParameterPayloadMap["get_file_content"]): Promise<string> {
-    return this.execute<string>("get_file_content", params).promise;
+  getFileContent(params: ParameterPayloadMap["get_file_content"]): Promise<GetFileContentResult> {
+    return this.execute<GetFileContentResult>("get_file_content", params).promise;
   }
 
   getFileTree(params: ParameterPayloadMap["get_file_tree"]) {

@@ -120,6 +120,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
         height: value.height,
         type: value.type,
         meta: value.meta,
+        isLfs: value.isLfs,
       } as Block);
     }
 
@@ -135,6 +136,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
       commitsIndexed: false,
       filesIndexed: false,
       error: undefined,
+      firstCommitId: "",
       lastCommitTimestamp: 0,
       firstCommitTimestamp: 0,
       lastCommitAuthorId: "",

@@ -42,7 +42,7 @@ type FinalCallbackPayloadMap = {
   get_branches: string[];
   get_git_graph: gen.CommitTree;
   get_blame: gen.Blame;
-  get_file_content: string;
+  get_file_content: gen.GetFileContentResult;
   get_commits_for_branch: gen.Commit[];
   get_initial_data: gen.InitialDataResult;
   is_valid_rev: boolean;

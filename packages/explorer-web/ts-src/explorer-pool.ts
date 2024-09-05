@@ -5,7 +5,7 @@ import wasmFileUrl from "@giz/explorer/dist/explorer-libgit2.wasm?url";
 import { LOG, Logger } from "@giz/logging";
 import { WasiRuntime } from "@giz/wasi-runtime";
 
-import { Author, Blame, FileTreeNode } from "./types";
+import { Author, Blame, FileTreeNode, GetFileContentResult } from "./types";
 
 type WorkerWithState = {
   busy: boolean;
@@ -351,7 +351,7 @@ export class ExplorerPool {
     return this.execute("get_blame", { branch, path, preview }, preview ? 100 : 1);
   }
 
-  getFileContent(branch: string, path: string): Promise<string> {
+  getFileContent(branch: string, path: string): Promise<GetFileContentResult> {
     return this.execute("get_file_content", { branch, path }).promise;
   }
 

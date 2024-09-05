@@ -78,17 +78,12 @@ export type BlameWithAuthors = Omit<Blame, "commits"> & {
   commits: Record<string, CommitInfoWithAuthor>;
 };
 
+const BINARY_IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "bmp", "ico"];
+
 const IGNORED_FILE_EXTENSIONS = new Set([
-  "ico",
   "lock",
   "ods",
-  "jpg",
-  "jpeg",
-  "png",
-  "gif",
-  "webp",
   "tiff",
-  "bmp",
   "woff",
   "woff2",
   "eot",
@@ -1001,18 +996,34 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       return;
     }
 
-    const blocks = await match(type)
+    const blocks_ = await match(type)
       .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), async (t) => {
         const fileContents = await Promise.all(
           this.selectedFiles.map((file) => this.getFileContent(file.path.join("/"))),
         );
 
-        return this.selectedFiles.map((file, index): Block => {
+        return this.selectedFiles.map((file, index): Block | undefined => {
           /**
            * Git blame ignores the last line if it is empty, so we need to adjust the line count accordingly.
            */
           const fileContent = fileContents[index];
-          const lines = fileContent.split("\n");
+
+          if (fileContent.encoding === "base64-url") {
+            return {
+              id: `${t}:${file.path.join("/")}`,
+              type: t,
+              meta: {
+                filePath: file.path.join("/"),
+                fileType: getFileIcon(1031),
+              },
+              height: 200,
+              url: fileContent.content,
+              isImage: true,
+              isLfs: fileContent.lfs ?? false,
+            };
+          }
+
+          const lines = fileContent.content.split("\n");
           let numLines = lines.length;
           if (lines.length > 0 && lines.at(-1)?.length === 0) {
             numLines -= 1;
@@ -1034,6 +1045,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
               fileType: isNumber(file.kind) ? getFileIcon(file.kind) : undefined,
             },
             height: blockHeight,
+            isLfs: fileContent.lfs ?? false,
           };
         });
       })
@@ -1047,9 +1059,11 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         throw new Error("Unsupported block type");
       });
 
-    if (!blocks) {
+    if (!blocks_) {
       return;
     }
+
+    const blocks = blocks_.filter((b) => b !== undefined) as Block[];
 
     const toDelete = differenceBy(this.blocks, blocks, "id");
 
@@ -1200,6 +1214,9 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         throw new Error("Unsupported block type");
       });
 
+    if (BINARY_IMAGE_EXTENSIONS.some((ext) => block.meta.filePath.endsWith(ext))) {
+      return;
+    }
     const blameKey = `${block.meta.filePath}:${range.until.commit.oid}:${
       range.since.commit?.oid ?? 0
     }`;
@@ -1380,7 +1397,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
   // -------------- File Content -----------------
   // ---------------------------------------------
 
-  async getFileContent(path: string): Promise<string> {
+  async getFileContent(path: string) {
     return this.explorerPool!.getFileContent({
       rev: this.range.until.commit.oid,
       path,
@@ -1523,6 +1540,8 @@ export type Block = (
   url?: string;
   isPreview?: boolean;
   isTruncated?: boolean;
+  isLfs?: boolean;
+  isImage?: boolean;
 };
 
 export type BlockImage = {
