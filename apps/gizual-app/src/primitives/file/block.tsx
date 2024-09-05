@@ -36,149 +36,141 @@ type FileBlockProps = {
   isLfs?: boolean;
 };
 
-const FileBlock = observer(
-  ({ id, height, parentContainer, filePath, fileType, isLfs }: FileBlockProps) => {
-    const useStyleFn = useMainController().getStyle;
-    const block = useBlockImage(id);
-    const { isPreview, url, setPriority, isTruncated } = block;
-    const ref = React.useRef<any>(null);
-    const settingsController = useSettingsController();
+const FileBlock = observer((props: FileBlockProps) => {
+  const { id, height, parentContainer, filePath } = props;
 
-    const { data, loadContent } = useDeferredFileContent(filePath ?? id);
+  const useStyleFn = useMainController().getStyle;
+  const block = useBlockImage(id);
+  const { isPreview, url, setPriority, isTruncated } = block;
+  const ref = React.useRef<any>(null);
+  const settingsController = useSettingsController();
 
-    // Attach IntersectionObserver on load, detach on dispose.
+  const { data, loadContent } = useDeferredFileContent(filePath ?? id);
 
-    React.useEffect(() => {
-      if (!ref || !ref.current || parentContainer === undefined) return;
+  // Attach IntersectionObserver on load, detach on dispose.
 
-      const ioOptions: IntersectionObserverInit = {
-        root: parentContainer,
-        rootMargin: `${settingsController.visualizationSettings.canvas.rootMargin.value}px`,
-        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-      };
+  React.useEffect(() => {
+    if (!ref || !ref.current || parentContainer === undefined) return;
 
-      const ioCallback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[]) => {
-        if (entries.length <= 0) return;
-        setPriority(entries[0].intersectionRatio * 100);
-      };
+    const ioOptions: IntersectionObserverInit = {
+      root: parentContainer,
+      rootMargin: `${settingsController.visualizationSettings.canvas.rootMargin.value}px`,
+      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+    };
 
-      const ioObserver = new IntersectionObserver(ioCallback, ioOptions);
-      ioObserver.observe(ref.current);
-      return () => {
-        ioObserver.disconnect();
-      };
-    }, []);
+    const ioCallback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[]) => {
+      if (entries.length <= 0) return;
+      setPriority(entries[0].intersectionRatio * 100);
+    };
 
-    /**
-     * TODO: This function currently naively pipes the image into the SVG.
-     * Ideally, we would want to render this blob with the SVG rendering backend.
-     *
-     * Maybe the Export SVG option should only be present on blobs that were rendered with that backend.
-     */
-    const onExportSvg = async () => {
-      const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
-      const style = `style="font-family: Courier New;font-size: 0.5rem;"`;
-      const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id });
+    const ioObserver = new IntersectionObserver(ioCallback, ioOptions);
+    ioObserver.observe(ref.current);
+    return () => {
+      ioObserver.disconnect();
+    };
+  }, []);
 
-      // Fetch the image as a Blob
-      const response = await fetch(url ?? "");
-      const blob = await response.blob();
+  /**
+   * TODO: This function currently naively pipes the image into the SVG.
+   * Ideally, we would want to render this blob with the SVG rendering backend.
+   *
+   * Maybe the Export SVG option should only be present on blobs that were rendered with that backend.
+   */
+  const onExportSvg = async () => {
+    const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
+    const style = `style="font-family: Courier New;font-size: 0.5rem;"`;
+    const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id });
 
-      // Convert the Blob to a Data URL
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      await new Promise((resolve) => (reader.onloadend = resolve));
+    // Fetch the image as a Blob
+    const response = await fetch(url ?? "");
+    const blob = await response.blob();
 
-      // Use the Data URL as the image href
-      const image = `<image href="${reader.result}" x="0" y="26" width="300" height="${height}" />`;
-      const group = `<g x="0" y="0">${blockHeader}${image}</g>`;
+    // Convert the Blob to a Data URL
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    await new Promise((resolve) => (reader.onloadend = resolve));
 
-      const svg = `<svg ${styleTag} ${style} viewBox="0 0 300 ${height}">${group}</svg>`;
+    // Use the Data URL as the image href
+    const image = `<image href="${reader.result}" x="0" y="26" width="300" height="${height}" />`;
+    const group = `<g x="0" y="0">${blockHeader}${image}</g>`;
 
-      const svgBlob = new Blob([svg.toString()]);
+    const svg = `<svg ${styleTag} ${style} viewBox="0 0 300 ${height}">${group}</svg>`;
+
+    const svgBlob = new Blob([svg.toString()]);
+    const element = document.createElement("a");
+    element.download = `${id}.gizual.svg`;
+    element.href = window.URL.createObjectURL(svgBlob);
+    element.click();
+    element.remove();
+  };
+
+  /**
+   * Writes the file content of the block to a file.
+   */
+  const onExportRaw = async () => {
+    loadContent();
+
+    if (data) {
+      const blob = new Blob([data ?? ""]);
       const element = document.createElement("a");
-      element.download = `${id}.gizual.svg`;
-      element.href = window.URL.createObjectURL(svgBlob);
+      element.download = `${id}.gizual.txt`;
+      element.href = window.URL.createObjectURL(blob);
       element.click();
       element.remove();
-    };
+    }
+  };
 
-    /**
-     * Writes the file content of the block to a file.
-     */
-    const onExportRaw = async () => {
-      loadContent();
+  const headerWithContentHeight = height + HEADER_HEIGHT;
+  const totalHeight = headerWithContentHeight + (isTruncated ? FOOTER_HEIGHT : 0);
 
-      if (data) {
-        const blob = new Blob([data ?? ""]);
-        const element = document.createElement("a");
-        element.download = `${id}.gizual.txt`;
-        element.href = window.URL.createObjectURL(blob);
-        element.click();
-        element.remove();
-      }
-    };
+  return (
+    <svg
+      className={style.File}
+      viewBox={`0 0 300 ${totalHeight}`}
+      style={{
+        width: 300,
+        height: totalHeight,
+        boxSizing: "content-box",
+        margin: 0,
+      }}
+    >
+      <FileBlockSvg
+        {...props}
+        url={url ?? ""}
+        blockRef={ref}
+        isPreview={isPreview}
+        onExportSvg={onExportSvg}
+        onExportRaw={onExportRaw}
+        interactive
+      />
 
-    const headerWithContentHeight = height + HEADER_HEIGHT;
-    const totalHeight = headerWithContentHeight + (isTruncated ? FOOTER_HEIGHT : 0);
+      {isTruncated && (
+        <g>
+          <rect
+            x={0}
+            y={headerWithContentHeight}
+            width={300}
+            height={FOOTER_HEIGHT}
+            style={{ fill: useStyleFn("--background-secondary") }}
+          />
+          <text
+            x={150}
+            y={totalHeight - FOOTER_TEXT_PADDING}
+            textAnchor="middle"
+            style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
+          >
+            ... content truncated
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+});
 
-    return (
-      <svg
-        className={style.File}
-        viewBox={`0 0 300 ${totalHeight}`}
-        style={{
-          width: 300,
-          height: totalHeight,
-          boxSizing: "content-box",
-          margin: 0,
-          backgroundColor: isLfs ? "red" : "unset",
-        }}
-      >
-        <FileBlockSvg
-          id={id}
-          height={height}
-          url={url ?? ""}
-          blockRef={ref}
-          isPreview={isPreview}
-          filePath={filePath}
-          fileType={fileType}
-          onExportSvg={onExportSvg}
-          onExportRaw={onExportRaw}
-          interactive
-        />
-
-        {isTruncated && (
-          <g>
-            <rect
-              x={0}
-              y={headerWithContentHeight}
-              width={300}
-              height={FOOTER_HEIGHT}
-              style={{ fill: useStyleFn("--background-secondary") }}
-            />
-            <text
-              x={150}
-              y={totalHeight - FOOTER_TEXT_PADDING}
-              textAnchor="middle"
-              style={{ fontSize: 12, lineHeight: 16, fill: useStyleFn("--foreground-primary") }}
-            >
-              ... content truncated
-            </text>
-          </g>
-        )}
-      </svg>
-    );
-  },
-);
-
-type FileBlockSvgProps = {
-  id: string;
-  height: number;
+type FileBlockSvgProps = FileBlockProps & {
   url: string;
   blockRef?: React.RefObject<any>;
   isPreview?: boolean;
-  filePath?: string;
-  fileType?: FileIcon | undefined;
   transform?: { x: number; y: number };
   interactive?: boolean;
   noForeignObjects?: boolean;
@@ -200,7 +192,10 @@ const FileBlockSvg = observer(
     noForeignObjects,
     onExportSvg,
     onExportRaw,
+    isLfs,
   }: FileBlockSvgProps) => {
+    const useStyleFn = useMainController().getStyle;
+
     return (
       <g x={transform?.x} y={transform?.y}>
         <image
@@ -222,6 +217,20 @@ const FileBlockSvg = observer(
           onExportSvg={onExportSvg}
           onExportRaw={onExportRaw}
         />
+        {isLfs && (
+          <text
+            x={6}
+            y={height / 2 + HEADER_HEIGHT + 4}
+            textAnchor="left"
+            style={{
+              fontSize: 12,
+              lineHeight: 16,
+              fill: useStyleFn("(--foreground-primary)"),
+            }}
+          >
+            LFS (Large File Storage)
+          </text>
+        )}
       </g>
     );
   },

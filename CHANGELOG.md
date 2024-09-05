@@ -1,3 +1,11 @@
+## Gizual 1.0.0-alpha.XX (XX.XX.2024)
+
+### Features
+
+- **app:general:** Implement ability to detect and display images on canvas
+
+---
+
 ## Gizual 1.0.0-alpha.23 (29.08.2024)
 
 ### Changes

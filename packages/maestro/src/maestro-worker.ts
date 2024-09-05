@@ -1065,7 +1065,6 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
     const blocks = blocks_.filter((b) => b !== undefined) as Block[];
 
-
     const toDelete = differenceBy(this.blocks, blocks, "id");
 
     const toAdd = differenceBy(blocks, this.blocks, "id");
