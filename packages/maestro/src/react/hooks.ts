@@ -80,6 +80,7 @@ export function useFileContent(path: string) {
   return {
     isLoading: promise.loading,
     data: promise.value?.content,
+    isLfs: promise.value?.lfs ?? false,
     error: promise.error,
   };
 }

@@ -120,6 +120,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
         height: value.height,
         type: value.type,
         meta: value.meta,
+        isLfs: value.isLfs,
       } as Block);
     }
 

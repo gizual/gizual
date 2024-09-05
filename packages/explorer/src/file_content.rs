@@ -20,8 +20,13 @@ pub struct GetFileContentParams {
 #[cfg_attr(feature = "bindings", derive(Type))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetFileContentResult {
+    
     content: String,
+
     encoding: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    lfs: Option<bool>,
 }
 
 pub enum ImageType {
@@ -85,32 +90,44 @@ pub fn get_file_content(
         return Ok(GetFileContentResult {
             content: "".to_string(),
             encoding: "none".to_string(),
+            lfs: None,
         });
     }
 
     let blob = repo.find_blob(entry.id())?;
     let content = blob.content();
 
-    if let Some(image_type) = get_image_type_from_path(&path) {
+    // Detect if this is a lfs pointer file 
+    // according to https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md
+    let is_lfs = content.starts_with(b"version");
 
-        let mime_type = get_image_mime_type(image_type); 
 
-        let base64_data = BASE64_STANDARD.encode(content);
-       
-       let url = format!("data:{};base64,{}", mime_type, base64_data);
+    let image_type = get_image_type_from_path(&path);
+
+    if image_type.is_none() || is_lfs {
+        let content_str = String::from_utf8_lossy(content).to_string();
         return Ok(GetFileContentResult {
-            content: url,
-            encoding: "base64-url".to_string(),
+            content: content_str,
+            encoding: "utf-8".to_string(),
+            lfs: Some(is_lfs),
         });
-
     }
 
-    let content_str = String::from_utf8_lossy(content).to_string();
 
+    let mime_type = get_image_mime_type(image_type.unwrap()); 
+
+    let base64_data = BASE64_STANDARD.encode(content);
+    
+    let url = format!("data:{};base64,{}", mime_type, base64_data);
     return Ok(GetFileContentResult {
-        content: content_str,
-        encoding: "utf-8".to_string(),
+        content: url,
+        encoding: "base64-url".to_string(),
+        lfs: None,
     });
+
+    
+
+   
 }
 
 impl Explorer {

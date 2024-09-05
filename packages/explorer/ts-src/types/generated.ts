@@ -36,7 +36,7 @@ export type GetCommitsForTimeRangeParams = { branch: string; startSeconds: numbe
 
 export type GetFileContentParams = { path: string; rev: string }
 
-export type GetFileContentResult = { content: string; encoding: string }
+export type GetFileContentResult = { content: string; encoding: string; lfs?: boolean | null }
 
 export type GetFileTreeParams = { rev: string }
 

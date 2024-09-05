@@ -33,10 +33,11 @@ type FileBlockProps = {
   parentContainer?: Element | null;
   filePath?: string;
   fileType?: FileIcon | undefined;
+  isLfs?: boolean;
 };
 
 const FileBlock = observer(
-  ({ id, height, parentContainer, filePath, fileType }: FileBlockProps) => {
+  ({ id, height, parentContainer, filePath, fileType, isLfs }: FileBlockProps) => {
     const useStyleFn = useMainController().getStyle;
     const block = useBlockImage(id);
     const { isPreview, url, setPriority, isTruncated } = block;
@@ -130,6 +131,7 @@ const FileBlock = observer(
           height: totalHeight,
           boxSizing: "content-box",
           margin: 0,
+          backgroundColor: isLfs ? "red" : "unset",
         }}
       >
         <FileBlockSvg

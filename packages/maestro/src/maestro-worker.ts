@@ -996,13 +996,13 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       return;
     }
 
-    const blocks = await match(type)
+    const blocks_ = await match(type)
       .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), async (t) => {
         const fileContents = await Promise.all(
           this.selectedFiles.map((file) => this.getFileContent(file.path.join("/"))),
         );
 
-        return this.selectedFiles.map((file, index): Block => {
+        return this.selectedFiles.map((file, index): Block | undefined => {
           /**
            * Git blame ignores the last line if it is empty, so we need to adjust the line count accordingly.
            */
@@ -1018,6 +1018,8 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
               },
               height: 200,
               url: fileContent.content,
+              isImage: true,
+              isLfs: fileContent.lfs ?? false,
             };
           }
 
@@ -1043,6 +1045,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
               fileType: isNumber(file.kind) ? getFileIcon(file.kind) : undefined,
             },
             height: blockHeight,
+            isLfs: fileContent.lfs ?? false,
           };
         });
       })
@@ -1056,9 +1059,12 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         throw new Error("Unsupported block type");
       });
 
-    if (!blocks) {
+    if (!blocks_) {
       return;
     }
+
+    const blocks = blocks_.filter((b) => b !== undefined) as Block[];
+
 
     const toDelete = differenceBy(this.blocks, blocks, "id");
 
@@ -1535,6 +1541,8 @@ export type Block = (
   url?: string;
   isPreview?: boolean;
   isTruncated?: boolean;
+  isLfs?: boolean;
+  isImage?: boolean;
 };
 
 export type BlockImage = {
