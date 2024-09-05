@@ -1,5 +1,8 @@
+import { generateBlockHeader } from "@app/primitives/file/block";
 import { LocalQueryManager } from "@app/services/local-query";
 import { ColoringMode } from "@app/types";
+import { Masonry } from "@app/utils/masonry";
+import { SvgBaseElement, SvgGroupElement } from "@app/utils/svg";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
@@ -275,12 +278,78 @@ export class MainController {
   }
 
   get devSettings() {
-    return this.settings.devSettings;
+    if ("devSettings" in this.settings) return this.settings.devSettings;
   }
 
   @action.bound
   setLocalQueryManager(manager: LocalQueryManager) {
     this._localQueryManager = manager;
+  }
+
+  async exportAsSVG() {
+    const blocks = await this._maestro.renderBlocksSvg();
+    const numCols = this.settings.visualizationSettings.canvas.masonryColumns.value;
+    const width = numCols * 300 + (numCols - 1) * 16 + 32;
+
+    const masonry = new Masonry<SvgBaseElement>({ numColumns: numCols });
+    for (const block of blocks) {
+      if (!block) continue;
+
+      const blockContainer = new SvgGroupElement(0, 0, 300, block.blockHeight + 26);
+
+      const header = generateBlockHeader({
+        path: block.path,
+        useStyleFn: this.getStyle.bind(this),
+        noForeignObjects: true,
+      });
+
+      const blockContent = new SvgGroupElement(0, 0, 300, block.blockHeight);
+      if (typeof block.result === "string") {
+        continue;
+      }
+      blockContent.assignChildren(...block.result);
+      blockContent.transform = { x: 0, y: 20 };
+
+      blockContainer.addChild(header);
+      blockContainer.addChild(blockContent);
+
+      masonry.insertElement({
+        id: block.id,
+        content: blockContainer,
+        height: block.blockHeight + 26,
+      });
+    }
+
+    masonry.sortAndPack();
+
+    const svgChildren: SvgBaseElement[] = [];
+    for (const [index, column] of masonry.columns.entries()) {
+      for (const [columnIndex, child] of column.content.entries()) {
+        child.content.transform = {
+          x: index * 316 + 16,
+          y: child.y + columnIndex * 16 + 32, // 16px gap between items, 32px padding to top
+        };
+        svgChildren.push(child.content);
+      }
+    }
+
+    const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
+    const style = `style="background-color:${
+      this.preferredColorScheme === "light"
+        ? this.getStyle("--color-white")
+        : this.getStyle("--color-darkgray")
+    };font-family: Courier New;font-size: 0.5rem;"`;
+
+    const svg = `<svg ${styleTag} ${style} viewBox="0 0 ${width} ${masonry.maxHeight}">${svgChildren
+      .map((c) => c.render())
+      .join("")}</svg>`;
+
+    const blob = new Blob([svg.toString()]);
+    const element = document.createElement("a");
+    element.download = `${this.repoName}.gizual.svg`;
+    element.href = window.URL.createObjectURL(blob);
+    element.click();
+    element.remove();
   }
 
   get localQueryManager() {

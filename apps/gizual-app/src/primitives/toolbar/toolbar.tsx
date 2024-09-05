@@ -1,6 +1,6 @@
 import { IconCenterFocus, IconMagnifyMinus, IconMagnifyPlus, IconSettings } from "@app/assets";
 import { IconPeople } from "@app/assets";
-import { useViewModelController } from "@app/controllers";
+import { useMainController, useViewModelController } from "@app/controllers";
 import { SettingsPage } from "@app/pages";
 import sharedStyle from "@app/primitives/css/shared-styles.module.scss";
 import { IconButton } from "@app/primitives/icon-button";
@@ -17,6 +17,7 @@ import style from "./toolbar.module.scss";
 
 const Toolbar = observer(() => {
   const vmController = useViewModelController();
+  const mainController = useMainController();
   const canvas = vmController.canvasViewModel;
   if (!canvas) return <div />;
   const { query } = useQuery();
@@ -75,6 +76,18 @@ const Toolbar = observer(() => {
             aria-label="Reset transform"
           >
             <IconCenterFocus className={sharedStyle.ToolbarIcon} />
+          </IconButton>
+        </Tooltip>
+      </div>
+
+      <div className={style.Toolbar__Section}>
+        <Tooltip label={"Export as SVG"} position="right">
+          <IconButton
+            className={style.ToolbarButton}
+            onClick={() => mainController.exportAsSVG()}
+            aria-label="Zoom out"
+          >
+            <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
           </IconButton>
         </Tooltip>
       </div>

@@ -9,15 +9,20 @@ import FileRendererWorkerUrl from "./file-renderer-worker?worker&url";
 import type { RendererContext } from "./types";
 
 export type RenderJobResult = {
-  result: string;
-  colors: string[];
+  result: string | string[];
 };
+
+enum JobType {
+  Svg = "svg",
+  Canvas = "canvas",
+}
 
 export type RenderJob = {
   id: number;
   ctx: RendererContext;
   onEnd: (data: RenderJobResult) => void;
   onErr: (err: any) => void;
+  jobType?: JobType;
 };
 
 const MAX_SCHEDULE_DURATION = 15; // ms
@@ -45,8 +50,14 @@ export class FileRendererNode {
     this.activeJob = job;
     this.busy = true;
 
-    this.remote
-      .drawCanvas(job.ctx)
+    const drawResult = () => {
+      if (job.jobType === JobType.Svg) {
+        return this.remote.drawSingleSvg(job.ctx);
+      }
+      return this.remote.drawCanvas(job.ctx);
+    };
+
+    drawResult()
       .then((result) => {
         runInAction(() => {
           this.busy = false;
@@ -137,6 +148,22 @@ export class FileRendererPool {
   renderCanvas(ctx: RendererContext): Promise<RenderJobResult> {
     const promise = new Promise<RenderJobResult>((resolve, reject) => {
       const job = { id: this.counter++, ctx, onEnd: resolve, onErr: reject };
+      this.jobs.push(job);
+    });
+
+    return promise;
+  }
+
+  @action.bound
+  renderSvg(ctx: RendererContext): Promise<RenderJobResult> {
+    const promise = new Promise<RenderJobResult>((resolve, reject) => {
+      const job = {
+        id: this.counter++,
+        ctx,
+        onEnd: resolve,
+        onErr: reject,
+        jobType: JobType.Svg,
+      };
       this.jobs.push(job);
     });
 

@@ -1,7 +1,7 @@
 import "@giz/logging/worker";
 
 import { VisualizationDefaults } from "@app/utils/defaults";
-import { SvgBaseElement, SvgElement } from "@app/utils/svg";
+import { SvgElement } from "@app/utils/svg";
 import { expose } from "comlink";
 
 import { ColorManager } from "@giz/color-manager";
@@ -63,7 +63,7 @@ export class FileRendererWorker {
     return this.draw(fileCtx, "canvas");
   }
 
-  async drawSingleSvg(fileCtx: RendererContext): Promise<{ result: SvgBaseElement[] }> {
+  async drawSingleSvg(fileCtx: RendererContext): Promise<{ result: string[] }> {
     return this.draw(fileCtx, "svg");
   }
 
@@ -76,7 +76,7 @@ export class FileRendererWorker {
     fileCtx: RendererContext,
     mode: "svg",
     renderCtx?: SvgElement,
-  ): Promise<{ result: SvgBaseElement[] }>;
+  ): Promise<{ result: string[] }>;
   async draw(
     fileCtx: RendererContext,
     mode: "annotations",

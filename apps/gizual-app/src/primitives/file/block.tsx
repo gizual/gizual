@@ -79,7 +79,7 @@ const FileBlock = observer((props: FileBlockProps) => {
   const onExportSvg = async () => {
     const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
     const style = `style="font-family: Courier New;font-size: 0.5rem;"`;
-    const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id });
+    const blockHeader = generateBlockHeader({ useStyleFn, path: filePath ?? id }).render();
 
     // Fetch the image as a Blob
     const response = await fetch(url ?? "");
@@ -302,7 +302,7 @@ function generateBlockHeader({
 
   const group = new SvgGroupElement(0, 0, 300, 26);
   group.assignChildren(headerBg, hr, text);
-  return group.render();
+  return group;
 }
 
 /**
@@ -328,7 +328,7 @@ function BlockHeaderSvg({
       >
         <g
           dangerouslySetInnerHTML={{
-            __html: generateBlockHeader({ useStyleFn: useStyle, noForeignObjects, path }),
+            __html: generateBlockHeader({ useStyleFn: useStyle, noForeignObjects, path }).render(),
           }}
         />
         {!noForeignObjects && (
