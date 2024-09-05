@@ -3,6 +3,7 @@
 ### Features
 
 - **app:general:** Implement ability to detect and display images on canvas
+- **app:general:** Implement SVG export
 
 ---
 

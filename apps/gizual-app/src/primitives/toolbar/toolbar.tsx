@@ -1,4 +1,10 @@
-import { IconCenterFocus, IconMagnifyMinus, IconMagnifyPlus, IconSettings } from "@app/assets";
+import {
+  IconCenterFocus,
+  IconExport,
+  IconMagnifyMinus,
+  IconMagnifyPlus,
+  IconSettings,
+} from "@app/assets";
 import { IconPeople } from "@app/assets";
 import { useMainController, useViewModelController } from "@app/controllers";
 import { SettingsPage } from "@app/pages";
@@ -80,18 +86,6 @@ const Toolbar = observer(() => {
         </Tooltip>
       </div>
 
-      <div className={style.Toolbar__Section}>
-        <Tooltip label={"Export as SVG"} position="right">
-          <IconButton
-            className={style.ToolbarButton}
-            onClick={() => mainController.exportAsSVG()}
-            aria-label="Zoom out"
-          >
-            <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
-          </IconButton>
-        </Tooltip>
-      </div>
-
       {isAuthorPanelVisible && (
         <div className={style.Toolbar__Section}>
           <DialogProvider
@@ -108,6 +102,18 @@ const Toolbar = observer(() => {
           </DialogProvider>
         </div>
       )}
+
+      <div className={style.Toolbar__Section}>
+        <Tooltip label={"Export as SVG"} position="right">
+          <IconButton
+            className={style.ToolbarButton}
+            onClick={() => mainController.exportAsSVG()}
+            aria-label="Zoom out"
+          >
+            <IconExport className={sharedStyle.ToolbarIcon} />
+          </IconButton>
+        </Tooltip>
+      </div>
 
       {/*
       <div className={style.Toolbar__Section}>
