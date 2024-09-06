@@ -45,6 +45,7 @@ type FileBlockProps = {
   filePath?: string;
   fileType?: FileIcon | undefined;
   isLfs?: boolean;
+  svg?: string;
 };
 
 const FileBlock = observer((props: FileBlockProps) => {
@@ -205,11 +206,21 @@ const FileBlockSvg = observer(
     onExportSvg,
     onExportRaw,
     isLfs,
+    svg,
   }: FileBlockSvgProps) => {
     const useStyleFn = useMainController().getStyle;
 
     return (
       <g x={transform?.x} y={transform?.y}>
+        <g
+          width={300}
+          height={height}
+          x={0}
+          y={0}
+          dangerouslySetInnerHTML={{ __html: svg ?? "" }}
+          transform={`translate(0,${HEADER_HEIGHT})`}
+        ></g>
+
         <image
           className="svg-block-image"
           href={url}
@@ -218,7 +229,9 @@ const FileBlockSvg = observer(
           y={HEADER_HEIGHT}
           width={300}
           height={height}
+          style={{ userSelect: "none", pointerEvents: "none" }}
         />
+
         <BlockHeaderSvg
           isPreview={isPreview}
           path={filePath ?? id}

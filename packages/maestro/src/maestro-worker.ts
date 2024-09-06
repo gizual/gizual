@@ -1466,7 +1466,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       return;
     }
 
-    const { result } = await match(query.type)
+    let { result } = await match(query.type)
       .with("file-lines", "file-lines-full", async (type) => {
         return renderPool.renderCanvas({
           ...baseCtx,
@@ -1507,7 +1507,51 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       block.url = undefined;
     }
 
-    if (typeof result !== "string") throw new Error("Expected result to be a string");
+    if (typeof result !== "string") {
+      result = result.join("");
+    }
+
+    const { result: resultSvg } = await match(query.type)
+      .with("file-lines", "file-lines-full", async (type) => {
+        return renderPool.renderSvg({
+          ...baseCtx,
+          dpr: 1,
+          type: RenderType.FileLines,
+          fileContent: lines,
+          lineLengthMax: 120,
+          coloringMode,
+          showContent,
+          rect: new DOMRect(0, 0, 300, lines.length * 10),
+          colorDefinition: colorManager.state,
+          visualizationConfig: {
+            ...visualizationConfig,
+            style: {
+              lineLength: type === "file-lines-full" ? "full" : "lineLength",
+            },
+          },
+        });
+      })
+      .with("file-mosaic", async () => {
+        return renderPool.renderSvg({
+          ...baseCtx,
+          dpr: 1,
+          type: RenderType.FileMosaic,
+          tilesPerRow: 10,
+          fileContent: lines,
+          coloringMode,
+          selectedStartDate,
+          selectedEndDate,
+          rect: new DOMRect(0, 0, 300, lines.length),
+          colorDefinition: colorManager.state,
+        });
+      })
+      .otherwise(() => {
+        throw new Error("Unsupported render type.");
+      });
+
+    if (typeof resultSvg !== "string") {
+      block.svg = resultSvg.join("");
+    }
 
     block.url = result;
     block.currentImageCacheKey = currentCacheKey;
@@ -1517,6 +1561,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
     this.emit("block:updated", id, {
       url: result,
+      svg: block.svg,
       isPreview: false,
       isTruncated: parsedLines.length > maxNumLines,
     });
@@ -1707,6 +1752,7 @@ export type Block = (
   | AuthorContributionsBlock
 ) & {
   url?: string;
+  svg?: string;
   isPreview?: boolean;
   isTruncated?: boolean;
   isLfs?: boolean;

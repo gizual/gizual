@@ -114,6 +114,23 @@ export class MainController {
     return getComputedStyle(doc).getPropertyValue(key);
   }
 
+  setCommitStyles(commits: string[]) {
+    const doc = document.documentElement;
+    let styleElement = doc.querySelector("#commit-styles");
+    if (!styleElement) {
+      styleElement = document.createElement("style");
+      styleElement.id = "commit-styles";
+      doc.append(styleElement);
+    }
+    let style = "";
+    for (const commit of commits) {
+      style += `.canvas:has(.commit-id_${commit}:hover) .commit-id_${commit} { filter: grayscale(80%); }\n`;
+      //style += `.canvas:has(.commit-id_${commit}) .commit-id_${commit} { filter: grayscale(80%); }\n`;
+    }
+
+    styleElement.textContent = style;
+  }
+
   @action.bound
   setFileTreeRoot(root: FileTree) {
     this._fileTreeRoot = root;

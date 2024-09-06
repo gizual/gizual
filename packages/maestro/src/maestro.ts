@@ -117,6 +117,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
     for (const [_, value] of this.blocks) {
       blocks.push({
         id: value.id,
+        svg: value.svg,
         height: value.height,
         type: value.type,
         meta: value.meta,

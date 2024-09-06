@@ -51,19 +51,18 @@ export class CanvasRenderer implements BaseRenderer {
   }
 
   drawRect(attr: SvgAttributes) {
-    if (!this.canvas || !this.ctx) throw new Error("Drawing context was not initialized.");
-    const { x, y } = evaluateTransform(attr.x, attr.y, this.transform);
-
-    if (attr.fill) {
-      this.ctx.fillStyle = attr.fill;
-      this.ctx.fillRect(x, y, attr.width ?? 0, attr.height ?? 0);
-    }
-    if (attr.stroke && attr.strokeWidth) {
-      this.ctx.strokeStyle = attr.stroke;
-      this.ctx.lineWidth = Number(attr.strokeWidth);
-      this.ctx.rect(x, y, attr.width ?? 0, attr.height ?? 0);
-      this.ctx.stroke();
-    }
+    //if (!this.canvas || !this.ctx) throw new Error("Drawing context was not initialized.");
+    //const { x, y } = evaluateTransform(attr.x, attr.y, this.transform);
+    //if (attr.fill) {
+    //  this.ctx.fillStyle = attr.fill;
+    //  this.ctx.fillRect(x, y, attr.width ?? 0, attr.height ?? 0);
+    //}
+    //if (attr.stroke && attr.strokeWidth) {
+    //  this.ctx.strokeStyle = attr.stroke;
+    //  this.ctx.lineWidth = Number(attr.strokeWidth);
+    //  this.ctx.rect(x, y, attr.width ?? 0, attr.height ?? 0);
+    //  this.ctx.stroke();
+    //}
   }
 
   drawText(text: string, attr: SvgAttributes) {

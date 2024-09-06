@@ -311,6 +311,7 @@ export class FileRendererWorker {
         width: rectWidth,
         height: lineHeight,
         fill: color,
+        className: `commit-id_${line.commit?.commitId}`,
       });
 
       if (ctx.showContent)

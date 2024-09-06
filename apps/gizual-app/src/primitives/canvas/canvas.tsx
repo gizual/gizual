@@ -161,7 +161,7 @@ const InnerCanvas = observer<any, HTMLDivElement>(
     }, [numSelectedFiles]);
 
     return (
-      <div ref={ref} className={style.Canvas} {...defaultProps}>
+      <div ref={ref} className={clsx(style.Canvas, "canvas")} {...defaultProps}>
         {debugLayout && (
           <div className={style.DebugOverlay}>
             <p className={sharedStyle["Text-Bold"]}>Canvas Debug Panel</p>
