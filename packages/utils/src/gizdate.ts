@@ -9,6 +9,8 @@ export const DATE_FORMAT = "YYYY/MM/DD";
 // Shared date format for all user-facing UI elements.
 export const DATE_DISPLAY_FORMAT = "DD MMM YYYY";
 
+export const DATE_FILE_FORMAT = "YYYY-MM-DD_HH-mm-ss";
+
 export const DAYS_MS_FACTOR = 1000 * 60 * 60 * 24;
 
 /**
@@ -37,6 +39,10 @@ export class GizDate extends Date {
 
   toDisplayString() {
     return dayjs(this).format(DATE_DISPLAY_FORMAT);
+  }
+
+  toFileString() {
+    return dayjs(this).format(DATE_FILE_FORMAT);
   }
 
   toTimeString(): string {

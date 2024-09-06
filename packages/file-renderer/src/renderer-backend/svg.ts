@@ -37,10 +37,20 @@ export class SvgRenderer implements BaseRenderer {
     return { ...this.svg, children: this.svgContent };
   }
 
-  async getReturnValue(): Promise<SvgBaseElement[]> {
+  async getReturnValue(): Promise<string[]> {
     if (!this.svg) throw new Error("Drawing context was not initialized.");
     if (!this.svgContent) throw new Error("SVG has no content. Aborting.");
-    return this.svgContent;
+
+    //return this.svgContent;
+
+    // We need to pre-render the SVG content to a string, because we'll lose the class functions
+    // when we transfer it to the main thread.
+
+    const out: string[] = [];
+    for (const c of this.svgContent) {
+      out.push(c.render());
+    }
+    return out;
   }
 
   drawRect(attr: SvgAttributes): SvgBaseElement {

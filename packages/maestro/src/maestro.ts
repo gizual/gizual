@@ -8,7 +8,7 @@ import { GizWorker } from "@giz/worker";
 // TODO: remove this
 import type { MainController } from "../../../apps/gizual-app/src/controllers/main.controller";
 
-import type { MaestroWorker } from "./maestro-worker";
+import type { MaestroWorker, SvgBlock } from "./maestro-worker";
 import type {
   Block,
   MaestroWorkerEvents,
@@ -478,6 +478,22 @@ export class Maestro extends EventEmitter<MaestroEvents> {
       maxNumLines: settings.style.maxNumLines.value,
     });
   }
+
+  async renderBlocksSvg() {
+    const svgBlocks: (Promise<SvgBlock> | Promise<undefined>)[] = [];
+
+    for (const block of this.blocksArray) {
+      svgBlocks.push(this.worker.prepareBlockSvg(block.id));
+    }
+
+    const resolvedBlocks = await Promise.all(svgBlocks);
+    return resolvedBlocks;
+  }
+
+  renderBlockSvg = async (id: string) => {
+    const svgBlock = await this.worker.prepareBlockSvg(id);
+    return svgBlock;
+  };
 
   dispose() {
     for (const dispose of this.disposers) dispose();

@@ -1,8 +1,9 @@
-## Gizual 1.0.0-alpha.XX (XX.XX.2024)
+## Gizual 1.0.0-alpha.24 (06.09.2024)
 
 ### Features
 
 - **app:general:** Implement ability to detect and display images on canvas
+- **app:general:** Implement SVG export
 
 ---
 

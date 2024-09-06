@@ -1,10 +1,14 @@
+import { generateBlockHeader } from "@app/primitives/file/block-helpers";
 import { LocalQueryManager } from "@app/services/local-query";
 import { ColoringMode } from "@app/types";
+import { Masonry } from "@app/utils/masonry";
+import { SvgBaseElement, SvgGroupElement, SvgRectElement } from "@app/utils/svg";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
 import { FileTree, Repository } from "@giz/explorer-web";
 import { Maestro } from "@giz/maestro";
+import { GizDate } from "@giz/utils/gizdate";
 
 import { RepoController } from "./repo.controller";
 import { SettingsController } from "./settings.controller";
@@ -33,6 +37,8 @@ export class MainController {
   @observable _repo: Repository;
   @observable _numFiles = 0;
   @observable _isVisTypeModalOpen = false;
+
+  @observable _isSvgLoading = false;
 
   @observable private _preferredColorScheme: "light" | "dark" = "light";
 
@@ -183,7 +189,9 @@ export class MainController {
 
   @computed
   get isLoading() {
-    return this._repo.state === "loading" || this._maestro.state === "loading";
+    return (
+      this._repo.state === "loading" || this._maestro.state === "loading" || this._isSvgLoading
+    );
   }
 
   @computed
@@ -275,12 +283,101 @@ export class MainController {
   }
 
   get devSettings() {
-    return this.settings.devSettings;
+    if ("devSettings" in this.settings) return this.settings.devSettings;
   }
 
   @action.bound
   setLocalQueryManager(manager: LocalQueryManager) {
     this._localQueryManager = manager;
+  }
+
+  @action.bound
+  async exportAsSVG() {
+    this._isSvgLoading = true;
+    const blocks = await this._maestro.renderBlocksSvg();
+    const numCols = Math.min(
+      this.settings.visualizationSettings.canvas.masonryColumns.value,
+      blocks.length,
+    );
+    const width = numCols * 300 + (numCols - 1) * 16 + 32;
+    const TITLE_HEIGHT = 20;
+
+    const masonry = new Masonry<SvgBaseElement>({ numColumns: numCols });
+    for (const block of blocks) {
+      if (!block) continue;
+
+      const blockContainer = new SvgGroupElement(0, 0, 300, block.blockHeight + TITLE_HEIGHT);
+
+      const header = generateBlockHeader({
+        path: block.path,
+        useStyleFn: this.getStyle.bind(this),
+        noForeignObjects: true,
+        maxTextWidth: 280,
+      });
+
+      const blockContent = new SvgGroupElement(0, 0, 300, block.blockHeight);
+      if (typeof block.result === "string") {
+        continue;
+      }
+      blockContent.assignChildren(...block.result);
+      blockContent.transform = { x: 0, y: TITLE_HEIGHT };
+
+      const border = new SvgRectElement({
+        x: 0,
+        y: 0,
+        width: 300,
+        height: block.blockHeight + TITLE_HEIGHT,
+        fill: "transparent",
+        stroke:
+          this.preferredColorScheme === "light"
+            ? this.getStyle("--color-gray")
+            : this.getStyle("--color-darkslate"),
+      });
+
+      blockContainer.addChild(header);
+      blockContainer.addChild(blockContent);
+      blockContainer.addChild(border);
+
+      masonry.insertElement({
+        id: block.id,
+        content: blockContainer,
+        height: block.blockHeight + 26,
+      });
+    }
+
+    masonry.sortAndPack();
+
+    const svgChildren: SvgBaseElement[] = [];
+    for (const [index, column] of masonry.columns.entries()) {
+      for (const [columnIndex, child] of column.content.entries()) {
+        child.content.transform = {
+          x: index * 316 + 16,
+          y: child.y + columnIndex * 16 + 32, // 16px gap between items, 32px padding to top
+        };
+        svgChildren.push(child.content);
+      }
+    }
+
+    const styleTag = `xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"`;
+    const style = `style="background-color:${
+      this.preferredColorScheme === "light"
+        ? this.getStyle("--color-white")
+        : this.getStyle("--color-darkgray")
+    };font-family: Courier New;font-size: 0.5rem;"`;
+
+    const svg = `<svg ${styleTag} ${style} viewBox="0 0 ${width} ${
+      masonry.maxHeight + 32
+    }">${svgChildren.map((c) => c.render()).join("")}</svg>`;
+
+    const blob = new Blob([svg.toString()]);
+    const element = document.createElement("a");
+    const curDate = new GizDate();
+    const repoNameDelimited = this.repoName === "?" ? "" : "_" + this.repoName;
+    element.download = `gizual-export_${curDate.toFileString()}${repoNameDelimited}.svg`;
+    element.href = window.URL.createObjectURL(blob);
+    element.click();
+    element.remove();
+    this._isSvgLoading = false;
   }
 
   get localQueryManager() {

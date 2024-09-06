@@ -6,7 +6,7 @@ export type SvgElement = {
 
 export class SvgBaseElement {
   protected _tag: string;
-  protected _children: SvgBaseElement[];
+  protected _children: (SvgBaseElement | string)[];
   protected _pos: { x: number; y: number };
   protected _size: { width?: number; height?: number };
   protected _transform: { x: number; y: number } = { x: 0, y: 0 };
@@ -27,11 +27,14 @@ export class SvgBaseElement {
       return `<${this._tag} ${this.attributes} ${this.transformString}/>`;
 
     return `<${this._tag} ${this.attributes} ${this.transformString}>${this._children
-      .map((c) => c.render())
+      .map((c) => {
+        if (typeof c === "string") return c;
+        return c.render();
+      })
       .join("")}</${this._tag}>`;
   }
 
-  assignChildren(...children: SvgBaseElement[]) {
+  assignChildren(...children: (SvgBaseElement | string)[]) {
     this._children = children;
   }
 

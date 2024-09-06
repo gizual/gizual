@@ -1175,6 +1175,187 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     return this.range;
   }
 
+  prepareBlockSvg = async (id: string): Promise<SvgBlock | undefined> => {
+    const { blocks } = this;
+
+    const block = blocks.find((b) => b.id === id);
+    if (!block) return;
+
+    const blameLines = await this.prepareBlameLines(block);
+    const visualizationConfig = this.prepareVisualizationConfig();
+
+    return this.renderBlock(block, blameLines, visualizationConfig);
+  };
+
+  async renderBlock(
+    block: BlockEntry,
+    lines: Line[],
+    visualizationConfig: VisualizationConfig,
+  ): Promise<SvgBlock | undefined> {
+    const { colorManager, range, query, renderPool, visualSettings } = this;
+
+    const baseCtx: BaseContext = {
+      dpr: 1,
+      earliestTimestamp: range.since.date.getTime() / 1000, // TODO: should be removed
+      latestTimestamp: range.until.date.getTime() / 1000, // TODO: should be removed
+      selectedStartDate: range.since.date,
+      selectedEndDate: range.until.date,
+      rect: new DOMRect(0, 0, 300, lines.length * 10),
+      isPreview: false,
+      visualizationConfig,
+    };
+
+    const coloringMode = query.preset && "paletteByAuthor" in query.preset ? "author" : "age";
+
+    let { result } = await match(query.type)
+      .with("file-lines", "file-lines-full", async (type) => {
+        return renderPool.renderSvg({
+          ...baseCtx,
+          type: RenderType.FileLines,
+          fileContent: lines,
+          lineLengthMax: 120,
+          coloringMode,
+          showContent: false,
+          rect: new DOMRect(0, 0, 300, lines.length * 10),
+          colorDefinition: colorManager.state,
+          visualizationConfig: {
+            ...visualizationConfig,
+            style: {
+              lineLength: type === "file-lines-full" ? "full" : "lineLength",
+            },
+          },
+        });
+      })
+      .with("file-mosaic", async () => {
+        return renderPool.renderSvg({
+          ...baseCtx,
+          type: RenderType.FileMosaic,
+          tilesPerRow: 10,
+          fileContent: lines,
+          coloringMode,
+          selectedStartDate: range.since.date,
+          selectedEndDate: range.until.date,
+          rect: new DOMRect(0, 0, 300, lines.length),
+          colorDefinition: colorManager.state,
+        });
+      })
+      .otherwise(() => {
+        throw new Error("Unsupported render type.");
+      });
+
+    const maxNumLines = visualSettings.maxNumLines;
+    const truncatedNumLines = Math.min(lines.length, maxNumLines);
+
+    let blockHeight = match(query.type)
+      .with("file-lines", "file-lines-full", () => truncatedNumLines * 10)
+      .with("file-mosaic", () => Math.max((Math.floor(truncatedNumLines / 10) + 1) * 10, 10))
+      .otherwise(() => {
+        throw new Error("Unsupported block type (height calculation)");
+      });
+
+    if (typeof result === "string") {
+      return;
+    }
+
+    let filePath = "";
+    if ("filePath" in block.meta) {
+      filePath = block.meta.filePath;
+    }
+
+    if (block.isImage) {
+      blockHeight = 200;
+      result = [`<image width="300" height="200" href="${block.url!}"></image>`];
+    }
+    if (block.isLfs) {
+      const fillColor = visualSettings.preferredColorScheme === "light" ? "#000000" : "#ffffff";
+      result = [
+        `<text x="10" y="20" font-size="12" fill="${fillColor}" stroke="transparent">LFS (Large File Storage)</text>`,
+      ];
+    }
+
+    return {
+      result,
+      blockHeight,
+      id: block.id,
+      path: filePath,
+    };
+  }
+
+  prepareVisualizationConfig(): VisualizationConfig {
+    const { visualSettings, query } = this;
+    const visualizationConfig: VisualizationConfig = {
+      colors: {
+        newest: visualSettings.newColor,
+        oldest: visualSettings.oldColor,
+        outOfRangeLight: visualSettings.outOfRangeLight,
+        outOfRangeDark: visualSettings.outOfRangeDark,
+      },
+      style: {
+        lineLength: "full",
+      },
+      preferredColorScheme: visualSettings.preferredColorScheme,
+    };
+
+    if (query.preset && "gradientByAge" in query.preset) {
+      visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
+      visualizationConfig.colors.newest = query.preset.gradientByAge[1];
+    }
+
+    return visualizationConfig;
+  }
+
+  async prepareBlameLines(block: BlockEntry): Promise<Line[]> {
+    const { range, visualSettings } = this;
+    if (
+      block.type !== "file-lines" &&
+      block.type !== "file-lines-full" &&
+      block.type !== "file-mosaic"
+    ) {
+      throw new Error("Unsupported block type");
+    }
+
+    match(block.type)
+      .with(Pattern.union("file-lines", "file-lines-full", "file-mosaic"), () => {})
+      .otherwise(() => {
+        throw new Error("Unsupported block type");
+      });
+
+    const blameKey = `${block.meta.filePath}:${range.until.commit.oid}:${
+      range.since.commit?.oid ?? 0
+    }`;
+
+    if (!block.blameJobRef || blameKey !== block.lastBlameOptionsKey) {
+      if (block.blameJobRef) {
+        block.blameJobRef.cancel();
+        block.blameJobRef = undefined;
+        block.lastBlameOptionsKey = "";
+      }
+
+      block.lastBlameOptionsKey = blameKey;
+      block.blameJobRef = this.getBlame(
+        block.meta.filePath,
+        range.until.commit.oid,
+        range.since.commit?.oid,
+        10,
+      );
+    }
+
+    const blame = await block.blameJobRef!.promise.catch((_error) => {
+      // if the blame fails we probably aborted it
+      return undefined;
+    });
+
+    if (!blame) {
+      return [];
+    }
+
+    const maxNumLines = visualSettings.maxNumLines;
+    const parsedLines = parseLines(blame);
+    const lines = parsedLines.slice(0, maxNumLines);
+
+    return lines;
+  }
+
   scheduleBlockRender = async (id: string) => {
     const block = this.blocks.find((b) => b.id === id);
     if (!block) {
@@ -1262,25 +1443,11 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       block.upcomingImageCacheKey = undefined;
       return;
     }
-    const visualizationConfig: VisualizationConfig = {
-      colors: {
-        newest: visualSettings.newColor,
-        oldest: visualSettings.oldColor,
-        outOfRangeLight: visualSettings.outOfRangeLight,
-        outOfRangeDark: visualSettings.outOfRangeDark,
-      },
-      style: {
-        lineLength: "full",
-      },
-      preferredColorScheme: visualSettings.preferredColorScheme,
-    };
+
+    const visualizationConfig = this.prepareVisualizationConfig();
 
     let coloringMode: "age" | "author" = "age";
-
-    if (query.preset && "gradientByAge" in query.preset) {
-      visualizationConfig.colors.oldest = query.preset.gradientByAge[0];
-      visualizationConfig.colors.newest = query.preset.gradientByAge[1];
-    } else if (query.preset && "paletteByAuthor" in query.preset) {
+    if (query.preset && "paletteByAuthor" in query.preset) {
       coloringMode = "author";
     }
 
@@ -1339,6 +1506,8 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
       URL.revokeObjectURL(block.url);
       block.url = undefined;
     }
+
+    if (typeof result !== "string") throw new Error("Expected result to be a string");
 
     block.url = result;
     block.currentImageCacheKey = currentCacheKey;
@@ -1562,6 +1731,13 @@ type BlockEntry = Block & {
   dpr: number;
   blameJobRef?: JobRef<Blame>;
   lastBlameOptionsKey?: string;
+};
+
+export type SvgBlock = {
+  result: string[];
+  blockHeight: number;
+  id: string;
+  path: string;
 };
 
 function serializableBlock(block: BlockEntry): Block {

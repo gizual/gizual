@@ -1,4 +1,4 @@
-import { SvgAttributes, SvgBaseElement, SvgElement } from "@app/utils/svg";
+import { SvgAttributes, SvgElement } from "@app/utils/svg";
 
 export type AnnotationContext = Object;
 
@@ -27,7 +27,7 @@ export interface BaseRenderer {
   prepareContext(width: number, height: number, dpr?: number): void;
   assignContext(ctx: ValidContext): void;
   getContext(): ValidContext | undefined;
-  getReturnValue(): Promise<string | SvgBaseElement[]>;
+  getReturnValue(): Promise<string | string[]>;
 
   applyTransform(x: number, y: number): void;
   drawRect(attr: SvgAttributes, annotationCtx?: AnnotationContext): void;

@@ -14,6 +14,7 @@ export { default as IconDragVertical } from "./drag-vertical.svg";
 export { default as IconEarth } from "./earth.svg";
 export { default as IconEdit } from "./edit.svg";
 export { default as IconExplorer } from "./explorer.svg";
+export { default as IconExport } from "./export.svg";
 export { default as IconFile } from "./file.svg";
 export { default as IconFileTree } from "./file-tree.svg";
 export { default as IconFilter } from "./filter.svg";
