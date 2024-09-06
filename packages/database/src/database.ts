@@ -22,6 +22,10 @@ export class Database {
     return await this.worker.selectMatchingFiles({ path, editedBy }, commitId);
   }
 
+  async getAllCommitIds() {
+    return await this.worker.getAllCommitIds();
+  }
+
   async queryAuthors(offset: number, limit: number, search?: string) {
     return await this.worker.queryAuthors({
       offset,

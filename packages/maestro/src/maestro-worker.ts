@@ -288,6 +288,13 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         this.db.queryAuthors(0, count).then((authors) => {
           this.cachedAuthors = authors;
           this.colorManager.init({ domain: authors.map((a) => a.id) });
+
+          this.db.getAllCommitIds().then((commitIds) => {
+            this.updateState({
+              commitsIndexed: true,
+              commitIds,
+            });
+          });
         });
       });
     });
@@ -478,6 +485,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
     tags: [] as string[],
     branches: [] as string[],
+    commitIds: [] as string[],
 
     /**
      * The remotes of the repository.

@@ -3,7 +3,7 @@ import { LocalQueryManager } from "@app/services/local-query";
 import { ColoringMode } from "@app/types";
 import { Masonry } from "@app/utils/masonry";
 import { SvgBaseElement, SvgGroupElement, SvgRectElement } from "@app/utils/svg";
-import { action, computed, makeObservable, observable } from "mobx";
+import { action, autorun, computed, makeObservable, observable } from "mobx";
 
 import { BAND_COLOR_RANGE, getBandColorScale } from "@giz/color-manager";
 import { FileTree, Repository } from "@giz/explorer-web";
@@ -60,6 +60,14 @@ export class MainController {
       },
       true,
     );
+
+    autorun(() => {
+      const globalState = this._maestro.globalState.get();
+
+      if (globalState?.commitIds) {
+        this.setCommitStyles(globalState.commitIds);
+      }
+    });
   }
 
   attachUnloadListener() {

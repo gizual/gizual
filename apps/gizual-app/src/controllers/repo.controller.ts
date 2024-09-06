@@ -181,7 +181,7 @@ export class RepoController {
       parsedCommits.push(currentCommit as any);
     }
 
-    this.mainController.setCommitStyles(parsedCommits.map((c) => c.oid));
+    //this.mainController.setCommitStyles(parsedCommits.map((c) => c.oid));
     this._commitsForBranch = parsedCommits;
   }
 

@@ -103,11 +103,11 @@ export class DatabaseWorker {
     logger.log("Creating authors table ...");
     db.exec(AUTHORS_TABLE);
 
-    return db;
     logger.log("Creating commits table ...");
 
     db.exec(COMMITS_TABLE);
     logger.log("Creating files table ...");
+    return db;
 
     db.exec(FILES_TABLE);
     logger.log("Creating commits_files table ...");
@@ -183,7 +183,7 @@ export class DatabaseWorker {
   async loadCommits() {
     let counter = 0;
     const commitStmt = this.db.prepare(INSERT_COMMIT_STMT.trim());
-    const fileStmt = this.db.prepare(INSERT_FILE_STMT.trim());
+    //const fileStmt = this.db.prepare(INSERT_FILE_STMT.trim());
 
     await new Promise<void>((resolve, reject) => {
       this.portal.streamCommits(
@@ -197,55 +197,55 @@ export class DatabaseWorker {
 
           const fileIds: number[] = [];
 
-          for (const file of files) {
-            fileStmt.bind([file]).step();
-            fileStmt.reset();
+          // for (const file of files) {
+          //   //fileStmt.bind([file]).step();
+          //   //fileStmt.reset();
 
-            let fileId = -1;
+          //   let fileId = -1;
 
-            this.db.exec({
-              sql: SELECT_FILE_STMT,
-              rowMode: "object",
-              bind: [file],
-              callback: function (this: any, row: any) {
-                fileId = row.id;
-              },
-            });
+          //   this.db.exec({
+          //     sql: SELECT_FILE_STMT,
+          //     rowMode: "object",
+          //     bind: [file],
+          //     //callback: function (this: any, row: any) {
+          //     //  fileId = row.id;
+          //     //},
+          //   });
 
-            if (fileId === -1) {
-              logger.warn("fileId is -1");
-              continue;
-            }
-            fileIds.push(fileId);
-          }
+          //   if (fileId === -1) {
+          //     logger.warn("fileId is -1");
+          //     continue;
+          //   }
+          //   fileIds.push(fileId);
+          // }
 
           commitStmt
             .bind([commit.oid, commit.aid, commit.message, Number.parseInt(commit.timestamp)])
             .step();
           commitStmt.reset();
 
-          let commitId = -1;
+          // let commitId = -1;
 
-          this.db.exec({
-            sql: `SELECT id FROM commits WHERE oid = (?)`,
-            rowMode: "object",
-            bind: [commit.oid],
-            callback: function (this: any, row: any) {
-              commitId = row.id;
-            },
-          });
+          // this.db.exec({
+          //   sql: `SELECT id FROM commits WHERE oid = (?)`,
+          //   rowMode: "object",
+          //   bind: [commit.oid],
+          //   callback: function (this: any, row: any) {
+          //     commitId = row.id;
+          //   },
+          // });
 
-          if (commitId === -1) {
-            logger.warn("fileId is -1");
-            return;
-          }
+          // if (commitId === -1) {
+          //   logger.warn("fileId is -1");
+          //   return;
+          // }
 
-          for (const fileId of fileIds) {
-            this.db.exec({
-              sql: INSERT_COMMITS_FILES_STMT,
-              bind: [commitId, fileId],
-            });
-          }
+          // for (const fileId of fileIds) {
+          //   this.db.exec({
+          //     sql: INSERT_COMMITS_FILES_STMT,
+          //     bind: [commitId, fileId],
+          //   });
+          // }
         },
         () => {
           resolve();
@@ -257,7 +257,7 @@ export class DatabaseWorker {
     });
 
     commitStmt.finalize();
-    fileStmt.finalize();
+    //fileStmt.finalize();
 
     return counter;
   }
@@ -267,9 +267,9 @@ export class DatabaseWorker {
 
     logger.log("Loading authors ...");
     await this.loadAuthors();
-    //logger.log("Loading commits ...");
-    //const count = await this.loadCommits();
-    //logger.log(`Database ready! Indexed ${count} commits.`);
+    logger.log("Loading commits ...");
+    const count = await this.loadCommits();
+    logger.log(`Database ready! Indexed ${count} commits.`);
     logger.log(`Database ready!`);
 
     return;
@@ -333,6 +333,16 @@ export class DatabaseWorker {
     const possibleFiles = _flatten(result).map((row) => `${row}`);
 
     return possibleFiles.filter((file) => availableFiles.includes(file));
+  }
+
+  getAllCommitIds() {
+    const result = this.db.exec({
+      sql: "SELECT oid FROM commits;",
+      returnValue: "resultRows",
+      rowMode: 0,
+    });
+
+    return _flatten(result).map((row) => `${row}`);
   }
 }
 

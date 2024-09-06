@@ -145,6 +145,7 @@ export class Maestro extends EventEmitter<MaestroEvents> {
       tags: [],
       branches: [],
       remotes: [],
+      commitIds: [],
     },
     { deep: false },
   );
