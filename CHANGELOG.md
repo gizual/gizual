@@ -1,4 +1,4 @@
-## Gizual 1.0.0-alpha.XX (XX.XX.2024)
+## Gizual 1.0.0-alpha.24 (06.09.2024)
 
 ### Features
 

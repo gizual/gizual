@@ -1192,10 +1192,10 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
     lines: Line[],
     visualizationConfig: VisualizationConfig,
   ): Promise<SvgBlock | undefined> {
-    const { colorManager, requiredDpr, range, query, renderPool, visualSettings } = this;
+    const { colorManager, range, query, renderPool, visualSettings } = this;
 
     const baseCtx: BaseContext = {
-      dpr: requiredDpr,
+      dpr: 1,
       earliestTimestamp: range.since.date.getTime() / 1000, // TODO: should be removed
       latestTimestamp: range.until.date.getTime() / 1000, // TODO: should be removed
       selectedStartDate: range.since.date,

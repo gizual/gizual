@@ -38,6 +38,8 @@ export class MainController {
   @observable _numFiles = 0;
   @observable _isVisTypeModalOpen = false;
 
+  @observable _isSvgLoading = false;
+
   @observable private _preferredColorScheme: "light" | "dark" = "light";
 
   @observable private _pendingTransition = false;
@@ -187,7 +189,9 @@ export class MainController {
 
   @computed
   get isLoading() {
-    return this._repo.state === "loading" || this._maestro.state === "loading";
+    return (
+      this._repo.state === "loading" || this._maestro.state === "loading" || this._isSvgLoading
+    );
   }
 
   @computed
@@ -287,7 +291,9 @@ export class MainController {
     this._localQueryManager = manager;
   }
 
+  @action.bound
   async exportAsSVG() {
+    this._isSvgLoading = true;
     const blocks = await this._maestro.renderBlocksSvg();
     const numCols = Math.min(
       this.settings.visualizationSettings.canvas.masonryColumns.value,
@@ -371,6 +377,7 @@ export class MainController {
     element.href = window.URL.createObjectURL(blob);
     element.click();
     element.remove();
+    this._isSvgLoading = false;
   }
 
   get localQueryManager() {
