@@ -29,14 +29,14 @@ function getFileMenuItems({ query, disableItems, hideItems, highlightItems }: Fi
     },
     {
       key: "filePicker",
-      title: "Pick files",
+      title: "Pick Files",
       onClick: () => {
         query.updateQuery({ files: { path: [] } });
       },
     },
     {
       key: "lastEditedBy",
-      title: "Last edited by",
+      title: "Last Edited by",
       onClick: () => {
         query.updateQuery({ files: { lastEditedBy: "" } });
       },
@@ -60,7 +60,7 @@ function getFileMenuItems({ query, disableItems, hideItems, highlightItems }: Fi
     },
     {
       key: "changedInRef",
-      title: "Changed in revision",
+      title: "Changed in Revision",
       onClick: () => {
         query.updateQuery({ files: { changedInRef: "" } });
       },

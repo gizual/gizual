@@ -1,6 +1,7 @@
 import {
   IconCenterFocus,
   IconExport,
+  IconInfo,
   IconMagnifyMinus,
   IconMagnifyPlus,
   IconSettings,
@@ -16,8 +17,10 @@ import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 
 import { useQuery } from "@giz/maestro/react";
+import ChangelogMd from "../../../../../CHANGELOG.md?raw";
 import { AuthorTable } from "../author-panel";
 import { DialogProvider } from "../dialog-provider";
+import { MarkdownViewer } from "../markdown-viewer";
 
 import style from "./toolbar.module.scss";
 
@@ -28,6 +31,9 @@ const Toolbar = observer(() => {
   if (!canvas) return <div />;
   const { query } = useQuery();
   const isAuthorPanelVisible = query?.preset && "paletteByAuthor" in query.preset;
+
+  const version = import.meta.env.VERSION ?? "?";
+  const commitHash = import.meta.env.COMMIT_HASH ?? "?";
 
   return (
     <div className={style.Toolbar}>
@@ -43,7 +49,7 @@ const Toolbar = observer(() => {
         <DialogProvider
           title="Settings"
           trigger={
-            <Tooltip label={"Open settings panel"} position="right">
+            <Tooltip label={"Open Settings Panel"} position="right">
               <IconButton className={style.ToolbarButton} aria-label="Settings">
                 <IconSettings className={sharedStyle.ToolbarIcon} />
               </IconButton>
@@ -57,7 +63,7 @@ const Toolbar = observer(() => {
       </div>
 
       <div className={style.Toolbar__Section}>
-        <Tooltip label={"Zoom out"} position="right">
+        <Tooltip label={"Zoom Out"} position="right">
           <IconButton
             className={style.ToolbarButton}
             onClick={() => canvas.zoomOut()}
@@ -66,7 +72,7 @@ const Toolbar = observer(() => {
             <IconMagnifyMinus className={sharedStyle.ToolbarIcon} />
           </IconButton>
         </Tooltip>
-        <Tooltip label={"Zoom in"} position="right">
+        <Tooltip label={"Zoom In"} position="right">
           <IconButton
             className={style.ToolbarButton}
             onClick={() => canvas.zoomIn()}
@@ -75,7 +81,7 @@ const Toolbar = observer(() => {
             <IconMagnifyPlus className={sharedStyle.ToolbarIcon} />
           </IconButton>
         </Tooltip>
-        <Tooltip label={"Reset transform"} position="right">
+        <Tooltip label={"Reset View"} position="right">
           <IconButton
             className={style.ToolbarButton}
             onClick={() => canvas.center()}
@@ -90,7 +96,7 @@ const Toolbar = observer(() => {
         <div className={style.Toolbar__Section}>
           <DialogProvider
             trigger={
-              <Tooltip label="Open author modal">
+              <Tooltip label="Open Author Modal">
                 <IconButton style={{ width: 30, height: 30 }}>
                   <IconPeople />
                 </IconButton>
@@ -108,11 +114,26 @@ const Toolbar = observer(() => {
           <IconButton
             className={style.ToolbarButton}
             onClick={() => mainController.exportAsSVG()}
-            aria-label="Zoom out"
+            aria-label="Export as SVG"
           >
             <IconExport className={sharedStyle.ToolbarIcon} />
           </IconButton>
         </Tooltip>
+      </div>
+
+      <div className={style.Toolbar__Section}>
+        <DialogProvider
+          title={`Gizual ${version} - Build #${commitHash} - Changelog`}
+          trigger={
+            <Tooltip label={"Info"} position="right">
+              <IconButton className={style.ToolbarButton} aria-label="Information">
+                <IconInfo className={sharedStyle.ToolbarIcon} />
+              </IconButton>
+            </Tooltip>
+          }
+        >
+          <MarkdownViewer src={ChangelogMd} />
+        </DialogProvider>
       </div>
 
       {/*

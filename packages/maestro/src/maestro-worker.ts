@@ -386,7 +386,7 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
 
     const query: SearchQueryType = {
       branch: currentBranch,
-      type: "file-lines-full",
+      type: "file-lines",
       time: {
         rangeByDate: this.getDefaultRangeByDate(),
       },
@@ -890,12 +890,12 @@ export class MaestroWorker extends EventEmitter<MaestroWorkerEvents, MaestroWork
         // select files by last edited by
         throw new Error("Unsupported file selection");
       })
-      .with({ editedBy: Pattern._ }, (_f) => {
-        throw new Error("Unsupported file selection");
-      })
-      .with({ createdBy: Pattern._ }, (_f) => {
-        throw new Error("Unsupported file selection");
-      })
+      //.with({ editedBy: Pattern._ }, (_f) => {
+      //  throw new Error("Unsupported file selection");
+      //})
+      //.with({ createdBy: Pattern._ }, (_f) => {
+      //  throw new Error("Unsupported file selection");
+      //})
       .with({ changedInRef: Pattern.string }, async ({ changedInRef }) => {
         const commit = await this.explorerPool.getCommit({ rev: changedInRef });
 

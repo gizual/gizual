@@ -92,7 +92,7 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
           {mainController.repoName !== "" && mainController.repoName !== "?" && (
             <h3 className={style.InfoText}>Repository: {mainController.repoName}</h3>
           )}
-          <Modal opened={opened} onClose={close} centered title="Close repository">
+          <Modal opened={opened} onClose={close} centered title="Close Repository">
             <Stack gap="md">
               Do you wish to close the repository?
               <Button onClick={() => mainController.closeRepository()} variant="dangerous">
@@ -100,7 +100,7 @@ const DesktopTitleBar = observer(({ screen }: TitleBarProps) => {
               </Button>
             </Stack>
           </Modal>
-          <Tooltip label="Close repository">
+          <Tooltip label="Close Repository">
             <IconButton
               className={clsx(sharedStyle.CloseButton, style.IconClose)}
               onClick={open}
@@ -149,7 +149,7 @@ const MobileTitleBar = observer(({ screen }: TitleBarProps) => {
             {isAuthorPanelVisible && (
               <DialogProvider
                 trigger={
-                  <Tooltip label="Open author modal">
+                  <Tooltip label="Open Author Modal">
                     <IconButton style={{ width: 30, height: 30 }}>
                       <IconPeople />
                     </IconButton>

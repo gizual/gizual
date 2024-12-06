@@ -39,7 +39,7 @@ export const Footer = observer(() => {
     <div className={style.Footer}>
       <div className={style.LeftSection}>
         <DialogProvider
-          title="Changelog"
+          title={`Gizual ${version} - Build #${commitHash} - Changelog`}
           trigger={
             <p data-test-id="versionAndBuildHash">
               Gizual {version} - Build #{commitHash}

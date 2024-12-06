@@ -12,7 +12,7 @@
   justify-content: space-between;
   background-color: var(--background-tertiary);
   color: var(--foreground-primary);
-  padding: 0 0.75rem;
+  padding: 0 0.5rem;
   border-top: 1px solid var(--border-primary);
 
   @media (width < 1024px) {
@@ -38,6 +38,10 @@
   > * {
     padding: 0 1rem;
     border-right: 1px solid var(--border-primary);
+  }
+
+  > div:nth-child(1) {
+    padding: 0 1rem 0 0;
   }
 
   @media (width < 1024px) {
@@ -72,6 +76,11 @@
   > * {
     padding: 0 1rem;
   }
+
+  > div:nth-last-child(1) {
+    padding: 0 0 0 1rem;
+  }
+
   > p {
     padding-bottom: 3px;
   }

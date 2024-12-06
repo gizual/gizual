@@ -86,8 +86,8 @@ export const ColorPicker = observer(({ hexValue, onChange, onAccept }: ColorPick
               setColor(c);
             }}
           />
-          <p>Current value: {color}</p>
-          <h3>Color presets</h3>
+          <p>Value: {color}</p>
+          <h3>Color Presets</h3>
           <div className={style.ColorBand}>
             {colorManager.colorBand.map((c) => {
               return (

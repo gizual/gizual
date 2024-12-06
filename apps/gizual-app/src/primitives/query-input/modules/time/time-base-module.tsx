@@ -15,6 +15,7 @@ const TimeBaseQueryModule = observer(
     const query = useQuery();
     return (
       <BaseQueryModule
+        section="Time"
         {...props}
         menuItems={
           <TimeMenuItems

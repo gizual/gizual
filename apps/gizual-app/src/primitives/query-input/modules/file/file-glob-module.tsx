@@ -35,7 +35,7 @@ const FileGlobModule = observer(({ viewMode = "bar" }: FileGlobModuleProps) => {
       <div className={style.Module__Column}>
         <Input
           error={checkErrors(errors)}
-          label="Glob pattern"
+          label="Glob Pattern"
           value={value}
           placeholder="Example: *.tsx"
           onBlur={() => publishLocalQuery()}

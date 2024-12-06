@@ -23,7 +23,7 @@ const GradientColorCustomization = observer(({ vm }: { vm: VisTypeViewModel }) =
             onChange([...selectedColors]);
           }}
         />
-        <p className={style.GradientColorTitle}>Oldest change</p>
+        <p className={style.GradientColorTitle}>Oldest Change</p>
       </div>
 
       <div className={style.GradientColorCustomizationRow}>
@@ -34,7 +34,7 @@ const GradientColorCustomization = observer(({ vm }: { vm: VisTypeViewModel }) =
             onChange([...selectedColors]);
           }}
         />
-        <p className={style.GradientColorTitle}>Newest change</p>
+        <p className={style.GradientColorTitle}>Newest Change</p>
       </div>
     </div>
   );

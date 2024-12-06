@@ -10,6 +10,7 @@ import style from "./modules.module.scss";
 export type BaseQueryModuleProps = {
   icon?: React.ReactNode;
   title?: string;
+  section?: string;
   children?: React.ReactNode;
   hasSwapButton?: boolean;
   onSwap?: () => void;
@@ -27,6 +28,7 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
   const {
     icon,
     title,
+    section,
     children,
     hasSwapButton,
     onSwap,
@@ -52,6 +54,8 @@ export function BaseQueryModule(props: BaseQueryModuleProps) {
         <div className={style.QueryModuleHeader}>
           <div className={style.QueryModuleIconWithText}>
             {icon && <div className={style.QueryModuleIcon}>{icon}</div>}
+            {section && <div className={style.QueryModuleSection}>{section}</div>}
+            {section && title && <div className={style.QueryModuleSectionTitleSep} />}
             {title && <div className={style.QueryModuleTitle}>{title}</div>}
           </div>
           {hasHelpTooltip && (

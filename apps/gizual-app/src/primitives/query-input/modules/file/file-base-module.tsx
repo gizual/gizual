@@ -26,6 +26,7 @@ export const FileBaseQueryModule = observer(
       <BaseQueryModule
         hasHelpTooltip={hasHelpTooltip}
         helpContent={helpContent}
+        section="File"
         {...props}
         menuItems={
           <FileMenuItems
