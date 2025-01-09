@@ -184,10 +184,22 @@
   }
 }
 
-.QueryModuleTitle {
+.QueryModuleSection {
   @include text-sm;
   text-align: left;
   font-weight: 500;
+}
+
+.QueryModuleTitle {
+  @include text-sm;
+  text-align: left;
+  font-weight: 400;
+}
+
+.QueryModuleSectionTitleSep {
+  border-right: 1px solid var(--border-primary);
+  height: 15px;
+  width: 1px;
 }
 
 .QueryModuleIconWithText {

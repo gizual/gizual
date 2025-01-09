@@ -13,21 +13,11 @@ const AvailableFilesQueryConditions = [
   Type.Object({
     lastEditedBy: StringOrArray,
   }),
-  Type.Object({ editedBy: StringOrArray }),
-  Type.Object({ createdBy: StringOrArray }),
   Type.Object({ changedInRef: StringOrArray }),
   Type.Object({ contains: StringOrArray }),
 ];
 
-const ExclusiveFilesQueryCondition = Type.Union(AvailableFilesQueryConditions);
-const LogicalFilesQuery = Type.Array(ExclusiveFilesQueryCondition, { minItems: 2 });
-
-const FilesQuery = Type.Union([
-  ...AvailableFilesQueryConditions,
-  Type.Object({ $and: LogicalFilesQuery }),
-  Type.Object({ $or: LogicalFilesQuery }),
-  Type.Object({ $not: ExclusiveFilesQueryCondition }),
-]);
+const FilesQuery = Type.Union(AvailableFilesQueryConditions);
 
 // Available query conditions for `time`
 const AvailableTimeQueryConditions = [
@@ -37,15 +27,6 @@ const AvailableTimeQueryConditions = [
 ];
 
 const TimeQuery = Type.Union(AvailableTimeQueryConditions);
-
-// Available query conditions for `highlights`
-const Styles = Type.Object({
-  fill: Type.Optional(Type.String()),
-  $if: Type.Optional(Type.String()),
-  stroke: Type.Optional(Type.String()),
-});
-
-const StylesQuery = Type.Array(Styles);
 
 const RenderType = Type.Union([
   Type.Literal("author-mosaic"),
@@ -70,7 +51,6 @@ export const SearchQuery = Type.Object({
   preset: Type.Optional(PresetQuery),
   time: Type.Optional(TimeQuery),
   files: Type.Optional(FilesQuery),
-  styles: Type.Optional(StylesQuery),
 });
 
 export type SearchQueryType = Static<typeof SearchQuery>;

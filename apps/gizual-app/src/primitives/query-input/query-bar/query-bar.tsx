@@ -28,11 +28,11 @@ export const QueryBar = observer(() => {
 
           {import.meta.env.DEV && (
             <DialogProvider
-              title="Advanced Query Builder"
+              title="Advanced Query Editor"
               trigger={
-                <Tooltip label="Open advanced query builder">
+                <Tooltip label="Open Advanced Query Editor">
                   <IconButton
-                    aria-label="Advanced Query Builder"
+                    aria-label="Advanced Query Editor"
                     className={style.AdvancedSearchIconButton}
                   >
                     <IconCommandLine className={style.AdvancedSearchIcon} />

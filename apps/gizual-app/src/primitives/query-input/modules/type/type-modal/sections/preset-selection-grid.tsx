@@ -7,8 +7,8 @@ import { PresetQueryKeys } from "@giz/query";
 import { VisTypeViewModel } from "../type-modal.vm";
 
 const StyleRadioTitle: Record<PresetQueryKeys, string> = {
-  gradientByAge: "Gradient by age",
-  paletteByAuthor: "Palette by author",
+  gradientByAge: "Gradient by Age",
+  paletteByAuthor: "Palette by Author",
 };
 
 const StyleRadioDescriptions: Record<PresetQueryKeys, string> = {

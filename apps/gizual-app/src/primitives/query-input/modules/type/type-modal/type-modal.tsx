@@ -25,11 +25,11 @@ const TypePlaceholderModal = observer(({ withSplitPreview, vm }: TypePlaceholder
       children: <TypeSelectionGrid vm={vm} />,
     },
     {
-      title: "Select Preset",
+      title: "Select Visual Encoding",
       children: <PresetSelectionGrid vm={vm} />,
     },
     {
-      title: "Customize Preset",
+      title: "Customize Visual Encoding",
       children: (
         <>
           {vm.selectedPreset === "gradientByAge" && <GradientColorCustomization vm={vm} />}

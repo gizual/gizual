@@ -62,7 +62,7 @@ const TimeSinceFirstCommitByModule = observer(
       <TimeBaseQueryModule
         containsErrors={checkErrors(errors)}
         icon={<IconClock />}
-        title={"Since first commit by"}
+        title={"Since First Commit by"}
         hasSwapButton
         disableItems={["sinceFirstCommitBy"]}
         highlightItems={["sinceFirstCommitBy"]}

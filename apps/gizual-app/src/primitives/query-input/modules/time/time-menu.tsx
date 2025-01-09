@@ -22,7 +22,7 @@ function getTimeMenuItems({ query, disableItems, hideItems, highlightItems }: Ti
   const items: ItemType[] = [
     {
       key: "sinceFirstCommitBy",
-      title: "Since first commit by",
+      title: "Since First Commit by",
       onClick: () => {
         query.setTimeMode("sinceFirstCommitBy");
       },
@@ -30,14 +30,14 @@ function getTimeMenuItems({ query, disableItems, hideItems, highlightItems }: Ti
     },
     {
       key: "rangeByDate",
-      title: "Range by date",
+      title: "Range by Date",
       onClick: () => {
         query.setTimeMode("rangeByDate");
       },
     },
     {
       key: "rangeByRef",
-      title: "Range by revision",
+      title: "Range by Revision",
       onClick: () => {
         query.setTimeMode("rangeByRef");
       },

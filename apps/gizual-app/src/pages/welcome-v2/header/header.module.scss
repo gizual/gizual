@@ -20,8 +20,8 @@
   backdrop-filter: blur(4px);
   opacity: 0.95;
 
-  @media (width > 768px) {
-    height: 65px;
+  @media (width > 48rem) {
+    height: 4.0625rem; // 65px
   }
 
   nav {
@@ -60,7 +60,7 @@
   padding: 0 1.25rem;
   width: 100%;
 
-  @media (width > 640px) {
+  @media (width > 40rem) {
     padding: 0 1.5rem;
   }
 }
@@ -72,7 +72,7 @@
   justify-content: space-between;
   height: 3rem;
 
-  @media (width > 768px) {
+  @media (width > 48rem) {
     height: 4rem;
   }
 }
@@ -90,7 +90,7 @@
   height: 1.5rem;
   width: auto;
 
-  @media (width > 640px) {
+  @media (width > 40rem) {
     height: 2rem;
   }
 }
@@ -100,7 +100,7 @@
   @include font-branding;
   color: var(--foreground-primary);
 
-  @media (width > 640px) {
+  @media (width > 40rem) {
     @include text-2xl;
   }
 }
@@ -116,7 +116,7 @@
   aspect-ratio: auto;
   height: 1.5rem;
 
-  @media (width > 640px) {
+  @media (width > 40rem) {
     height: 2rem;
   }
 

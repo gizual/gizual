@@ -24,7 +24,7 @@ export const SettingsPage = observer(() => {
   return (
     <div className={style.SettingsContainer}>
       <div className={style.SettingsActionBar}>
-        <Tooltip label="Load settings from JSON">
+        <Tooltip label="Load Settings from JSON">
           <IconButton
             onClick={() => settingsController.importSettingsJSON()}
             aria-label="Load settings from JSON"
@@ -32,7 +32,7 @@ export const SettingsPage = observer(() => {
             <IconOpen />
           </IconButton>
         </Tooltip>
-        <Tooltip label="Download settings as JSON">
+        <Tooltip label="Download Settings as JSON">
           <IconButton
             onClick={() => settingsController.downloadSettingsJSON()}
             aria-label="Download settings as JSON"

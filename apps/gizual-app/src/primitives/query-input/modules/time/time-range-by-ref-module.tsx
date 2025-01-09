@@ -93,7 +93,7 @@ const TimeRangeByRefModule = observer(({ viewMode = "bar" }: TimeRangeByRefModul
     <TimeBaseQueryModule
       containsErrors={checkErrors(errors).error}
       icon={<IconClock />}
-      title={"Range by revision"}
+      title={"Range by Revision"}
       hasSwapButton
       disableItems={["rangeByRef"]}
       highlightItems={["rangeByRef"]}

@@ -16,7 +16,9 @@ declare const classNames: {
   readonly TypeDialogGridItemImage: "TypeDialogGridItemImage";
   readonly TypeDialogActionButtons: "TypeDialogActionButtons";
   readonly QueryModuleIcon: "QueryModuleIcon";
+  readonly QueryModuleSection: "QueryModuleSection";
   readonly QueryModuleTitle: "QueryModuleTitle";
+  readonly QueryModuleSectionTitleSep: "QueryModuleSectionTitleSep";
   readonly QueryModuleIconWithText: "QueryModuleIconWithText";
   readonly QueryModuleHeader: "QueryModuleHeader";
   readonly SpacedChildren: "SpacedChildren";

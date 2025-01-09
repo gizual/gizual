@@ -66,10 +66,10 @@ function GradientLegend({
     return metrics.width;
   }, []);
 
-  const startTextWidth = measureTextWidth(startText, 12);
-  const endTextWidth = measureTextWidth(endText, 12);
+  const startTextWidth = measureTextWidth(startText, 10);
+  const endTextWidth = measureTextWidth(endText, 10);
 
-  const width = Math.max(desiredWidth, startTextWidth + endTextWidth + paddingX * 4);
+  const width = desiredWidth; //Math.max(desiredWidth, startTextWidth + endTextWidth + paddingX * 4);
   if (width > desiredWidth) {
     logger.debug(
       "Gradient legend width was adjusted to be larger than desired width due to text size constraints.",
@@ -104,30 +104,28 @@ function GradientLegend({
           </linearGradient>
         </defs>
 
-        <g id="g-legend" style={{ transform: `translate(0px, ${8 + paddingTop}px)` }}>
-          <>
-            <text
-              className={style.GradientTextElement}
-              x={paddingX + startTextWidth / 2}
-              y={0}
-              fontSize={10}
-              textAnchor="middle"
-              dominantBaseline="middle"
-            >
-              {startText}
-            </text>
+        <g id="g-legend" width={width} style={{ transform: `translate(0px, ${8 + paddingTop}px)` }}>
+          <text
+            className={style.GradientTextElement}
+            x={0}
+            y={0}
+            fontSize={10}
+            textAnchor="left"
+            dominantBaseline="middle"
+          >
+            {startText}
+          </text>
 
-            <text
-              className={style.GradientTextElement}
-              x={width - endTextWidth / 2 - paddingX}
-              y={0}
-              fontSize={10}
-              textAnchor="middle"
-              dominantBaseline="middle"
-            >
-              {endText}
-            </text>
-          </>
+          <text
+            className={style.GradientTextElement}
+            x={width - endTextWidth}
+            y={0}
+            fontSize={10}
+            textAnchor="left"
+            dominantBaseline="middle"
+          >
+            {endText}
+          </text>
         </g>
 
         <g id="g-gradient">

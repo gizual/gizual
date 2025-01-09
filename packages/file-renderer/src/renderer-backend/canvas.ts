@@ -70,7 +70,12 @@ export class CanvasRenderer implements BaseRenderer {
     if (!this.canvas || !this.ctx) throw new Error("Drawing context was not initialized.");
     const { x, y } = evaluateTransform(attr.x, attr.y, this.transform);
 
-    this.ctx.font = `${Number(attr.fontSize) * this.dpr ?? 12 * this.dpr}px Iosevka Extended`;
+    let fontSize = 12 * this.dpr;
+    if (attr.fontSize && this.dpr > 0) {
+      fontSize = Number(attr.fontSize) * this.dpr;
+    }
+
+    this.ctx.font = `${fontSize}px Iosevka Extended`;
     this.ctx.fillStyle = attr.fill ?? "#000000";
     this.ctx.fillText(text, x, y);
   }

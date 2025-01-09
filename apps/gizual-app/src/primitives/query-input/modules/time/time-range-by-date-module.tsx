@@ -131,7 +131,7 @@ const TimeRangeByDateModule = observer(({ viewMode = "bar" }: TimeRangeByDateMod
     <TimeBaseQueryModule
       containsErrors={checkErrors(errors)}
       icon={<IconClock />}
-      title={"Range by date"}
+      title={"Range by Date"}
       hasSwapButton
       disableItems={["rangeByDate"]}
       highlightItems={["rangeByDate"]}
@@ -139,20 +139,7 @@ const TimeRangeByDateModule = observer(({ viewMode = "bar" }: TimeRangeByDateMod
       helpContent="Select a date range to filter the results by. Additionally, this module requires the selection of a branch."
     >
       <div className={style.SpacedChildren}>
-        <DatePicker
-          aria-label="Oldest point in time"
-          error={checkErrors(errors)}
-          value={startDate.toDate()}
-          onChange={onChangeStartDate}
-        />
-        <DatePicker
-          aria-label="Newest point in time"
-          error={checkErrors(errors)}
-          value={endDate.toDate()}
-          onChange={onChangeEndDate}
-        />
-
-        <Tooltip label="Toggle timeline visibility" position="top" withArrow>
+        <Tooltip label="Toggle Timeline Visibility" position="top" withArrow>
           <IconButton
             className={clsx(
               style.ToggleButton,
@@ -166,6 +153,19 @@ const TimeRangeByDateModule = observer(({ viewMode = "bar" }: TimeRangeByDateMod
             />
           </IconButton>
         </Tooltip>
+
+        <DatePicker
+          aria-label="Oldest point in time"
+          error={checkErrors(errors)}
+          value={startDate.toDate()}
+          onChange={onChangeStartDate}
+        />
+        <DatePicker
+          aria-label="Newest point in time"
+          error={checkErrors(errors)}
+          value={endDate.toDate()}
+          onChange={onChangeEndDate}
+        />
 
         <div
           className={style.QueryModuleIconWithText}
