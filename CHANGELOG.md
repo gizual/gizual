@@ -2,9 +2,9 @@
 
 ### Changes
 
-- **app:general:** Streamline UI text localisation
-- **app:general:** Fix UI spacing inconsistencies
-- **app:general:** Expose changelog modal on mobile
+- **app:frontend:** Streamline UI text localization
+- **app:frontend:** Fix UI spacing inconsistencies
+- **app:frontend:** Expose changelog modal on mobile
 
 ---
 
