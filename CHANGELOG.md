@@ -1,3 +1,13 @@
+## Gizual 1.0.0-alpha.25 (09.01.2025)
+
+### Changes
+
+- **app:general:** Streamline UI text localisation
+- **app:general:** Fix UI spacing inconsistencies
+- **app:general:** Expose changelog modal on mobile
+
+---
+
 ## Gizual 1.0.0-alpha.24 (06.09.2024)
 
 ### Features

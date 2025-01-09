@@ -63,6 +63,5 @@ type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type PresetQueryKeys = KeysOfUnion<PresetQueryType>;
 
 export function getSchema(): any {
-  console.log(Type.Strict(SearchQuery));
   return { ...Type.Strict(SearchQuery), additionalProperties: false };
 }
