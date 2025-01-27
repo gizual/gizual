@@ -69,3 +69,35 @@ cd gizual
 yarn            # install dependencies
 yarn dev        # runs server at http://localhost:5173
 ```
+
+---
+
+### Academic Background
+
+This project was developed as part of the following two Master's theses at [Graz University of Technology](https://tugraz.at).
+
+Gizual Data Layer: Enabling Browser-Based Exploration of Git Repositories (Stefan Schintler, 2024) - [Thesis](https://ftp.isds.tugraz.at/pub/theses/sschintler-2024-msc.pdf)
+
+```bibtex
+@mastersthesis{schintler2024gizual,
+  title     = "Gizual Data Layer: Enabling Browser-Based Exploration of Git Repositories",
+  author    = "Stefan Schintler",
+  date      = "2024-12-09",
+  school    = "Graz University of Technology, Austria",
+  url       = "https://ftp.isds.tugraz.at/pub/theses/sschintler-2024-msc.pdf"
+}
+```
+
+Gizual User Interface: Browser-Based Visualisation for Git Repositories (Andreas Steinkellner, 2024) - [Thesis](https://ftp.isds.tugraz.at/pub/theses/asteinkellner-2024-msc.pdf)
+
+```bibtex
+@mastersthesis{steinkellner2024gizual,
+  title     = "Gizual User Interface: Browser-Based Visualisation for Git Repositories",
+  author    = "Andreas Steinkellner",
+  date      = "2024-12-09",
+  school    = "Graz University of Technology, Austria",
+  url       = "https://ftp.isds.tugraz.at/pub/theses/asteinkellner-2024-msc.pdf"
+}
+```
+
+Additional resources / slides / talks can be found on [our website](https://gizual.com/resources).
