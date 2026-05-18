@@ -5,6 +5,10 @@
 Gizual (pronounced `/ˈgɪʒ.u.əl/`, a combination of the words "git" and "visual") is a tool to visualize Git repositories.  
 A deployed live version of the project can be accessed at [gizual.com](https://www.gizual.com).
 
+Gizual is sponsored by Acurion: [acurion.at](https://www.acurion.at)
+
+<img src="./docs/images/acurion-slogan.png" width="300px"/>
+
 ![Gizual Screenshot](./docs/images/screenshot.png)
 
 ### Browser Compatibility
